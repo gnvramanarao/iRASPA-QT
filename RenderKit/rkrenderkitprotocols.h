@@ -1,0 +1,333 @@
+/*************************************************************************************************************
+ Copyright (c) 2006-2019 David Dubbeldam, Sofia Calero, Thijs J.H. Vlugt.
+
+    D.Dubbeldam@uva.nl            http://www.acmm.nl/molsim/users/dubbeldam/index.html
+    scaldia@upo.es                http://www.upo.es/raspa/sofiacalero.php
+    t.j.h.vlugt@tudelft.nl        http://homepage.tudelft.nl/v9k6y
+
+ Permission is hereby granted, free of charge, to any person
+ obtaining a copy of this software and associated documentation
+ files (the "Software"), to deal in the Software without
+ restriction, including without limitation the rights to use,
+ copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the
+ Software is furnished to do so, subject to the following
+ conditions:
+
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ OTHER DEALINGS IN THE SOFTWARE.
+ *************************************************************************************************************/
+
+#pragma once
+
+#include <QString>
+#include <QColor>
+#include <QDate>
+#include <QImage>
+#include <vector>
+#include <mathkit.h>
+#include <foundationkit.h>
+#include <symmetrykit.h>
+
+#include "rklight.h"
+#include "rkcamera.h"
+
+// forward declaration
+struct RKInPerInstanceAttributesAtoms;
+struct RKInPerInstanceAttributesBonds;
+struct RKInPerInstanceAttributesText;
+
+
+enum class RKBackgroundType
+{
+  color = 0, linearGradient = 1, radialGradient = 2, image = 3
+};
+
+enum class RKBondColorMode
+{
+  uniform = 0, split = 1, smoothed_split = 2, multiple_values = 3
+};
+
+enum class RKRenderQuality
+{
+  low = 0, medium = 1, high = 2, picture = 3
+};
+
+enum class RKImageQuality
+{
+  rgb_8_bits = 0, rgb_16_bits = 1, cmyk_8_bits = 2, cmyk_16_bits = 3
+};
+
+enum class RKImageDPI
+{
+  dpi_72 = 0, dpi_75 = 1, dpi_150 = 2, dpi_300 = 3, dpi_600 = 4, dpi_1200 = 5
+};
+
+enum class RKImageDimensions
+{
+  physical = 0, pixels = 1
+};
+
+enum class RKImageUnits
+{
+  inch = 0, cm = 1
+};
+
+enum class RKSelectionStyle
+{
+  WorleyNoise3D = 0, striped = 1, glow = 2, multiple_values = 3
+};
+
+enum class RKTextStyle
+{
+  flatBillboard = 0
+};
+
+enum class RKTextEffect
+{
+  none = 0, glow = 1, pulsate = 2, squiggle = 3, multiple_values = 4
+};
+
+enum class RKTextType
+{
+  none = 0, displayName = 1, identifier = 2, chemicalElement = 3, forceFieldType = 4, position = 5, charge = 6, multiple_values = 7
+};
+
+enum class RKTextAlignment
+{
+  center = 0, left = 1, right = 2, top = 3, bottom = 4, topLeft = 5, topRight = 6, bottomLeft = 7, bottomRight = 8, multiple_values = 9
+};
+
+
+
+class RKRenderStructure
+{
+public:
+  virtual void computeBonds() = 0;
+
+  virtual QString displayName() const = 0;
+
+  virtual bool isVisible() const = 0;
+
+  virtual std::vector<double3> atomPositions() const = 0;
+  virtual std::vector<double3> bondPositions() const = 0;
+
+  virtual std::vector<double2> potentialParameters() const = 0;
+
+  virtual std::vector<RKInPerInstanceAttributesAtoms> renderAtoms() const = 0;
+
+  virtual bool clipAtomsAtUnitCell() const = 0;
+  virtual bool clipBondsAtUnitCell() const = 0;
+
+  virtual std::vector<RKInPerInstanceAttributesText> renderTextData() const = 0;
+  virtual RKTextType renderTextType() const = 0;
+  virtual QString renderTextFont() const = 0;
+  virtual RKTextAlignment renderTextAlignment() const = 0;
+  virtual RKTextStyle renderTextStyle() const = 0;
+  virtual QColor renderTextColor() const = 0;
+  virtual double renderTextScaling() const = 0;
+  virtual double3 renderTextOffset() const = 0;
+
+  virtual std::vector<RKInPerInstanceAttributesAtoms> renderSelectedAtoms() const = 0;
+  virtual RKSelectionStyle renderSelectionStyle() const = 0;
+  virtual double renderAtomSelectionIntensity() const = 0;
+  virtual double renderSelectionScaling() const = 0;
+  virtual double renderSelectionFrequency() const = 0;
+  virtual double renderSelectionDensity() const = 0;
+  virtual double renderSelectionStripesDensity() const = 0;
+  virtual double renderSelectionStripesFrequency() const = 0;
+  virtual double renderSelectionWorleyNoise3DFrequency() const = 0;
+  virtual double renderSelectionWorleyNoise3DJitter() const = 0;
+
+  virtual double3 CartesianPosition(double3 position, int3 replicaPosition) const = 0;
+
+  virtual std::vector<RKInPerInstanceAttributesBonds> renderInternalBonds() const = 0;
+  virtual std::vector<RKInPerInstanceAttributesBonds> renderExternalBonds() const = 0;
+  virtual std::vector<RKInPerInstanceAttributesBonds> renderSelectedBonds() const = 0;
+
+  virtual std::vector<RKInPerInstanceAttributesAtoms> renderUnitCellSpheres() const = 0;
+  virtual std::vector<RKInPerInstanceAttributesBonds> renderUnitCellCylinders() const = 0;
+
+  virtual int numberOfAtoms() const = 0;
+  virtual int numberOfInternalBonds() const = 0;
+  virtual int numberOfExternalBonds() const = 0;
+
+  virtual bool drawUnitCell() const = 0;
+  virtual bool drawAtoms() const = 0;
+  virtual bool drawBonds() const = 0;
+
+  virtual simd_quatd orientation() const = 0;
+  virtual double3 origin() const = 0;
+
+  // material properties
+  virtual QColor atomAmbientColor() const = 0;
+  virtual QColor atomDiffuseColor() const = 0;
+  virtual QColor atomSpecularColor() const = 0;
+  virtual double atomAmbientIntensity() const = 0;
+  virtual double atomDiffuseIntensity() const = 0;
+  virtual double atomSpecularIntensity() const = 0;
+  virtual double atomShininess() const = 0;
+
+  virtual std::shared_ptr<SKCell> cell() const = 0;
+  virtual SKBoundingBox boundingBox() const = 0;
+  virtual SKBoundingBox transformedBoundingBox() const = 0;
+  virtual void expandSymmetry() = 0;
+  virtual void reComputeBoundingBox() = 0;
+
+  //virtual atomCacheAmbientOcclusionTexture: [CUnsignedChar] {get set}
+
+  virtual bool hasExternalBonds() const = 0;
+
+  virtual double atomHue() const = 0;
+  virtual double atomSaturation() const = 0;
+  virtual double atomValue() const = 0;
+
+  virtual double atomScaleFactor() const = 0;
+  virtual bool atomAmbientOcclusion() const = 0;
+  virtual int atomAmbientOcclusionPatchNumber() const = 0;
+  virtual void setAtomAmbientOcclusionPatchNumber(int) = 0;
+  virtual int atomAmbientOcclusionPatchSize() const = 0;
+  virtual void setAtomAmbientOcclusionPatchSize(int) = 0;
+  virtual int atomAmbientOcclusionTextureSize() const = 0;
+  virtual void setAtomAmbientOcclusionTextureSize(int) = 0;
+
+  virtual bool atomHDR() const = 0;
+  virtual double atomHDRExposure() const = 0;
+  virtual double atomHDRBloomLevel() const = 0;
+
+
+  virtual bool bondAmbientOcclusion() const = 0;
+  virtual QColor bondAmbientColor() const = 0;
+  virtual QColor bondDiffuseColor() const = 0;
+  virtual QColor bondSpecularColor() const = 0;
+  virtual double bondAmbientIntensity() const = 0;
+  virtual double bondDiffuseIntensity() const = 0;
+  virtual double bondSpecularIntensity() const = 0;
+  virtual double bondShininess() const = 0;
+
+  virtual double bondScaleFactor() const = 0;
+  virtual RKBondColorMode bondColorMode() const = 0;
+
+  virtual bool bondHDR() const = 0;
+  virtual double bondHDRExposure() const = 0;
+  virtual double bondHDRBloomLevel() const = 0;
+
+  virtual double bondHue() const = 0;
+  virtual double bondSaturation() const = 0;
+  virtual double bondValue() const = 0;
+
+  // unit cell
+  virtual double unitCellScaleFactor() const = 0;
+  virtual QColor unitCellDiffuseColor() const = 0;
+  virtual double unitCellDiffuseIntensity() const = 0;
+
+
+  // adsorption surface
+  virtual std::vector<double3> atomUnitCellPositions() const = 0;
+  virtual bool drawAdsorptionSurface() const = 0;
+  virtual double adsorptionSurfaceOpacity() const = 0;
+  virtual double adsorptionSurfaceIsoValue() const = 0;
+  virtual double adsorptionSurfaceMinimumValue() const = 0;
+  virtual void setAdsorptionSurfaceMinimumValue(double value) = 0;
+  virtual int adsorptionSurfaceSize() const = 0;
+  virtual double2 adsorptionSurfaceProbeParameters() const = 0;
+
+  virtual bool adsorptionSurfaceFrontSideHDR() const = 0;
+  virtual double adsorptionSurfaceFrontSideHDRExposure() const = 0;
+  virtual QColor adsorptionSurfaceFrontSideAmbientColor() const = 0;
+  virtual QColor adsorptionSurfaceFrontSideDiffuseColor() const = 0;
+  virtual QColor adsorptionSurfaceFrontSideSpecularColor() const = 0;
+  virtual double adsorptionSurfaceFrontSideDiffuseIntensity() const = 0;
+  virtual double adsorptionSurfaceFrontSideAmbientIntensity() const = 0;
+  virtual double adsorptionSurfaceFrontSideSpecularIntensity() const = 0;
+  virtual double adsorptionSurfaceFrontSideShininess() const = 0;
+
+  virtual bool adsorptionSurfaceBackSideHDR() const = 0;
+  virtual double adsorptionSurfaceBackSideHDRExposure() const = 0;
+  virtual QColor adsorptionSurfaceBackSideAmbientColor() const = 0;
+  virtual QColor adsorptionSurfaceBackSideDiffuseColor() const = 0;
+  virtual QColor adsorptionSurfaceBackSideSpecularColor() const = 0;
+  virtual double adsorptionSurfaceBackSideDiffuseIntensity() const = 0;
+  virtual double adsorptionSurfaceBackSideAmbientIntensity() const = 0;
+  virtual double adsorptionSurfaceBackSideSpecularIntensity() const = 0;
+  virtual double adsorptionSurfaceBackSideShininess() const = 0;
+
+  virtual void recomputeDensityProperties() = 0;
+  virtual void setStructureHeliumVoidFraction(double value) = 0;
+  virtual void setStructureNitrogenSurfaceArea(double value) = 0;
+};
+
+class RKRenderDataSource
+{
+public:
+  virtual std::shared_ptr<RKCamera> camera() const = 0;
+  virtual std::vector<int> numberOfScenes() const = 0;
+  virtual int numberOfMovies(int sceneIndex) const = 0;
+
+  virtual std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> renderStructures() const = 0;
+  virtual std::vector<std::shared_ptr<RKLight>>& renderLights() = 0;
+
+  virtual std::vector<RKInPerInstanceAttributesAtoms> renderMeasurementPoints() const = 0;
+  virtual std::vector<RKRenderStructure> renderMeasurementStructure() const = 0;
+
+  virtual SKBoundingBox renderBoundingBox() const = 0;
+
+  virtual bool hasSelectedObjects() const = 0;
+
+  virtual RKBackgroundType renderBackgroundType() const = 0;
+  virtual QColor renderBackgroundColor() const = 0;
+  virtual const QImage renderBackgroundCachedImage() = 0;
+
+  virtual int renderImageNumberOfPixels() const = 0;
+  virtual double renderImagePhysicalSizeInInches() const = 0;
+
+  virtual bool showBoundingBox() const = 0;
+  virtual std::vector<RKInPerInstanceAttributesAtoms> renderBoundingBoxSpheres() const = 0;
+  virtual std::vector<RKInPerInstanceAttributesBonds> renderBoundingBoxCylinders() const = 0;
+};
+
+class RKRenderViewController
+{
+public:
+  virtual void redraw() = 0;
+  virtual void redrawWithLowQuality() = 0;
+  virtual void redrawWithMediumQuality() = 0;
+  virtual void redrawWithHighQuality() = 0;
+  virtual void redrawWithPictureQuality() = 0;
+
+  virtual void setRenderDataSource(std::shared_ptr<RKRenderDataSource> source) = 0;
+  virtual void reloadData() = 0;
+  virtual void reloadData(RKRenderQuality ambientOcclusionQuality) = 0;
+  virtual void reloadAmbientOcclusionData() = 0;
+  virtual void reloadRenderData() = 0;
+  virtual void reloadSelectionData() = 0;
+  virtual void reloadRenderMeasurePointsData() = 0;
+  virtual void reloadBoundingBoxData() = 0;
+
+  virtual void reloadBackgroundImage() = 0;
+
+  virtual void invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>> structures) = 0;
+  virtual void invalidateIsosurface(std::vector<std::shared_ptr<RKRenderStructure>> structures) = 0;
+  virtual void computeHeliumVoidFraction(std::vector<std::shared_ptr<RKRenderStructure>> structures) = 0;
+  virtual void computeNitrogenSurfaceArea(std::vector<std::shared_ptr<RKRenderStructure>> structures) = 0;
+
+  virtual void updateTransformUniforms() = 0;
+  virtual void updateStructureUniforms() = 0;
+  virtual void updateIsosurfaceUniforms() = 0;
+  virtual void updateLightUniforms() = 0;
+
+  virtual void updateVertexArrays() = 0;
+
+  virtual QImage renderSceneToImage(int width, int height) = 0;
+
+  virtual std::array<int,4> pickTexture(int x, int y, int width, int height) = 0;
+};

@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/iRASPA">
+        <file>iRASPA-icon-512x512.png</file>
+        <file>RightPanelCollapse.png</file>
+        <file>LeftPanelCollapse.png</file>
+        <file>BottomPanelCollapse.png</file>
+        <file>ProjectListController.png</file>
+        <file>FrameListController.png</file>
+        <file>MovieListController.png</file>
+        <file>expanded.png</file>
+        <file>collapsed.png</file>
+        <file>NSAddTemplate.png</file>
+        <file>NSRemoveTemplate.png</file>
+    </qresource>
+</RCC>

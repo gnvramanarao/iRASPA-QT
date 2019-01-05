@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/iRASPA">
+        <file>iRASPA-icon-512x512.png</file>
+    </qresource>
+</RCC>

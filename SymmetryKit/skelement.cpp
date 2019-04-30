@@ -169,7 +169,7 @@ std::vector<SKElement> PredefinedElements::predefinedElements =
 std::map<QString, int> PredefinedElements::atomicNumberData =
 {
     {QString("H"), 1}, {QString("He"), 2}, {QString("Li"), 3}, {QString("Be"), 4}, {QString("B"), 5}, {QString("C"), 6}, {QString("N"), 7}, {QString("O"), 8}, {QString("F"), 9},
-    {QString("Ne"), 10}, {QString("Na"), 11}, {QString("Mg"), 12}, {QString("Al"), 13}, {QString("Si"), 14}, {QString("P"), 15}, {QString("S"), 16,}, {QString("CQString("), 17}, {QString("Ar"), 18}, {QString("K"), 19},
+    {QString("Ne"), 10}, {QString("Na"), 11}, {QString("Mg"), 12}, {QString("Al"), 13}, {QString("Si"), 14}, {QString("P"), 15}, {QString("S"), 16,}, {QString("Cl"), 17}, {QString("Ar"), 18}, {QString("K"), 19},
     {QString("Ca"), 20}, {QString("Sc"), 21}, {QString("Ti"), 22}, {QString("V"), 23}, {QString("Cr"), 24}, {QString("Mn"), 25}, {QString("Fe"), 26}, {QString("Co"), 27}, {QString("Ni"), 28}, {QString("Cu"), 29},
     {QString("Zn"), 30}, {QString("Ga"), 31}, {QString("Ge"), 32}, {QString("As"), 33}, {QString("Se"), 34,}, {QString("Br"), 35}, {QString("Kr"), 36}, {QString("Rb"), 37}, {QString("Sr"), 38}, {QString("Y"), 39},
     {QString("Zr"), 40}, {QString("Nb"), 41}, {QString("Mo"), 42}, {QString("Tc"), 43}, {QString("Ru"), 44}, {QString("Rh"), 45}, {QString("Pd"), 46}, {QString("Ag"), 47}, {QString("Cd"), 48}, {QString("In"), 49},

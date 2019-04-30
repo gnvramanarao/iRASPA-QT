@@ -44,6 +44,27 @@ stdx::optional<int> SKSpaceGroup::HallNumber(QString string)
   for(int i=0;i<=530;i++)
   {
     QString storedSpaceGroupString = SKSpaceGroup::_spaceGroupData[i].HallString().simplified().toLower();
+
+    if(storedSpaceGroupString == spaceGroupString)
+    {
+      return i;
+    }
+
+    if("'" + storedSpaceGroupString + "'" == spaceGroupString)
+    {
+      return i;
+    }
+
+    if("\"" + storedSpaceGroupString + "\"" == spaceGroupString)
+    {
+      return i;
+    }
+  }
+
+  for(int i=0;i<=530;i++)
+  {
+    QString storedSpaceGroupString = SKSpaceGroup::_spaceGroupData[i].HallString().simplified().toLower().remove(' ');
+
     if(storedSpaceGroupString == spaceGroupString)
     {
       return i;
@@ -69,6 +90,27 @@ stdx::optional<int> SKSpaceGroup::HallNumberFromHMString(QString string)
   for(int i=0;i<=530;i++)
   {
     QString storedSpaceGroupString = SKSpaceGroup::_spaceGroupData[i].HMString().simplified().toLower();
+
+    if(storedSpaceGroupString == spaceGroupString)
+    {
+      return i;
+    }
+
+    if("'" + storedSpaceGroupString + "'" == spaceGroupString)
+    {
+      return i;
+    }
+
+    if("\"" + storedSpaceGroupString + "\"" == spaceGroupString)
+    {
+      return i;
+    }
+  }
+
+  for(int i=0;i<=530;i++)
+  {
+    QString storedSpaceGroupString = SKSpaceGroup::_spaceGroupData[i].HMString().simplified().toLower().remove(' ');
+
     if(storedSpaceGroupString == spaceGroupString)
     {
       return i;

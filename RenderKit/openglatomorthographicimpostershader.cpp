@@ -310,9 +310,20 @@ in vec4 instanceSpecularColor;
 void main(void)
 {
   vec4 scale = structureUniforms.atomScaleFactor * instanceScale;
-  vs_out.ambient=lightUniforms.lights[0].ambient * structureUniforms.atomAmbientColor * instanceAmbientColor;
-  vs_out.diffuse=lightUniforms.lights[0].diffuse * structureUniforms.atomDiffuseColor * instanceDiffuseColor;
-  vs_out.specular=lightUniforms.lights[0].specular * structureUniforms.atomSpecularColor * instanceSpecularColor;
+
+
+  if (structureUniforms.colorAtomsWithBondColor)
+  {
+    vs_out.ambient=lightUniforms.lights[0].ambient * structureUniforms.bondAmbientColor;
+    vs_out.diffuse=lightUniforms.lights[0].diffuse * structureUniforms.bondDiffuseColor;
+    vs_out.specular=lightUniforms.lights[0].specular * structureUniforms.bondSpecularColor;
+  }
+  else
+  {
+    vs_out.ambient=lightUniforms.lights[0].ambient * structureUniforms.atomAmbientColor * instanceAmbientColor;
+    vs_out.diffuse=lightUniforms.lights[0].diffuse * structureUniforms.atomDiffuseColor * instanceDiffuseColor;
+    vs_out.specular=lightUniforms.lights[0].specular * structureUniforms.atomSpecularColor * instanceSpecularColor;
+  }
 
   vs_out.N = vec3(0,0,1);
   vs_out.instancePosition = instancePosition;

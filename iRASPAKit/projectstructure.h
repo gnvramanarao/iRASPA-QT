@@ -123,7 +123,7 @@ public:
 
   std::shared_ptr<SceneList> sceneList() {return _sceneList;}
 private:
-  qint64 _versionNumber{1};
+  qint64 _versionNumber{2};
 
   bool _showBoundingBox{false};
 

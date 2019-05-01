@@ -53,13 +53,14 @@ public:
   bool editable() {return _editable;}
   void setEditable(bool value) {_editable = value;}
 private:
-  qint64 _versionNumber{1};
+  qint64 _versionNumber{2};
   bool _editable = false;
   qint64 _atomicNumber{6};
   QString _forceFieldStringIdentifier;
   double2 _potentialParameters = double2(0.0,0.0);
   double _mass = 0.0;
   double _userDefinedRadius = 0.0;
+  bool _isVisible = true;
 
   friend QDataStream &operator<<(QDataStream &, const ForceFieldType &);
   friend QDataStream &operator>>(QDataStream &, ForceFieldType &);

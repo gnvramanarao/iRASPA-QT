@@ -474,7 +474,6 @@ void MainWindow::openFile()
 
 void MainWindow::saveFile()
 {
-  std::cout << "Save file" << std::endl;
   QString selFilter = tr("IRASPA (*.irspdoc )");
   QUrl fileURL = QFileDialog::getSaveFileUrl(this,tr("Save File"),QDir::homePath() + QDir::separator() + "project.irspdoc",
         tr("Images (*.irspdoc)"),&selFilter);
@@ -486,7 +485,10 @@ void MainWindow::saveFile()
   }
   else
   {
-    ZipWriter zipwriter = ZipWriter(fileURL.toLocalFile(), QIODevice::WriteOnly|QIODevice::Truncate);
+    QFileInfo info(fileURL.toLocalFile());
+    QString strNewName = info.path() + "/" + info.completeBaseName() + ".irspdoc";
+
+    ZipWriter zipwriter = ZipWriter(strNewName, QIODevice::WriteOnly|QIODevice::Truncate);
     zipwriter.setCompressionPolicy(ZipWriter::CompressionPolicy::NeverCompress);
 
     QByteArray byteArray = QByteArray();

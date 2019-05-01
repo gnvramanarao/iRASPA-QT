@@ -45,6 +45,10 @@ Structure::Structure(std::shared_ptr<SKAtomTreeController> atomTreeController): 
 
 }
 
+bool Structure::colorAtomsWithBondColor() const
+{
+  return _atomRepresentationType == RepresentationType::unity && _bondColorMode == RKBondColorMode::uniform;
+}
 
 void Structure::reComputeBoundingBox()
 {
@@ -55,10 +59,6 @@ void Structure::reComputeBoundingBox()
 void Structure::setAtomScaleFactor(double size)
 {
   _atomScaleFactor = size;
-  if(_atomRepresentationType == RepresentationType::unity)
-  {
-    _bondScaleFactor = 1.5 * size;
-  }
 }
 
 void Structure::setBondScaleFactor(double value)
@@ -66,7 +66,15 @@ void Structure::setBondScaleFactor(double value)
   _bondScaleFactor = value;
   if(_atomRepresentationType == RepresentationType::unity)
   {
-    _atomScaleFactor = value / 1.5;
+    std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
+
+    for (std::shared_ptr<SKAtomTreeNode> node : asymmetricAtomNodes)
+    {
+      if (std::shared_ptr<SKAsymmetricAtom> atom = node->representedObject())
+      {
+        atom->setDrawRadius(value);
+      }
+    }
   }
 }
 
@@ -87,6 +95,14 @@ double2 Structure::adsorptionSurfaceProbeParameters() const
     case ProbeMolecule::co2:
       // Y. Iwai, H. Higashi, H. Uchida, Y. Arai, Fluid Phase Equilibria 127 (1997) 251-261.
       return double2(236.1,3.72);
+    case ProbeMolecule::xenon:
+      // Gábor Rutkai, Monika Thol, Roland Span & Jadran Vrabec (2017), Molecular Physics, 115:9-12, 1104-1121
+      return double2(226.14,3.949);
+    case ProbeMolecule::krypton:
+      // Gábor Rutkai, Monika Thol, Roland Span & Jadran Vrabec (2017), Molecular Physics, 115:9-12, 1104-1121
+      return double2(162.58,3.6274);
+    case ProbeMolecule::argon:
+      return double2(119.8, 3.34);
     case ProbeMolecule::multiple_values:
       return double2();
   }
@@ -124,7 +140,7 @@ void Structure::setRepresentationStyle(RepresentationStyle style)
 
 			_drawBonds = true;
 			_bondColorMode = RKBondColorMode::uniform;;
-			_bondScaleFactor = 1.0;
+            _bondScaleFactor = 0.15;
 			_bondAmbientColor = QColor(255, 255, 255, 255);
 			_bondDiffuseColor = QColor(205, 205, 205, 255);
 			_bondSpecularColor = QColor(255, 255, 255, 255);
@@ -199,7 +215,7 @@ void Structure::setRepresentationStyle(RepresentationStyle style)
 
 			_drawBonds = true;
 			_bondColorMode = RKBondColorMode::split;;
-			_bondScaleFactor = 1.5;
+            _bondScaleFactor = 0.25;
 			_bondAmbientColor = QColor(255, 255, 255, 255);
 			_bondDiffuseColor = QColor(205, 205, 205, 255);
 			_bondSpecularColor = QColor(255, 255, 255, 255);
@@ -245,7 +261,7 @@ void Structure::setRepresentationStyle(RepresentationStyle style)
 				atom->setDrawRadius(radius);
 				break;
 			case RepresentationType::unity:
-				atom->setDrawRadius(0.15 * _bondScaleFactor);
+                atom->setDrawRadius(_bondScaleFactor);
 				break;
 			default:
 				break;
@@ -303,7 +319,7 @@ void Structure::recheckRepresentationStyle()
      (_atomColorSchemeOrder == ColorSchemeOrder::elementOnly) &&
      (_drawBonds == true) &&
      (_bondColorMode == RKBondColorMode::uniform) &&
-     (fabs(_bondScaleFactor - 1.0) < 1e-4) &&
+     (fabs(_bondScaleFactor - 0.15) < 1e-4) &&
      (_bondAmbientOcclusion == false) &&
      (_bondHDR == true) &&
      (fabs(_bondHDRExposure - 1.5) < 1e-4) &&
@@ -370,7 +386,7 @@ void Structure::recheckRepresentationStyle()
 		(fabs(_atomScaleFactor - 1.0) < 1e-4) &&
      (_drawBonds == true) &&
      (_bondColorMode == RKBondColorMode::split) &&
-     (fabs(_bondScaleFactor - 1.5) < 1e-4) &&
+     (fabs(_bondScaleFactor - 0.25) < 1e-4) &&
      (_bondAmbientOcclusion == false) &&
      (_bondHDR == true) &&
      ((_bondHDRExposure - 1.5) < 1e-4) &&
@@ -434,10 +450,9 @@ void Structure::setRepresentationType(RepresentationType type)
             atom->setDrawRadius(radius);
             _atomScaleFactor = 1.0;
             break;
-					case RepresentationType::unity:
-						_atomScaleFactor = 1.0;
-						atom->setDrawRadius(0.15 * _bondScaleFactor);
-						break;
+          case RepresentationType::unity:
+            atom->setDrawRadius(_bondScaleFactor);
+            break;
           default:
             break;
         }
@@ -765,6 +780,36 @@ QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<Structure> &s
   stream << structure->_orientation;
   stream << structure->_rotationDelta;
 
+  stream << structure->_primitiveTransformationMatrix;
+  stream << structure->_primitiveOrientation;
+  stream << structure->_primitiveRotationDelta;
+
+  stream << structure->_primitiveOpacity;
+  stream << structure->_primitiveIsCapped;
+  stream << structure->_primitiveIsFractional;
+  stream << structure->_primitiveNumberOfSides;
+  stream << structure->_primitiveThickness;
+
+  stream << structure->_primitiveFrontSideHDR;
+  stream << structure->_primitiveFrontSideHDRExposure;
+  stream << structure->_primitiveFrontSideAmbientColor;
+  stream << structure->_primitiveFrontSideDiffuseColor;
+  stream << structure->_primitiveFrontSideSpecularColor;
+  stream << structure->_primitiveFrontSideDiffuseIntensity;
+  stream << structure->_primitiveFrontSideAmbientIntensity;
+  stream << structure->_primitiveFrontSideSpecularIntensity;
+  stream << structure->_primitiveFrontSideShininess;
+
+  stream << structure->_primitiveBackSideHDR;
+  stream << structure->_primitiveBackSideHDRExposure;
+  stream << structure->_primitiveBackSideAmbientColor;
+  stream << structure->_primitiveBackSideDiffuseColor;
+  stream << structure->_primitiveBackSideSpecularColor;
+  stream << structure->_primitiveBackSideDiffuseIntensity;
+  stream << structure->_primitiveBackSideAmbientIntensity;
+  stream << structure->_primitiveBackSideSpecularIntensity;
+  stream << structure->_primitiveBackSideShininess;
+
   stream << structure->_minimumGridEnergyValue;
 
   stream << structure->_atomsTreeController;
@@ -982,6 +1027,38 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<Structure> &structu
   stream >> structure->_orientation;
   stream >> structure->_rotationDelta;
 
+  if(versionNumber >= 2)
+  {
+    stream >> structure->_primitiveTransformationMatrix;
+    stream >> structure->_primitiveOrientation;
+    stream >> structure->_primitiveRotationDelta;
+
+    stream >> structure->_primitiveOpacity;
+    stream >> structure->_primitiveIsCapped;
+    stream >> structure->_primitiveIsFractional;
+    stream >> structure->_primitiveNumberOfSides;
+    stream >> structure->_primitiveThickness;
+
+    stream >> structure->_primitiveFrontSideHDR;
+    stream >> structure->_primitiveFrontSideHDRExposure;
+    stream >> structure->_primitiveFrontSideAmbientColor;
+    stream >> structure->_primitiveFrontSideDiffuseColor;
+    stream >> structure->_primitiveFrontSideSpecularColor;
+    stream >> structure->_primitiveFrontSideDiffuseIntensity;
+    stream >> structure->_primitiveFrontSideAmbientIntensity;
+    stream >> structure->_primitiveFrontSideSpecularIntensity;
+    stream >> structure->_primitiveFrontSideShininess;
+
+    stream >> structure->_primitiveBackSideHDR;
+    stream >> structure->_primitiveBackSideHDRExposure;
+    stream >> structure->_primitiveBackSideAmbientColor;
+    stream >> structure->_primitiveBackSideDiffuseColor;
+    stream >> structure->_primitiveBackSideSpecularColor;
+    stream >> structure->_primitiveBackSideDiffuseIntensity;
+    stream >> structure->_primitiveBackSideAmbientIntensity;
+    stream >> structure->_primitiveBackSideSpecularIntensity;
+    stream >> structure->_primitiveBackSideShininess;
+  }
 
   stream >> structure->_minimumGridEnergyValue;
 

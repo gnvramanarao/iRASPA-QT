@@ -144,8 +144,9 @@ AppearanceTreeWidgetController::AppearanceTreeWidgetController(QWidget* parent):
     _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(3, "Hydrogen");
     _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(4, "Water");
     _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(5, "CO₂");
-		_appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(6, "Xenon");
-		_appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(7, "Krypton");
+    _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(6, "Xenon");
+    _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(7, "Krypton");
+    _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(8, "Argon");
 
     // Annotation
     //=========================================================================
@@ -226,9 +227,23 @@ AppearanceTreeWidgetController::AppearanceTreeWidgetController(QWidget* parent):
 
   QObject::connect(_appearanceBondsForm->bondColorModeComboBox,static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),this,&AppearanceTreeWidgetController::setBondColorMode);
 
+  QObject::connect(_appearanceBondsForm->bondAmbientOcclusionCheckBox,static_cast<void (QCheckBox::*)(int)>(&QCheckBox::stateChanged),this,&AppearanceTreeWidgetController::setBondAmbientOcclusion);
+  QObject::connect(_appearanceBondsForm->bondAmbientIntensityDoubleSpinBox,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&AppearanceTreeWidgetController::setBondAmbientLightIntensity);
+  QObject::connect(_appearanceBondsForm->bondAmbientIntensityDoubleSlider,static_cast<void (QDoubleSlider::*)(double)>(&QDoubleSlider::sliderMoved),this,&AppearanceTreeWidgetController::setBondAmbientLightIntensity);
+  QObject::connect(_appearanceBondsForm->bondDiffuseIntensityDoubleSpinBox,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&AppearanceTreeWidgetController::setBondDiffuseLightIntensity);
+  QObject::connect(_appearanceBondsForm->bondDiffuseIntensityDoubleSlider,static_cast<void (QDoubleSlider::*)(double)>(&QDoubleSlider::sliderMoved),this,&AppearanceTreeWidgetController::setBondDiffuseLightIntensity);
+  QObject::connect(_appearanceBondsForm->bondSpecularIntensityDoubleSpinBox,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&AppearanceTreeWidgetController::setBondSpecularLightIntensity);
+  QObject::connect(_appearanceBondsForm->bondSpecularIntensityDoubleSlider,static_cast<void (QDoubleSlider::*)(double)>(&QDoubleSlider::sliderMoved),this,&AppearanceTreeWidgetController::setBondSpecularLightIntensity);
+  QObject::connect(_appearanceBondsForm->bondShininessDoubleSpinBox,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&AppearanceTreeWidgetController::setBondShininess);
+  QObject::connect(_appearanceBondsForm->bondShininessDoubleSlider,static_cast<void (QDoubleSlider::*)(double)>(&QDoubleSlider::sliderMoved),this,&AppearanceTreeWidgetController::setBondShininess);
 
-  _appearanceBondsForm->bondSizeScalingDoubleSlider->setDoubleMinimum(0.0);
-  _appearanceBondsForm->bondSizeScalingDoubleSlider->setDoubleMaximum(2.0);
+  QObject::connect(_appearanceBondsForm->bondAmbientColorPushButton,&QPushButton::clicked,this,&AppearanceTreeWidgetController::setBondAmbientLightColor);
+  QObject::connect(_appearanceBondsForm->bondDiffuseColorPushButton,&QPushButton::clicked,this,&AppearanceTreeWidgetController::setBondDiffuseLightColor);
+  QObject::connect(_appearanceBondsForm->bondSpecularColorPushButton,&QPushButton::clicked,this,&AppearanceTreeWidgetController::setBondSpecularLightColor);
+
+
+
+
 
 
   QObject::connect(_appearanceUnitCellForm->drawUnitCellCheckBox,static_cast<void (QCheckBox::*)(int)>(&QCheckBox::stateChanged),this,&AppearanceTreeWidgetController::setDrawUnitCell);
@@ -306,6 +321,18 @@ AppearanceTreeWidgetController::AppearanceTreeWidgetController(QWidget* parent):
   _appearanceAtomsForm->atomShininessDoubleSlider->setDoubleMinimum(0.1);
   _appearanceAtomsForm->atomShininessDoubleSlider->setDoubleMaximum(128.0);
 
+
+  _appearanceBondsForm->bondAmbientIntensityDoubleSlider->setDoubleMinimum(0.0);
+  _appearanceBondsForm->bondAmbientIntensityDoubleSlider->setDoubleMaximum(1.0);
+  _appearanceBondsForm->bondDiffuseIntensityDoubleSlider->setDoubleMinimum(0.0);
+  _appearanceBondsForm->bondDiffuseIntensityDoubleSlider->setDoubleMaximum(1.0);
+  _appearanceBondsForm->bondSpecularIntensityDoubleSlider->setDoubleMinimum(0.0);
+  _appearanceBondsForm->bondSpecularIntensityDoubleSlider->setDoubleMaximum(1.0);
+  _appearanceBondsForm->bondShininessDoubleSlider->setDoubleMinimum(0.1);
+  _appearanceBondsForm->bondShininessDoubleSlider->setDoubleMaximum(128.0);
+
+  _appearanceBondsForm->bondSizeScalingDoubleSlider->setDoubleMinimum(0.0);
+  _appearanceBondsForm->bondSizeScalingDoubleSlider->setDoubleMaximum(1.0);
 
   _appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSlider->setDoubleMinimum(-1000.0);
   _appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSlider->setDoubleMaximum(1000.0);

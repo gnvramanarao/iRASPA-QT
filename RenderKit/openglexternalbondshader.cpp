@@ -525,9 +525,9 @@ void main(void)
   vs_out.mix.w = scale.x/scale.z;
 
 
-  scale.x = 0.15*structureUniforms.bondScaling;
+  scale.x = structureUniforms.bondScaling;
   scale.y = bondLength;
-  scale.z = 0.15*structureUniforms.bondScaling;
+  scale.z = structureUniforms.bondScaling;
   scale.w = 1.0;
 
   dr = normalize(dr);
@@ -702,9 +702,9 @@ void main(void)
   vs_out.mix.w = scale.x/scale.z;
 
 
-  scale.x = 0.15*structureUniforms.bondScaling;
+  scale.x = structureUniforms.bondScaling;
   scale.y = bondLength;
-  scale.z = 0.15*structureUniforms.bondScaling;
+  scale.z = structureUniforms.bondScaling;
   scale.w = 1.0;
 
   dr = normalize(dr);

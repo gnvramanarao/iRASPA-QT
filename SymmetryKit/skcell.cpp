@@ -629,9 +629,12 @@ QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<SKCell> &cell
 
   stream << cell->_boundingBox;
 
-  stream << cell->_origin;
+  stream << cell->_contentShift;
 
   stream << cell->_precision;
+
+  stream << cell->_contentFlip;
+
   return stream;
 }
 
@@ -656,8 +659,14 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<SKCell> &cell)
 
   stream >> cell->_boundingBox;
 
-  stream >> cell->_origin;
+  stream >> cell->_contentShift;
 
   stream >> cell->_precision;
+
+  if(versionNumber >= 2)
+  {
+    stream >> cell->_contentFlip;
+  }
+
   return stream;
 }

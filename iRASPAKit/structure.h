@@ -104,7 +104,7 @@ enum class RepresentationStyle: qint64
 
 enum class ProbeMolecule: qint64
 {
-  helium = 0, methane = 1, nitrogen = 2, hydrogen = 3, water = 4, co2 = 5, multiple_values = 6
+  helium = 0, methane = 1, nitrogen = 2, hydrogen = 3, water = 4, co2 = 5, xenon = 6, krypton = 7, argon = 8, multiple_values = 9
 };
 
 class Structure: public RKRenderStructure, public DisplayableProtocol
@@ -133,6 +133,7 @@ public:
 
   bool clipAtomsAtUnitCell() const override {return false;}
   bool clipBondsAtUnitCell() const override {return false;}
+  bool colorAtomsWithBondColor() const override;
 
   std::vector<RKInPerInstanceAttributesText> renderTextData() const override {return std::vector<RKInPerInstanceAttributesText>();}
   RKTextType renderTextType() const override {return RKTextType::identifier;}
@@ -517,7 +518,7 @@ public:
 
   void computeBonds() override {;}
 protected:
-  qint64 _versionNumber{1};
+  qint64 _versionNumber{2};
   QString _displayName = QString("test123");
 
   std::shared_ptr<SKAtomTreeController> _atomsTreeController;
@@ -530,6 +531,36 @@ protected:
   double3 _scaling = double3(1.0, 1.0, 1.0);
   simd_quatd _orientation = simd_quatd(1.0, double3(0.0, 0.0, 0.0));
   double _rotationDelta = 5.0;
+
+  double3x3 _primitiveTransformationMatrix = double3x3(1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0);
+  simd_quatd _primitiveOrientation = simd_quatd(0.0,0.0,0.0,1.0);
+  double _primitiveRotationDelta = 5.0;
+
+  double _primitiveOpacity = 1.0;
+  bool _primitiveIsCapped = false;
+  bool _primitiveIsFractional = true;
+  qint64 _primitiveNumberOfSides = 6;
+  double _primitiveThickness = 0.05;
+
+  bool _primitiveFrontSideHDR = true;
+  double _primitiveFrontSideHDRExposure = 2.0;
+  QColor _primitiveFrontSideAmbientColor = QColor(255, 255, 255, 255);
+  QColor _primitiveFrontSideDiffuseColor = QColor(255, 255, 0, 255);
+  QColor _primitiveFrontSideSpecularColor = QColor(255, 255, 255, 255);
+  double _primitiveFrontSideDiffuseIntensity = 0.1;
+  double _primitiveFrontSideAmbientIntensity = 1.0;
+  double _primitiveFrontSideSpecularIntensity = 0.2;
+  double _primitiveFrontSideShininess = 4.0;
+
+  bool _primitiveBackSideHDR = true;
+  double _primitiveBackSideHDRExposure = 2.0;
+  QColor _primitiveBackSideAmbientColor = QColor(255, 255, 255, 255);
+  QColor _primitiveBackSideDiffuseColor = QColor(0, 140, 255, 255);
+  QColor _primitiveBackSideSpecularColor = QColor(255, 255, 255, 255);
+  double _primitiveBackSideDiffuseIntensity = 0.1;
+  double _primitiveBackSideAmbientIntensity = 1.0;
+  double _primitiveBackSideSpecularIntensity = 0.2;
+  double _primitiveBackSideShininess = 4.0;
 
   bool _periodic = false;
   bool _isVisible = true;

@@ -105,7 +105,7 @@ public:
   double precision() const {return _precision;}
   void setPrecision(double precision) {_precision = precision;}
 private:
-  qint64 _versionNumber{1};
+  qint64 _versionNumber{2};
 
   qint64 _zValue{1};
 
@@ -119,6 +119,9 @@ private:
   double3x3 _inverseFullCell = double3x3();
 
   SKBoundingBox _boundingBox = SKBoundingBox();
+
+  double3 _contentShift = double3(0.0,0.0,0.0);
+  bool3 _contentFlip = bool3(false,false,false);
 
   double3 _origin = double3(0.0, 0.0, 0.0);
 

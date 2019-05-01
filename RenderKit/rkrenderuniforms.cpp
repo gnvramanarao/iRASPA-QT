@@ -58,6 +58,8 @@ RKStructureUniforms::RKStructureUniforms(int sceneIdentifier, int movieIdentifie
 
   this->sceneIdentifier = int32_t(sceneIdentifier);
   this->MovieIdentifier = int32_t(movieIdentifier);
+
+  this->colorAtomsWithBondColor = structure->colorAtomsWithBondColor();
   this->atomScaleFactor = float(structure->atomScaleFactor());
   this->modelMatrix = float4x4(modelMatrix);
   this->changeHueSaturationValue = float4(hsv);
@@ -163,6 +165,8 @@ RKStructureUniforms::RKStructureUniforms(int sceneIdentifier, int movieIdentifie
 
     this->sceneIdentifier = int32_t(sceneIdentifier);
     this->MovieIdentifier = int32_t(movieIdentifier);
+
+    this->colorAtomsWithBondColor = structure->colorAtomsWithBondColor();
     this->atomScaleFactor = float(structure->atomScaleFactor());
     this->modelMatrix = float4x4(modelMatrix);
     this->changeHueSaturationValue = float4(hsv);

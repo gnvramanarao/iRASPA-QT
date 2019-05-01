@@ -213,7 +213,28 @@ struct RKStructureUniforms
   float atomAnnotationTextScaling = 1.0;
   float bondAnnotationTextScaling = 1.0;
   float selectionScaling = 1.25;
-  int32_t pad = GL_FALSE;
+  int32_t colorAtomsWithBondColor = GL_FALSE;
+
+  //----------------------------------------  512 bytes boundary
+
+  float4x4 transformationMatrix = float4x4();
+  float4x4 transformationNormalMatrix = float4x4();
+
+  float4 primitiveAmbientFrontSide = float4(0.0,0.0,0.0,1.0);
+  float4 primitiveDiffuseFrontSide = float4(0.0,0.0,0.0,1.0);
+  float4 primitiveSpecularFrontSide = float4(0.0,0.0,0.0,1.0);
+  int32_t primitiveFrontSideHDR = 1;
+  float primitiveFrontSideHDRExposure = 1.5;
+  float pad3 = 0.0;
+  float primitiveShininessFrontSide = 4.0;
+
+  float4 primitiveAmbientBackSide = float4(0.0,0.0,0.0,1.0);
+  float4 primitiveDiffuseBackSide = float4(0.0,0.0,0.0,1.0);
+  float4 primitiveSpecularBackSide = float4(0.0,0.0,0.0,1.0);
+  int32_t primitiveBackSideHDR = 1;
+  float primitiveBackSideHDRExposure = 1.5;
+  float pad6 = 0.0;
+  float primitiveShininessBackSide = 4.0;
 
   RKStructureUniforms() {}
   RKStructureUniforms(int sceneIdentifier, int movieIdentifier, std::shared_ptr<RKRenderStructure> structure);
@@ -278,6 +299,8 @@ layout (std140) uniform StructureUniformBlock
 
     mat4 modelMatrix;
 
+    //----------------------------------------  384 bytes boundary
+
     mat4 boxMatrix;
     float atomSelectionStripesDensity;
     float atomSelectionStripesFrequency;
@@ -289,7 +312,28 @@ layout (std140) uniform StructureUniformBlock
     float atomAnnotationTextScaling;
     float bondAnnotationTextScaling;
     float selectionScaling;
-    bool pad;
+    bool colorAtomsWithBondColor;
+
+    //----------------------------------------  512 bytes boundary
+
+    mat4 transformationMatrix;
+    mat4 transformationNormalMatrix;
+
+    vec4 primitiveAmbientFrontSide;
+    vec4 primitiveDiffuseFrontSide;
+    vec4 primitiveSpecularFrontSide;
+    int primitiveFrontSideHDR;
+    float primitiveFrontSideHDRExposure;
+    float pad3;
+    float primitiveShininessFrontSide;
+
+    vec4 primitiveAmbientBackSide;
+    vec4 primitiveDiffuseBackSide;
+    vec4 primitiveSpecularBackSide;
+    int primitiveBackSideHDR;
+    float primitiveBackSideHDRExposure;
+    float pad6;
+    float primitiveShininessBackSide;
 } structureUniforms;
 )foo";
 

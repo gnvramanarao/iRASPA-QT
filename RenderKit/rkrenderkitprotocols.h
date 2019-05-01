@@ -191,6 +191,7 @@ public:
   virtual double atomSaturation() const = 0;
   virtual double atomValue() const = 0;
 
+  virtual bool colorAtomsWithBondColor() const = 0;
   virtual double atomScaleFactor() const = 0;
   virtual bool atomAmbientOcclusion() const = 0;
   virtual int atomAmbientOcclusionPatchNumber() const = 0;

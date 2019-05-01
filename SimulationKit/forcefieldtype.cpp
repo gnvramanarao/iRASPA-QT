@@ -61,6 +61,7 @@ QDataStream &operator<<(QDataStream &stream, const ForceFieldType &forcefieldTyp
   stream << forcefieldType._potentialParameters;
   stream << forcefieldType._mass;
   stream << forcefieldType._userDefinedRadius;
+  stream << forcefieldType._isVisible;
   return stream;
 }
 
@@ -79,6 +80,11 @@ QDataStream &operator>>(QDataStream &stream, ForceFieldType &forcefieldType)
   stream >> forcefieldType._potentialParameters;
   stream >> forcefieldType._mass;
   stream >> forcefieldType._userDefinedRadius;
+
+  if(versionNumber >= 2)
+  {
+    stream >> forcefieldType._isVisible;
+  }
 
   return stream;
 }

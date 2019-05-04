@@ -142,6 +142,18 @@ CellTreeWidgetController::CellTreeWidgetController(QWidget* parent): QTreeWidget
      this->reloadStructureProperties();
   });
 
+  _cellStructuralForm->probeMoleculeComboBox->insertItem(0, "Helium");
+  _cellStructuralForm->probeMoleculeComboBox->insertItem(1, "Methane");
+  _cellStructuralForm->probeMoleculeComboBox->insertItem(2, "Nitrogen");
+  _cellStructuralForm->probeMoleculeComboBox->insertItem(3, "Hydrogen");
+  _cellStructuralForm->probeMoleculeComboBox->insertItem(4, "Water");
+  _cellStructuralForm->probeMoleculeComboBox->insertItem(5, "CO₂");
+  _cellStructuralForm->probeMoleculeComboBox->insertItem(6, "Xenon");
+  _cellStructuralForm->probeMoleculeComboBox->insertItem(7, "Krypton");
+  _cellStructuralForm->probeMoleculeComboBox->insertItem(8, "Argon");
+  QObject::connect(_cellStructuralForm->probeMoleculeComboBox,static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),this,&CellTreeWidgetController::setFrameworkProbeMolecule);
+
+
   QObject::connect(_cellStructuralForm->computeGravimetricSurfaceAreaPushButton, &QPushButton::clicked,[this](void) {
      emit computeNitrogenSurfaceArea(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
      this->reloadStructureProperties();
@@ -1647,6 +1659,7 @@ void CellTreeWidgetController::reloadStructureProperties()
   reloadStructuralHeliumVoidFraction();
   reloadStructuralSpecificVolume();
   reloadStructuralAccessiblePoreVolume();
+  reloadFrameworkProbeMoleculePopupBox();
   reloadStructuralVolumetricSurfaceArea();
   reloadStructuralGravimetricSurfaceArea();
   reloadStructuralNumberOfChannelSystems();
@@ -1736,6 +1749,36 @@ void CellTreeWidgetController::reloadStructuralAccessiblePoreVolume()
     else
     {
       whileBlocking(_cellStructuralForm->accessiblePoreVolumeDoubleSpinBox)->setText("Mult. Val.");
+    }
+  }
+}
+
+void CellTreeWidgetController::reloadFrameworkProbeMoleculePopupBox()
+{
+  if(!_structures.empty())
+  {
+    if (stdx::optional<ProbeMolecule> type=frameworkProbeMolecule())
+    {
+      if(int index = _cellStructuralForm->probeMoleculeComboBox->findText("Mult. Val."); index>=0)
+      {
+        whileBlocking(_cellStructuralForm->probeMoleculeComboBox)->removeItem(index);
+      }
+      if(int(*type)<0)
+      {
+       whileBlocking(_cellStructuralForm->probeMoleculeComboBox)->setCurrentIndex(int(ProbeMolecule::multiple_values));
+      }
+      else
+      {
+        whileBlocking(_cellStructuralForm->probeMoleculeComboBox)->setCurrentIndex(int(*type));
+      }
+    }
+    else
+    {
+      if(int index = _cellStructuralForm->probeMoleculeComboBox->findText("Mult. Val."); index<0)
+      {
+        whileBlocking(_cellStructuralForm->probeMoleculeComboBox)->addItem("Mult. Val.");
+      }
+      whileBlocking(_cellStructuralForm->probeMoleculeComboBox)->setCurrentText("Mult. Val.");
     }
   }
 }
@@ -1952,6 +1995,43 @@ stdx::optional<double> CellTreeWidgetController::structureAccessiblePoreVolume()
   for(std::shared_ptr<Structure> structure: _structures)
   {
     double value = structure->structureAccessiblePoreVolume();
+    set.insert(value);
+  }
+
+  if(set.size() == 1)
+  {
+    return *set.begin();
+  }
+  return stdx::nullopt;
+}
+
+void CellTreeWidgetController::setFrameworkProbeMolecule(int value)
+{
+  if(value>=0 && value<int(ProbeMolecule::multiple_values))
+  {
+    for(std::shared_ptr<Structure> structure: _structures)
+    {
+      structure->setFrameworkProbeMolecule(ProbeMolecule(value));
+      structure->recheckRepresentationStyle();
+    }
+
+    emit computeNitrogenSurfaceArea(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+    this->reloadStructureProperties();
+
+    reloadFrameworkProbeMoleculePopupBox();
+  }
+}
+
+stdx::optional<ProbeMolecule> CellTreeWidgetController::frameworkProbeMolecule()
+{
+  if(_structures.empty())
+  {
+    return stdx::nullopt;
+  }
+  std::unordered_set<ProbeMolecule, enum_hash> set = std::unordered_set<ProbeMolecule, enum_hash>{};
+  for(std::shared_ptr<Structure> structure: _structures)
+  {
+    ProbeMolecule value = structure->frameworkProbeMolecule();
     set.insert(value);
   }
 

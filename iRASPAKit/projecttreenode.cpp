@@ -44,15 +44,17 @@ std::shared_ptr<iRASPAProject> ProjectTreeNode::representedObject()
 
 int ProjectTreeNode::row() const
 {
-  if (std::shared_ptr<ProjectTreeNode> lockedParent = _parent.lock())
+  if(!_parent.expired())
   {
-    std::vector<std::shared_ptr<ProjectTreeNode>>::iterator it = std::find(lockedParent->_childNodes.begin(), lockedParent->_childNodes.end(), shared_from_this());
-    if (it != lockedParent->_childNodes.end())
+    if (std::shared_ptr<ProjectTreeNode> lockedParent = _parent.lock())
     {
-      return  std::distance(lockedParent->_childNodes.begin(), it);
+      std::vector<std::shared_ptr<ProjectTreeNode>>::iterator it = std::find(lockedParent->_childNodes.begin(), lockedParent->_childNodes.end(), shared_from_this());
+      if (it != lockedParent->_childNodes.end())
+      {
+        return  std::distance(lockedParent->_childNodes.begin(), it);
+      }
     }
   }
-
   return 0;
 }
 

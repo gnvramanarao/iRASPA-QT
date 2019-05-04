@@ -185,6 +185,8 @@ QModelIndex ProjectTreeViewModel::parent(const QModelIndex &index) const
   ProjectTreeNode *childItem = static_cast<ProjectTreeNode*>(index.internalPointer());
   ProjectTreeNode *parentItem = childItem->parent().get();
 
+  if(!parentItem) return QModelIndex();
+
   if (parentItem == _projectTreeController->hiddenRootNode().get())
     return QModelIndex();
 

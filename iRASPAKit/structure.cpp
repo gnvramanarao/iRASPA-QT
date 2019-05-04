@@ -108,6 +108,37 @@ double2 Structure::adsorptionSurfaceProbeParameters() const
   }
 }
 
+double2 Structure::frameworkProbeParameters() const
+{
+  switch(_structureProbeMolecule)
+  {
+    case ProbeMolecule::helium:
+      return double2(10.9, 2.64);
+    case ProbeMolecule::nitrogen:
+      return double2(36.0,3.31);
+    case ProbeMolecule::methane:
+      return double2(158.5,3.72);
+    case ProbeMolecule::hydrogen:
+      return double2(36.7,2.958);
+    case ProbeMolecule::water:
+      return double2(89.633,3.097);
+    case ProbeMolecule::co2:
+      // Y. Iwai, H. Higashi, H. Uchida, Y. Arai, Fluid Phase Equilibria 127 (1997) 251-261.
+      return double2(236.1,3.72);
+    case ProbeMolecule::xenon:
+      // Gábor Rutkai, Monika Thol, Roland Span & Jadran Vrabec (2017), Molecular Physics, 115:9-12, 1104-1121
+      return double2(226.14,3.949);
+    case ProbeMolecule::krypton:
+      // Gábor Rutkai, Monika Thol, Roland Span & Jadran Vrabec (2017), Molecular Physics, 115:9-12, 1104-1121
+      return double2(162.58,3.6274);
+    case ProbeMolecule::argon:
+      return double2(119.8, 3.34);
+    case ProbeMolecule::multiple_values:
+      return double2();
+  }
+}
+
+
 void Structure::setRepresentationStyle(RepresentationStyle style)
 {
 	std::cout << "SET STYLE TO: " << int(style) << std::endl;
@@ -810,6 +841,8 @@ QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<Structure> &s
   stream << structure->_primitiveBackSideSpecularIntensity;
   stream << structure->_primitiveBackSideShininess;
 
+  stream << structure->_structureProbeMolecule;
+
   stream << structure->_minimumGridEnergyValue;
 
   stream << structure->_atomsTreeController;
@@ -1059,6 +1092,12 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<Structure> &structu
     stream >> structure->_primitiveBackSideSpecularIntensity;
     stream >> structure->_primitiveBackSideShininess;
   }
+
+  if(versionNumber >= 3)
+  {
+    stream >> structure->_structureProbeMolecule;
+  }
+
 
   stream >> structure->_minimumGridEnergyValue;
 

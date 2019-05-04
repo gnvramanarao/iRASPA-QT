@@ -153,6 +153,7 @@ private:
   void reloadStructuralHeliumVoidFraction();
   void reloadStructuralSpecificVolume();
   void reloadStructuralAccessiblePoreVolume();
+  void reloadFrameworkProbeMoleculePopupBox();
   void reloadStructuralVolumetricSurfaceArea();
   void reloadStructuralGravimetricSurfaceArea();
   void reloadStructuralNumberOfChannelSystems();
@@ -167,6 +168,8 @@ private:
   stdx::optional<double> structureHeliumVoidFraction();
   stdx::optional<double> structureSpecificVolume();
   stdx::optional<double> structureAccessiblePoreVolume();
+  void setFrameworkProbeMolecule(int value);
+  stdx::optional<ProbeMolecule> frameworkProbeMolecule();
   stdx::optional<double> structureVolumetricNitrogenSurfaceArea();
   stdx::optional<double> structureGravimetricNitrogenSurfaceArea();
   stdx::optional<int> structureNumberOfChannelSystems();

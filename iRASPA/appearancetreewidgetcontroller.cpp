@@ -70,7 +70,7 @@ AppearanceTreeWidgetController::AppearanceTreeWidgetController(QWidget* parent):
 
     _appearanceAtomsForm->atomRepresentationType->insertItem(0,"Ball and stick");
     _appearanceAtomsForm->atomRepresentationType->insertItem(1,"Van der Waals");
-		_appearanceAtomsForm->atomRepresentationType->insertItem(2, "Unity");
+    _appearanceAtomsForm->atomRepresentationType->insertItem(2, "Unity");
 
     _appearanceAtomsForm->atomRepresentationStyle->insertItem(0,"Default");
     _appearanceAtomsForm->atomRepresentationStyle->insertItem(1,"Fancy");

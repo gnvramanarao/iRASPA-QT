@@ -337,7 +337,7 @@ void OpenGLEnergySurface::computeNitrogenSurfaceArea(std::vector<std::shared_ptr
     int sizeY = 128;
     int sizeZ = 128;
 
-    double2 probeParameter = double2(36.0,3.31);
+    double2 probeParameter = structure->frameworkProbeParameters();
     std::vector<double3> positions = structure->atomUnitCellPositions();
     std::vector<double2> potentialParameters = structure->potentialParameters();
     double3x3 unitCell = structure->cell()->unitCell();

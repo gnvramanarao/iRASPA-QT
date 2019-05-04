@@ -359,7 +359,7 @@ public:
   void reComputeBoundingBox() final override;
   void expandSymmetry() override {;}
 
-	void setRepresentationStyle(RepresentationStyle style);
+  void setRepresentationStyle(RepresentationStyle style);
   void setRepresentationStyle(RepresentationStyle style, const SKColorSets &colorSets);
   RepresentationStyle atomRepresentationStyle() {return _atomRepresentationStyle;}
   void setRepresentationType(RepresentationType);
@@ -489,6 +489,8 @@ public:
   QString citationDatebaseCodes() {return _citationDatebaseCodes;}
   void setCitationDatebaseCodes(QString name) {_citationDatebaseCodes = name;}
 
+  ProbeMolecule frameworkProbeMolecule() const {return _structureProbeMolecule;}
+  void setFrameworkProbeMolecule(ProbeMolecule value) {_structureProbeMolecule = value;}
   void recomputeDensityProperties() override;
   QString structureMaterialType() {return _structureMaterialType;}
   double structureMass() {return _structureMass;}
@@ -496,6 +498,7 @@ public:
   double structureHeliumVoidFraction() {return _structureHeliumVoidFraction;}
   void setStructureHeliumVoidFraction(double value) override final {_structureHeliumVoidFraction = value;}
   void setStructureNitrogenSurfaceArea(double value) override final;
+  double2 frameworkProbeParameters() const override final;
   double structureSpecificVolume() {return _structureSpecificVolume;}
   double structureAccessiblePoreVolume () {return _structureAccessiblePoreVolume;}
   double structureVolumetricNitrogenSurfaceArea() {return _structureVolumetricNitrogenSurfaceArea;}
@@ -518,7 +521,7 @@ public:
 
   void computeBonds() override {;}
 protected:
-  qint64 _versionNumber{2};
+  qint64 _versionNumber{3};
   QString _displayName = QString("test123");
 
   std::shared_ptr<SKAtomTreeController> _atomsTreeController;
@@ -678,6 +681,7 @@ protected:
   double _adsorptionSurfaceBackSideShininess = 4.0;
 
   StructureType _structureType = StructureType::framework;
+  ProbeMolecule _structureProbeMolecule = ProbeMolecule::nitrogen;
   QString _structureMaterialType = QString("Unspecified");
   double _structureMass = 0.0;
   double _structureDensity = 0.0;

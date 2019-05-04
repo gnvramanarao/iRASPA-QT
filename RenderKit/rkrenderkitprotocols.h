@@ -263,6 +263,7 @@ public:
   virtual double adsorptionSurfaceBackSideShininess() const = 0;
 
   virtual void recomputeDensityProperties() = 0;
+  virtual double2 frameworkProbeParameters() const = 0;
   virtual void setStructureHeliumVoidFraction(double value) = 0;
   virtual void setStructureNitrogenSurfaceArea(double value) = 0;
 };

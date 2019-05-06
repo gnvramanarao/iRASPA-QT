@@ -49,7 +49,7 @@ public:
   void deleteBuffers();
   void generateBuffers();
   void initializeVertexArrayObject();
-  void loadShader(void);
+  void loadShader(void) override final;
 
   void adjustAmbientOcclusionTextureSize();
   void  updateAmbientOcclusionTextures(std::shared_ptr<RKRenderDataSource> dataSource, RKRenderQuality quality);

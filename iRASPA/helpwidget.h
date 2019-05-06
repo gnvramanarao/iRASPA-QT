@@ -37,6 +37,7 @@
 
 class HelpWidget : public QMainWindow
 {
+  Q_OBJECT
 public:
     HelpWidget(QWidget *parent = nullptr);
     static void showPage(const QString &page);

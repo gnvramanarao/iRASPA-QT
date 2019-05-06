@@ -40,6 +40,7 @@
 #include <QDesktopServices>
 #include <iraspakit.h>
 #include <foundationkit.h>
+#include <renderkit.h>
 #include "glwidget.h"
 #include "masterstackedwidget.h"
 
@@ -315,8 +316,11 @@ void MainWindow::importFile()
 void MainWindow::readLibraryOfStructures()
 {
   #ifdef Q_OS_LINUX
-    //QDir dir("/snap/iraspa/current/usr/share/iraspa/");
-    QDir dir("/usr/share/iraspa/");
+    #ifdef USE_SNAP
+      QDir dir("/snap/iraspa/current/usr/share/iraspa/");
+    #else
+      QDir dir("/usr/share/iraspa/");
+    #endif
     QUrl fileURL(dir.absoluteFilePath("LibraryOfStructures.irspdoc"));
     //QDir dir(QCoreApplication::applicationDirPath());
     //QUrl fileURL(dir.absoluteFilePath("LibraryOfStructures.irspdoc"));
@@ -554,8 +558,11 @@ int MainWindow::slideLeftPanel(void)
 void MainWindow::acknowledgements()
 {
 #ifdef Q_OS_LINUX
-  //QDir dir("/snap/iraspa/current/usr/share/iraspa/");
-  QDir dir("/usr/share/iraspa/");
+  #ifdef USE_SNAP
+    QDir dir("/snap/iraspa/current/usr/share/iraspa/");
+  #else
+    QDir dir("/usr/share/iraspa/");
+  #endif
   QUrl url(dir.absoluteFilePath("AcknowledgedLicenses.pdf"));
   //QDir dir(QApplication::applicationDirPath());
   //QUrl url(dir.absoluteFilePath("AcknowledgedLicenses.pdf"));

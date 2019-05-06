@@ -1,5 +1,11 @@
 INCLUDEPATH += $$PWD
-SOURCES += $$PWD/glwidget.cpp $$PWD/openglatomshader.cpp   $$PWD/openglshader.cpp $$PWD/openglinternalbondshader.cpp $$PWD/openglunitcellsphereshader.cpp \
+
+SOURCES += \
+    $$PWD/glwidget.cpp \
+    $$PWD/openglatomshader.cpp \
+    $$PWD/openglshader.cpp \
+    $$PWD/openglinternalbondshader.cpp \
+    $$PWD/openglunitcellsphereshader.cpp \
     $$PWD/openglunitcellcylindershader.cpp \
     $$PWD/openglatomorthographicimpostershader.cpp \
     $$PWD/openglatomperspectiveimpostershader.cpp \
@@ -17,7 +23,14 @@ SOURCES += $$PWD/glwidget.cpp $$PWD/openglatomshader.cpp   $$PWD/openglshader.cp
     $$PWD/openglbackgroundshader.cpp \
     $$PWD/openglatomselectionglowshader.cpp \
     $$PWD/openglblurshader.cpp
-HEADERS += $$PWD/glwidget.h $$PWD/openglatomshader.h  $$PWD/glgeterror.h  $$PWD/openglshader.h $$PWD/openglinternalbondshader.h $$PWD/openglunitcellsphereshader.h \
+
+HEADERS += \
+    $$PWD/glwidget.h \
+    $$PWD/openglatomshader.h \
+    $$PWD/glgeterror.h \
+    $$PWD/openglshader.h \
+    $$PWD/openglinternalbondshader.h \
+    $$PWD/openglunitcellsphereshader.h \
     $$PWD/openglunitcellcylindershader.h \
     $$PWD/openglatomorthographicimpostershader.h \
     $$PWD/openglatomperspectiveimpostershader.h \
@@ -34,4 +47,3 @@ HEADERS += $$PWD/glwidget.h $$PWD/openglatomshader.h  $$PWD/glgeterror.h  $$PWD/
     $$PWD/openglbackgroundshader.h \
     $$PWD/openglatomselectionglowshader.h \
     $$PWD/openglblurshader.h
-

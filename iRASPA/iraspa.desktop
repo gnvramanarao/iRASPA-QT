@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=iRASPA Molecular Visualizer
+GenericName=Molecular Modeller
+Comment=Visualize molecular structures
+TryExec=iraspa
+Exec=iraspa %F
+Terminal=false
+Icon=iraspa.png
+MimeType=chemical/x-pdb;
+Categories=Graphics;Education;Science;Chemistry;
+Keywords=molecular visualization;molecular structures;crystallography;cif;pdb;

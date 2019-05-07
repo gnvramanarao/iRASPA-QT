@@ -1,0 +1,776 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{978965C1-1C57-3DCD-AC3C-9157C3128238}</ProjectGuid>
+    <RootNamespace>iraspa</RootNamespace>
+    <Keyword>Qt4VSv1.0</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+    <OutputDirectory>release\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>Application</ConfigurationType>
+    <IntermediateDirectory>release\</IntermediateDirectory>
+    <PrimaryOutput>iraspa</PrimaryOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+    <OutputDirectory>debug\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>Application</ConfigurationType>
+    <IntermediateDirectory>debug\</IntermediateDirectory>
+    <PrimaryOutput>iraspa</PrimaryOutput>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup Condition="'$(QtMsBuild)'=='' or !Exists('$(QtMsBuild)\qt.targets')">
+    <QtMsBuild>$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+  </PropertyGroup>
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  </Target>
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
+    <Import Project="$(QtMsBuild)\qt.props" />
+  </ImportGroup>
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">iraspa</TargetName>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</IgnoreImportLibrary>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">iraspa</TargetName>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</IgnoreImportLibrary>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;MathKit;FoundationKit;SymmetryKit;SimulationKit;RenderKit;iRASPAKit;iRASPA;$(CUDA_PATH)/include;-L$(AMDAPPSDKROOT)/include;-L$(INTELOCLSDKROOT)/include;..\..\Desktop\vcpkg\installed\x64-windows-static\include\python2.7;..\..\Desktop\vcpkg\packages\liblzma_x64-windows-static\include;..\..\Desktop\vcpkg\packages\zlib_x64-windows-static\include;..\..\..\..\QT\5.11.2\MSVC2017_64\include;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtOpenGL;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtWebEngineWidgets;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtPrintSupport;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtWidgets;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtWebEngineCore;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtQuick;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtGui;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtANGLE;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtWebChannel;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtQml;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtNetwork;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtPositioning;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtCore;release;\include;..\..\..\..\QT\5.11.2\MSVC2017_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -std:c++17 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>release\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;WIN64;_ENABLE_EXTENDED_ALIGNED_STORAGE;QT_DEPRECATED_WARNINGS;QT_NO_DEBUG;QT_OPENGL_LIB;QT_WEBENGINEWIDGETS_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_WEBENGINECORE_LIB;QT_QUICK_LIB;QT_GUI_LIB;QT_WEBCHANNEL_LIB;QT_QML_LIB;QT_NETWORK_LIB;QT_POSITIONING_LIB;QT_CORE_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>C:\QT\5.11.2\MSVC2017_64\lib\qtmain.lib;shell32.lib;opengl32.lib;User32.lib;$(CUDA_PATH)\lib\x64\OpenCL.lib;C:\Users\David\Desktop\vcpkg\installed\x64-windows-static\lib\python27.lib;Advapi32.lib;C:\Users\David\Desktop\vcpkg\installed\x64-windows-static\lib\lzma.lib;C:\Users\David\Desktop\vcpkg\installed\x64-windows-static\lib\zlib.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5OpenGL.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5WebEngineWidgets.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5PrintSupport.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5Widgets.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5WebEngineCore.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5Quick.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5Gui.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5WebChannel.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5Qml.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5Network.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5Positioning.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5Core.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\QT\5.11.2\MSVC2017_64\lib;C:\openssl\lib;C:\Utils\my_sql\mysql-5.6.11-winx64\lib;C:\Utils\postgresql\pgsql\lib;$(QTDIR)\lib;$(CUDA_PATH)\lib\x64;$(AMDAPPSDKROOT)\lib\x86_64;$(INTELOCLSDKROOT)\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <LinkIncremental>false</LinkIncremental>
+      <OutputFile>$(OutDir)\iraspa.exe</OutputFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Link>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;WIN64;_ENABLE_EXTENDED_ALIGNED_STORAGE;QT_DEPRECATED_WARNINGS;QT_NO_DEBUG;QT_OPENGL_LIB;QT_WEBENGINEWIDGETS_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_WEBENGINECORE_LIB;QT_QUICK_LIB;QT_GUI_LIB;QT_WEBCHANNEL_LIB;QT_QML_LIB;QT_NETWORK_LIB;QT_POSITIONING_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <QtMoc>
+      <QTDIR>C:\QT\5.11.2\MSVC2017_64</QTDIR>
+      <OutputFile>$(Configuration)\moc_%(Filename).cpp</OutputFile>
+      <Define>UNICODE;_UNICODE;WIN32;WIN64;_ENABLE_EXTENDED_ALIGNED_STORAGE;QT_DEPRECATED_WARNINGS;QT_NO_DEBUG;QT_OPENGL_LIB;QT_WEBENGINEWIDGETS_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_WEBENGINECORE_LIB;QT_QUICK_LIB;QT_GUI_LIB;QT_WEBCHANNEL_LIB;QT_QML_LIB;QT_NETWORK_LIB;QT_POSITIONING_LIB;QT_CORE_LIB</Define>
+      <CompilerFlavor>msvc</CompilerFlavor>
+      <Include>./$(Configuration)/moc_predefs.h</Include>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <InputFile>%(FullPath)</InputFile>
+      <DynamicSource>output</DynamicSource>
+      <IncludePath>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;C:/QT/5.11.2/MSVC2017_64/mkspecs/win32-msvc;.;./MathKit;./FoundationKit;./SymmetryKit;./SimulationKit;./RenderKit;./iRASPAKit;./iRASPA;./$(CUDA_PATH)/include;./-L$(AMDAPPSDKROOT)/include;./-L$(INTELOCLSDKROOT)/include;C:/Users/David/Desktop/vcpkg/installed/$(Platform)-windows-static/include/python2.7;C:/Users/David/Desktop/vcpkg/packages/liblzma_$(Platform)-windows-static/include;C:/Users/David/Desktop/vcpkg/packages/zlib_$(Platform)-windows-static/include;C:/QT/5.11.2/MSVC2017_64/include;C:/QT/5.11.2/MSVC2017_64/include/QtOpenGL;C:/QT/5.11.2/MSVC2017_64/include/QtWebEngineWidgets;C:/QT/5.11.2/MSVC2017_64/include/QtPrintSupport;C:/QT/5.11.2/MSVC2017_64/include/QtWidgets;C:/QT/5.11.2/MSVC2017_64/include/QtWebEngineCore;C:/QT/5.11.2/MSVC2017_64/include/QtQuick;C:/QT/5.11.2/MSVC2017_64/include/QtGui;C:/QT/5.11.2/MSVC2017_64/include/QtANGLE;C:/QT/5.11.2/MSVC2017_64/include/QtWebChannel;C:/QT/5.11.2/MSVC2017_64/include/QtQml;C:/QT/5.11.2/MSVC2017_64/include/QtNetwork;C:/QT/5.11.2/MSVC2017_64/include/QtPositioning;C:/QT/5.11.2/MSVC2017_64/include/QtCore;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.15.26726\ATLMFC\include;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.15.26726\include;C:\Program Files (x86)\Windows Kits\NETFXSDK\4.6.1\include\um;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt</IncludePath>
+    </QtMoc>
+    <QtRcc>
+      <InitFuncName>iraspa-resources</InitFuncName>
+      <OutputFile>$(Configuration)\qrc_%(Filename).cpp</OutputFile>
+      <InputFile>%(FullPath)</InputFile>
+      <QTDIR>C:\QT\5.11.2\MSVC2017_64</QTDIR>
+      <Compression>default</Compression>
+      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
+    </QtRcc>
+    <QtUic>
+      <QTDIR>C:\QT\5.11.2\MSVC2017_64</QTDIR>
+      <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
+      <InputFile>%(FullPath)</InputFile>
+    </QtUic>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;MathKit;FoundationKit;SymmetryKit;SimulationKit;RenderKit;iRASPAKit;iRASPA;$(CUDA_PATH)/include;-L$(AMDAPPSDKROOT)/include;-L$(INTELOCLSDKROOT)/include;..\..\Desktop\vcpkg\installed\x64-windows-static\include\python2.7;..\..\Desktop\vcpkg\packages\liblzma_x64-windows-static\include;..\..\Desktop\vcpkg\packages\zlib_x64-windows-static\include;..\..\..\..\QT\5.11.2\MSVC2017_64\include;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtOpenGL;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtWebEngineWidgets;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtPrintSupport;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtWidgets;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtWebEngineCore;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtQuick;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtGui;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtANGLE;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtWebChannel;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtQml;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtNetwork;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtPositioning;..\..\..\..\QT\5.11.2\MSVC2017_64\include\QtCore;debug;\include;..\..\..\..\QT\5.11.2\MSVC2017_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -std:c++17 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>debug\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;WIN64;_ENABLE_EXTENDED_ALIGNED_STORAGE;QT_DEPRECATED_WARNINGS;QT_OPENGL_LIB;QT_WEBENGINEWIDGETS_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_WEBENGINECORE_LIB;QT_QUICK_LIB;QT_GUI_LIB;QT_WEBCHANNEL_LIB;QT_QML_LIB;QT_NETWORK_LIB;QT_POSITIONING_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>C:\QT\5.11.2\MSVC2017_64\lib\qtmaind.lib;shell32.lib;opengl32.lib;User32.lib;$(CUDA_PATH)\lib\x64\OpenCL.lib;C:\Users\David\Desktop\vcpkg\installed\x64-windows-static\lib\python27.lib;Advapi32.lib;C:\Users\David\Desktop\vcpkg\installed\x64-windows-static\lib\lzma.lib;C:\Users\David\Desktop\vcpkg\installed\x64-windows-static\lib\zlib.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5OpenGLd.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5WebEngineWidgetsd.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5PrintSupportd.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5Widgetsd.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5WebEngineCored.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5Quickd.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5Guid.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5WebChanneld.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5Qmld.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5Networkd.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5Positioningd.lib;C:\QT\5.11.2\MSVC2017_64\lib\Qt5Cored.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\QT\5.11.2\MSVC2017_64\lib;C:\openssl\lib;C:\Utils\my_sql\mysql-5.6.11-winx64\lib;C:\Utils\postgresql\pgsql\lib;$(QTDIR)\lib;$(CUDA_PATH)\lib\x64;$(AMDAPPSDKROOT)\lib\x86_64;$(INTELOCLSDKROOT)\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <OutputFile>$(OutDir)\iraspa.exe</OutputFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <SubSystem>Windows</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Link>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;WIN64;_ENABLE_EXTENDED_ALIGNED_STORAGE;QT_DEPRECATED_WARNINGS;QT_OPENGL_LIB;QT_WEBENGINEWIDGETS_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_WEBENGINECORE_LIB;QT_QUICK_LIB;QT_GUI_LIB;QT_WEBCHANNEL_LIB;QT_QML_LIB;QT_NETWORK_LIB;QT_POSITIONING_LIB;QT_CORE_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <QtMoc>
+      <QTDIR>C:\QT\5.11.2\MSVC2017_64</QTDIR>
+      <OutputFile>$(Configuration)\moc_%(Filename).cpp</OutputFile>
+      <Define>UNICODE;_UNICODE;WIN32;WIN64;_ENABLE_EXTENDED_ALIGNED_STORAGE;QT_DEPRECATED_WARNINGS;QT_OPENGL_LIB;QT_WEBENGINEWIDGETS_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_WEBENGINECORE_LIB;QT_QUICK_LIB;QT_GUI_LIB;QT_WEBCHANNEL_LIB;QT_QML_LIB;QT_NETWORK_LIB;QT_POSITIONING_LIB;QT_CORE_LIB</Define>
+      <CompilerFlavor>msvc</CompilerFlavor>
+      <Include>./$(Configuration)/moc_predefs.h</Include>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <InputFile>%(FullPath)</InputFile>
+      <DynamicSource>output</DynamicSource>
+      <IncludePath>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;C:/QT/5.11.2/MSVC2017_64/mkspecs/win32-msvc;.;./MathKit;./FoundationKit;./SymmetryKit;./SimulationKit;./RenderKit;./iRASPAKit;./iRASPA;./$(CUDA_PATH)/include;./-L$(AMDAPPSDKROOT)/include;./-L$(INTELOCLSDKROOT)/include;C:/Users/David/Desktop/vcpkg/installed/$(Platform)-windows-static/include/python2.7;C:/Users/David/Desktop/vcpkg/packages/liblzma_$(Platform)-windows-static/include;C:/Users/David/Desktop/vcpkg/packages/zlib_$(Platform)-windows-static/include;C:/QT/5.11.2/MSVC2017_64/include;C:/QT/5.11.2/MSVC2017_64/include/QtOpenGL;C:/QT/5.11.2/MSVC2017_64/include/QtWebEngineWidgets;C:/QT/5.11.2/MSVC2017_64/include/QtPrintSupport;C:/QT/5.11.2/MSVC2017_64/include/QtWidgets;C:/QT/5.11.2/MSVC2017_64/include/QtWebEngineCore;C:/QT/5.11.2/MSVC2017_64/include/QtQuick;C:/QT/5.11.2/MSVC2017_64/include/QtGui;C:/QT/5.11.2/MSVC2017_64/include/QtANGLE;C:/QT/5.11.2/MSVC2017_64/include/QtWebChannel;C:/QT/5.11.2/MSVC2017_64/include/QtQml;C:/QT/5.11.2/MSVC2017_64/include/QtNetwork;C:/QT/5.11.2/MSVC2017_64/include/QtPositioning;C:/QT/5.11.2/MSVC2017_64/include/QtCore;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.15.26726\ATLMFC\include;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.15.26726\include;C:\Program Files (x86)\Windows Kits\NETFXSDK\4.6.1\include\um;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt</IncludePath>
+    </QtMoc>
+    <QtRcc>
+      <QTDIR>C:\QT\5.11.2\MSVC2017_64</QTDIR>
+      <InputFile>%(FullPath)</InputFile>
+      <OutputFile>$(Configuration)\qrc_%(Filename).cpp</OutputFile>
+      <InitFuncName>iraspa-resources</InitFuncName>
+      <Compression>default</Compression>
+      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
+    </QtRcc>
+    <QtUic>
+      <QTDIR>C:\QT\5.11.2\MSVC2017_64</QTDIR>
+      <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
+      <InputFile>%(FullPath)</InputFile>
+    </QtUic>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="iRASPA\aboutdialog.cpp" />
+    <ClCompile Include="iRASPA\appearanceadsorptionsurfaceform.cpp" />
+    <ClCompile Include="iRASPA\appearanceannotationform.cpp" />
+    <ClCompile Include="iRASPA\appearanceatomsform.cpp" />
+    <ClCompile Include="iRASPA\appearancebondsform.cpp" />
+    <ClCompile Include="iRASPA\appearancetreewidgetcontroller.cpp" />
+    <ClCompile Include="iRASPA\appearanceunitcellform.cpp" />
+    <ClCompile Include="iRASPA\atomtreeview.cpp" />
+    <ClCompile Include="iRASPA\atomtreeviewmodel.cpp" />
+    <ClCompile Include="iRASPA\bondlistview.cpp" />
+    <ClCompile Include="iRASPA\bondlistviewmodel.cpp" />
+    <ClCompile Include="iRASPA\bondlistviewsliderstyleditemdelegate.cpp" />
+    <ClCompile Include="MathKit\bool3.cpp" />
+    <ClCompile Include="iRASPA\camerabackgroundform.cpp" />
+    <ClCompile Include="iRASPA\cameracameraform.cpp" />
+    <ClCompile Include="iRASPA\cameralightsform.cpp" />
+    <ClCompile Include="iRASPA\camerapicturesform.cpp" />
+    <ClCompile Include="iRASPA\cameraselectionform.cpp" />
+    <ClCompile Include="iRASPA\cameratreewidgetcontroller.cpp" />
+    <ClCompile Include="RenderKit\cappedcylindergeometry.cpp" />
+    <ClCompile Include="iRASPA\cellcellform.cpp" />
+    <ClCompile Include="iRASPA\cellstructuralform.cpp" />
+    <ClCompile Include="iRASPA\cellsymmetryform.cpp" />
+    <ClCompile Include="iRASPA\celltreewidgetcontroller.cpp" />
+    <ClCompile Include="FoundationKit\characterset.cpp" />
+    <ClCompile Include="SimulationKit\constants.cpp" />
+    <ClCompile Include="iRASPAKit\crystal.cpp" />
+    <ClCompile Include="RenderKit\cubegeometry.cpp" />
+    <ClCompile Include="iRASPA\customdoublespinbox.cpp" />
+    <ClCompile Include="iRASPA\customintspinbox.cpp" />
+    <ClCompile Include="RenderKit\cylindergeometry.cpp" />
+    <ClCompile Include="iRASPA\detailtabviewcontroller.cpp" />
+    <ClCompile Include="iRASPAKit\documentdata.cpp" />
+    <ClCompile Include="MathKit\double2.cpp" />
+    <ClCompile Include="MathKit\double3.cpp" />
+    <ClCompile Include="MathKit\double3x3.cpp" />
+    <ClCompile Include="MathKit\double4.cpp" />
+    <ClCompile Include="MathKit\double4x4.cpp" />
+    <ClCompile Include="MathKit\drand48.cpp" />
+    <ClCompile Include="iRASPA\elementlistwidgetcontroller.cpp" />
+    <ClCompile Include="iRASPA\elementsform.cpp" />
+    <ClCompile Include="iRASPA\fixedaspectratiolayoutitem.cpp" />
+    <ClCompile Include="MathKit\float2.cpp" />
+    <ClCompile Include="MathKit\float3.cpp" />
+    <ClCompile Include="MathKit\float3x3.cpp" />
+    <ClCompile Include="MathKit\float4.cpp" />
+    <ClCompile Include="MathKit\float4x4.cpp" />
+    <ClCompile Include="SimulationKit\forcefieldset.cpp" />
+    <ClCompile Include="SimulationKit\forcefieldsets.cpp" />
+    <ClCompile Include="SimulationKit\forcefieldtype.cpp" />
+    <ClCompile Include="iRASPA\framelistview.cpp" />
+    <ClCompile Include="iRASPA\framelistviewmodel.cpp" />
+    <ClCompile Include="RenderKit\glgeterror.cpp" />
+    <ClCompile Include="RenderKit\glwidget.cpp" />
+    <ClCompile Include="iRASPA\helpbrowser.cpp" />
+    <ClCompile Include="iRASPA\helpwidget.cpp" />
+    <ClCompile Include="FoundationKit\indexpath.cpp" />
+    <ClCompile Include="iRASPA\infochemicalform.cpp" />
+    <ClCompile Include="iRASPA\infocitationform.cpp" />
+    <ClCompile Include="iRASPA\infocreationform.cpp" />
+    <ClCompile Include="iRASPA\infocreatorform.cpp" />
+    <ClCompile Include="iRASPA\informationpanelview.cpp" />
+    <ClCompile Include="iRASPA\infotreewidgetcontroller.cpp" />
+    <ClCompile Include="MathKit\int3.cpp" />
+    <ClCompile Include="MathKit\int3x3.cpp" />
+    <ClCompile Include="iRASPAKit\iraspaproject.cpp" />
+    <ClCompile Include="iRASPAKit\iraspastructure.cpp" />
+    <ClCompile Include="iRASPA\iraspatoolbar.cpp" />
+    <ClCompile Include="iRASPA\linenumberplaintextedit.cpp" />
+    <ClCompile Include="iRASPA\logviewcontroller.cpp" />
+    <ClCompile Include="iRASPA\main.cpp" />
+    <ClCompile Include="iRASPA\mainwindow.cpp" />
+    <ClCompile Include="iRASPA\masterstackedwidget.cpp" />
+    <ClCompile Include="iRASPA\mastertoolbar.cpp" />
+    <ClCompile Include="iRASPAKit\molecularcrystal.cpp" />
+    <ClCompile Include="iRASPAKit\molecule.cpp" />
+    <ClCompile Include="iRASPAKit\movie.cpp" />
+    <ClCompile Include="MathKit\nsrect.cpp" />
+    <ClCompile Include="MathKit\nssize.cpp" />
+    <ClCompile Include="RenderKit\openglambientocclusionshadowmapshader.cpp" />
+    <ClCompile Include="RenderKit\openglatomorthographicimpostershader.cpp" />
+    <ClCompile Include="RenderKit\openglatomperspectiveimpostershader.cpp" />
+    <ClCompile Include="RenderKit\openglatomselectionglowshader.cpp" />
+    <ClCompile Include="RenderKit\openglatomselectionstripesorthographicimpostershader.cpp" />
+    <ClCompile Include="RenderKit\openglatomselectionstripesperspectiveimpostershader.cpp" />
+    <ClCompile Include="RenderKit\openglatomselectionstripesshader.cpp" />
+    <ClCompile Include="RenderKit\openglatomselectionworleynoise3dorthographicimpostershader.cpp" />
+    <ClCompile Include="RenderKit\openglatomselectionworleynoise3dperspectiveimpostershader.cpp" />
+    <ClCompile Include="RenderKit\openglatomselectionworleynoise3dshader.cpp" />
+    <ClCompile Include="RenderKit\openglatomshader.cpp" />
+    <ClCompile Include="RenderKit\openglbackgroundshader.cpp" />
+    <ClCompile Include="RenderKit\openglblurshader.cpp" />
+    <ClCompile Include="RenderKit\openglenergysurface.cpp" />
+    <ClCompile Include="RenderKit\openglexternalbondshader.cpp" />
+    <ClCompile Include="RenderKit\openglinternalbondshader.cpp" />
+    <ClCompile Include="RenderKit\openglpickingshader.cpp" />
+    <ClCompile Include="RenderKit\openglshader.cpp" />
+    <ClCompile Include="RenderKit\openglunitcellcylindershader.cpp" />
+    <ClCompile Include="RenderKit\openglunitcellsphereshader.cpp" />
+    <ClCompile Include="iRASPAKit\project.cpp" />
+    <ClCompile Include="iRASPAKit\projectgroup.cpp" />
+    <ClCompile Include="iRASPAKit\projectstructure.cpp" />
+    <ClCompile Include="iRASPAKit\projecttreecontroller.cpp" />
+    <ClCompile Include="iRASPAKit\projecttreenode.cpp" />
+    <ClCompile Include="iRASPA\projecttreeview.cpp" />
+    <ClCompile Include="iRASPA\projecttreeviewmodel.cpp" />
+    <ClCompile Include="iRASPAKit\protein.cpp" />
+    <ClCompile Include="iRASPAKit\proteincrystal.cpp" />
+    <ClCompile Include="iRASPA\pythonviewcontroller.cpp" />
+    <ClCompile Include="iRASPA\qdoubleslider.cpp" />
+    <ClCompile Include="iRASPA\qtsegmentcontrol.cpp" />
+    <ClCompile Include="RenderKit\quadgeometry.cpp" />
+    <ClCompile Include="iRASPA\renderstackedwidget.cpp" />
+    <ClCompile Include="RenderKit\rkcamera.cpp" />
+    <ClCompile Include="RenderKit\rkfontatlas.cpp" />
+    <ClCompile Include="RenderKit\rklight.cpp" />
+    <ClCompile Include="RenderKit\rkrenderuniforms.cpp" />
+    <ClCompile Include="FoundationKit\scanner.cpp" />
+    <ClCompile Include="iRASPAKit\scene.cpp" />
+    <ClCompile Include="iRASPAKit\scenelist.cpp" />
+    <ClCompile Include="iRASPA\scenetreeview.cpp" />
+    <ClCompile Include="iRASPA\scenetreeviewmodel.cpp" />
+    <ClCompile Include="iRASPA\selectcolorbutton.cpp" />
+    <ClCompile Include="MathKit\simd_quatd.cpp" />
+    <ClCompile Include="SymmetryKit\skasymmetricatom.cpp" />
+    <ClCompile Include="SymmetryKit\skatomtreecontroller.cpp" />
+    <ClCompile Include="SymmetryKit\skatomtreenode.cpp" />
+    <ClCompile Include="SymmetryKit\skbond.cpp" />
+    <ClCompile Include="SymmetryKit\skbondsetcontroller.cpp" />
+    <ClCompile Include="SymmetryKit\skboundingbox.cpp" />
+    <ClCompile Include="SymmetryKit\skcell.cpp" />
+    <ClCompile Include="SymmetryKit\skcifparser.cpp" />
+    <ClCompile Include="SymmetryKit\skcolorset.cpp" />
+    <ClCompile Include="SymmetryKit\skcolorsets.cpp" />
+    <ClCompile Include="SymmetryKit\skelement.cpp" />
+    <ClCompile Include="SymmetryKit\skonethirdseitzmatrix.cpp" />
+    <ClCompile Include="SimulationKit\skopenclenergygridunitcell.cpp" />
+    <ClCompile Include="SimulationKit\skopenclfindminmumenergygridunitcell.cpp" />
+    <ClCompile Include="SimulationKit\skopenclmarchingcubes.cpp" />
+    <ClCompile Include="SimulationKit\skopenclvoidfractionunitcell.cpp" />
+    <ClCompile Include="SymmetryKit\skparser.cpp" />
+    <ClCompile Include="SymmetryKit\skpdbparser.cpp" />
+    <ClCompile Include="SymmetryKit\skpointgroup.cpp" />
+    <ClCompile Include="SymmetryKit\skrotationaloccurancetable.cpp" />
+    <ClCompile Include="SymmetryKit\skrotationmatrix.cpp" />
+    <ClCompile Include="SymmetryKit\skseitzmatrix.cpp" />
+    <ClCompile Include="SymmetryKit\skspacegroup.cpp" />
+    <ClCompile Include="SymmetryKit\skspacegroupsetting.cpp" />
+    <ClCompile Include="SymmetryKit\sksymmetryoperationset.cpp" />
+    <ClCompile Include="RenderKit\spheregeometry.cpp" />
+    <ClCompile Include="iRASPAKit\structure.cpp" />
+    <ClCompile Include="iRASPA\textfield.cpp" />
+    <ClCompile Include="RenderKit\trackball.cpp" />
+    <ClCompile Include="FoundationKit\zip.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="iRASPA\aboutdialog.h" />
+    <QtMoc Include="iRASPA\appearanceadsorptionsurfaceform.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\appearanceannotationform.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\appearanceatomsform.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\appearancebondsform.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\appearancetreewidgetcontroller.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\appearanceunitcellform.h">
+    </QtMoc>
+    <ClInclude Include="FoundationKit\aspectratiosingleitemlayout.h" />
+    <QtMoc Include="iRASPA\atomtreeview.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\atomtreeviewmodel.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\bondlistview.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\bondlistviewmodel.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\bondlistviewsliderstyleditemdelegate.h">
+    </QtMoc>
+    <ClInclude Include="MathKit\bool3.h" />
+    <QtMoc Include="iRASPA\camerabackgroundform.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\cameracameraform.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\cameralightsform.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\camerapicturesform.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\cameraselectionform.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\cameratreewidgetcontroller.h">
+    </QtMoc>
+    <ClInclude Include="RenderKit\cappedcylindergeometry.h" />
+    <QtMoc Include="iRASPA\cellcellform.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\cellstructuralform.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\cellsymmetryform.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\celltreewidgetcontroller.h">
+    </QtMoc>
+    <ClInclude Include="FoundationKit\characterset.h" />
+    <ClInclude Include="SimulationKit\constants.h" />
+    <ClInclude Include="iRASPAKit\crystal.h" />
+    <ClInclude Include="RenderKit\cubegeometry.h" />
+    <QtMoc Include="iRASPA\customdoublespinbox.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\customintspinbox.h">
+    </QtMoc>
+    <ClInclude Include="RenderKit\cylindergeometry.h" />
+    <QtMoc Include="iRASPA\detailtabviewcontroller.h">
+    </QtMoc>
+    <ClInclude Include="iRASPAKit\documentdata.h" />
+    <ClInclude Include="MathKit\double2.h" />
+    <ClInclude Include="MathKit\double3.h" />
+    <ClInclude Include="MathKit\double3x3.h" />
+    <ClInclude Include="MathKit\double4.h" />
+    <ClInclude Include="MathKit\double4x4.h" />
+    <ClInclude Include="MathKit\drand48.h" />
+    <QtMoc Include="iRASPA\elementlistwidgetcontroller.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\elementsform.h">
+    </QtMoc>
+    <ClInclude Include="iRASPA\fixedaspectratiolayoutitem.h" />
+    <ClInclude Include="FoundationKit\flatten.h" />
+    <ClInclude Include="MathKit\float2.h" />
+    <ClInclude Include="MathKit\float3.h" />
+    <ClInclude Include="MathKit\float3x3.h" />
+    <ClInclude Include="MathKit\float4.h" />
+    <ClInclude Include="MathKit\float4x4.h" />
+    <ClInclude Include="SimulationKit\forcefieldset.h" />
+    <ClInclude Include="SimulationKit\forcefieldsets.h" />
+    <ClInclude Include="SimulationKit\forcefieldtype.h" />
+    <ClInclude Include="FoundationKit\foundationkit.h" />
+    <QtMoc Include="iRASPA\framelistview.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\framelistviewmodel.h">
+    </QtMoc>
+    <ClInclude Include="RenderKit\glgeterror.h" />
+    <QtMoc Include="RenderKit\glwidget.h">
+    </QtMoc>
+    <ClInclude Include="iRASPA\helpbrowser.h" />
+    <QtMoc Include="iRASPA\helpwidget.h">
+    </QtMoc>
+    <ClInclude Include="FoundationKit\indexpath.h" />
+    <QtMoc Include="iRASPA\infochemicalform.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\infocitationform.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\infocreationform.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\infocreatorform.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\informationpanelview.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\infotreewidgetcontroller.h">
+    </QtMoc>
+    <ClInclude Include="MathKit\int3.h" />
+    <ClInclude Include="MathKit\int3x3.h" />
+    <ClInclude Include="iRASPAKit\iraspakit.h" />
+    <ClInclude Include="iRASPAKit\iraspakitprotocols.h" />
+    <ClInclude Include="iRASPA\iraspamainwindowconsumerprotocol.h" />
+    <ClInclude Include="iRASPAKit\iraspaproject.h" />
+    <ClInclude Include="iRASPAKit\iraspastructure.h" />
+    <QtMoc Include="iRASPA\iraspatoolbar.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\linenumberplaintextedit.h">
+    </QtMoc>
+    <ClInclude Include="FoundationKit\logreporting.h" />
+    <QtMoc Include="iRASPA\logviewcontroller.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\mainwindow.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\masterstackedwidget.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\mastertoolbar.h">
+    </QtMoc>
+    <ClInclude Include="MathKit\mathkit.h" />
+    <ClInclude Include="iRASPAKit\molecularcrystal.h" />
+    <ClInclude Include="iRASPAKit\molecule.h" />
+    <ClInclude Include="iRASPAKit\movie.h" />
+    <ClInclude Include="MathKit\nsrect.h" />
+    <ClInclude Include="MathKit\nssize.h" />
+    <ClInclude Include="RenderKit\openglambientocclusionshadowmapshader.h" />
+    <ClInclude Include="RenderKit\openglatomorthographicimpostershader.h" />
+    <ClInclude Include="RenderKit\openglatomperspectiveimpostershader.h" />
+    <ClInclude Include="RenderKit\openglatomselectionglowshader.h" />
+    <ClInclude Include="RenderKit\openglatomselectionstripesorthographicimpostershader.h" />
+    <ClInclude Include="RenderKit\openglatomselectionstripesperspectiveimpostershader.h" />
+    <ClInclude Include="RenderKit\openglatomselectionstripesshader.h" />
+    <ClInclude Include="RenderKit\openglatomselectionworleynoise3dorthographicimpostershader.h" />
+    <ClInclude Include="RenderKit\openglatomselectionworleynoise3dperspectiveimpostershader.h" />
+    <ClInclude Include="RenderKit\openglatomselectionworleynoise3dshader.h" />
+    <ClInclude Include="RenderKit\openglatomshader.h" />
+    <ClInclude Include="RenderKit\openglbackgroundshader.h" />
+    <ClInclude Include="RenderKit\openglblurshader.h" />
+    <ClInclude Include="RenderKit\openglenergysurface.h" />
+    <ClInclude Include="RenderKit\openglexternalbondshader.h" />
+    <ClInclude Include="RenderKit\openglinternalbondshader.h" />
+    <ClInclude Include="RenderKit\openglpickingshader.h" />
+    <ClInclude Include="RenderKit\openglshader.h" />
+    <ClInclude Include="RenderKit\openglunitcellcylindershader.h" />
+    <ClInclude Include="RenderKit\openglunitcellsphereshader.h" />
+    <ClInclude Include="RenderKit\optional.h" />
+    <ClInclude Include="SymmetryKit\optional.h" />
+    <ClInclude Include="iRASPAKit\optional.h" />
+    <ClInclude Include="iRASPA\optional.h" />
+    <ClInclude Include="iRASPAKit\project.h" />
+    <ClInclude Include="iRASPAKit\projectgroup.h" />
+    <ClInclude Include="iRASPAKit\projectstructure.h" />
+    <ClInclude Include="iRASPAKit\projecttreecontroller.h" />
+    <ClInclude Include="iRASPAKit\projecttreenode.h" />
+    <QtMoc Include="iRASPA\projecttreeview.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\projecttreeviewmodel.h">
+    </QtMoc>
+    <ClInclude Include="iRASPAKit\protein.h" />
+    <ClInclude Include="iRASPAKit\proteincrystal.h" />
+    <QtMoc Include="iRASPA\pythonviewcontroller.h">
+    </QtMoc>
+    <ClInclude Include="iRASPA\qcolorhash.h" />
+    <QtMoc Include="iRASPA\qdoubleslider.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\qtsegmentcontrol.h">
+    </QtMoc>
+    <ClInclude Include="RenderKit\quadgeometry.h" />
+    <ClInclude Include="RenderKit\renderkit.h" />
+    <QtMoc Include="iRASPA\renderstackedwidget.h">
+    </QtMoc>
+    <ClInclude Include="RenderKit\rkcamera.h" />
+    <ClInclude Include="RenderKit\rkfontatlas.h" />
+    <ClInclude Include="RenderKit\rklight.h" />
+    <ClInclude Include="RenderKit\rkrenderkitprotocols.h" />
+    <ClInclude Include="RenderKit\rkrenderuniforms.h" />
+    <ClInclude Include="FoundationKit\scanner.h" />
+    <ClInclude Include="iRASPAKit\scene.h" />
+    <ClInclude Include="iRASPAKit\scenelist.h" />
+    <QtMoc Include="iRASPA\scenetreeview.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\scenetreeviewmodel.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\selectcolorbutton.h">
+    </QtMoc>
+    <ClInclude Include="FoundationKit\serialization.h" />
+    <ClInclude Include="FoundationKit\signalblocker.h" />
+    <ClInclude Include="MathKit\simd_quatd.h" />
+    <ClInclude Include="SimulationKit\simulationkit.h" />
+    <ClInclude Include="SymmetryKit\skasymmetricatom.h" />
+    <ClInclude Include="SymmetryKit\skatomtreecontroller.h" />
+    <ClInclude Include="SymmetryKit\skatomtreenode.h" />
+    <ClInclude Include="SymmetryKit\skbond.h" />
+    <ClInclude Include="SymmetryKit\skbondsetcontroller.h" />
+    <ClInclude Include="SymmetryKit\skboundingbox.h" />
+    <ClInclude Include="SymmetryKit\skcell.h" />
+    <ClInclude Include="SymmetryKit\skcifparser.h" />
+    <ClInclude Include="SymmetryKit\skcolorset.h" />
+    <ClInclude Include="SymmetryKit\skcolorsets.h" />
+    <ClInclude Include="SymmetryKit\skdefinitions.h" />
+    <ClInclude Include="SymmetryKit\skelement.h" />
+    <ClInclude Include="SymmetryKit\skonethirdseitzmatrix.h" />
+    <ClInclude Include="SimulationKit\skopenclenergygridunitcell.h" />
+    <ClInclude Include="SimulationKit\skopenclfindminmumenergygridunitcell.h" />
+    <ClInclude Include="SimulationKit\skopenclmarchingcubes.h" />
+    <ClInclude Include="SimulationKit\skopenclvoidfractionunitcell.h" />
+    <ClInclude Include="SymmetryKit\skparser.h" />
+    <ClInclude Include="SymmetryKit\skpdbparser.h" />
+    <ClInclude Include="SymmetryKit\skpointgroup.h" />
+    <ClInclude Include="SymmetryKit\skrotationaloccurancetable.h" />
+    <ClInclude Include="SymmetryKit\skrotationmatrix.h" />
+    <ClInclude Include="SymmetryKit\skseitzmatrix.h" />
+    <ClInclude Include="SymmetryKit\skspacegroup.h" />
+    <ClInclude Include="SymmetryKit\skspacegroupsetting.h" />
+    <ClInclude Include="SymmetryKit\sksymmetryoperationset.h" />
+    <ClInclude Include="RenderKit\spheregeometry.h" />
+    <ClInclude Include="iRASPAKit\structure.h" />
+    <ClInclude Include="SymmetryKit\symmetrykit.h" />
+    <ClInclude Include="SymmetryKit\symmetrykitprotocols.h" />
+    <QtMoc Include="iRASPA\textfield.h">
+    </QtMoc>
+    <ClInclude Include="RenderKit\trackball.h" />
+    <ClInclude Include="FoundationKit\zipreader.h" />
+    <ClInclude Include="FoundationKit\zipwriter.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="debug\moc_predefs.h.cbt">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\..\QT\5.11.2\MSVC2017_64\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -Zi -MDd -std:c++17 -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E ..\..\..\..\QT\5.11.2\MSVC2017_64\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;debug\moc_predefs.h</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generate moc_predefs.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">debug\moc_predefs.h;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="release\moc_predefs.h.cbt">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\..\QT\5.11.2\MSVC2017_64\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O2 -MD -std:c++17 -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E ..\..\..\..\QT\5.11.2\MSVC2017_64\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;release\moc_predefs.h</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generate moc_predefs.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">release\moc_predefs.h;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <ClInclude Include="ui_aboutdialog.h" />
+    <ClInclude Include="ui_appearanceadsorptionsurfaceform.h" />
+    <ClInclude Include="ui_appearanceannotationform.h" />
+    <ClInclude Include="ui_appearanceatomsform.h" />
+    <ClInclude Include="ui_appearancebondsform.h" />
+    <ClInclude Include="ui_appearanceunitcellform.h" />
+    <ClInclude Include="ui_camerabackgroundform.h" />
+    <ClInclude Include="ui_cameracameraform.h" />
+    <ClInclude Include="ui_cameralightsform.h" />
+    <ClInclude Include="ui_camerapicturesform.h" />
+    <ClInclude Include="ui_cameraselectionform.h" />
+    <ClInclude Include="ui_cellcellform.h" />
+    <ClInclude Include="ui_cellstructuralform.h" />
+    <ClInclude Include="ui_cellsymmetryform.h" />
+    <ClInclude Include="ui_elementsform.h" />
+    <ClInclude Include="ui_infochemicalform.h" />
+    <ClInclude Include="ui_infocitationform.h" />
+    <ClInclude Include="ui_infocreationform.h" />
+    <ClInclude Include="ui_infocreatorform.h" />
+    <ClInclude Include="ui_mainwindow.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="iRASPA\aboutdialog.ui">
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_aboutdialog.h</OutputFile>
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_aboutdialog.h</OutputFile>
+    </QtUic>
+    <QtUic Include="iRASPA\appearanceadsorptionsurfaceform.ui">
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_appearanceadsorptionsurfaceform.h</OutputFile>
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_appearanceadsorptionsurfaceform.h</OutputFile>
+    </QtUic>
+    <QtUic Include="iRASPA\appearanceannotationform.ui">
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_appearanceannotationform.h</OutputFile>
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_appearanceannotationform.h</OutputFile>
+    </QtUic>
+    <QtUic Include="iRASPA\appearanceatomsform.ui">
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_appearanceatomsform.h</OutputFile>
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_appearanceatomsform.h</OutputFile>
+    </QtUic>
+    <QtUic Include="iRASPA\appearancebondsform.ui">
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_appearancebondsform.h</OutputFile>
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_appearancebondsform.h</OutputFile>
+    </QtUic>
+    <QtUic Include="iRASPA\appearanceunitcellform.ui">
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_appearanceunitcellform.h</OutputFile>
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_appearanceunitcellform.h</OutputFile>
+    </QtUic>
+    <QtUic Include="iRASPA\camerabackgroundform.ui">
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_camerabackgroundform.h</OutputFile>
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_camerabackgroundform.h</OutputFile>
+    </QtUic>
+    <QtUic Include="iRASPA\cameracameraform.ui">
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_cameracameraform.h</OutputFile>
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_cameracameraform.h</OutputFile>
+    </QtUic>
+    <QtUic Include="iRASPA\cameralightsform.ui">
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_cameralightsform.h</OutputFile>
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_cameralightsform.h</OutputFile>
+    </QtUic>
+    <QtUic Include="iRASPA\camerapicturesform.ui">
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_camerapicturesform.h</OutputFile>
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_camerapicturesform.h</OutputFile>
+    </QtUic>
+    <QtUic Include="iRASPA\cameraselectionform.ui">
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_cameraselectionform.h</OutputFile>
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_cameraselectionform.h</OutputFile>
+    </QtUic>
+    <QtUic Include="iRASPA\cellcellform.ui">
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_cellcellform.h</OutputFile>
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_cellcellform.h</OutputFile>
+    </QtUic>
+    <QtUic Include="iRASPA\cellstructuralform.ui">
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_cellstructuralform.h</OutputFile>
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_cellstructuralform.h</OutputFile>
+    </QtUic>
+    <QtUic Include="iRASPA\cellsymmetryform.ui">
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_cellsymmetryform.h</OutputFile>
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_cellsymmetryform.h</OutputFile>
+    </QtUic>
+    <QtUic Include="iRASPA\elementsform.ui">
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_elementsform.h</OutputFile>
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_elementsform.h</OutputFile>
+    </QtUic>
+    <QtUic Include="iRASPA\infochemicalform.ui">
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_infochemicalform.h</OutputFile>
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_infochemicalform.h</OutputFile>
+    </QtUic>
+    <QtUic Include="iRASPA\infocitationform.ui">
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_infocitationform.h</OutputFile>
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_infocitationform.h</OutputFile>
+    </QtUic>
+    <QtUic Include="iRASPA\infocreationform.ui">
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_infocreationform.h</OutputFile>
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_infocreationform.h</OutputFile>
+    </QtUic>
+    <QtUic Include="iRASPA\infocreatorform.ui">
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_infocreatorform.h</OutputFile>
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_infocreatorform.h</OutputFile>
+    </QtUic>
+    <QtUic Include="iRASPA\mainwindow.ui">
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_mainwindow.h</OutputFile>
+      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_mainwindow.h</OutputFile>
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="iRASPA\BottomPanelCollapse.png" />
+    <None Include="iRASPA\FrameListController.png" />
+    <None Include="iRASPA\LeftPanelCollapse.png" />
+    <None Include="iRASPA\MovieListController.png" />
+    <None Include="iRASPA\NSAddTemplate.png" />
+    <None Include="iRASPA\NSRemoveTemplate.png" />
+    <None Include="iRASPA\ProjectListController.png" />
+    <None Include="iRASPA\RightPanelCollapse.png" />
+    <None Include="iRASPA\collapsed.png" />
+    <None Include="iRASPA\expanded.png" />
+    <None Include="iRASPA\iRASPA-icon-512x512.png" />
+    <QtRcc Include="iRASPA\iraspa-resources.qrc">
+    </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="D3Dcompiler_47.dll" />
+    <None Include="LibraryOfStructures.irspdoc" />
+    <None Include="Qt5Core.dll" />
+    <None Include="Qt5Gui.dll" />
+    <None Include="Qt5Network.dll" />
+    <None Include="Qt5OpenGL.dll" />
+    <None Include="Qt5Positioning.dll" />
+    <None Include="Qt5PrintSupport.dll" />
+    <None Include="Qt5Qml.dll" />
+    <None Include="Qt5Quick.dll" />
+    <None Include="Qt5QuickWidgets.dll" />
+    <None Include="Qt5SerialPort.dll" />
+    <None Include="Qt5Svg.dll" />
+    <None Include="Qt5WebChannel.dll" />
+    <None Include="Qt5WebEngineCore.dll" />
+    <None Include="Qt5WebEngineWidgets.dll" />
+    <None Include="Qt5Widgets.dll" />
+    <None Include="QtWebEngineProcess.exe" />
+    <None Include="resources\icudtl.dat" />
+    <None Include="libEGL.dll" />
+    <None Include="libGLESV2.dll" />
+    <None Include="moc_predefs.h" />
+    <None Include="moc_predefs.h.cbt" />
+    <None Include="opengl32sw.dll" />
+    <None Include="bearer\qgenericbearer.dll" />
+    <None Include="imageformats\qgif.dll" />
+    <None Include="imageformats\qicns.dll" />
+    <None Include="imageformats\qico.dll" />
+    <None Include="imageformats\qjpeg.dll" />
+    <None Include="imageformats\qsvg.dll" />
+    <None Include="iconengines\qsvgicon.dll" />
+    <None Include="imageformats\qtga.dll" />
+    <None Include="imageformats\qtiff.dll" />
+    <None Include="position\qtposition_geoclue.dll" />
+    <None Include="qtposition_positionpoll.dll" />
+    <None Include="position\qtposition_serialnmea.dll" />
+    <None Include="resources\qtwebengine_devtools_resources.pak" />
+    <None Include="qtwebengine_resources.pak" />
+    <None Include="resources\qtwebengine_resources_100p.pak" />
+    <None Include="resources\qtwebengine_resources_200p.pak" />
+    <None Include="imageformats\qwbmp.dll" />
+    <None Include="imageformats\qwebp.dll" />
+    <None Include="platforms\qwindows.dll" />
+    <None Include="styles\qwindowsvistastyle.dll" />
+    <None Include="printsupport\windowsprintersupport.dll" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
+    <Import Project="$(QtMsBuild)\qt.targets" />
+  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties Qt5Version_x0020_x64="msvc2017_64" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

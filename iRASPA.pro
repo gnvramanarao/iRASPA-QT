@@ -43,13 +43,20 @@ macx{
 }
 
 win32{
-  INCLUDEPATH += $$PWD/../OpenCL
+  
   LIBS += opengl32.lib User32.lib
-  LIBS += -L"C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.0/lib/x64" -lOpenCL
+
+  INCLUDEPATH += $(CUDA_PATH)/include -L$(AMDAPPSDKROOT)/include -L$(INTELOCLSDKROOT)/include
+  LIBS += -L$(CUDA_PATH)/lib/x64 -L$(AMDAPPSDKROOT)/lib/x86_64 -L$(INTELOCLSDKROOT)/lib/x64 -lOpenCL
 
   INCLUDEPATH += C:/Users/David/Desktop/vcpkg/installed/x64-windows-static/include/python2.7
-  LIBS += "C:/Users/David/Desktop/vcpkg/installed/x64-windows-static/lib/python27.lib" -lAdvapi32
-  LIBS += C:\Users\David\Desktop\vcpkg\installed\x64-windows-static\lib\lzma.lib C:\Users\David\Desktop\vcpkg\installed\x64-windows-static\lib\zlib.lib
+  LIBS += C:/Users/David/Desktop/vcpkg/installed/x64-windows-static/lib/python27.lib -lAdvapi32
+
+  INCLUDEPATH += C:/Users/David/Desktop/vcpkg/packages/liblzma_x64-windows-static/include
+  LIBS += C:/Users/David/Desktop/vcpkg/installed/x64-windows-static/lib/lzma.lib
+
+  INCLUDEPATH += C:/Users/David/Desktop/vcpkg/packages/zlib_x64-windows-static/include 
+  LIBS += C:/Users/David/Desktop/vcpkg/installed/x64-windows-static/lib/zlib.lib
 }
 
 unix:!macx{
@@ -60,51 +67,3 @@ unix:!macx{
 
 RESOURCES += \
     iRASPA/iraspa-resources.qrc
-
-DISTFILES += \
-    ./LibraryOfStructures.irspdoc \
-    ./bearer/qgenericbearer.dll \
-    ./iconengines/qsvgicon.dll \
-    ./imageformats/qtiff.dll \
-    ./imageformats/qwbmp.dll \
-    ./imageformats/qwebp.dll \
-    ./imageformats/qgif.dll \
-    ./imageformats/qicns.dll \
-    ./imageformats/qico.dll \
-    ./imageformats/qjpeg.dll \
-    ./imageformats/qsvg.dll \
-    ./imageformats/qtga.dll \
-    ./platforms/qwindows.dll \
-    ./position/qtposition_serialnmea.dll \
-    ./position/qtposition_geoclue.dll \
-    ./qtposition_positionpoll.dll \
-    ./printsupport/windowsprintersupport.dll \
-    ./qtwebengine_resources.pak \
-    ./resources/qtwebengine_resources_100p.pak \
-    ./resources/qtwebengine_resources_200p.pak \
-    ./resources/icudtl.dat \
-    ./resources/qtwebengine_devtools_resources.pak \
-    ./styles/qwindowsvistastyle.dll \
-    ./D3Dcompiler_47.dll \
-    ./libEGL.dll \
-    ./libGLESV2.dll \
-    ./moc_predefs.h \
-    ./moc_predefs.h.cbt \
-    ./opengl32sw.dll \
-    ./Qt5Core.dll \
-    ./Qt5Gui.dll \
-    ./Qt5Network.dll \
-    ./Qt5OpenGL.dll \
-    ./Qt5Positioning.dll \
-    ./Qt5PrintSupport.dll \
-    ./Qt5Qml.dll \
-    ./Qt5Quick.dll \
-    ./Qt5QuickWidgets.dll \
-    ./Qt5SerialPort.dll \
-    ./Qt5Svg.dll \
-    ./Qt5WebChannel.dll \
-    ./Qt5WebEngineCore.dll \
-    ./Qt5WebEngineWidgets.dll \
-    ./Qt5Widgets.dll \
-    ./QtWebEngineProcess.exe
-

@@ -170,6 +170,14 @@ void GLWidget::initializeGL()
   cl_device_id _clDeviceId = 0;
   cl_command_queue _clCommandQueue = 0;
 
+  if(!context())
+  {
+	QMessageBox messageBox;
+	messageBox.setFixedSize(650, 200);
+	messageBox.critical(nullptr, tr("Critical error"), "No OpenGL context present, install OpenGL drivers (>=3.3)");
+	QApplication::quit();
+  }
+
   initializeOpenGLFunctions();
   _backgroundShader.initializeOpenGLFunctions();
   _atomShader.initializeOpenGLFunctions();
@@ -190,6 +198,7 @@ void GLWidget::initializeGL()
   _blurShader.initializeOpenGLFunctions();
   _atomAmbientOcclusionShader.initializeOpenGLFunctions();
   _energySurfaceShader.initializeOpenGLFunctions();
+
 
   _logReporter->logMessage(LogReporting::ErrorLevel::verbose, "OpenGL initialized");
 

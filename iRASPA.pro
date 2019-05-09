@@ -43,6 +43,8 @@ macx{
 }
 
 win32{
+  QMAKE_CFLAGS_RELEASE += /Zi
+  QMAKE_LFLAGS_RELEASE += /INCREMENTAL:NO /DEBUG
   
   LIBS += opengl32.lib User32.lib
 

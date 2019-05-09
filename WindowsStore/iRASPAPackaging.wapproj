@@ -220,7 +220,7 @@
     <Content Include="iRASPA\imageformats\qtiff.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="iRASPA\position\qtposition_geoclue.dll">
+    <Content Include="iRASPA\position\qtposition_winrt.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="iRASPA\position\qtposition_positionpoll.dll">

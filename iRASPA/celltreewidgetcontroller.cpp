@@ -73,12 +73,12 @@ CellTreeWidgetController::CellTreeWidgetController(QWidget* parent): QTreeWidget
   pushButtonCell->resize(size().width(), fm.height());
 
   _cellCellForm->cellStructureTypeComboBox->insertItem(0, "Empty");
-	_cellCellForm->cellStructureTypeComboBox->insertItem(1, "Structure");
-	_cellCellForm->cellStructureTypeComboBox->insertItem(2, "Crystal");
-	_cellCellForm->cellStructureTypeComboBox->insertItem(3, "Molecular crystal");
-	_cellCellForm->cellStructureTypeComboBox->insertItem(4, "Molecule");
-	_cellCellForm->cellStructureTypeComboBox->insertItem(5, "Protein");
-	_cellCellForm->cellStructureTypeComboBox->insertItem(6, "Protein crystal");
+  _cellCellForm->cellStructureTypeComboBox->insertItem(1, "Structure");
+  _cellCellForm->cellStructureTypeComboBox->insertItem(2, "Crystal");
+  _cellCellForm->cellStructureTypeComboBox->insertItem(3, "Molecular crystal");
+  _cellCellForm->cellStructureTypeComboBox->insertItem(4, "Molecule");
+  _cellCellForm->cellStructureTypeComboBox->insertItem(5, "Protein");
+  _cellCellForm->cellStructureTypeComboBox->insertItem(6, "Protein crystal");
 
   QObject::connect(_cellCellForm->unitCellADoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&CellTreeWidgetController::setUnitCellLengthA);
   QObject::connect(_cellCellForm->unitCellBDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&CellTreeWidgetController::setUnitCellLengthB);
@@ -137,10 +137,7 @@ CellTreeWidgetController::CellTreeWidgetController(QWidget* parent): QTreeWidget
   pushButtonCell->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
   pushButtonCell->resize(size().width(), fm.height());
 
-  QObject::connect(_cellStructuralForm->computeHeliumVoidFractionPushButton, &QPushButton::clicked,[this](void) {
-     emit computeHeliumVoidFraction(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
-     this->reloadStructureProperties();
-  });
+  QObject::connect(_cellStructuralForm->computeHeliumVoidFractionPushButton, &QPushButton::clicked, this, &CellTreeWidgetController::computeHeliumVoidFractionPushButton);
 
   _cellStructuralForm->probeMoleculeComboBox->insertItem(0, "Helium");
   _cellStructuralForm->probeMoleculeComboBox->insertItem(1, "Methane");
@@ -154,15 +151,8 @@ CellTreeWidgetController::CellTreeWidgetController(QWidget* parent): QTreeWidget
   QObject::connect(_cellStructuralForm->probeMoleculeComboBox,static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),this,&CellTreeWidgetController::setFrameworkProbeMolecule);
 
 
-  QObject::connect(_cellStructuralForm->computeGravimetricSurfaceAreaPushButton, &QPushButton::clicked,[this](void) {
-     emit computeNitrogenSurfaceArea(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
-     this->reloadStructureProperties();
-  });
-
-  QObject::connect(_cellStructuralForm->computeVolumetricSurfaceAreaPushButton, &QPushButton::clicked,[this](void) {
-     emit computeNitrogenSurfaceArea(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
-     this->reloadStructureProperties();
-  });
+  QObject::connect(_cellStructuralForm->computeGravimetricSurfaceAreaPushButton, &QPushButton::clicked, this, &CellTreeWidgetController::computeGravimetricSurfaceAreaPushButton);
+  QObject::connect(_cellStructuralForm->computeVolumetricSurfaceAreaPushButton, &QPushButton::clicked,this, &CellTreeWidgetController::computeGravimetricSurfaceAreaPushButton);
 
   QObject::connect(_cellStructuralForm->numberOfChannelSystemsSpinBox, static_cast<void (CustomIntSpinBox::*)(int)>(&CustomIntSpinBox::valueChanged),this, &CellTreeWidgetController::setStructureNumberOfChannelSystems);
   QObject::connect(_cellStructuralForm->numberOfInaccessiblePocketsSpinBox, static_cast<void (CustomIntSpinBox::*)(int)>(&CustomIntSpinBox::valueChanged),this, &CellTreeWidgetController::setStructureNumberOfInaccessiblePockets);
@@ -218,9 +208,7 @@ CellTreeWidgetController::CellTreeWidgetController(QWidget* parent): QTreeWidget
     _cellSymmetryForm->spaceGroupITNumberComboBox->insertItem(i,QString::number(i));
   }
 
-
   QObject::connect(_cellSymmetryForm->precisionDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &CellTreeWidgetController::setSymmetryPrecision);
-
 }
 
 
@@ -2805,3 +2793,16 @@ stdx::optional<QString> CellTreeWidgetController::symmetrySymmorphicity()
   }
   return stdx::nullopt;
 }
+
+void CellTreeWidgetController::computeHeliumVoidFractionPushButton()
+{
+  emit computeHeliumVoidFraction(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+  this->reloadStructureProperties();
+}
+
+void CellTreeWidgetController::computeGravimetricSurfaceAreaPushButton()
+{
+  emit computeNitrogenSurfaceArea(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+  this->reloadStructureProperties();
+}
+

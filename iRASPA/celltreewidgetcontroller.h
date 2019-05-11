@@ -224,6 +224,9 @@ private slots:
   void expandCellItem();
   void expandStructuralItem();
   void expandSymmetryItem();
+
+  void computeHeliumVoidFractionPushButton();
+  void computeGravimetricSurfaceAreaPushButton();
 signals:
   void rendererReloadData();
   void redrawRendererWithHighQuality();

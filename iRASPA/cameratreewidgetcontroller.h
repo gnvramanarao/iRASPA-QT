@@ -124,6 +124,10 @@ private slots:
   void setPictureEditDimensions(int dimensions);
   void setPictureEditUnits(int units);
   void setMovieFramesPerSecond(int fps);
+  void setPictureDimensionToPhysical(bool checked);
+  void setPictureDimensionToPixels(bool checked);
+  void setPictureUnitsToInch(bool checked);
+  void setPictureUnitsToCentimeters(bool checked);
   void savePicture();
   void saveMovie();
 
@@ -136,6 +140,11 @@ private slots:
   void setRadialGradientToColor();
   void setRadialGradientRoundness(double roundness);
   void selectBackgroundImage();
+
+  void setBackgroundToColor(bool checked);
+  void setBackgroundToLinearGradient(bool checked);
+  void setBackgroundToRadialGradient(bool checked);
+  void setBackgroundToImage(bool checked);
 public slots:
   void reloadCameraData();
   void reloadCameraResetDirection();

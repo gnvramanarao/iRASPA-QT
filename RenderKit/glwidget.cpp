@@ -166,9 +166,9 @@ std::array<int,4> GLWidget::pickTexture(int x, int y, int width, int height)
 void GLWidget::initializeGL()
 {
   cl_int err;
-  cl_context _clContext = 0;
-  cl_device_id _clDeviceId = 0;
-  cl_command_queue _clCommandQueue = 0;
+  cl_context _clContext = nullptr;
+  cl_device_id _clDeviceId = nullptr;
+  cl_command_queue _clCommandQueue = nullptr;
 
   if(!context())
   {
@@ -286,7 +286,6 @@ void GLWidget::initializeGL()
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-  std::cout << "OpenGLContext: " << context() << std::endl;
   _blurShader.initializeFramebuffers();
 
   _pickingShader.generateFrameBuffers();

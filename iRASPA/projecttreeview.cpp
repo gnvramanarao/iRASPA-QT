@@ -232,14 +232,18 @@ void ProjectTreeView::setSelectedProject(const QModelIndex& current, const QMode
 {
 
   QModelIndex index = this->selectionModel()->currentIndex();
-  qDebug() << "Select project" << index.internalPointer();
-  if(ProjectTreeNode* item = static_cast<ProjectTreeNode*>(index.internalPointer()))
+
+  if(index.isValid())
   {
+    qDebug() << "Select project" << index.internalPointer();
+    if(ProjectTreeNode* item = static_cast<ProjectTreeNode*>(index.internalPointer()))
+    {
       qDebug() << "Inside " << item->displayName();
-    _projectTreeController->selectedTreeNodes().clear();
-    _projectTreeController->selectedTreeNodes().insert(item->shared_from_this());
-    item->representedObject()->unwrapIfNeeded();
-    _mainWindow->propagateProject(item->shared_from_this(),_mainWindow);
+      _projectTreeController->selectedTreeNodes().clear();
+      _projectTreeController->selectedTreeNodes().insert(item->shared_from_this());
+      item->representedObject()->unwrapIfNeeded();
+      _mainWindow->propagateProject(item->shared_from_this(),_mainWindow);
+    }
   }
 }
 

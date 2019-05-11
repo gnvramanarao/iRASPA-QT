@@ -316,15 +316,18 @@ QSize AtomTreeView::sizeHint() const
 
 void AtomTreeView::addAtomGroup(QModelIndex index)
 {
-  model()->insertRows(index.row(), 1, index.parent());
+  if(_projectStructure)
+  {
+    model()->insertRows(index.row(), 1, index.parent());
 
-  QModelIndex index2 = model()->index(index.row(),0,index.parent());
-  SKAtomTreeNode *item = static_cast<SKAtomTreeNode*>(index2.internalPointer());
-  item->setGroupItem(true);
-  item->setDisplayName("New atom group");
-  setFirstColumnSpanned(index2.row(),index2.parent(), true);
+    QModelIndex index2 = model()->index(index.row(),0,index.parent());
+    SKAtomTreeNode *item = static_cast<SKAtomTreeNode*>(index2.internalPointer());
+    item->setGroupItem(true);
+    item->setDisplayName("New atom group");
+    setFirstColumnSpanned(index2.row(),index2.parent(), true);
 
-  emit rendererReloadData();
+    emit rendererReloadData();
+  }
 }
 
 void AtomTreeView::flattenHierachy()

@@ -187,7 +187,7 @@ void MainWindow::setProject(std::shared_ptr<ProjectTreeNode> project)
           ui->detailTabViewController->setAtomTreeController(projectStructure->getAtomTreeModel());
           ui->detailTabViewController->setBondSetController(projectStructure);
 
-		      ui->cameraTreeWidget->reloadData();
+          ui->cameraTreeWidget->reloadData();
         }
       }
     }
@@ -273,12 +273,8 @@ void MainWindow::importFile()
 {
   qDebug() << "Import cif-file";
 
-  //QStringList fileNames = QFileDialog::getOpenFileNames(this,
-  //         tr("Open CIF or PDB-files"), "",
-  //         tr("PDB or CIF files (*.cif *.pdb)"));
-
-	QString selFilter = tr("cif/pdb files (*.cif *.pdb )");
-	QList<QUrl> fileURLs = QFileDialog::getOpenFileUrls(this, tr("Open CIF or PDB-files"), tr("Open CIF or PDB-files"), tr("PDB or CIF files (*.cif *.pdb)"));
+  QString selFilter = tr("cif/pdb files (*.cif *.pdb )");
+  QList<QUrl> fileURLs = QFileDialog::getOpenFileUrls(this, tr("Open CIF or PDB-files"), tr("Open CIF or PDB-files"), tr("PDB or CIF files (*.cif *.pdb)"));
 
   if(fileURLs.isEmpty())
   {
@@ -322,16 +318,14 @@ void MainWindow::readLibraryOfStructures()
       QDir dir("/usr/share/iraspa/");
     #endif
     QUrl fileURL(dir.absoluteFilePath("LibraryOfStructures.irspdoc"));
-    //QDir dir(QCoreApplication::applicationDirPath());
-    //QUrl fileURL(dir.absoluteFilePath("LibraryOfStructures.irspdoc"));
   #else
     QDir dir(QCoreApplication::applicationDirPath());
     QUrl fileURL(dir.absoluteFilePath("LibraryOfStructures.irspdoc"));
   #endif
     QFileInfo info(fileURL.toString());
 
-    if(info.exists())
-    {
+  if(info.exists())
+  {
 	ZipReader reader = ZipReader(fileURL.toString(), QIODevice::ReadOnly);
 
 	QByteArray data = reader.fileData("nl.darkwing.iRASPA_projectData");
@@ -383,11 +377,11 @@ void MainWindow::readLibraryOfStructures()
 
 	QModelIndex index4 = ui->projectTreeView->model()->index(0, 0, index2);
 	ui->projectTreeView->expand(index4);
-    }
-    else
-    {
-      ui->logPlainTextEdit->logMessage(LogReporting::ErrorLevel::error,"Gallery structure not found");
-    }
+  }
+  else
+  {
+    ui->logPlainTextEdit->logMessage(LogReporting::ErrorLevel::error,"Gallery structure not found");
+  }
 }
 
 void MainWindow::openFile()
@@ -484,7 +478,6 @@ void MainWindow::saveFile()
 
   if(!fileURL.isValid())
   {
-    std::cout << "Picture empty!!" << std::endl;
     return;
   }
   else
@@ -546,7 +539,6 @@ int MainWindow::slideDownPanel(void)
 
 int MainWindow::slideLeftPanel(void)
 {
-  qDebug() << "slideLeftPanel";
   if(ui->structureMainHorizontalSplitter->widget(0)->isHidden())
     ui->structureMainHorizontalSplitter->widget(0)->show();
   else
@@ -564,8 +556,6 @@ void MainWindow::acknowledgements()
     QDir dir("/usr/share/iraspa/");
   #endif
   QUrl url(dir.absoluteFilePath("AcknowledgedLicenses.pdf"));
-  //QDir dir(QApplication::applicationDirPath());
-  //QUrl url(dir.absoluteFilePath("AcknowledgedLicenses.pdf"));
 #else
   QDir dir(QApplication::applicationDirPath());
   QUrl url(dir.absoluteFilePath("AcknowledgedLicenses.pdf"));

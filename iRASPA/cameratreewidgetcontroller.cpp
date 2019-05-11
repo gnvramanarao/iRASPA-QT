@@ -44,7 +44,6 @@ CameraTreeWidgetController::CameraTreeWidgetController(QWidget* parent): QTreeWi
     _cameraPicturesForm(new CameraPicturesForm),
     _cameraBackgroundForm(new CameraBackgroundForm)
 {
-  //this->viewport()->setMouseTracking(true);
   this->setHeaderHidden(true);
   this->setRootIsDecorated(true);
   this->setFrameStyle(QFrame::NoFrame);
@@ -197,36 +196,10 @@ CameraTreeWidgetController::CameraTreeWidgetController(QWidget* parent): QTreeWi
   QObject::connect(_cameraPicturesForm->physicalWidthDoubleSpinBox,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&CameraTreeWidgetController::setPicturePhysicalSize);
   QObject::connect(_cameraPicturesForm->pixelWidthSpinBox,static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),this,&CameraTreeWidgetController::setPictureNumberOfPixels);
 
-  QObject::connect(_cameraPicturesForm->physicalDimensionsRadioButton, &QRadioButton::clicked, [this](bool checked) {
-      if(checked)
-      {
-        _project->setImageDimensions(RKImageDimensions::physical);
-        this->reloadPictureProperties();
-      }
-  });
-  QObject::connect(_cameraPicturesForm->pixelDimensionsRadioButton, &QRadioButton::clicked,[this](bool checked) {
-      if(checked)
-      {
-        _project->setImageDimensions(RKImageDimensions::pixels);
-        this->reloadPictureProperties();
-      }
-  });
-
-  QObject::connect(_cameraPicturesForm->inchRadioButton, &QRadioButton::clicked, [this](bool checked) {
-      if(checked)
-      {
-        _project->setImageUnits(RKImageUnits::inch);
-        this->reloadPictureProperties();
-      }
-  });
-  QObject::connect(_cameraPicturesForm->cmRadioButton, &QRadioButton::clicked,[this](bool checked) {
-      if(checked)
-      {
-         _project->setImageUnits(RKImageUnits::cm);
-        this->reloadPictureProperties();
-      }
-  });
-
+  QObject::connect(_cameraPicturesForm->physicalDimensionsRadioButton, &QRadioButton::clicked, this,&CameraTreeWidgetController::setPictureDimensionToPhysical);
+  QObject::connect(_cameraPicturesForm->pixelDimensionsRadioButton, &QRadioButton::clicked, this,&CameraTreeWidgetController::setPictureDimensionToPixels);
+  QObject::connect(_cameraPicturesForm->inchRadioButton, &QRadioButton::clicked, this,&CameraTreeWidgetController::setPictureUnitsToInch);
+  QObject::connect(_cameraPicturesForm->cmRadioButton, &QRadioButton::clicked, this,&CameraTreeWidgetController::setPictureUnitsToCentimeters);
 
   QObject::connect(_cameraPicturesForm->createPicturePushButton,&QPushButton::clicked,this,&CameraTreeWidgetController::savePicture);
   QObject::connect(_cameraPicturesForm->createMoviePushButton,&QPushButton::clicked,this,&CameraTreeWidgetController::saveMovie);
@@ -251,42 +224,10 @@ CameraTreeWidgetController::CameraTreeWidgetController(QWidget* parent): QTreeWi
   pushButtonBackground->resize(size().width(), fm.height());
 
 
-  QObject::connect(_cameraBackgroundForm->colorRadioButton, &QRadioButton::clicked,[this](bool checked) {
-      if(checked)
-      {
-        _cameraBackgroundForm->stackedWidget->setCurrentIndex(0);
-        _project->setBackgroundType(RKBackgroundType::color);
-        emit rendererReloadBackgroundImage();
-        emit updateRenderer();
-      }
-  });
-  QObject::connect(_cameraBackgroundForm->linearGradientRadioButton, &QRadioButton::clicked,[this](bool checked) {
-      if(checked)
-      {
-        _cameraBackgroundForm->stackedWidget->setCurrentIndex(1);
-        _project->setBackgroundType(RKBackgroundType::linearGradient);
-        emit rendererReloadBackgroundImage();
-        emit updateRenderer();
-      }
-  });
-  QObject::connect(_cameraBackgroundForm->radialGradientRadioButton, &QRadioButton::clicked,[this](bool checked) {
-      if(checked)
-      {
-        _cameraBackgroundForm->stackedWidget->setCurrentIndex(2);
-        _project->setBackgroundType(RKBackgroundType::radialGradient);
-        emit rendererReloadBackgroundImage();
-        emit updateRenderer();
-      }
-  });
-  QObject::connect(_cameraBackgroundForm->imageRadioButton, &QRadioButton::clicked,[this](bool checked) {
-      if(checked)
-      {
-        _cameraBackgroundForm->stackedWidget->setCurrentIndex(3);
-        _project->setBackgroundType(RKBackgroundType::image);
-        emit rendererReloadBackgroundImage();
-        emit updateRenderer();
-      }
-  });
+  QObject::connect(_cameraBackgroundForm->colorRadioButton, &QRadioButton::clicked, this, &CameraTreeWidgetController::setBackgroundToColor);
+  QObject::connect(_cameraBackgroundForm->linearGradientRadioButton, &QRadioButton::clicked, this, &CameraTreeWidgetController::setBackgroundToLinearGradient);
+  QObject::connect(_cameraBackgroundForm->radialGradientRadioButton, &QRadioButton::clicked, this, &CameraTreeWidgetController::setBackgroundToRadialGradient);
+  QObject::connect(_cameraBackgroundForm->imageRadioButton, &QRadioButton::clicked, this, &CameraTreeWidgetController::setBackgroundToImage);
 
   QObject::connect(_cameraBackgroundForm->backgroundColorPushButton,&QPushButton::clicked,this,&CameraTreeWidgetController::setBackgroundColor);
   QObject::connect(_cameraBackgroundForm->linearGradientFromColorPushButton,&QPushButton::clicked,this,&CameraTreeWidgetController::setLinearGradientFromColor);
@@ -318,7 +259,7 @@ void CameraTreeWidgetController::setMainWindow(MainWindow *mainWindow)
 void CameraTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 {
   _camera.reset();
-  _project = nullptr;
+  _project.reset();
   if (projectTreeNode)
   {
     if(std::shared_ptr<iRASPAProject> iraspaProject = projectTreeNode->representedObject())
@@ -336,6 +277,7 @@ void CameraTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode> pro
       }
     }
   }
+  std::cout << "Set: " <<_project << std::endl;
 }
 
 void CameraTreeWidgetController::expandCameraItem()
@@ -1143,6 +1085,44 @@ void CameraTreeWidgetController::setPictureDotsPerInch(int value)
   }
 }
 
+
+void CameraTreeWidgetController::setPictureDimensionToPhysical(bool checked)
+{
+   if(_project && checked)
+   {
+     std::cout << "check: " << _project.get() <<std::endl;
+     _project->setImageDimensions(RKImageDimensions::physical);
+     this->reloadPictureProperties();
+   }
+}
+
+void CameraTreeWidgetController::setPictureDimensionToPixels(bool checked)
+{
+   if(_project && checked)
+   {
+     _project->setImageDimensions(RKImageDimensions::pixels);
+     this->reloadPictureProperties();
+   }
+}
+
+void CameraTreeWidgetController::setPictureUnitsToInch(bool checked)
+{
+  if(_project && checked)
+  {
+    _project->setImageUnits(RKImageUnits::inch);
+    this->reloadPictureProperties();
+  }
+}
+
+void CameraTreeWidgetController::setPictureUnitsToCentimeters(bool checked)
+{
+  if(_project && checked)
+  {
+    _project->setImageUnits(RKImageUnits::cm);
+    this->reloadPictureProperties();
+  }
+}
+
 void CameraTreeWidgetController::setPictureQuality(int value)
 {
   if(_project)
@@ -1413,3 +1393,49 @@ void CameraTreeWidgetController::selectBackgroundImage()
     emit updateRenderer();
   }
 }
+
+void CameraTreeWidgetController::setBackgroundToColor(bool checked)
+{
+  if(_project && checked)
+  {
+    _cameraBackgroundForm->stackedWidget->setCurrentIndex(0);
+    _project->setBackgroundType(RKBackgroundType::color);
+    emit rendererReloadBackgroundImage();
+    emit updateRenderer();
+  }
+}
+
+void CameraTreeWidgetController::setBackgroundToLinearGradient(bool checked)
+{
+  if(_project && checked)
+  {
+    _cameraBackgroundForm->stackedWidget->setCurrentIndex(1);
+    _project->setBackgroundType(RKBackgroundType::linearGradient);
+    emit rendererReloadBackgroundImage();
+    emit updateRenderer();
+  }
+}
+
+void CameraTreeWidgetController::setBackgroundToRadialGradient(bool checked)
+{
+  if(_project && checked)
+  {
+    _cameraBackgroundForm->stackedWidget->setCurrentIndex(2);
+    _project->setBackgroundType(RKBackgroundType::radialGradient);
+    emit rendererReloadBackgroundImage();
+    emit updateRenderer();
+  }
+}
+
+void CameraTreeWidgetController::setBackgroundToImage(bool checked)
+{
+  if(_project && checked)
+  {
+    _cameraBackgroundForm->stackedWidget->setCurrentIndex(3);
+    _project->setBackgroundType(RKBackgroundType::image);
+    emit rendererReloadBackgroundImage();
+    emit updateRenderer();
+  }
+}
+
+

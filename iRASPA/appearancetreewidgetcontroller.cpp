@@ -45,123 +45,120 @@ AppearanceTreeWidgetController::AppearanceTreeWidgetController(QWidget* parent):
     _appearanceAdsorptionSurfaceForm(new AppearanceAdsorptionSurfaceForm),
     _appearanceAnnotationForm(new AppearanceAnnotationForm)
 {
-    //this->viewport()->setMouseTracking(true);
-    this->setHeaderHidden(true);
-    this->setRootIsDecorated(true);
-    this->setFrameStyle(QFrame::NoFrame);
-    this->setAnimated(true);
-    this->setVerticalScrollMode(QTreeWidget::ScrollPerPixel);
-    this->setExpandsOnDoubleClick(false);
-    this->setIndentation(0);
-    this->setSelectionMode(QAbstractItemView::NoSelection);
+  this->setHeaderHidden(true);
+  this->setRootIsDecorated(true);
+  this->setFrameStyle(QFrame::NoFrame);
+  this->setAnimated(true);
+  this->setVerticalScrollMode(QTreeWidget::ScrollPerPixel);
+  this->setExpandsOnDoubleClick(false);
+  this->setIndentation(0);
+  this->setSelectionMode(QAbstractItemView::NoSelection);
 
-    // Atoms
-    //=========================================================================
-    QTreeWidgetItem* AtomsItem = new QTreeWidgetItem(this);
-    this->addTopLevelItem(AtomsItem);
+  // Atoms
+  //=========================================================================
+  QTreeWidgetItem* AtomsItem = new QTreeWidgetItem(this);
+  this->addTopLevelItem(AtomsItem);
 
-    pushButtonAtoms = new QPushButton(QString("Atoms"),this);
-    pushButtonAtoms->setIcon(QIcon(":/iRASPA/collapsed.png"));
-    pushButtonAtoms->setStyleSheet("text-align:left;");
-    setItemWidget(AtomsItem,0,pushButtonAtoms);
+  pushButtonAtoms = new QPushButton(QString("Atoms"),this);
+  pushButtonAtoms->setIcon(QIcon(":/iRASPA/collapsed.png"));
+  pushButtonAtoms->setStyleSheet("text-align:left;");
+  setItemWidget(AtomsItem,0,pushButtonAtoms);
 
-    QTreeWidgetItem *childAtomsItem = new QTreeWidgetItem(AtomsItem);
-    this->setItemWidget(childAtomsItem,0, _appearanceAtomsForm);
+  QTreeWidgetItem *childAtomsItem = new QTreeWidgetItem(AtomsItem);
+  this->setItemWidget(childAtomsItem,0, _appearanceAtomsForm);
 
-    _appearanceAtomsForm->atomRepresentationType->insertItem(0,"Ball and stick");
-    _appearanceAtomsForm->atomRepresentationType->insertItem(1,"Van der Waals");
-    _appearanceAtomsForm->atomRepresentationType->insertItem(2, "Unity");
+  _appearanceAtomsForm->atomRepresentationType->insertItem(0,"Ball and stick");
+  _appearanceAtomsForm->atomRepresentationType->insertItem(1,"Van der Waals");
+  _appearanceAtomsForm->atomRepresentationType->insertItem(2, "Unity");
 
-    _appearanceAtomsForm->atomRepresentationStyle->insertItem(0,"Default");
-    _appearanceAtomsForm->atomRepresentationStyle->insertItem(1,"Fancy");
-    _appearanceAtomsForm->atomRepresentationStyle->insertItem(2,"Licorice");
+  _appearanceAtomsForm->atomRepresentationStyle->insertItem(0,"Default");
+  _appearanceAtomsForm->atomRepresentationStyle->insertItem(1,"Fancy");
+  _appearanceAtomsForm->atomRepresentationStyle->insertItem(2,"Licorice");
 
-    _appearanceAtomsForm->colorSchemeComboBox->insertItem(0,"Jmol");
-    _appearanceAtomsForm->colorSchemeComboBox->insertItem(1,"Rasmol modern");
-    _appearanceAtomsForm->colorSchemeComboBox->insertItem(2,"Rasmol");
-    _appearanceAtomsForm->colorSchemeComboBox->insertItem(3,"Vesta");
+  _appearanceAtomsForm->colorSchemeComboBox->insertItem(0,"Jmol");
+  _appearanceAtomsForm->colorSchemeComboBox->insertItem(1,"Rasmol modern");
+  _appearanceAtomsForm->colorSchemeComboBox->insertItem(2,"Rasmol");
+  _appearanceAtomsForm->colorSchemeComboBox->insertItem(3,"Vesta");
 
-    _appearanceAtomsForm->colorSchemeOrderComboBox->insertItem(0,"Element");
-    _appearanceAtomsForm->colorSchemeOrderComboBox->insertItem(1,"Force field first");
-    _appearanceAtomsForm->colorSchemeOrderComboBox->insertItem(2,"Force field only");
+  _appearanceAtomsForm->colorSchemeOrderComboBox->insertItem(0,"Element");
+  _appearanceAtomsForm->colorSchemeOrderComboBox->insertItem(1,"Force field first");
+  _appearanceAtomsForm->colorSchemeOrderComboBox->insertItem(2,"Force field only");
 
-    _appearanceAtomsForm->forceFieldComboBox->insertItem(0,"Default");
+  _appearanceAtomsForm->forceFieldComboBox->insertItem(0,"Default");
 
-    _appearanceAtomsForm->forceFieldSchemeOrderComboBox->insertItem(0,"Element");
-    _appearanceAtomsForm->forceFieldSchemeOrderComboBox->insertItem(1,"Force field first");
-    _appearanceAtomsForm->forceFieldSchemeOrderComboBox->insertItem(2,"Force field only");
+  _appearanceAtomsForm->forceFieldSchemeOrderComboBox->insertItem(0,"Element");
+  _appearanceAtomsForm->forceFieldSchemeOrderComboBox->insertItem(1,"Force field first");
+  _appearanceAtomsForm->forceFieldSchemeOrderComboBox->insertItem(2,"Force field only");
 
-    _appearanceAtomsForm->atomSelectionStyleComboBox->insertItem(0,"Worley Noise 3D");
-    _appearanceAtomsForm->atomSelectionStyleComboBox->insertItem(1,"Stripes");
-    _appearanceAtomsForm->atomSelectionStyleComboBox->insertItem(2,"Glow");
+  _appearanceAtomsForm->atomSelectionStyleComboBox->insertItem(0,"Worley Noise 3D");
+  _appearanceAtomsForm->atomSelectionStyleComboBox->insertItem(1,"Stripes");
+  _appearanceAtomsForm->atomSelectionStyleComboBox->insertItem(2,"Glow");
 
-    // Bonds
-    //=========================================================================
-    QTreeWidgetItem* BondsItem = new QTreeWidgetItem(this);
-    this->addTopLevelItem(BondsItem);
+  // Bonds
+  //=========================================================================
+  QTreeWidgetItem* BondsItem = new QTreeWidgetItem(this);
+  this->addTopLevelItem(BondsItem);
 
-    pushButtonBonds = new QPushButton(QString("Bonds"),this);
-    pushButtonBonds->setIcon(QIcon(":/iRASPA/collapsed.png"));
-    pushButtonBonds->setStyleSheet("text-align:left;");
-    setItemWidget(BondsItem,0,pushButtonBonds);
+  pushButtonBonds = new QPushButton(QString("Bonds"),this);
+  pushButtonBonds->setIcon(QIcon(":/iRASPA/collapsed.png"));
+  pushButtonBonds->setStyleSheet("text-align:left;");
+  setItemWidget(BondsItem,0,pushButtonBonds);
 
-    QTreeWidgetItem *childBondsItem = new QTreeWidgetItem(BondsItem);
-    this->setItemWidget(childBondsItem,0, _appearanceBondsForm);
+  QTreeWidgetItem *childBondsItem = new QTreeWidgetItem(BondsItem);
+  this->setItemWidget(childBondsItem,0, _appearanceBondsForm);
 
-    _appearanceBondsForm->bondColorModeComboBox->insertItem(0,"Uniform");
-    _appearanceBondsForm->bondColorModeComboBox->insertItem(1,"Split");
-    _appearanceBondsForm->bondColorModeComboBox->insertItem(2,"Gradient");
+  _appearanceBondsForm->bondColorModeComboBox->insertItem(0,"Uniform");
+  _appearanceBondsForm->bondColorModeComboBox->insertItem(1,"Split");
+  _appearanceBondsForm->bondColorModeComboBox->insertItem(2,"Gradient");
 
-    // Unit cell
-    //=========================================================================
-    QTreeWidgetItem* UnitCellItem = new QTreeWidgetItem(this);
-    this->addTopLevelItem(UnitCellItem);
+  // Unit cell
+  //=========================================================================
+  QTreeWidgetItem* UnitCellItem = new QTreeWidgetItem(this);
+  this->addTopLevelItem(UnitCellItem);
 
-    pushButtonUnitCell = new QPushButton(QString("Unit cell"),this);
-    pushButtonUnitCell->setIcon(QIcon(":/iRASPA/collapsed.png"));
-    pushButtonUnitCell->setStyleSheet("text-align:left;");
-    setItemWidget(UnitCellItem,0,pushButtonUnitCell);
+  pushButtonUnitCell = new QPushButton(QString("Unit cell"),this);
+  pushButtonUnitCell->setIcon(QIcon(":/iRASPA/collapsed.png"));
+  pushButtonUnitCell->setStyleSheet("text-align:left;");
+  setItemWidget(UnitCellItem,0,pushButtonUnitCell);
 
-    QTreeWidgetItem *childUnitCellItem = new QTreeWidgetItem(UnitCellItem);
-    this->setItemWidget(childUnitCellItem,0, _appearanceUnitCellForm);
+  QTreeWidgetItem *childUnitCellItem = new QTreeWidgetItem(UnitCellItem);
+  this->setItemWidget(childUnitCellItem,0, _appearanceUnitCellForm);
 
-    // Adsorption surface
-    //=========================================================================
-    QTreeWidgetItem* AdsorptionSurfaceItem = new QTreeWidgetItem(this);
-    this->addTopLevelItem(AdsorptionSurfaceItem);
+  // Adsorption surface
+  //=========================================================================
+  QTreeWidgetItem* AdsorptionSurfaceItem = new QTreeWidgetItem(this);
+  this->addTopLevelItem(AdsorptionSurfaceItem);
 
-    pushButtonAdsorptionSurface = new QPushButton(QString("Adsorption surface"),this);
-    pushButtonAdsorptionSurface->setIcon(QIcon(":/iRASPA/collapsed.png"));
-    pushButtonAdsorptionSurface->setStyleSheet("text-align:left;");
-    setItemWidget(AdsorptionSurfaceItem,0,pushButtonAdsorptionSurface);
+  pushButtonAdsorptionSurface = new QPushButton(QString("Adsorption surface"),this);
+  pushButtonAdsorptionSurface->setIcon(QIcon(":/iRASPA/collapsed.png"));
+  pushButtonAdsorptionSurface->setStyleSheet("text-align:left;");
+  setItemWidget(AdsorptionSurfaceItem,0,pushButtonAdsorptionSurface);
 
-    QTreeWidgetItem *childAdsorptionSurfaceItem = new QTreeWidgetItem(AdsorptionSurfaceItem);
-    this->setItemWidget(childAdsorptionSurfaceItem,0, _appearanceAdsorptionSurfaceForm);
+  QTreeWidgetItem *childAdsorptionSurfaceItem = new QTreeWidgetItem(AdsorptionSurfaceItem);
+  this->setItemWidget(childAdsorptionSurfaceItem,0, _appearanceAdsorptionSurfaceForm);
 
-    _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(0, "Helium");
-    _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(1, "Methane");
-    _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(2, "Nitrogen");
-    _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(3, "Hydrogen");
-    _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(4, "Water");
-    _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(5, "CO₂");
-    _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(6, "Xenon");
-    _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(7, "Krypton");
-    _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(8, "Argon");
+  _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(0, "Helium");
+  _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(1, "Methane");
+  _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(2, "Nitrogen");
+  _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(3, "Hydrogen");
+  _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(4, "Water");
+  _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(5, "CO₂");
+  _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(6, "Xenon");
+  _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(7, "Krypton");
+  _appearanceAdsorptionSurfaceForm->probeParticleComboBox->insertItem(8, "Argon");
 
-    // Annotation
-    //=========================================================================
-    QTreeWidgetItem* AnnotationItem = new QTreeWidgetItem(this);
-    this->addTopLevelItem(AnnotationItem);
+  // Annotation
+  //=========================================================================
+  QTreeWidgetItem* AnnotationItem = new QTreeWidgetItem(this);
+  this->addTopLevelItem(AnnotationItem);
 
-    pushButtonAnnotation = new QPushButton(QString("Annotation"),this);
-    pushButtonAnnotation->setIcon(QIcon(":/iRASPA/collapsed.png"));
-    pushButtonAnnotation->setStyleSheet("text-align:left;");
-    setItemWidget(AnnotationItem,0,pushButtonAnnotation);
+  pushButtonAnnotation = new QPushButton(QString("Annotation"),this);
+  pushButtonAnnotation->setIcon(QIcon(":/iRASPA/collapsed.png"));
+  pushButtonAnnotation->setStyleSheet("text-align:left;");
+  setItemWidget(AnnotationItem,0,pushButtonAnnotation);
 
-    QTreeWidgetItem *childAnnotationItem = new QTreeWidgetItem(AnnotationItem);
-    this->setItemWidget(childAnnotationItem,0, _appearanceAnnotationForm);
-
-
+  QTreeWidgetItem *childAnnotationItem = new QTreeWidgetItem(AnnotationItem);
+  this->setItemWidget(childAnnotationItem,0, _appearanceAnnotationForm);
 
   QObject::connect(pushButtonAtoms, &QPushButton::clicked, this, &AppearanceTreeWidgetController::expandAtomsItem);
   QObject::connect(pushButtonBonds, &QPushButton::clicked, this, &AppearanceTreeWidgetController::expandBondsItem);
@@ -185,15 +182,12 @@ AppearanceTreeWidgetController::AppearanceTreeWidgetController(QWidget* parent):
   QObject::connect(_appearanceAtomsForm->atomSelectionScalingDoubleSpinBox,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&AppearanceTreeWidgetController::setAtomSelectionScaling);
   QObject::connect(_appearanceAtomsForm->atomSelectionScalingDoubleSlider,static_cast<void (QDoubleSlider::*)(double)>(&QDoubleSlider::sliderMoved),this,&AppearanceTreeWidgetController::setAtomSelectionScaling);
 
-
   QObject::connect(_appearanceAtomsForm->atomDrawAtomsCheckBox,static_cast<void (QCheckBox::*)(int)>(&QCheckBox::stateChanged),this,&AppearanceTreeWidgetController::setAtomDrawAtoms);
 
   QObject::connect(_appearanceAtomsForm->atomSizeScalingSpinBox,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&AppearanceTreeWidgetController::setAtomSizeScalingDoubleSpinBox);
   QObject::connect(_appearanceAtomsForm->atomAtomicSizeScalingSlider,static_cast<void (QDoubleSlider::*)(void)>(&QDoubleSlider::sliderPressed),this,&AppearanceTreeWidgetController::setAtomSizeScalingDoubleSliderBegin);
   QObject::connect(_appearanceAtomsForm->atomAtomicSizeScalingSlider,static_cast<void (QDoubleSlider::*)(double)>(&QDoubleSlider::sliderMoved),this,&AppearanceTreeWidgetController::setAtomSizeScalingDoubleSliderIntermediate);
   QObject::connect(_appearanceAtomsForm->atomAtomicSizeScalingSlider,static_cast<void (QDoubleSlider::*)(void)>(&QDoubleSlider::sliderReleased),this,&AppearanceTreeWidgetController::setAtomSizeScalingDoubleSliderFinal);
-
-
 
   QObject::connect(_appearanceAtomsForm->atomHighDynamicRangeCheckBox,static_cast<void (QCheckBox::*)(int)>(&QCheckBox::stateChanged),this,&AppearanceTreeWidgetController::setAtomHighDynamicRange);
   QObject::connect(_appearanceAtomsForm->atomHDRExposureDoubleSpinBox,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&AppearanceTreeWidgetController::setAtomHDRExposure);
@@ -241,19 +235,12 @@ AppearanceTreeWidgetController::AppearanceTreeWidgetController(QWidget* parent):
   QObject::connect(_appearanceBondsForm->bondDiffuseColorPushButton,&QPushButton::clicked,this,&AppearanceTreeWidgetController::setBondDiffuseLightColor);
   QObject::connect(_appearanceBondsForm->bondSpecularColorPushButton,&QPushButton::clicked,this,&AppearanceTreeWidgetController::setBondSpecularLightColor);
 
-
-
-
-
-
   QObject::connect(_appearanceUnitCellForm->drawUnitCellCheckBox,static_cast<void (QCheckBox::*)(int)>(&QCheckBox::stateChanged),this,&AppearanceTreeWidgetController::setDrawUnitCell);
   QObject::connect(_appearanceUnitCellForm->unitCellSizeScalingDoubleSlider,static_cast<void (QDoubleSlider::*)(double)>(&QDoubleSlider::sliderMoved),this,&AppearanceTreeWidgetController::setUnitCellSizeScaling);
   QObject::connect(_appearanceUnitCellForm->unitCellSizeScalingDoubleSpinBox,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&AppearanceTreeWidgetController::setUnitCellSizeScaling);
   QObject::connect(_appearanceUnitCellForm->diffuseIntensityDoubleSpinBox,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&AppearanceTreeWidgetController::setUnitCellDiffuseLightIntensity);
   QObject::connect(_appearanceUnitCellForm->diffuseIntensityDoubleSlider,static_cast<void (QDoubleSlider::*)(double)>(&QDoubleSlider::sliderMoved),this,&AppearanceTreeWidgetController::setUnitCellDiffuseLightIntensity);
   QObject::connect(_appearanceUnitCellForm->diffuseColorPushButton,&QPushButton::clicked,this,&AppearanceTreeWidgetController::setUnitCellDiffuseLightColor);
-
-
 
   QObject::connect(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceCheckBox,static_cast<void (QCheckBox::*)(int)>(&QCheckBox::stateChanged),this,&AppearanceTreeWidgetController::setDrawAdsorptionSurface);
   QObject::connect(_appearanceAdsorptionSurfaceForm->probeParticleComboBox,static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),this,&AppearanceTreeWidgetController::setAdsorptionSurfaceProbeMolecule);
@@ -291,7 +278,6 @@ AppearanceTreeWidgetController::AppearanceTreeWidgetController(QWidget* parent):
   QObject::connect(_appearanceAdsorptionSurfaceForm->outsideAmbientColorPushButton,&QPushButton::clicked,this,&AppearanceTreeWidgetController::setAdsorptionSurfaceOutsideAmbientLightColor);
   QObject::connect(_appearanceAdsorptionSurfaceForm->outsideDiffuseColorPushButton,&QPushButton::clicked,this,&AppearanceTreeWidgetController::setAdsorptionSurfaceOutsideDiffuseLightColor);
   QObject::connect(_appearanceAdsorptionSurfaceForm->outsideSpecularColorPushButton,&QPushButton::clicked,this,&AppearanceTreeWidgetController::setAdsorptionSurfaceOutsideSpecularLightColor);
-
 
 
   _appearanceAtomsForm->atomAtomicSizeScalingSlider->setDoubleMinimum(0.0);

@@ -92,9 +92,6 @@ InfoTreeWidgetController::InfoTreeWidgetController(QWidget* parent): QTreeWidget
   QObject::connect(pushButtonCreation, &QPushButton::clicked, this, &InfoTreeWidgetController::expandCreationItem);
 
   QObject::connect(_infoCreationForm->methodComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [this](int index) {
-
-        //_project->setImageDimensions(RKImageDimensions::physical);
-       // this->reloadPictureProperties();
       switch(index)
       {
       case 0:
@@ -199,12 +196,6 @@ InfoTreeWidgetController::InfoTreeWidgetController(QWidget* parent): QTreeWidget
   _infoCreationForm->chargeForceFieldComboBox->insertItem(3,"DREIDING");
   _infoCreationForm->chargeForceFieldComboBox->insertItem(4,"MM3");
   _infoCreationForm->chargeForceFieldComboBox->insertItem(5,"MM4");
-
-
-
- // QObject::connect(_infoCreationForm->temperatureLineEdit, static_cast<void (iRASPADoubleTextSpinBox::*)(const QString&)>(&iRASPADoubleTextSpinBox::valueChanged),this,&InfoTreeWidgetController::setCreationTemperature);
-
-  //_infoCreationForm->temperatureDoubleSpinBox
 
   // Chemical
   //==========================================================================================================

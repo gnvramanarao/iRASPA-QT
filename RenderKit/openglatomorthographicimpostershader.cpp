@@ -167,16 +167,23 @@ void OpenGLAtomOrthographicImposterShader::initializeVertexArrayObject()
       glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer[i][j]);
       check_gl_error();
 
-      glBufferData(GL_ARRAY_BUFFER, quad.vertices().size() * sizeof(RKVertex), quad.vertices().data(), GL_DYNAMIC_DRAW);
-      check_gl_error();
+      if(quad.vertices().size()>0)
+      {
+        glBufferData(GL_ARRAY_BUFFER, quad.vertices().size() * sizeof(RKVertex), quad.vertices().data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
+
 
       glVertexAttribPointer(_vertexPositionAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), reinterpret_cast<GLvoid*>(offsetof(RKVertex,position)));
       check_gl_error();
 
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer[i][j]);
       check_gl_error();
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, quad.indices().size() * sizeof(GLshort), quad.indices().data(), GL_DYNAMIC_DRAW);
-      check_gl_error();
+      if(quad.indices().size()>0)
+      {
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, quad.indices().size() * sizeof(GLshort), quad.indices().data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
 
       glBindBuffer(GL_ARRAY_BUFFER, _atomShader._instancePositionBuffer[i][j]);
       check_gl_error();

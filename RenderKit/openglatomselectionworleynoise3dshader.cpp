@@ -165,19 +165,28 @@ void OpenGLAtomSelectionWorleyNoise3DShader::initializeVertexArrayObject()
       // each crystal can have a different number of sphere-slices
       glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer[i][j]);
 
-      glBufferData(GL_ARRAY_BUFFER, sphere.vertices().size() * sizeof(RKVertex), sphere.vertices().data(), GL_DYNAMIC_DRAW);
-      check_gl_error();
+      if(sphere.vertices().size()>0)
+      {
+        glBufferData(GL_ARRAY_BUFFER, sphere.vertices().size() * sizeof(RKVertex), sphere.vertices().data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
 
       glVertexAttribPointer(_vertexPositionAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), reinterpret_cast<GLvoid*>(offsetof(RKVertex,position)));
       glVertexAttribPointer(_vertexNormalAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), reinterpret_cast<GLvoid*>(offsetof(RKVertex,normal)));
 
       glBindBuffer(GLenum(GL_ELEMENT_ARRAY_BUFFER), _indexBuffer[i][j]);
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, sphere.indices().size() * sizeof(GLshort), sphere.indices().data(), GL_DYNAMIC_DRAW);
-      check_gl_error();
+      if(sphere.indices().size()>0)
+      {
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sphere.indices().size() * sizeof(GLshort), sphere.indices().data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
 
       glBindBuffer(GLenum(GL_ARRAY_BUFFER), _instancePositionBuffer[i][j]);
-      glBufferData(GL_ARRAY_BUFFER, _numberOfDrawnAtoms[i][j]*sizeof(RKInPerInstanceAttributesAtoms), atomData.data(), GL_DYNAMIC_DRAW);
-      check_gl_error();
+      if(_numberOfDrawnAtoms[i][j]>0)
+      {
+        glBufferData(GL_ARRAY_BUFFER, _numberOfDrawnAtoms[i][j]*sizeof(RKInPerInstanceAttributesAtoms), atomData.data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
 
       glVertexAttribPointer(_instancePositionAttributeLocation, 4, GL_FLOAT, GLboolean(GL_FALSE), sizeof(RKInPerInstanceAttributesAtoms), reinterpret_cast<GLvoid*>(offsetof(RKInPerInstanceAttributesAtoms,position)));
       glVertexAttribDivisor(_instancePositionAttributeLocation, 1);

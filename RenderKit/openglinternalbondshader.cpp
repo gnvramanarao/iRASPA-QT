@@ -94,26 +94,36 @@ void OpenGLInternalBondShader::initializeVertexArrayObject()
 
       glBindBuffer(GL_ARRAY_BUFFER, 0);
       glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer[i][j]);
-check_gl_error();
+      check_gl_error();
 
-      glBufferData(GL_ARRAY_BUFFER, cylinder.vertices().size()*sizeof(RKVertex), cylinder.vertices().data(), GL_DYNAMIC_DRAW);
-check_gl_error();
+      if(cylinder.vertices().size()>0)
+      {
+        glBufferData(GL_ARRAY_BUFFER, cylinder.vertices().size()*sizeof(RKVertex), cylinder.vertices().data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
 
       glVertexAttribPointer(_vertexPositionAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), (GLvoid *)offsetof(RKVertex,position));
       glVertexAttribPointer(_vertexNormalAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), (GLvoid *)offsetof(RKVertex,normal));
-check_gl_error();
+      check_gl_error();
 
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer[i][j]);
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, cylinder.indices().size() * sizeof(GLshort), cylinder.indices().data(), GL_DYNAMIC_DRAW);
-check_gl_error();
+      if(cylinder.indices().size()>0)
+      {
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, cylinder.indices().size() * sizeof(GLshort), cylinder.indices().data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
 
       std::vector<RKInPerInstanceAttributesBonds> bondInstanceData= _renderStructures[i][j]->renderInternalBonds();
       _numberOfInternalBonds[i][j] = bondInstanceData.size();
       _internalBondNumberOfIndices[i][j] = cylinder.indices().size();
 
       glBindBuffer(GL_ARRAY_BUFFER, _vertexInstanceBuffer[i][j]);
-      glBufferData(GL_ARRAY_BUFFER, _numberOfInternalBonds[i][j]*sizeof(RKInPerInstanceAttributesBonds), bondInstanceData.data(), GL_DYNAMIC_DRAW);
-      check_gl_error();
+
+      if(_numberOfInternalBonds[i][j]>0)
+      {
+        glBufferData(GL_ARRAY_BUFFER, _numberOfInternalBonds[i][j]*sizeof(RKInPerInstanceAttributesBonds), bondInstanceData.data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
       glVertexAttribPointer(_instancePositionFirstAtomAttributeLocation, 4, GL_FLOAT,GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, position1));
       glVertexAttribPointer(_instancePositionSecondAtomAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, position2));
       glVertexAttribDivisor(_instancePositionFirstAtomAttributeLocation,1);

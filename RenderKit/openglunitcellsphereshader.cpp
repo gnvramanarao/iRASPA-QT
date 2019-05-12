@@ -87,26 +87,36 @@ void OpenGLUnitCellSphereShader::initializeVertexArrayObject()
     for(int j=0;j<_renderStructures[i].size();j++)
     {
       glBindVertexArray(_vertexArrayObject[i][j]);
-check_gl_error();
+      check_gl_error();
       glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer[i][j]);
-      glBufferData(GL_ARRAY_BUFFER, sphere.vertices().size() * sizeof(RKVertex), sphere.vertices().data(), GL_DYNAMIC_DRAW);
-check_gl_error();
+      if(sphere.vertices().size()>0)
+      {
+        glBufferData(GL_ARRAY_BUFFER, sphere.vertices().size() * sizeof(RKVertex), sphere.vertices().data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
       _numberOfIndices[i][j] = sphere.indices().size();
 
       glVertexAttribPointer(_vertexPositionAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), (GLvoid *)offsetof(RKVertex,position));
       glVertexAttribPointer(_vertexNormalAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), (GLvoid *)offsetof(RKVertex,position));
 
-check_gl_error();
+      check_gl_error();
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer[i][j]);
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, sphere.indices().size() * sizeof(GLshort), sphere.indices().data(), GL_DYNAMIC_DRAW);
-check_gl_error();
+      if(sphere.indices().size()>0)
+      {
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sphere.indices().size() * sizeof(GLshort), sphere.indices().data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
 
       std::vector<RKInPerInstanceAttributesAtoms> unitCellSphereInstanceData = _renderStructures[i][j]->renderUnitCellSpheres();
       _numberOfUnitCellSpheres[i][j] = unitCellSphereInstanceData.size();
 
 
       glBindBuffer(GL_ARRAY_BUFFER, _vertexInstanceBuffer[i][j]);
-      glBufferData(GL_ARRAY_BUFFER, unitCellSphereInstanceData.size()*sizeof(RKInPerInstanceAttributesAtoms), unitCellSphereInstanceData.data(), GL_DYNAMIC_DRAW);
+      if(unitCellSphereInstanceData.size()>0)
+      {
+        glBufferData(GL_ARRAY_BUFFER, unitCellSphereInstanceData.size()*sizeof(RKInPerInstanceAttributesAtoms), unitCellSphereInstanceData.data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
       glVertexAttribPointer(_instancePositionAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKInPerInstanceAttributesAtoms), (GLvoid *)offsetof(RKInPerInstanceAttributesAtoms,position));
       glVertexAttribDivisor(_instancePositionAttributeLocation,1);
 check_gl_error();

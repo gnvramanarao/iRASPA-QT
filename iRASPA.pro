@@ -26,10 +26,6 @@ ICON = iRASPA/iRASPA.icns
 TARGET = iraspa
 TEMPLATE = app
 
-#TARGET.files += $$OUT_PWD/$(DESTDIR)/$(TARGET)
-#TARGET.path = /usr
-#INSTALLS += TARGET
-
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
@@ -46,19 +42,22 @@ win32{
   QMAKE_CFLAGS_RELEASE += /Zi
   QMAKE_LFLAGS_RELEASE += /INCREMENTAL:NO /DEBUG
   
-  LIBS += opengl32.lib User32.lib
+  LIBS += "C:/Users/David/Desktop/vcpkg/installed/x64-windows-static/lib/opengl32.lib" User32.lib
 
-  INCLUDEPATH += $(CUDA_PATH)/include -L$(AMDAPPSDKROOT)/include -L$(INTELOCLSDKROOT)/include
-  LIBS += -L$(CUDA_PATH)/lib/x64 -L$(AMDAPPSDKROOT)/lib/x86_64 -L$(INTELOCLSDKROOT)/lib/x64 -lOpenCL
+  INCLUDEPATH += "C:/Users/David/Desktop/vcpkg/packages/opencl_x64-windows-static/include"
+  LIBS += "C:/Users/David/Desktop/vcpkg/packages/opencl_x64-windows-static/lib/OpenCL.lib"
 
-  INCLUDEPATH += C:/Users/David/Desktop/vcpkg/installed/x64-windows-static/include/python2.7
-  LIBS += C:/Users/David/Desktop/vcpkg/installed/x64-windows-static/lib/python27.lib -lAdvapi32
+  #INCLUDEPATH += $(CUDA_PATH)/include -L$(AMDAPPSDKROOT)/include -L$(INTELOCLSDKROOT)/include
+  #LIBS += -L$(CUDA_PATH)/lib/x64 -L$(AMDAPPSDKROOT)/lib/x86_64 -L$(INTELOCLSDKROOT)/lib/x64 -lOpenCL
 
-  INCLUDEPATH += C:/Users/David/Desktop/vcpkg/packages/liblzma_x64-windows-static/include
-  LIBS += C:/Users/David/Desktop/vcpkg/installed/x64-windows-static/lib/lzma.lib
+  INCLUDEPATH += "C:/Users/David/Desktop/vcpkg/installed/x64-windows-static/include/python2.7"
+  LIBS += "C:/Users/David/Desktop/vcpkg/installed/x64-windows-static/lib/python27.lib" -lAdvapi32
 
-  INCLUDEPATH += C:/Users/David/Desktop/vcpkg/packages/zlib_x64-windows-static/include 
-  LIBS += C:/Users/David/Desktop/vcpkg/installed/x64-windows-static/lib/zlib.lib
+  INCLUDEPATH += "C:/Users/David/Desktop/vcpkg/packages/liblzma_x64-windows-static/include"
+  LIBS += "C:/Users/David/Desktop/vcpkg/installed/x64-windows-static/lib/lzma.lib"
+
+  INCLUDEPATH += "C:/Users/David/Desktop/vcpkg/packages/zlib_x64-windows-static/include"
+  LIBS += "C:/Users/David/Desktop/vcpkg/installed/x64-windows-static/lib/zlib.lib"
 }
 
 unix:!macx{

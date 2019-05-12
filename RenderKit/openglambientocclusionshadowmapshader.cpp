@@ -123,16 +123,13 @@ void OpenGLAmbientOcclusionShadowMapShader::initializeVertexArrayObject()
       glBindVertexArray(_atomShadowMapVertexArrayObject[i][j]);
 
       glBindBuffer(GL_ARRAY_BUFFER, _atomOrthographicImposterShader._vertexBuffer[i][j]);
-      //glBufferData(GL_ARRAY_BUFFER, quad.vertices().size() * sizeof(RKVertex), quad.vertices().data(), GL_DYNAMIC_DRAW);
       check_gl_error();
 
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _atomOrthographicImposterShader._indexBuffer[i][j]);
-     // glBufferData(GL_ELEMENT_ARRAY_BUFFER, quad.indices().size() * sizeof(GLshort), quad.indices().data(), GL_DYNAMIC_DRAW);
       check_gl_error();
       glVertexAttribPointer(_atomShadowMapVertexPositionAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex),reinterpret_cast<GLvoid*>(offsetof(RKVertex,position)));
 
       glBindBuffer(GL_ARRAY_BUFFER, _atomShader._instancePositionBuffer[i][j]);
-     // glBufferData(GL_ARRAY_BUFFER, _numberOfDrawnAtoms[i][j]*sizeof(RKInPerInstanceAttributesAtoms), atomData.data(), GL_DYNAMIC_DRAW);
       check_gl_error();
       glVertexAttribPointer(_atomShadowMapInstancePositionAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKInPerInstanceAttributesAtoms),reinterpret_cast<GLvoid*>(offsetof(RKInPerInstanceAttributesAtoms,position)));
       glVertexAttribDivisor(_atomShadowMapInstancePositionAttributeLocation, 1);
@@ -417,7 +414,11 @@ void  OpenGLAmbientOcclusionShadowMapShader::updateAmbientOcclusionTextures(std:
           }
 
           glBindBuffer(GL_UNIFORM_BUFFER, structureAmbientOcclusionUniformBuffer);
-          glBufferData(GL_UNIFORM_BUFFER, sizeof(RKStructureUniforms) * _renderStructures[i].size(), structureUniforms.data(), GL_DYNAMIC_DRAW);
+          if(_renderStructures[i].size()>0)
+          {
+            glBufferData(GL_UNIFORM_BUFFER, sizeof(RKStructureUniforms) * _renderStructures[i].size(), structureUniforms.data(), GL_DYNAMIC_DRAW);
+            check_gl_error();
+          }
           glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
           SKBoundingBox boundingBox = dataSource->renderBoundingBox();

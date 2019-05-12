@@ -273,7 +273,11 @@ void OpenGLEnergySurface::initializeVertexArrayObject()
         std::vector<float4> renderLatticeVectors = _renderStructures[i][j]->cell()->renderTranslationVectors();
         _surfaceNumberOfInstances[i][j] = renderLatticeVectors.size();
         glBindBuffer(GL_ARRAY_BUFFER,_surfaceInstancePositionBuffer[i][j]);
-        glBufferData(GL_ARRAY_BUFFER, renderLatticeVectors.size()*sizeof(float4), renderLatticeVectors.data(), GL_DYNAMIC_DRAW);
+        if(renderLatticeVectors.size()>0)
+        {
+          glBufferData(GL_ARRAY_BUFFER, renderLatticeVectors.size()*sizeof(float4), renderLatticeVectors.data(), GL_DYNAMIC_DRAW);
+          check_gl_error();
+        }
 
         glVertexAttribPointer(_atomSurfaceInstancePositionAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(float4), (GLvoid *)offsetof(RKInPerInstanceAttributesAtoms,position));
         glVertexAttribDivisor(_atomSurfaceInstancePositionAttributeLocation, 1);

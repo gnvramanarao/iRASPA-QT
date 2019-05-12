@@ -202,6 +202,31 @@ void GLWidget::initializeGL()
 
   _logReporter->logMessage(LogReporting::ErrorLevel::verbose, "OpenGL initialized");
 
+  GLint majorVersion = 0;
+  GLint minorVersion = 0;
+  GLint profile = 0;
+  GLint flags = 0;
+  glGetIntegerv(GL_MAJOR_VERSION, &majorVersion);
+  glGetIntegerv(GL_MINOR_VERSION, &minorVersion);
+  glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &profile);
+  glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+
+  _logReporter->logMessage(LogReporting::ErrorLevel::verbose, "OpenGL major version: " + QString::number(majorVersion));
+  _logReporter->logMessage(LogReporting::ErrorLevel::verbose, "OpenGL minor version: " + QString::number(minorVersion));
+
+  if(majorVersion <= 3 && minorVersion < 3)
+  {
+    QMessageBox messageBox;
+    messageBox.setFixedSize(650, 200);
+    messageBox.critical(nullptr, tr("Critical error"), "OpenGL version error, install OpenGL drivers (>=3.3)");
+    QApplication::quit();
+  }
+
+  if(profile & GL_CONTEXT_CORE_PROFILE_BIT)
+  {
+    _logReporter->logMessage(LogReporting::ErrorLevel::verbose, "OpenGL core profile");
+  }
+
   // get OpenGL capabilities
   glGetIntegerv(GL_MAX_CLIP_DISTANCES, &_maxNumberOfClipPlanes);
   glGetIntegerv(GL_MAX_TEXTURE_SIZE, &_maxTextureSize);
@@ -223,8 +248,14 @@ void GLWidget::initializeGL()
   _logReporter->logMessage(LogReporting::ErrorLevel::verbose, "pixel device ratio: " + QString::number(_devicePixelRatio));
 
   glGenFramebuffers(1, &_sceneFrameBuffer);
+  check_gl_error();
+
   glGenTextures(1, &_sceneDepthTexture);
+  check_gl_error();
+
   glGenTextures(1, &_sceneTexture);
+  check_gl_error();
+
   glGenTextures(1, &_glowSelectionTexture);
   check_gl_error();
 
@@ -232,18 +263,28 @@ void GLWidget::initializeGL()
   check_gl_error();
 
   glActiveTexture(GL_TEXTURE0);
+  check_gl_error();
+
   glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, _sceneTexture);
+  check_gl_error();
+
   glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, _multiSampling, GL_RGBA16F, _width * _devicePixelRatio, _height * _devicePixelRatio, GL_TRUE);
   check_gl_error();
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  check_gl_error();
+
   glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
   check_gl_error();
 
   glActiveTexture(GL_TEXTURE0);
+  check_gl_error();
+
   glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, _glowSelectionTexture);
+  check_gl_error();
+
   glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, _multiSampling, GL_RGBA16F, _width * _devicePixelRatio, _height * _devicePixelRatio, GL_TRUE);
   check_gl_error();
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -254,6 +295,8 @@ void GLWidget::initializeGL()
   glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 
   glActiveTexture(GL_TEXTURE1);
+  check_gl_error();
+
   glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, _sceneDepthTexture);
   check_gl_error();
   glTexParameteri(GL_TEXTURE_2D, GLenum(GL_TEXTURE_WRAP_S), GLint(GL_CLAMP_TO_EDGE));
@@ -277,6 +320,7 @@ void GLWidget::initializeGL()
 
   // check framebuffer completeness
   GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  check_gl_error();
   if (status != GL_FRAMEBUFFER_COMPLETE)
   {
     qWarning("initializeSceneFrameBuffer fatal error: framebuffer incomplete");
@@ -754,8 +798,6 @@ QImage GLWidget::renderSceneToImage(int width, int height)
 
   makeCurrent();
 
-  //int multiSampling = 8;
-
   updateStructureUniforms();
   updateTransformUniforms();
   updateIsosurfaceUniforms();
@@ -1189,7 +1231,7 @@ void GLWidget::updateTransformUniforms()
 
   glBindBuffer(GL_UNIFORM_BUFFER, _frameUniformBuffer);
   check_gl_error();
-  RKTransformationUniforms transformationUniforms = RKTransformationUniforms(projectionMatrix, viewMatrix, bloomLevel, bloomPulse);
+  RKTransformationUniforms transformationUniforms = RKTransformationUniforms(projectionMatrix, viewMatrix, bloomLevel, bloomPulse, _multiSampling);
   glBufferData (GL_UNIFORM_BUFFER, sizeof(RKTransformationUniforms), &transformationUniforms, GL_DYNAMIC_DRAW);
   check_gl_error();
   glBindBuffer(GL_UNIFORM_BUFFER,0);

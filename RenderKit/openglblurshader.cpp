@@ -334,12 +334,18 @@ void OpenGLBlurShader::initializeVertexArrayObject()
   glBindVertexArray(_blurDownSamplerVertexArray);
 
   glBindBuffer(GL_ARRAY_BUFFER, _blurDownSamplerVertexBuffer);
-  glBufferData(GL_ARRAY_BUFFER, quad.vertices().size()*sizeof(RKVertex), quad.vertices().data(), GL_STATIC_DRAW);
-  check_gl_error();
+  if(quad.vertices().size()>0)
+  {
+    glBufferData(GL_ARRAY_BUFFER, quad.vertices().size()*sizeof(RKVertex), quad.vertices().data(), GL_STATIC_DRAW);
+    check_gl_error();
+  }
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _blurDownSamplerIndexBuffer);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, quad.indices().size() * sizeof(GLushort), quad.indices().data(), GL_STATIC_DRAW);
-  check_gl_error();
+  if(quad.indices().size()>0)
+  {
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, quad.indices().size() * sizeof(GLushort), quad.indices().data(), GL_STATIC_DRAW);
+    check_gl_error();
+  }
 
   glVertexAttribPointer(_blurDownSamplerVertexPositionAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex),  reinterpret_cast<GLvoid*>(offsetof(RKVertex,position)));
   glEnableVertexAttribArray(_blurDownSamplerVertexPositionAttributeLocation);
@@ -354,12 +360,18 @@ void OpenGLBlurShader::initializeVertexArrayObject()
   glBindVertexArray(_blurHorizontalVertexArray);
 
   glBindBuffer(GL_ARRAY_BUFFER, _blurHorizontalVertexBuffer);
-  glBufferData(GL_ARRAY_BUFFER, quad.vertices().size()*sizeof(RKVertex), quad.vertices().data(), GL_STATIC_DRAW);
-  check_gl_error();
+  if(quad.vertices().size()>0)
+  {
+    glBufferData(GL_ARRAY_BUFFER, quad.vertices().size()*sizeof(RKVertex), quad.vertices().data(), GL_STATIC_DRAW);
+    check_gl_error();
+  }
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _blurHorizontalIndexBuffer);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, quad.indices().size() * sizeof(GLushort), quad.indices().data(), GL_STATIC_DRAW);
-  check_gl_error();
+  if(quad.indices().size()>0)
+  {
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, quad.indices().size() * sizeof(GLushort), quad.indices().data(), GL_STATIC_DRAW);
+    check_gl_error();
+  }
 
   glVertexAttribPointer(_blurHorizontalVertexPositionAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex),  reinterpret_cast<GLvoid*>(offsetof(RKVertex,position)));
   glEnableVertexAttribArray(_blurHorizontalVertexPositionAttributeLocation);
@@ -375,12 +387,18 @@ void OpenGLBlurShader::initializeVertexArrayObject()
   check_gl_error();
 
   glBindBuffer(GL_ARRAY_BUFFER, _blurVerticalVertexBuffer);
-  glBufferData(GL_ARRAY_BUFFER, quad.vertices().size()*sizeof(RKVertex), quad.vertices().data(), GL_STATIC_DRAW);
-  check_gl_error();
+  if(quad.vertices().size()>0)
+  {
+    glBufferData(GL_ARRAY_BUFFER, quad.vertices().size()*sizeof(RKVertex), quad.vertices().data(), GL_STATIC_DRAW);
+    check_gl_error();
+  }
 
   glBindBuffer(GLenum(GL_ELEMENT_ARRAY_BUFFER), _blurVerticalIndexBuffer);
-  glBufferData(GLenum(GL_ELEMENT_ARRAY_BUFFER), quad.indices().size() * sizeof(GLushort), quad.indices().data(), GL_STATIC_DRAW);
-  check_gl_error();
+  if(quad.indices().size()>0)
+  {
+    glBufferData(GLenum(GL_ELEMENT_ARRAY_BUFFER), quad.indices().size() * sizeof(GLushort), quad.indices().data(), GL_STATIC_DRAW);
+    check_gl_error();
+  }
 
   glVertexAttribPointer(_blurVerticalVertexPositionAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), reinterpret_cast<GLvoid*>(offsetof(RKVertex,position)));
   glEnableVertexAttribArray(_blurVerticalVertexPositionAttributeLocation);

@@ -100,16 +100,24 @@ check_gl_error();
   QuadGeometry quad = QuadGeometry();
 
   glBindVertexArray(_vertexArray);
-check_gl_error();
+   check_gl_error();
   glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
-  glBufferData(GL_ARRAY_BUFFER, quad.vertices().size()*sizeof(RKVertex), quad.vertices().data(), GL_STATIC_DRAW);
-check_gl_error();
+  if(quad.vertices().size()>0)
+  {
+    glBufferData(GL_ARRAY_BUFFER, quad.vertices().size()*sizeof(RKVertex), quad.vertices().data(), GL_STATIC_DRAW);
+    check_gl_error();
+  }
+
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, quad.indices().size() * sizeof(GLushort), quad.indices().data(), GL_STATIC_DRAW);
-check_gl_error();
+  if(quad.indices().size()>0)
+  {
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, quad.indices().size() * sizeof(GLushort), quad.indices().data(), GL_STATIC_DRAW);
+    check_gl_error();
+  }
+
   glVertexAttribPointer(_vertexPositionAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), reinterpret_cast<GLvoid*>(offsetof(RKVertex, position)));
   glEnableVertexAttribArray(_vertexPositionAttributeLocation);
-check_gl_error();
+  check_gl_error();
   glBindVertexArray(0);
 
   QImage whiteImage = QImage(QSize(64,64),QImage::Format_ARGB32);

@@ -29,7 +29,7 @@
 
 #include "rkrenderuniforms.h"
 
-RKTransformationUniforms::RKTransformationUniforms(double4x4 projectionMatrix, double4x4 viewMatrix, double bloomLevel, double bloomPulse)
+RKTransformationUniforms::RKTransformationUniforms(double4x4 projectionMatrix, double4x4 viewMatrix, double bloomLevel, double bloomPulse, int multiSampling)
 {
     double4x4 mvpMatrix = projectionMatrix * viewMatrix;
     this->projectionMatrix = float4x4(projectionMatrix);
@@ -44,6 +44,7 @@ RKTransformationUniforms::RKTransformationUniforms(double4x4 projectionMatrix, d
     this->normalMatrix = float4x4(double4x4(normalMatrix));
     this->bloomLevel = float(bloomLevel);
     this->bloomPulse = float(bloomPulse);
+    this->numberOfMultiSamplePoints = multiSampling;
 };
 
 

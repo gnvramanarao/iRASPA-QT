@@ -29,8 +29,8 @@
 
 #include "glgeterror.h"
 
-/*
-void glError::check_gl_error(const char *file, int line)
+
+void _check_gl_error(const char *file, int line)
 {
   GLenum err (glGetError());
 
@@ -51,4 +51,4 @@ void glError::check_gl_error(const char *file, int line)
     exit(0);
   }
 }
-*/
+

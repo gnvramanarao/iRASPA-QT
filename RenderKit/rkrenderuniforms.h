@@ -106,15 +106,18 @@ struct RKTransformationUniforms
 
   // moved 'numberOfMultiSamplePoints' to here (for downsampling when no structures are present)
   int32_t numberOfMultiSamplePoints = 8;
+  int32_t intPad1;
+  int32_t intPad2;
+  int32_t intPad3;
   float bloomLevel = 1.0;
   float bloomPulse = 1.0;
-  float padFloat3 = float();
-  float4 padVector2 = float4();
+  float padFloat1 = 0.0;
+  float padFloat2 = 0.0;
   float4 padVector3 = float4();
   float4 padvector4 = float4();
 
   //RKTransformationUniforms();
-  RKTransformationUniforms(double4x4 projectionMatrix, double4x4 viewMatrix, double bloomLevel, double bloomPulse);
+  RKTransformationUniforms(double4x4 projectionMatrix, double4x4 viewMatrix, double bloomLevel, double bloomPulse, int multiSampling);
 };
 
 const std::string  OpenGLFrameUniformBlockStringLiteral = R"foo(
@@ -129,10 +132,13 @@ layout (std140) uniform FrameUniformBlock
   mat4 normalMatrix;
 
   int numberOfMultiSamplePoints;
+  int padInt1;
+  int padInt2;
+  int padInt3;
   float bloomLevel;
   float bloomPulse;
-  float padFloat3;
-  vec4 padVector2;
+  float padFloat1;
+  float padFloat2;
   vec4 padvector3;
   vec4 padvector4;
 } frameUniforms;

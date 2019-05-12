@@ -1192,8 +1192,13 @@ void CameraTreeWidgetController::setMovieFramesPerSecond(int fps)
 void CameraTreeWidgetController::savePicture()
 {
   QString selFilter = tr("JPEG (*.jpg *.jpeg)");
+#if defined(Q_OS_WIN)
+  QUrl fileURL = QFileDialog::getSaveFileUrl(this, tr("Save File"), QUrl(),
+	  tr("Images (*.png *.xpm *.jpg *.tiff)"), &selFilter);
+#else
   QUrl fileURL = QFileDialog::getSaveFileUrl(this,tr("Save File"),QDir::homePath() + QDir::separator() + "picture.png",
         tr("Images (*.png *.xpm *.jpg *.tiff)"),&selFilter);
+#endif
 
   if(!fileURL.isValid())
   {

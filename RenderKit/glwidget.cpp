@@ -98,20 +98,25 @@ void GLWidget::setRenderDataSource(std::shared_ptr<RKRenderDataSource> source)
       camera->resetForNewBoundingBox(dataSource->renderBoundingBox());
     }
 
-    _renderStructures = dataSource->renderStructures();
+	_renderStructures = dataSource->renderStructures();
 
-    _backgroundShader.reload(dataSource);
+	if (_isOpenGLInitialized)
+	{
+	  _backgroundShader.reload(dataSource);
 
-    _blurShader.resizeGL(_width, _height);
+	  _blurShader.resizeGL(_width, _height);
+	}
   }
 
-
-  reloadData();
-  update();
-
-  if (source)
+  if (_isOpenGLInitialized)
   {
-    renderSceneToImage(width(),height());
+    reloadData();
+	update();
+
+	if (source)
+	{
+      renderSceneToImage(width(), height());
+	}
   }
 }
 
@@ -782,6 +787,7 @@ void GLWidget::paintGL()
   glActiveTexture(GL_TEXTURE1);
   glBindTexture(GL_TEXTURE_2D, _blurShader.blurredTexture());
   glUniform1i(_blurredInputTextureUniformLocation, 1);
+  glUniform1i(_numberOfMultiSamplePointsUniformLocation, _multiSampling);
   glDrawElements(GL_TRIANGLE_STRIP,4,GL_UNSIGNED_SHORT, nullptr);
 
   glActiveTexture(GL_TEXTURE0);
@@ -1380,25 +1386,42 @@ void GLWidget::reloadData()
   if(_dataSource)
   {
     _atomShader.setRenderStructures(_dataSource->renderStructures());
+	 check_gl_error();
     _atomOrthographicImposterShader.setRenderStructures(_dataSource->renderStructures());
+	check_gl_error();
     _atomPerspectiveImposterShader.setRenderStructures(_dataSource->renderStructures());
+	check_gl_error();
     _internalBondShader.setRenderStructures(_dataSource->renderStructures());
+	check_gl_error();
     _externalBondShader.setRenderStructures(_dataSource->renderStructures());
+	check_gl_error();
     _unitCellSphereShader.setRenderStructures(_dataSource->renderStructures());
+	check_gl_error();
     _unitCellCylinderShader.setRenderStructures(_dataSource->renderStructures());
+	check_gl_error();
     _atomSelectionWorleyNoise3DShader.setRenderStructures(_dataSource->renderStructures());
+	check_gl_error();
     _atomSelectionWorleyNoise3DOrthographicImposterShader.setRenderStructures(_dataSource->renderStructures());
+	check_gl_error();
     _atomSelectionWorleyNoise3DPerspectiveImposterShader.setRenderStructures(_dataSource->renderStructures());
+	check_gl_error();
     _atomSelectionStripesShader.setRenderStructures(_dataSource->renderStructures());
+	check_gl_error();
     _atomSelectionStripesOrthographicImposterShader.setRenderStructures(_dataSource->renderStructures());
+	check_gl_error();
     _atomSelectionStripesPerspectiveImposterShader.setRenderStructures(_dataSource->renderStructures());
+	check_gl_error();
     _atomSelectionGlowShader.setRenderStructures(_dataSource->renderStructures());
+	check_gl_error();
 
     _pickingShader.setRenderStructures(_dataSource->renderStructures());
+	check_gl_error();
     _atomAmbientOcclusionShader.setRenderStructures(_dataSource->renderStructures());
+	check_gl_error();
     _energySurfaceShader.setRenderStructures(_dataSource->renderStructures());
+	check_gl_error();
   }
-check_gl_error();
+  check_gl_error();
 
   _atomShader.reloadData();
   _atomOrthographicImposterShader.reloadData();
@@ -1562,6 +1585,7 @@ void GLWidget::loadShader(void)
     _downSampleInputTextureUniformLocation = glGetUniformLocation(_program, "originalTexture");
     _blurredInputTextureUniformLocation = glGetUniformLocation(_program, "blurredTexture");
     _downSamplePositionAttributeLocation = glGetAttribLocation(_program, "position");
+	_numberOfMultiSamplePointsUniformLocation = glGetUniformLocation(_program, "numberOfMultiSamplePoints");
 
     if (_downSampleInputTextureUniformLocation < 0) qDebug() << "Shader did not contain the 'originalTexture' uniform.";
     if (_downSamplePositionAttributeLocation < 0) qDebug() << "Shader did not contain the 'position' attribute.";
@@ -1596,6 +1620,7 @@ out vec4 vFragColor;
 
 uniform sampler2DMS originalTexture;
 uniform sampler2D blurredTexture;
+uniform int numberOfMultiSamplePoints;
 
 void main()
 {
@@ -1607,12 +1632,12 @@ void main()
   // Find both the weighted and unweighted colors
   vec4 vColor = vec4(0.0, 0.0, 0.0, 0.0);
 
-  for (int i = 0; i < frameUniforms.numberOfMultiSamplePoints ; i++)
+  for (int i = 0; i < numberOfMultiSamplePoints ; i++)
   {
     sampleValue = texelFetch(originalTexture, ivec2(tmp), i);
     vColor += sampleValue;
   }
 
-  vFragColor = vColor/float(frameUniforms.numberOfMultiSamplePoints) + frameUniforms.bloomPulse * frameUniforms.bloomLevel * texture(blurredTexture,texcoord);
+  vFragColor = vColor/float(numberOfMultiSamplePoints) + frameUniforms.bloomPulse * frameUniforms.bloomLevel * texture(blurredTexture,texcoord);
 }
 )foo");

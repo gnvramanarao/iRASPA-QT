@@ -105,10 +105,10 @@ struct RKTransformationUniforms
   float4x4 normalMatrix = float4x4();
 
   // moved 'numberOfMultiSamplePoints' to here (for downsampling when no structures are present)
-  int32_t numberOfMultiSamplePoints = 8;
-  int32_t intPad1;
-  int32_t intPad2;
-  int32_t intPad3;
+  float numberOfMultiSamplePoints = 8.0;
+  float intPad1;
+  float intPad2;
+  float intPad3;
   float bloomLevel = 1.0;
   float bloomPulse = 1.0;
   float padFloat1 = 0.0;
@@ -127,14 +127,15 @@ layout (std140) uniform FrameUniformBlock
   mat4 viewMatrix;
   mat4 mvpMatrix;
   mat4 shadowMatrix;
+
+
   mat4 projectionMatrixInverse;
   mat4 viewMatrixInverse;
   mat4 normalMatrix;
-
-  int numberOfMultiSamplePoints;
-  int padInt1;
-  int padInt2;
-  int padInt3;
+  float numberOfMultiSamplePoints;
+  float padInt1;
+  float padInt2;
+  float padInt3;
   float bloomLevel;
   float bloomPulse;
   float padFloat1;

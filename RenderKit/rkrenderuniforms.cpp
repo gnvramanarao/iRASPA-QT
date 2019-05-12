@@ -44,7 +44,7 @@ RKTransformationUniforms::RKTransformationUniforms(double4x4 projectionMatrix, d
     this->normalMatrix = float4x4(double4x4(normalMatrix));
     this->bloomLevel = float(bloomLevel);
     this->bloomPulse = float(bloomPulse);
-    this->numberOfMultiSamplePoints = multiSampling;
+    this->numberOfMultiSamplePoints = float(multiSampling);
 };
 
 

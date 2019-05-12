@@ -189,6 +189,7 @@ private:
   GLint _downSampleInputTextureUniformLocation;
   GLint _blurredInputTextureUniformLocation;
   GLint _downSamplePositionAttributeLocation;
+  GLint _numberOfMultiSamplePointsUniformLocation;
 
   static const std::string _vertexShaderSource;
   static const std::string _fragmentShaderSource;

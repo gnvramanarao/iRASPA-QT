@@ -33,6 +33,7 @@ TEMPLATE = app
 DEFINES += QT_DEPRECATED_WARNINGS
 
 macx{
+  QMAKE_CXXFLAGS += -Wl,--stack,4194304
   INCLUDEPATH += /System/Library/Frameworks/Python.framework/Versions/Current/include/python2.7
   QMAKE_LFLAGS += -framework OpenCL -framework Python
   LIBS += -llzma -lz
@@ -41,6 +42,9 @@ macx{
 win32{
   QMAKE_CFLAGS_RELEASE += /Zi
   QMAKE_LFLAGS_RELEASE += /INCREMENTAL:NO /DEBUG
+
+  QMAKE_CXXFLAGS += /F 4194304
+  QMAKE_LFLAGS   += /STACK:4194304
   
   LIBS += "C:/Users/David Dubbeldam/Desktop/vcpkg/installed/x64-windows-static/lib/opengl32.lib" User32.lib
 
@@ -61,6 +65,8 @@ win32{
 }
 
 unix:!macx{
+  QMAKE_CXXFLAGS += -Wl,--stack,4194304
+
   LIBS += -lOpenCL
   INCLUDEPATH += /usr/include/python2.7
   LIBS += -lpython2.7 -llzma -lz -ldl -lutil

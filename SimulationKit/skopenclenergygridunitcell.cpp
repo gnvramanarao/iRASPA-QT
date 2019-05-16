@@ -32,7 +32,7 @@
 #include <algorithm>
 #include <QDebug>
 
-SKOpenCLEnergyGridUnitCell::SKOpenCLEnergyGridUnitCell(): _isOpenCLInitialized(false)
+SKOpenCLEnergyGridUnitCell::SKOpenCLEnergyGridUnitCell(): _isOpenCLInitialized(false), _isOpenCLReady(false)
 {
 
 }
@@ -51,44 +51,80 @@ void SKOpenCLEnergyGridUnitCell::initialize(bool isOpenCLInitialized, cl_context
   _queue = queue;
   _clContext = context;
   _clCommandQueue = queue;
+  _clDeviceId = device_id;
 
   const char* shaderSourceCode = SKOpenCLEnergyGridUnitCell::_energyGridUnitCellKernel;
   _program = clCreateProgramWithSource(context, 1, &shaderSourceCode, nullptr, &err);
   if (err != CL_SUCCESS)
   {
-    qWarning("Failed to create OpenCL program: %d", err);
+    QString message = QString("OpenCL energy grid: Failed to create program (error: %1)").arg(QString::number(err));
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
     return;
   }
 
   // Build the program executable
-   err = clBuildProgram(_program, 0, nullptr, nullptr, nullptr, nullptr);
-   if (err != CL_SUCCESS)
-   {
-      size_t len;
-      char buffer[2048];
-      printf("Error: Failed to build program executable! SKOpenCLEnergyGridUnitCell\n");
-      clGetProgramBuildInfo(_program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
-      printf("%s\n", buffer);
-      exit(1);
-   }
-
-  _kernel = clCreateKernel(_program, "ComputeEnergyGrid", &err);
+  err = clBuildProgram(_program, 0, nullptr, nullptr, &SKOpenCLEnergyGridUnitCell::callBack, this);
   if (err != CL_SUCCESS)
   {
-    qWarning("Failed to create OpenCL kernel: %d", err);
+    size_t len;
+    char buffer[2048];
+    clGetProgramBuildInfo(_program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
+    QString message = QString("OpenCL energy grid: Failed to build program (error: %1)").arg(QString::fromUtf8(buffer));
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+  }
+}
+
+void SKOpenCLEnergyGridUnitCell::callBack(cl_program program, void *user_data)
+{
+  cl_int err;
+
+  SKOpenCLEnergyGridUnitCell *ptr = reinterpret_cast<SKOpenCLEnergyGridUnitCell*>(user_data);
+
+  size_t len;
+  char buffer[2048];
+  cl_build_status bldstatus;
+  clGetProgramBuildInfo(program, ptr->_clDeviceId, CL_PROGRAM_BUILD_STATUS, sizeof(bldstatus), (void *)&bldstatus, &len);
+
+  switch(bldstatus)
+  {
+    case CL_BUILD_NONE:
+      ptr->_logReporter->logMessage(LogReporting::ErrorLevel::error, "OpenCL energy grid: No build was performed");
+      break;
+    case CL_BUILD_ERROR:
+      {
+        clGetProgramBuildInfo(program, ptr->_clDeviceId, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
+        QString message = QString("OpenCL energy grid: Failed to build program (error: %1)").arg(QString::fromUtf8(buffer));
+        ptr->_logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+      }
+      break;
+    case CL_BUILD_SUCCESS:
+      ptr->_logReporter->logMessage(LogReporting::ErrorLevel::info, "OpenCL energy grid: Build success");
+      break;
+    case CL_BUILD_IN_PROGRESS:
+      ptr->_logReporter->logMessage(LogReporting::ErrorLevel::warning, "OpenCL energy grid: Build still in progress");
+      break;
+  }
+
+  ptr->_kernel = clCreateKernel(program, "ComputeEnergyGrid", &err);
+  if (err != CL_SUCCESS)
+  {
+    QString message = QString("OpenCL energy grid: Failed to create OpenCL ComputeEnergyGrid kernel (error: %1)").arg(QString::number(err));
+    ptr->_logReporter->logMessage(LogReporting::ErrorLevel::error, message);
     return;
   }
 
-  err = clGetKernelWorkGroupInfo(_kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), &_workGroupSize, nullptr);
+  err = clGetKernelWorkGroupInfo(ptr->_kernel, ptr->_clDeviceId, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), &ptr->_workGroupSize, nullptr);
   if (err != CL_SUCCESS)
   {
-    qWarning("Failed to clGetKernelWorkGroupInfo: %d", err);
-    return;
+      QString message = QString("OpenCL energy grid: Failed in clGetKernelWorkGroupInfo (error: %1)").arg(QString::number(err));
+      ptr->_logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+      return;
   }
-  qDebug() << "SKOpenCLEnergyGridUnitCell Work-group size is: " <<  _workGroupSize;
 
+  QString message = QString("OpenCL energy grid: work-group size set to %1").arg(QString::number(ptr->_workGroupSize));
+  ptr->_logReporter->logMessage(LogReporting::ErrorLevel::verbose, message);
 
-
+  ptr->_isOpenCLReady = true;
 }
 
 
@@ -102,6 +138,13 @@ std::vector<cl_float>* SKOpenCLEnergyGridUnitCell::ComputeEnergyGrid(int sizeX, 
 
   if(!_isOpenCLInitialized)
   {
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, "OpenCL energy grid: OpenCL not available");
+    return nullptr;
+  }
+
+  if(!_isOpenCLReady)
+  {
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, "OpenCL energy grid: OpenCL not yet ready");
     return nullptr;
   }
 
@@ -110,8 +153,6 @@ std::vector<cl_float>* SKOpenCLEnergyGridUnitCell::ComputeEnergyGrid(int sizeX, 
   // (detected on NVIDIA)
   int numberOfGridPoints = (temp  + _workGroupSize-1) & ~(_workGroupSize-1);
   size_t global_work_size = numberOfGridPoints;
-
-  qDebug() << "_workGroupSize: " << _workGroupSize;
 
   std::vector<cl_float4> pos(numberOfAtoms);
   std::vector<cl_float> epsilon(numberOfAtoms);
@@ -122,13 +163,7 @@ std::vector<cl_float>* SKOpenCLEnergyGridUnitCell::ComputeEnergyGrid(int sizeX, 
   std::vector<cl_float4> gridPositions(numberOfGridPoints);
   std::vector<cl_float> output(numberOfGridPoints);
 
-
-
-
-
   double3 correction = double3(1.0/double(numberOfReplicas.x), 1.0/double(numberOfReplicas.y), 1.0/double(numberOfReplicas.z));
-
-  std::cout << "Number of atoms: " << numberOfAtoms << " " << numberOfGridPoints << " " << numberOfReplicas.x << std::endl;
 
   if (numberOfAtoms > 0)
   {
@@ -139,7 +174,6 @@ std::vector<cl_float>* SKOpenCLEnergyGridUnitCell::ComputeEnergyGrid(int sizeX, 
 
       // fill in the Cartesian position
       pos[i] = {{cl_float(position.x),cl_float(position.y),cl_float(position.z),0.0f}};
-
 
       // use 4 x epsilon for a probe epsilon of unity
       epsilon[i] = cl_float(4.0*sqrt(currentPotentialParameters.x * probeParameter.x));
@@ -163,67 +197,67 @@ std::vector<cl_float>* SKOpenCLEnergyGridUnitCell::ComputeEnergyGrid(int sizeX, 
       }
     }
 
-
-
-
-    // allocate xpos memory and queue it to the device
     cl_mem inputPos = clCreateBuffer(_clContext,  CL_MEM_READ_ONLY,  sizeof(float4) * pos.size(), nullptr, &err);
     if (err != CL_SUCCESS)
     {
-      qWarning("Error: Failed to allocate device memory for 'pos'!");
-      std::cout << "Error: " << err << std::endl;
+      QString message = QString("OpenCL energy grid: error in clCreateBuffer (error: %1)").arg(QString::number(err));
+      _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+      return nullptr;
     }
+
     err = clEnqueueWriteBuffer(_clCommandQueue, inputPos, CL_TRUE, 0, sizeof(float4) * pos.size(), pos.data(), 0, nullptr, nullptr);
     if (err != CL_SUCCESS)
     {
-      qWarning("Error: Failed to write to source array!");
-      std::cout << "Error: " << err << std::endl;
+      QString message = QString("OpenCL energy grid: error in clEnqueueWriteBuffer (error: %1)").arg(QString::number(err));
+      _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+      return nullptr;
     }
 
-
-
-    // allocate xpos memory and queue it to the device
     cl_mem inputGridPos = clCreateBuffer(_clContext, CL_MEM_READ_ONLY,  sizeof(cl_float4) * gridPositions.size(), nullptr, &err);
     if (err != CL_SUCCESS)
     {
-      qWarning("Error: Failed to allocate device memory 'gridPositions'!");
-      std::cout << "Error: " << err << std::endl;
+      QString message = QString("OpenCL energy grid: error in clCreateBuffer (error: %1)").arg(QString::number(err));
+      _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+      return nullptr;
     }
+
     err = clEnqueueWriteBuffer(_clCommandQueue, inputGridPos, CL_TRUE, 0, sizeof(cl_float4) * gridPositions.size(), gridPositions.data(), 0, nullptr, nullptr);
     if (err != CL_SUCCESS)
     {
-      qWarning("Error: Failed to write to source array!xs");
-      std::cout << "Error: " << err << std::endl;
+      QString message = QString("OpenCL energy grid: error in clEnqueueWriteBuffer (error: %1)").arg(QString::number(err));
+      _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+      return nullptr;
     }
 
-
-
-    // allocate epsilon memory and queue it to the device
     cl_mem inputEpsilon = clCreateBuffer(_clContext, CL_MEM_READ_ONLY,  sizeof(cl_float) * epsilon.size(), nullptr, &err);
     if (err != CL_SUCCESS)
     {
-      qWarning("Error: Failed to allocate device memory 'epsilon'!");
-      std::cout << "Error: " << err << std::endl;
+      QString message = QString("OpenCL energy grid: error in clCreateBuffer (error: %1)").arg(QString::number(err));
+      _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+      return nullptr;
     }
     err = clEnqueueWriteBuffer(_clCommandQueue, inputEpsilon, CL_TRUE, 0, sizeof(cl_float) * epsilon.size(), epsilon.data(), 0, nullptr, nullptr);
     if (err != CL_SUCCESS)
     {
-      qWarning("Error: Failed to write to source array!");
-      std::cout << "Error: " << err << std::endl;
+      QString message = QString("OpenCL energy grid: error in clEnqueueWriteBuffer (error: %1)").arg(QString::number(err));
+      _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+      return nullptr;
     }
 
-    // allocate epsilon memory and queue it to the device
     cl_mem inputSigma = clCreateBuffer(_clContext, CL_MEM_READ_ONLY, sizeof(cl_float) * sigma.size(), nullptr, &err);
     if (err != CL_SUCCESS)
     {
-      qWarning("Error: Failed to allocate device memory 'sigma'!");
-      std::cout << "Error: " << err << std::endl;
+      QString message = QString("OpenCL energy grid: error in clCreateBuffer (error: %1)").arg(QString::number(err));
+      _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+      return nullptr;
     }
+
     err = clEnqueueWriteBuffer(_clCommandQueue, inputSigma, CL_TRUE, 0, sizeof(cl_float) * sigma.size(), sigma.data(), 0, nullptr, nullptr);
     if (err != CL_SUCCESS)
     {
-      qWarning("Error: Failed to write to source array!");
-      std::cout << "Error: " << err << std::endl;
+      QString message = QString("OpenCL energy grid: error in clEnqueueWriteBuffer (error: %1)").arg(QString::number(err));
+      _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+      return nullptr;
     }
 
     // set work-item dimensions
@@ -247,35 +281,37 @@ std::vector<cl_float>* SKOpenCLEnergyGridUnitCell::ComputeEnergyGrid(int sizeX, 
       }
     }
 
-    std::cout << "Number of replicas: " << numberOfReplicas.x << "," << numberOfReplicas.y << "," << numberOfReplicas.z << std::endl;
-
-
     // allocate xpos memory and queue it to the device
     cl_mem replicaCellBuffer = clCreateBuffer(_clContext, CL_MEM_READ_ONLY,  sizeof(cl_float4) * replicaVector.size(), nullptr, &err);
     if (err != CL_SUCCESS)
     {
-      qWarning("Error: Failed to allocate device memory 'replicaVector'!");
-      std::cout << "Error: " << err << std::endl;
+      QString message = QString("OpenCL energy grid: error in clCreateBuffer (error: %1)").arg(QString::number(err));
+      _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+      return nullptr;
     }
     err = clEnqueueWriteBuffer(_clCommandQueue, replicaCellBuffer, CL_TRUE, 0, sizeof(cl_float4) * replicaVector.size(), replicaVector.data(), 0, nullptr, nullptr);
     if (err != CL_SUCCESS)
     {
-      qWarning("Error: Failed to write to source array!");
-      std::cout << "Error: " << err << std::endl;
+      QString message = QString("OpenCL energy grid: error in clEnqueueWriteBuffer (error: %1)").arg(QString::number(err));
+      _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+      return nullptr;
     }
 
     // allocate memory for the output and queue it to the device
     cl_mem outputMemory = clCreateBuffer(_clContext, CL_MEM_READ_WRITE, sizeof(cl_float) * output.size(), nullptr, &err);
     if (err != CL_SUCCESS)
     {
-      qWarning("Error: Failed to allocate device memory 'output'!");
-      std::cout << "Error: " << err << std::endl;
+      QString message = QString("OpenCL energy grid: error in clCreateBuffer (error: %1)").arg(QString::number(err));
+      _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+      return nullptr;
     }
+
     err = clEnqueueWriteBuffer(_clCommandQueue, outputMemory, CL_TRUE, 0, sizeof(cl_float) * output.size(), output.data(), 0, nullptr, nullptr);
     if (err != CL_SUCCESS)
     {
-      qWarning("Error: Failed to write to source array!");
-      std::cout << "Error: " << err << std::endl;
+      QString message = QString("OpenCL energy grid: error in clEnqueueWriteBuffer (error: %1)").arg(QString::number(err));
+      _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+      return nullptr;
     }
 
     double3x3 replicaCell = double3x3(double(numberOfReplicas.x) * unitCell[0],
@@ -309,7 +345,9 @@ std::vector<cl_float>* SKOpenCLEnergyGridUnitCell::ComputeEnergyGrid(int sizeX, 
       err |= clEnqueueNDRangeKernel(_clCommandQueue, _kernel, 1, nullptr, &global_work_size, &_workGroupSize, 0, nullptr, nullptr);
       if (err != CL_SUCCESS)
       {
-        qWarning("Error: Failed to run ComputeEnergy kernel");
+        QString message = QString("OpenCL energy grid: error in clEnqueueNDRangeKernel (error: %1)").arg(QString::number(err));
+        _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+        return nullptr;
       }
 
       clFinish(_clCommandQueue);
@@ -321,8 +359,9 @@ std::vector<cl_float>* SKOpenCLEnergyGridUnitCell::ComputeEnergyGrid(int sizeX, 
     err = clEnqueueReadBuffer(_clCommandQueue, outputMemory, CL_TRUE, 0, sizeof(cl_float) * outputData->size(), outputData->data(), 0, nullptr, nullptr);
     if (err != CL_SUCCESS)
     {
-      qWarning("Error: Failed to read output");
-      std::cout << "Error: " << err << std::endl;
+      QString message = QString("OpenCL energy grid: error in clEnqueueReadBuffer (error: %1)").arg(QString::number(err));
+      _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+      return nullptr;
     }
 
     clFinish(_clCommandQueue);

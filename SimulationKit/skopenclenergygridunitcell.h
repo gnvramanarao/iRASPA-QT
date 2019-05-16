@@ -33,6 +33,7 @@
 #include <array>
 #include <vector>
 #include <mathkit.h>
+#include <foundationkit.h>
 
 #include <QOpenGLFunctions_3_3_Core>
 
@@ -45,7 +46,7 @@
   #include <CL/opencl.h>
 #endif
 
-class SKOpenCLEnergyGridUnitCell: public QOpenGLFunctions_3_3_Core
+class SKOpenCLEnergyGridUnitCell: public QOpenGLFunctions_3_3_Core, public LogReportingConsumer
 {
 public:
   SKOpenCLEnergyGridUnitCell();
@@ -53,15 +54,20 @@ public:
   std::vector<cl_float>* ComputeEnergyGrid(int sizeX, int sizeY, int sizeZ, double2 probeParameter,
                                           std::vector<double3> positions, std::vector<double2> potentialParameters,
                                           double3x3 unitCell, int3 numberOfReplicas);
+  void setLogReportingWidget(LogReporting *logReporting)  override final {_logReporter = logReporting;}
 private:
+  LogReporting* _logReporter = nullptr;
   bool _isOpenCLInitialized;
+  bool _isOpenCLReady;
   cl_program _program;
   cl_context _clContext;
   cl_command_queue _clCommandQueue;
+  cl_device_id _clDeviceId;
   cl_command_queue _queue;
   cl_kernel _kernel;
   size_t _workGroupSize;
   static const char* _energyGridUnitCellKernel;
+  static void callBack(cl_program progran, void *user_data);
 };
 
 

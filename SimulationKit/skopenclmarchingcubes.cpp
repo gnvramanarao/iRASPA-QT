@@ -31,7 +31,7 @@
 #include <iostream>
 #include <QDebug>
 
-SKOpenCLMarchingCubes::SKOpenCLMarchingCubes(): _isOpenCLInitialized(false)
+SKOpenCLMarchingCubes::SKOpenCLMarchingCubes(): _isOpenCLInitialized(false), _isOpenCLReady(false)
 {
 }
 
@@ -53,53 +53,91 @@ void SKOpenCLMarchingCubes::initialize(bool isOpenCLInitialized, cl_context cont
   _program = clCreateProgramWithSource(context, 1, &shaderSourceCode, nullptr, &err);
   if (err != CL_SUCCESS)
   {
-    qWarning("Failed to create OpenCL program: %d", err);
+    QString message = QString("OpenCL energy surface: Failed to create program (error: %1)").arg(QString::number(err));
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
     return;
   }
 
-  // Build the program executable
-  err = clBuildProgram(_program, 0, nullptr, nullptr, nullptr, nullptr);
+  err = clBuildProgram(_program, 0, nullptr, nullptr, &SKOpenCLMarchingCubes::callBack, this);
   if (err != CL_SUCCESS)
   {
     size_t len;
     char buffer[2048];
-    printf("Error: Failed to build program executable! SKOpenCLMarchingCubes\n");
     clGetProgramBuildInfo(_program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
-    printf("%s\n", buffer);
-    exit(1);
+
+    QString message = QString("OpenCL energy surface: Failed to build program (error: %1)").arg(QString::fromUtf8(buffer));
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+    return;
+  }
+}
+
+void SKOpenCLMarchingCubes::callBack(cl_program program, void *user_data)
+{
+  cl_int err;
+
+  SKOpenCLMarchingCubes *ptr = reinterpret_cast<SKOpenCLMarchingCubes*>(user_data);
+
+  size_t len;
+  char buffer[2048];
+  cl_build_status bldstatus;
+  clGetProgramBuildInfo(program, ptr->_clDeviceId, CL_PROGRAM_BUILD_STATUS, sizeof(bldstatus), (void *)&bldstatus, &len);
+
+  switch(bldstatus)
+  {
+    case CL_BUILD_NONE:
+      ptr->_logReporter->logMessage(LogReporting::ErrorLevel::error, "OpenCL energy surface: No build was performed");
+      break;
+    case CL_BUILD_ERROR:
+      {
+        clGetProgramBuildInfo(program, ptr->_clDeviceId, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
+        QString message = QString("OpenCL energy surface: Failed to build program (error: %1)").arg(QString::fromUtf8(buffer));
+        ptr->_logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+      }
+      break;
+    case CL_BUILD_SUCCESS:
+      ptr->_logReporter->logMessage(LogReporting::ErrorLevel::info, "OpenCL energy surface: Build success");
+      break;
+    case CL_BUILD_IN_PROGRESS:
+      ptr->_logReporter->logMessage(LogReporting::ErrorLevel::warning, "OpenCL energy surface: Build still in progress");
+      break;
   }
 
-  _constructHPLevelKernel = clCreateKernel(_program, "constructHPLevel", &err);
+  ptr->_constructHPLevelKernel = clCreateKernel(program, "constructHPLevel", &err);
   if (err != CL_SUCCESS)
   {
-    qWarning("Failed to create OpenCL constructHPLevel kernel: %d", err);
+    QString message = QString("OpenCL energy surface: Failed to create OpenCL constructHPLevel kernel (error: %1)").arg(QString::number(err));
+    ptr->_logReporter->logMessage(LogReporting::ErrorLevel::error, message);
     return;
   }
 
-  _classifyCubesKernel = clCreateKernel(_program, "classifyCubes", &err);
+  ptr->_classifyCubesKernel = clCreateKernel(program, "classifyCubes", &err);
   if (err != CL_SUCCESS)
   {
-    qWarning("Failed to create OpenCL classifyCubes kernel: %d", err);
+    QString message = QString("OpenCL energy surface: Failed to create OpenCL classifyCubes kernel (error: %1)").arg(QString::number(err));
+    ptr->_logReporter->logMessage(LogReporting::ErrorLevel::error, message);
     return;
   }
 
-  _traverseHPKernel = clCreateKernel(_program, "traverseHP", &err);
+  ptr->_traverseHPKernel = clCreateKernel(program, "traverseHP", &err);
   if (err != CL_SUCCESS)
   {
-    qWarning("Failed to create OpenCL traverseHP kernel: %d", err);
+    QString message = QString("OpenCL energy surface: Failed to create OpenCL traverseHP kernel (error: %1)").arg(QString::number(err));
+    ptr->_logReporter->logMessage(LogReporting::ErrorLevel::error, message);
     return;
   }
 
-  err = clGetKernelWorkGroupInfo(_constructHPLevelKernel, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), &_workGroupSize, nullptr);
+  err = clGetKernelWorkGroupInfo(ptr->_constructHPLevelKernel, ptr->_clDeviceId, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), &ptr->_workGroupSize, nullptr);
   if (err != CL_SUCCESS)
   {
-    qWarning("Failed to clGetKernelWorkGroupInfo: %d", err);
+    QString message = QString("OpenCL energy surface: Failed in clGetKernelWorkGroupInfo (error: %1)").arg(QString::number(err));
+    ptr->_logReporter->logMessage(LogReporting::ErrorLevel::error, message);
     return;
   }
 
-  qDebug() << "SKOpenCLMarchingCubes Work-group size is: " <<  _workGroupSize;
+  QString message = QString("OpenCL energy surface: work-group size set to %1").arg(QString::number(ptr->_workGroupSize));
+  ptr->_logReporter->logMessage(LogReporting::ErrorLevel::verbose, message);
 
-
+  ptr->_isOpenCLReady = true;
 }
 
 int SKOpenCLMarchingCubes::computeIsosurface(size_t size, std::vector<cl_float> *voxels, double isoValue, cl_GLuint OpenGLVertextBufferObject)
@@ -112,6 +150,13 @@ int SKOpenCLMarchingCubes::computeIsosurface(size_t size, std::vector<cl_float> 
 
   if(!_isOpenCLInitialized)
   {
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, "OpenCL energy surface: OpenCL not available");
+    return 0;
+  }
+
+  if(!_isOpenCLReady)
+  {
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, "OpenCL energy surface: OpenCL not yet ready");
     return 0;
   }
 
@@ -133,7 +178,8 @@ int SKOpenCLMarchingCubes::computeIsosurface(size_t size, std::vector<cl_float> 
   images.push_back(clCreateImage(_clContext, CL_MEM_READ_WRITE, &imageFormat, &imageDescriptor, nullptr, &err));
   if (err != CL_SUCCESS)
   {
-    qWarning("Error clCreateImage:  %d\n",err);
+    QString message = QString("OpenCL energy surface: error in clCreateImage (error: %1)").arg(QString::number(err));
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
     return 0;
   }
 
@@ -144,7 +190,8 @@ int SKOpenCLMarchingCubes::computeIsosurface(size_t size, std::vector<cl_float> 
   images.push_back(clCreateImage(_clContext, CL_MEM_READ_WRITE, &imageFormat, &imageDescriptor, nullptr, &err));
   if (err != CL_SUCCESS)
   {
-    qWarning("Error clCreateImage:  %d\n",err);
+    QString message = QString("OpenCL energy surface: error in clCreateImage (error: %1)").arg(QString::number(err));
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
     return 0;
   }
 
@@ -154,7 +201,8 @@ int SKOpenCLMarchingCubes::computeIsosurface(size_t size, std::vector<cl_float> 
   images.push_back(clCreateImage(_clContext, CL_MEM_READ_WRITE, &imageFormat, &imageDescriptor, nullptr, &err));
   if (err != CL_SUCCESS)
   {
-    qWarning("Error clCreateImage:  %d\n",err);
+    QString message = QString("OpenCL energy surface: error in clCreateImage (error: %1)").arg(QString::number(err));
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
     return 0;
   }
 
@@ -164,7 +212,8 @@ int SKOpenCLMarchingCubes::computeIsosurface(size_t size, std::vector<cl_float> 
   images.push_back(clCreateImage(_clContext, CL_MEM_READ_WRITE, &imageFormat, &imageDescriptor, nullptr, &err));
   if (err != CL_SUCCESS)
   {
-    qWarning("Error clCreateImage:  %d\n",err);
+    QString message = QString("OpenCL energy surface: error in clCreateImage (error: %1)").arg(QString::number(err));
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
     return 0;
   }
 
@@ -184,7 +233,8 @@ int SKOpenCLMarchingCubes::computeIsosurface(size_t size, std::vector<cl_float> 
     images.push_back(clCreateImage(_clContext, CL_MEM_READ_WRITE, &imageFormat, &imageDescriptor, nullptr, &err));
     if (err != CL_SUCCESS)
     {
-      qWarning("Error clCreateImage:  %d\n",err);
+      QString message = QString("OpenCL energy surface: error in clCreateImage (error: %1)").arg(QString::number(err));
+      _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
       return 0;
     }
   }
@@ -192,17 +242,14 @@ int SKOpenCLMarchingCubes::computeIsosurface(size_t size, std::vector<cl_float> 
   imageFormat = cl_image_format{CL_R, CL_FLOAT};
   imageDescriptor = cl_image_desc{CL_MEM_OBJECT_IMAGE3D, size, size, size, 0, 0, 0, 0, 0, nullptr};
 
-  std::cout << "size: " << size << " " << voxels->size() << std::endl;
-
   // Transfer dataset to device
   cl_mem rawData = clCreateImage(_clContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, &imageFormat, &imageDescriptor, voxels->data(), nullptr);
   if (err != CL_SUCCESS)
   {
-    qWarning("Error clCreateImage:  %d\n",err);
+    QString message = QString("OpenCL energy surface: error in clCreateImage (error: %1)").arg(QString::number(err));
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
     return 0;
   }
-
-   //std::cout << "transfered data" << voxels->data() << std::endl;
 
   // update scalar field
   //===================================================================================================================================
@@ -232,7 +279,8 @@ int SKOpenCLMarchingCubes::computeIsosurface(size_t size, std::vector<cl_float> 
   err = clEnqueueNDRangeKernel(_clCommandQueue, _constructHPLevelKernel, 3, nullptr, global_work_size2, nullptr, 0, nullptr, nullptr);
   if (err != CL_SUCCESS)
   {
-    qWarning("Error clCreateImage:  %d\n",err);
+    QString message = QString("OpenCL energy surface: error in clEnqueueNDRangeKernel (error: %1)").arg(QString::number(err));
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
     return 0;
   }
 
@@ -249,7 +297,8 @@ int SKOpenCLMarchingCubes::computeIsosurface(size_t size, std::vector<cl_float> 
     err = clEnqueueNDRangeKernel(_clCommandQueue, _constructHPLevelKernel, 3, nullptr, global_work_size3, nullptr, 0, nullptr, nullptr);
     if (err != CL_SUCCESS)
     {
-      qWarning("Error clCreateImage:  %d\n",err);
+      QString message = QString("OpenCL energy surface: error in clEnqueueNDRangeKernel (error: %1)").arg(QString::number(err));
+      _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
       return 0;
     }
   }
@@ -263,6 +312,12 @@ int SKOpenCLMarchingCubes::computeIsosurface(size_t size, std::vector<cl_float> 
   size_t region[3] = {2,2,2};
 
   err = clEnqueueReadImage(_clCommandQueue, images[images.size()-1], CL_FALSE, origin, region, 0, 0, &sum, 0, nullptr, nullptr);
+  if (err != CL_SUCCESS)
+  {
+    QString message = QString("OpenCL energy surface: error in clEnqueueReadImage (error: %1)").arg(QString::number(err));
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+    return 0;
+  }
   clFinish(_clCommandQueue);
 
   cl_int sum2 = sum[0] + sum[1] + sum[2] + sum[3] + sum[4] + sum[5] + sum[6] + sum[7];
@@ -270,11 +325,8 @@ int SKOpenCLMarchingCubes::computeIsosurface(size_t size, std::vector<cl_float> 
 
   if(numberOfTriangles == 0)
   {
-    qWarning("No triangles were extracted. Check isovalue.");
-    //return 0;
+    _logReporter->logMessage(LogReporting::ErrorLevel::warning, "OpenCL energy surface: No triangles were extrected (check isovalue)");
   }
-
-  std::cout << "NUMBER OF TRIANGLES: " << numberOfTriangles << std::endl;
 
   // get the results and convert them to an OpenGL Vertex buffer object
   //===================================================================================================================================
@@ -301,12 +353,12 @@ int SKOpenCLMarchingCubes::computeIsosurface(size_t size, std::vector<cl_float> 
     }
     else
     {
-      //std::vector<cl_float4>* outputData = new std::vector<cl_float4>(numberOfTriangles*3*3);
       VBOBuffer = clCreateBuffer(_clContext, CL_MEM_READ_ONLY, numberOfTriangles*3*3*sizeof(cl_float4), nullptr, &err);
     }
     if (err != CL_SUCCESS)
     {
-      qWarning("Error: %d\n", err);
+      QString message = QString("OpenCL energy surface: error in clCreateBuffer (error: %1)").arg(QString::number(err));
+      _logReporter->logMessage(LogReporting::ErrorLevel::warning, message);
     }
 
     clSetKernelArg(_traverseHPKernel, i, sizeof(cl_mem), &VBOBuffer);  // CHECK, was &v[0]
@@ -319,7 +371,8 @@ int SKOpenCLMarchingCubes::computeIsosurface(size_t size, std::vector<cl_float> 
       err = clEnqueueAcquireGLObjects(_clCommandQueue, 1, &VBOBuffer, 0, nullptr, nullptr);
       if (err != CL_SUCCESS)
       {
-        qWarning("Error: %d\n", err);
+        QString message = QString("OpenCL energy surface: error in clEnqueueAcquireGLObjects (error: %1)").arg(QString::number(err));
+        _logReporter->logMessage(LogReporting::ErrorLevel::warning, message);
       }
     }
 
@@ -328,14 +381,13 @@ int SKOpenCLMarchingCubes::computeIsosurface(size_t size, std::vector<cl_float> 
     int sizeInt = sum + 64 - (sum - 64*(numberOfTriangles / 64));
     size_t global_work_size4[1] = {size_t(sizeInt)};
 
-
-
     // Run a NDRange kernel over this buffer which traverses back to the base level
     err = clEnqueueNDRangeKernel(_clCommandQueue, _traverseHPKernel, 1, nullptr, global_work_size4, local_work_size, 0, nullptr, nullptr);
 
     if (err != CL_SUCCESS)
     {
-      qWarning("Error: %d\n", err);
+      QString message = QString("OpenCL energy surface: error in clEnqueueNDRangeKernel (error: %1)").arg(QString::number(err));
+      _logReporter->logMessage(LogReporting::ErrorLevel::warning, message);
     }
 
 
@@ -349,6 +401,11 @@ int SKOpenCLMarchingCubes::computeIsosurface(size_t size, std::vector<cl_float> 
     {
       void* ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
       err = clEnqueueReadBuffer(_clCommandQueue, VBOBuffer, CL_TRUE, 0, sizeof(cl_float4) * 3 * 3 * numberOfTriangles, ptr, 0, nullptr, nullptr);
+      if (err != CL_SUCCESS)
+      {
+        QString message = QString("OpenCL energy surface: error in clEnqueueReadBuffer (error: %1)").arg(QString::number(err));
+        _logReporter->logMessage(LogReporting::ErrorLevel::warning, message);
+      }
 
       clFinish(_clCommandQueue);
       glUnmapBuffer(GL_ARRAY_BUFFER);

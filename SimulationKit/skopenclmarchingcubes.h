@@ -36,6 +36,7 @@
 #define GL_GLEXT_PROTOTYPES
 #include <QtOpenGL>
 #include <QOpenGLFunctions_3_3_Core>
+#include <foundationkit.h>
 
 #ifdef Q_OS_MACOS
   #include <OpenCL/opencl.h>
@@ -47,7 +48,7 @@
   #include <CL/opencl.h>
 #endif
 
-class SKOpenCLMarchingCubes: protected QOpenGLFunctions_3_3_Core
+class SKOpenCLMarchingCubes: protected QOpenGLFunctions_3_3_Core, public LogReportingConsumer
 {
 public:
   SKOpenCLMarchingCubes();
@@ -55,8 +56,11 @@ public:
   int computeIsosurface(size_t size, std::vector<cl_float>* voxels, double isoValue, cl_GLuint OpenGLVertextBufferObject);
   bool glInteroperability() {return _glInteroperability;}
   void setGLInteroperability(bool interoperability) {_glInteroperability = interoperability;}
+  void setLogReportingWidget(LogReporting *logReporting)  override final {_logReporter = logReporting;}
 private:
+  LogReporting* _logReporter = nullptr;
   bool _isOpenCLInitialized;
+  bool _isOpenCLReady;
   cl_program _program;
   cl_context _clContext;
   cl_command_queue _clCommandQueue;
@@ -67,4 +71,5 @@ private:
   size_t _workGroupSize;
   bool _glInteroperability = true;
   static std::string _marchingCubesKernelPart;
+  static void callBack(cl_program progran, void *user_data);
 };

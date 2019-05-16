@@ -43,7 +43,14 @@ OpenGLEnergySurface::~OpenGLEnergySurface()
   _cache.clear();
 }
 
-//QCache<RKRenderStructure*, std::vector<cl_float>> OpenGLEnergySurface::_cache;
+void OpenGLEnergySurface::setLogReportingWidget(LogReporting *logReporting)
+{
+  _logReporter = logReporting;
+  _energyGridUnitCell.setLogReportingWidget(logReporting);
+  _energyGridMarchingCubes.setLogReportingWidget(logReporting);
+  _findMinimumEnergyGridUnitCell.setLogReportingWidget(logReporting);
+  _voidFractionUnitCell.setLogReportingWidget(logReporting);
+}
 
 void OpenGLEnergySurface::invalidateIsosurface(std::vector<std::shared_ptr<RKRenderStructure>> structures)
 {

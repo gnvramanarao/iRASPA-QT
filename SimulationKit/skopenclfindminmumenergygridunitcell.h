@@ -34,6 +34,7 @@
 #include <vector>
 #include <mathkit.h>
 #include <QOpenGLFunctions_3_3_Core>
+#include <foundationkit.h>
 
 #ifdef Q_OS_MACOS
   #include <OpenCL/opencl.h>
@@ -43,19 +44,24 @@
 #else
   #include <CL/opencl.h>
 #endif
-class SKOpenCLFindMinmumEnergyGridUnitCell: public QOpenGLFunctions_3_3_Core
+class SKOpenCLFindMinmumEnergyGridUnitCell: public QOpenGLFunctions_3_3_Core, public LogReportingConsumer
 {
 public:
   SKOpenCLFindMinmumEnergyGridUnitCell();
   void initialize(bool isOpenCLInitialized, cl_context context, cl_device_id device_id, cl_command_queue queue);
   double findMinimumEnergy(std::vector<cl_float> *voxels);
+  void setLogReportingWidget(LogReporting *logReporting)  override final {_logReporter = logReporting;}
 private:
+  LogReporting* _logReporter = nullptr;
   bool _isOpenCLInitialized;
+  bool _isOpenCLReady;
   cl_program _program;
   cl_context _clContext;
   cl_command_queue _clCommandQueue;
+  cl_device_id _clDeviceId;
   cl_command_queue _queue;
   cl_kernel _kernel;
   size_t _workGroupSize;
   static const char* _findMinimumEnergyKernel;
+  static void callBack(cl_program progran, void *user_data);
 };

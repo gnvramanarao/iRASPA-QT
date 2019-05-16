@@ -32,7 +32,7 @@
 #include <algorithm>
 #include <QDebug>
 
-SKOpenCLFindMinmumEnergyGridUnitCell::SKOpenCLFindMinmumEnergyGridUnitCell(): _isOpenCLInitialized(false)
+SKOpenCLFindMinmumEnergyGridUnitCell::SKOpenCLFindMinmumEnergyGridUnitCell(): _isOpenCLInitialized(false), _isOpenCLReady(false)
 {
 
 }
@@ -51,42 +51,81 @@ void SKOpenCLFindMinmumEnergyGridUnitCell::initialize(bool isOpenCLInitialized, 
   _queue = queue;
   _clContext = context;
   _clCommandQueue = queue;
+  _clDeviceId = device_id;
 
   const char* shaderSourceCode = SKOpenCLFindMinmumEnergyGridUnitCell::_findMinimumEnergyKernel;
   _program = clCreateProgramWithSource(context, 1, &shaderSourceCode, nullptr, &err);
   if (err != CL_SUCCESS)
   {
-    qWarning("Failed to create OpenCL program: %d", err);
+    QString message = QString("OpenCL minimum energy: Failed to create program (error: %1)").arg(QString::number(err));
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
     return;
   }
 
   // Build the program executable
-   err = clBuildProgram(_program, 0, nullptr, nullptr, nullptr, nullptr);
-   if (err != CL_SUCCESS)
-   {
-      size_t len;
-      char buffer[2048];
-      printf("Error: Failed to build program executable! SKOpenCLFindMinmumEnergyGridUnitCell\n");
-      clGetProgramBuildInfo(_program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
-      printf("%s\n", buffer);
-      exit(1);
-   }
-
-  _kernel = clCreateKernel(_program, "findMinimum", &err);
+  err = clBuildProgram(_program, 0, nullptr, nullptr, &SKOpenCLFindMinmumEnergyGridUnitCell::callBack, this);
   if (err != CL_SUCCESS)
   {
-    qWarning("Failed to create OpenCL kernel: %d", err);
+    size_t len;
+    char buffer[2048];
+    clGetProgramBuildInfo(_program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
+    QString message = QString("OpenCL minimum energy: Failed to build program (error: %1)").arg(QString::fromUtf8(buffer));
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+  }
+}
+
+void SKOpenCLFindMinmumEnergyGridUnitCell::callBack(cl_program program, void *user_data)
+{
+  cl_int err;
+
+  SKOpenCLFindMinmumEnergyGridUnitCell *ptr = reinterpret_cast<SKOpenCLFindMinmumEnergyGridUnitCell*>(user_data);
+
+  size_t len;
+  char buffer[2048];
+  cl_build_status bldstatus;
+  clGetProgramBuildInfo(program, ptr->_clDeviceId, CL_PROGRAM_BUILD_STATUS, sizeof(bldstatus), (void *)&bldstatus, &len);
+
+  switch(bldstatus)
+  {
+    case CL_BUILD_NONE:
+      ptr->_logReporter->logMessage(LogReporting::ErrorLevel::error, "OpenCL minimum energy: No build was performed");
+      break;
+    case CL_BUILD_ERROR:
+      {
+        clGetProgramBuildInfo(program, ptr->_clDeviceId, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
+        QString message = QString("OpenCL minimum energy: Failed to build program (error: %1)").arg(QString::fromUtf8(buffer));
+        ptr->_logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+      }
+      break;
+    case CL_BUILD_SUCCESS:
+      ptr->_logReporter->logMessage(LogReporting::ErrorLevel::info, "OpenCL minimum energy: Build success");
+      break;
+    case CL_BUILD_IN_PROGRESS:
+      ptr->_logReporter->logMessage(LogReporting::ErrorLevel::warning, "OpenCL minimum energy: Build still in progress");
+      break;
+  }
+
+
+  ptr->_kernel = clCreateKernel(program, "findMinimum", &err);
+  if (err != CL_SUCCESS)
+  {
+    QString message = QString("OpenCL minimum energy: Failed to create OpenCL findMinimum kernel (error: %1)").arg(QString::number(err));
+    ptr->_logReporter->logMessage(LogReporting::ErrorLevel::error, message);
     return;
   }
 
-  err = clGetKernelWorkGroupInfo(_kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), &_workGroupSize, nullptr);
+  err = clGetKernelWorkGroupInfo(ptr->_kernel, ptr->_clDeviceId, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), &ptr->_workGroupSize, nullptr);
   if (err != CL_SUCCESS)
   {
-    qWarning("Failed to clGetKernelWorkGroupInfo: %d", err);
+    QString message = QString("OpenCL minimum energy: Failed in clGetKernelWorkGroupInfo (error: %1)").arg(QString::number(err));
+    ptr->_logReporter->logMessage(LogReporting::ErrorLevel::error, message);
     return;
   }
 
-  qDebug() << "SKOpenCLFindMinmumEnergyGridUnitCell, Work-group size is: " <<  _workGroupSize;
+  QString message = QString("OpenCL minimum energy: work-group size set to %1").arg(QString::number(ptr->_workGroupSize));
+  ptr->_logReporter->logMessage(LogReporting::ErrorLevel::verbose, message);
+
+  ptr->_isOpenCLReady = true;
 }
 
 double SKOpenCLFindMinmumEnergyGridUnitCell::findMinimumEnergy(std::vector<cl_float>* voxels)
@@ -95,6 +134,13 @@ double SKOpenCLFindMinmumEnergyGridUnitCell::findMinimumEnergy(std::vector<cl_fl
 
   if(!_isOpenCLInitialized)
   {
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, "OpenCL minimum energy: OpenCL not available");
+    return 0.0;
+  }
+
+  if(!_isOpenCLReady)
+  {
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, "OpenCL minimum energy: OpenCL not yet ready");
     return 0.0;
   }
 
@@ -103,23 +149,16 @@ double SKOpenCLFindMinmumEnergyGridUnitCell::findMinimumEnergy(std::vector<cl_fl
   size_t numberOfGridPoints = (temp  + _workGroupSize-1) & ~(_workGroupSize-1);
   size_t global_work_size = numberOfGridPoints;
 
-
-  std::cout << "global_work_size: " << global_work_size << std::endl;
-
-  // Transfer dataset to device
   cl_mem rawData = clCreateBuffer(_clContext,  CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,  sizeof(cl_float) * voxels->size(), voxels->data(), &err);
   if (err != CL_SUCCESS)
   {
-    qWarning("Error clCreateImage:  %d\n",err);
+    QString message = QString("OpenCL minimum energy: error in clCreateBuffer (error: %1)").arg(QString::number(err));
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
     return 0;
   }
 
   int nWorkGroups = numberOfGridPoints/_workGroupSize;
 
-
-  std::cout << "nWorkGroups: " << nWorkGroups << std::endl;
-
-  // Allocate cumulative error array
   float* sumReduction = new float[nWorkGroups];
   cl_mem reductionBuffer = clCreateBuffer(_clContext, CL_MEM_READ_ONLY, nWorkGroups*sizeof(float), nullptr, &err);
 
@@ -135,14 +174,18 @@ double SKOpenCLFindMinmumEnergyGridUnitCell::findMinimumEnergy(std::vector<cl_fl
   err = clEnqueueNDRangeKernel(_clCommandQueue, _kernel, 1, nullptr, &global_work_size, &_workGroupSize, 0, nullptr, nullptr);
   if (err != CL_SUCCESS)
   {
-   fprintf(stderr,"SKOpenCLFindMinmumEnergyGridUnitCell: Error in clEnqueueNDRangeKernel\n");
+    QString message = QString("OpenCL minimum energy: error in clEnqueueNDRangeKernel (error: %1)").arg(QString::number(err));
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+    return 0.0;
   }
 
      // Read the buffer back to the array
   err = clEnqueueReadBuffer(_clCommandQueue, reductionBuffer, CL_TRUE, 0, nWorkGroups*sizeof(float), sumReduction, 0, nullptr, nullptr);
   if (err != CL_SUCCESS)
   {
-    fprintf(stderr,"SKOpenCLFindMinmumEnergyGridUnitCell Error in clEnqueueReadBuffer with reductionBuffer\n");
+    QString message = QString("OpenCL minimum energy: error in clEnqueueReadBuffer (error: %1)").arg(QString::number(err));
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, message);
+    return 0.0;
   }
 
   clFinish(_clCommandQueue);

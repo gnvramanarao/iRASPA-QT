@@ -36,6 +36,7 @@
 #include <QGLFunctions>
 #include "openglshader.h"
 #include "rkrenderkitprotocols.h"
+#include <foundationkit.h>
 #include <simulationkit.h>
 
 #ifdef Q_OS_MACOS
@@ -57,7 +58,7 @@ public:
   void paintGLOpaque(GLuint structureUniformBuffer, GLuint isosurfaceUniformBuffer);
   void paintGLTransparent(GLuint structureUniformBuffer, GLuint isosurfaceUniformBuffer);
 
-  void setLogReportingWidget(LogReporting *logReporting)  override final {_logReporter = logReporting;}
+  void setLogReportingWidget(LogReporting *logReporting)  override final;
 
   void reloadData();
   void initializeVertexArrayObject();

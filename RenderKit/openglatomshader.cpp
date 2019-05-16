@@ -58,7 +58,7 @@ void OpenGLAtomShader::paintGL(std::vector<std::vector<GLuint>>& atomTextures, G
   {
     for(size_t j=0;j<_renderStructures[i].size();j++)
     {
-      if(_renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible())
+      if(_renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible() && _numberOfIndices[i][j]>0 && _numberOfDrawnAtoms[i][j]>0)
       {
         if(_renderStructures[i][j]->clipAtomsAtUnitCell())
         {

@@ -39,8 +39,6 @@ OpenGLAtomPerspectiveImposterShader::OpenGLAtomPerspectiveImposterShader(OpenGLA
 
 }
 
-
-
 void OpenGLAtomPerspectiveImposterShader::deleteBuffers()
 {
   for(int i=0;i<_renderStructures.size();i++)
@@ -94,7 +92,7 @@ void OpenGLAtomPerspectiveImposterShader::paintGL(std::vector<std::vector<GLuint
   {
     for(int j=0;j<_renderStructures[i].size();j++)
     {
-      if(_renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible())
+      if(_renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible() && _numberOfIndices[i][j]>0 && _atomShader._numberOfDrawnAtoms[i][j]>0)
       {
         if(_renderStructures[i][j]->clipAtomsAtUnitCell())
         {

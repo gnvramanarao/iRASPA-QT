@@ -111,7 +111,7 @@ void OpenGLAtomSelectionStripesShader::paintGL(GLuint structureUniformBuffer)
   {
     for(int j=0;j<_renderStructures[i].size();j++)
     {
-      if(_renderStructures[i][j]->renderSelectionStyle() == RKSelectionStyle::striped && _renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible())
+      if(_renderStructures[i][j]->renderSelectionStyle() == RKSelectionStyle::striped && _renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible() && _numberOfIndices[i][j]>0 && _numberOfDrawnAtoms[i][j]>0)
       {
         glBindBufferRange(GL_UNIFORM_BUFFER, 1, structureUniformBuffer, GLintptr(index * sizeof(RKStructureUniforms)), GLsizeiptr(sizeof(RKStructureUniforms)));
 

@@ -574,33 +574,6 @@ void  OpenGLAmbientOcclusionShadowMapShader::updateAmbientOcclusionTextures(std:
           glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_HALF_FLOAT, textureData->data());
           glBindTexture(GL_TEXTURE_2D, 0);
           _cache.insert(_renderStructures[i][j].get(), textureData);
-
-          //std::cout << "Draw with filled vector: " << _renderStructures[i][j]->atomAmbientOcclusion() << std::endl;
-          //std::cout << "vector size: " << _renderStructures[i][j]->atomAmbientOcclusionTextureSize() << std::endl;
-
-          //glTexImage2D(GLenum(GL_TEXTURE_2D), 0, GLint(GL_R16F), _renderStructures[i][j]->atomAmbientOcclusionTextureSize(),
-          //             _renderStructures[i][j]->atomAmbientOcclusionTextureSize(), 0, GL_RED, GL_HALF_FLOAT, emptyData.data());
-          //glTexImage2D(GLenum(GL_TEXTURE_2D), 0, GLint(GL_R32F), _renderStructures[i][j]->atomAmbientOcclusionTextureSize(),
-          //             _renderStructures[i][j]->atomAmbientOcclusionTextureSize(), 0, GL_RED, GL_FLOAT, emptyData.data());
-
-         // glTexImage2D(GLenum(GL_TEXTURE_2D), 0, GLint(GL_R16F), _renderStructures[i][j]->atomAmbientOcclusionTextureSize(),
-         //              _renderStructures[i][j]->atomAmbientOcclusionTextureSize(), 0, GL_RED, GL_HALF_FLOAT, emptyData.data());
-
-/*
-          let dataLength: Int = textureSize * textureSize * 2
-
-          glBindTexture(GLenum(GL_TEXTURE_2D), generatedAmbientOcclusionTexture[i][j])
-
-          // storing in NSCache
-          var ambientOcclusionTexture: [CUnsignedChar] = [CUnsignedChar](repeating: 0, count: dataLength)
-          glGetTexImage(GLenum(GL_TEXTURE_2D), 0, GLenum(GL_RED), GLenum(GL_HALF_FLOAT), &ambientOcclusionTexture)
-
-          let ambientOcclusionTextureData: Data = Data(bytes: &ambientOcclusionTexture, count: dataLength)
-          //self.cachedAmbientOcclusionTextures[structure] = ambientOcclusionTextureData
-          self.cachedAmbientOcclusionTextures.setObject(ambientOcclusionTextureData as AnyObject, forKey: structure)
-*/
-          //glBindTexture(GL_TEXTURE_2D, 0);
-
         }
       }
     }

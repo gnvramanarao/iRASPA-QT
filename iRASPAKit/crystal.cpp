@@ -632,16 +632,26 @@ void Crystal::computeBonds()
         int elementIdentifierB = copies[j]->parent()->elementIdentifier();
         double covalentRadiusB = PredefinedElements::predefinedElements[elementIdentifierB]._covalentRadius;
 
-        double length = (posA-posB).length();
-        if(length < covalentRadiusA + covalentRadiusB + 0.56)
+        double3 separationVector = (posA-posB);
+        double3 periodicSeparationVector = _cell->applyUnitCellBoundaryCondition(separationVector);
+        double bondCriteria = covalentRadiusA + covalentRadiusB + 0.56;
+        double bondLength = periodicSeparationVector.length();
+        if(bondLength < bondCriteria)
         {
-          if(length<0.1)
+          if(bondLength<0.1)
           {
             copies[i]->setType(SKAtomCopy::AtomCopyType::duplicate);
           }
-
-          std::shared_ptr<SKBond> bond = std::make_shared<SKBond>(copies[i],copies[j]);
-          _bondSetController->append(bond);
+          if (separationVector.length() > bondCriteria)
+          {
+            std::shared_ptr<SKBond> bond = std::make_shared<SKBond>(copies[i],copies[j], SKBond::BoundaryType::external);
+            _bondSetController->append(bond);
+          }
+          else
+          {
+            std::shared_ptr<SKBond> bond = std::make_shared<SKBond>(copies[i],copies[j], SKBond::BoundaryType::internal);
+            _bondSetController->append(bond);
+          }
         }
       }
     }

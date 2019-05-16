@@ -93,7 +93,7 @@ void OpenGLAtomSelectionGlowShader::paintGL(GLuint structureUniformBuffer)
   {
     for(size_t j=0;j<_renderStructures[i].size();j++)
     {
-      if(_renderStructures[i][j]->renderSelectionStyle() == RKSelectionStyle::glow && _renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible())
+      if(_renderStructures[i][j]->renderSelectionStyle() == RKSelectionStyle::glow && _renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible() && _numberOfIndices[i][j]>0 && _atomSelectionShader._numberOfDrawnAtoms[i][j]>0)
       {
         glBindBufferRange(GL_UNIFORM_BUFFER, 1, structureUniformBuffer, GLintptr(index * sizeof(RKStructureUniforms)), GLsizeiptr(sizeof(RKStructureUniforms)));
         glBindVertexArray(_vertexArrayObject[i][j]);

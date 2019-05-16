@@ -97,7 +97,7 @@ void OpenGLAtomOrthographicImposterShader::paintGL(std::vector<std::vector<GLuin
   {
     for(int j=0;j<_renderStructures[i].size();j++)
     {
-      if(_renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible())
+      if(_renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible() && _numberOfIndices[i][j]>0 && _atomShader._numberOfDrawnAtoms[i][j]>0)
       {
         if(_renderStructures[i][j]->clipAtomsAtUnitCell())
         {
@@ -125,8 +125,6 @@ void OpenGLAtomOrthographicImposterShader::paintGL(std::vector<std::vector<GLuin
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, atomTextures[i][j]);
         glUniform1i(_ambientOcclusionTextureUniformLocation,0);
-
-
 
         glDrawElementsInstanced(GL_TRIANGLE_STRIP, _numberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr,(GLsizei)_atomShader._numberOfDrawnAtoms[i][j]);
         check_gl_error();

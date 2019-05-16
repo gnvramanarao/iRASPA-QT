@@ -56,7 +56,7 @@ void OpenGLInternalBondShader::paintGL(GLuint structureUniformBuffer)
   {
     for(int j=0;j<_renderStructures[i].size();j++)
     {
-      if(_renderStructures[i][j]->drawBonds() && _renderStructures[i][j]->isVisible())
+      if(_renderStructures[i][j]->drawBonds() && _renderStructures[i][j]->isVisible() && _internalBondNumberOfIndices[i][j]>0 && _numberOfInternalBonds[i][j]>0)
       {
         glBindBufferRange(GL_UNIFORM_BUFFER, 1, structureUniformBuffer, GLintptr(index * sizeof(RKStructureUniforms)), GLsizeiptr(sizeof(RKStructureUniforms)));
 

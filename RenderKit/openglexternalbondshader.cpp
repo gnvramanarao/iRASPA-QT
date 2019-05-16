@@ -64,7 +64,7 @@ void OpenGLExternalBondShader::paintGL(GLuint structureUniformBuffer)
   {
     for(int j=0;j<_renderStructures[i].size();j++)
     {
-      if(_renderStructures[i][j]->drawBonds() && _renderStructures[i][j]->isVisible())
+      if(_renderStructures[i][j]->drawBonds() && _renderStructures[i][j]->isVisible() && _externalBondNumberOfIndices[i][j]>0 && _numberOfExternalBonds[i][j]>0)
       {
         glBindBufferRange(GL_UNIFORM_BUFFER, 1, structureUniformBuffer, GLintptr(index * sizeof(RKStructureUniforms)), GLsizeiptr(sizeof(RKStructureUniforms)));
 
@@ -125,7 +125,7 @@ void OpenGLExternalBondShader::paintGL(GLuint structureUniformBuffer)
 
         glUseProgram(_programStencil);
 
-        if (_numberOfExternalBonds[i][j] > 0 )
+        if (_numberOfExternalBonds[i][j]>0 && _externalBondNumberOfIndices[i][j]>0 && _numberOfExternalBonds[i][j]>0)
         {
           // Write both the front and the back planes (we use 'GL_INVERT')
           glDisable(GLenum(GL_CULL_FACE));

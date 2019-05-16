@@ -143,7 +143,7 @@ void OpenGLPickingShader::paintGL(int width,int height,GLuint structureUniformBu
   {
     for(int j=0;j<_renderStructures[i].size();j++)
     {
-      if(_renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible())
+      if(_renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible() && _atomOrthographicImposterShader._numberOfIndices[i][j]>0 && _atomShader._numberOfDrawnAtoms[i][j]>0)
       {
         glBindBufferRange(GL_UNIFORM_BUFFER, 1, structureUniformBuffer, index * sizeof(RKStructureUniforms), sizeof(RKStructureUniforms));
         glBindVertexArray(_atomPickingVertexArrayObject[i][j]);

@@ -47,7 +47,7 @@ SceneTreeView::SceneTreeView(QWidget* parent): QTreeView(parent ), _model(std::m
 
   this->setStyleSheet("background-color:rgb(240, 240, 240);");
 
-  //QObject::connect(selectionModel(),&QItemSelectionModel::currentRowChanged,this, &SceneTreeView::currentMovieChanged);
+  QObject::connect(selectionModel(),&QItemSelectionModel::currentRowChanged,this, &SceneTreeView::currentMovieChanged);
 
   //QObject::connect(selectionModel(),&QItemSelectionModel::selectionChanged,this, &SceneTreeView::synchronizeSelection);
 
@@ -131,7 +131,6 @@ void SceneTreeView::selectionChanged(const QItemSelection &selected, const QItem
    std::cout << "selected structures under movies: " << structures.size() << std::endl;
    emit setCellTreeController(structures);
    emit setAppearanceTreeController(structures);
-   emit setAppearanceTreeController(structures);
 }
 
 /*
@@ -188,7 +187,7 @@ void SceneTreeView::synchronizeSelection(const QItemSelection &selected, const Q
 
 void SceneTreeView::currentMovieChanged(const QModelIndex &current)
 {
-  return;
+  //return;
 
   DisplayableProtocol *item = static_cast<DisplayableProtocol*>(current.internalPointer());
 

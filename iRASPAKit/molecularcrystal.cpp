@@ -121,10 +121,10 @@ std::vector<RKInPerInstanceAttributesAtoms> MolecularCrystal::renderAtoms() cons
 								double radius = atom->drawRadius() * atom->occupancy();
 								float4 scale = float4(radius, radius, radius, 1.0);
 
-								//if(atom->occupancy()<1.0)
-								//{
-								//  diffuse = float4(1.0,1.0,1.0,1.0);
-								//}
+                                if(atom->occupancy()<1.0)
+                                {
+                                  diffuse = float4(1.0,1.0,1.0,1.0);
+                                }
 
 								RKInPerInstanceAttributesAtoms atom1 = RKInPerInstanceAttributesAtoms(position, ambient, diffuse, specular, scale);
 								atomData.push_back(atom1);

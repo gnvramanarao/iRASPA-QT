@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
   format.setProfile(QSurfaceFormat::CoreProfile);
   QSurfaceFormat::setDefaultFormat(format);
 
- // QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+  // QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
   // https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
 #ifdef Q_OS_WIN
    //SetProcessDPIAware(); // call before the main event loop

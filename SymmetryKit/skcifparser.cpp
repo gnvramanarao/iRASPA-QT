@@ -287,9 +287,9 @@ void SKCIFParser::parseLoop(QString& string)
        {
          double3 position;
          bool succes = false;
-         position.x = atom_site_x->second.toDouble(&succes);
-         position.y = atom_site_y->second.toDouble(&succes);
-         position.z = atom_site_z->second.toDouble(&succes);
+         position.x = atom_site_x->second.split('(').at(0).toDouble(&succes);
+         position.y = atom_site_y->second.split('(').at(0).toDouble(&succes);
+         position.z = atom_site_z->second.split('(').at(0).toDouble(&succes);
          atom->setPosition(position);
        }
 
@@ -318,9 +318,9 @@ void SKCIFParser::parseLoop(QString& string)
         {
           double3 position;
           bool succes = false;
-          position.x = atom_site_x->second.toDouble(&succes);
-          position.y = atom_site_y->second.toDouble(&succes);
-          position.z = atom_site_z->second.toDouble(&succes);
+          position.x = atom_site_x->second.split('(').at(0).toDouble(&succes);
+          position.y = atom_site_y->second.split('(').at(0).toDouble(&succes);
+          position.z = atom_site_z->second.split('(').at(0).toDouble(&succes);
           atom->setPosition(position);
         }
 
@@ -345,17 +345,13 @@ qint64 SKCIFParser::scanInt()
 
 double SKCIFParser::scanDouble()
 {
-  double value = 0.0;
-
-  if(!_scanner.scanDouble(value))
+  QString tempString;
+  if (_scanner.scanUpToCharacters(CharacterSet::whitespaceAndNewlineCharacterSet(),tempString))
   {
-    QString tempString;
-    if (_scanner.scanUpToCharacters(CharacterSet::whitespaceAndNewlineCharacterSet(),tempString))
-    {
-      return value;
-    }
+    bool success = false;
+    return tempString.split('(').at(0).toDouble(&success);
   }
-  return value;
+  return 0.0;
 }
 
 stdx::optional<QString> SKCIFParser::scanString()

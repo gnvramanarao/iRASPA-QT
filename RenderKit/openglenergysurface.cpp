@@ -254,28 +254,32 @@ void OpenGLEnergySurface::initializeVertexArrayObject()
           int3 numberOfReplicas = _renderStructures[i][j]->cell()->numberOfReplicas(12.0);
           gridData = _energyGridUnitCell.ComputeEnergyGrid(sizeX, sizeY, sizeZ, probeParameter, positions, potentialParameters, unitCell, numberOfReplicas);
 
-          _cache.insert(_renderStructures[i][j].get(),gridData);
-          std::clock_t endTime = clock();
-          double elapsedTime = double(endTime - beginTime) * 1000.0 / CLOCKS_PER_SEC;
-          _logReporter->logMessage(LogReporting::ErrorLevel::verbose, "Elapsed time computing grid " + _renderStructures[i][j]->displayName() + ": " + QString::number(elapsedTime) + " milliseconds.");
-
+          if(gridData)
+          {
+            _cache.insert(_renderStructures[i][j].get(),gridData);
+            std::clock_t endTime = clock();
+            double elapsedTime = double(endTime - beginTime) * 1000.0 / CLOCKS_PER_SEC;
+            _logReporter->logMessage(LogReporting::ErrorLevel::verbose, "Elapsed time computing grid " + _renderStructures[i][j]->displayName() + ": " + QString::number(elapsedTime) + " milliseconds.");
+          }
         }
 
-        std::clock_t beginTime = clock();
-        double minimumEnergy = _findMinimumEnergyGridUnitCell.findMinimumEnergy(gridData);
-        _renderStructures[i][j]->setAdsorptionSurfaceMinimumValue(minimumEnergy);
-        std::clock_t endTime = clock();
-        double elapsedTime = double(endTime - beginTime) * 1000.0 / CLOCKS_PER_SEC;
-        _logReporter->logMessage(LogReporting::ErrorLevel::verbose, "Finding minimum value in grid " + _renderStructures[i][j]->displayName() + ": " + QString::number(elapsedTime) + " milliseconds.");
+        if(gridData)
+        {
+          std::clock_t beginTime = clock();
+          double minimumEnergy = _findMinimumEnergyGridUnitCell.findMinimumEnergy(gridData);
+          _renderStructures[i][j]->setAdsorptionSurfaceMinimumValue(minimumEnergy);
+          std::clock_t endTime = clock();
+          double elapsedTime = double(endTime - beginTime) * 1000.0 / CLOCKS_PER_SEC;
+          _logReporter->logMessage(LogReporting::ErrorLevel::verbose, "Finding minimum value in grid " + _renderStructures[i][j]->displayName() + ": " + QString::number(elapsedTime) + " milliseconds.");
 
-        beginTime = clock();
-        double isoValue = _renderStructures[i][j]->adsorptionSurfaceIsoValue();
-        int numberOfTriangles = _energyGridMarchingCubes.computeIsosurface(128, gridData, isoValue, _surfaceVertexBuffer[i][j]);
-        _surfaceNumberOfIndices[i][j]=numberOfTriangles;
-        endTime = clock();
-        elapsedTime = double(endTime - beginTime) * 1000.0/ CLOCKS_PER_SEC;
-        _logReporter->logMessage(LogReporting::ErrorLevel::verbose, "Extracting surface " + _renderStructures[i][j]->displayName() + ": " + QString::number(elapsedTime) + " milliseconds.");
-
+          beginTime = clock();
+          double isoValue = _renderStructures[i][j]->adsorptionSurfaceIsoValue();
+          int numberOfTriangles = _energyGridMarchingCubes.computeIsosurface(128, gridData, isoValue, _surfaceVertexBuffer[i][j]);
+          _surfaceNumberOfIndices[i][j]=numberOfTriangles;
+          endTime = clock();
+          elapsedTime = double(endTime - beginTime) * 1000.0/ CLOCKS_PER_SEC;
+          _logReporter->logMessage(LogReporting::ErrorLevel::verbose, "Extracting surface " + _renderStructures[i][j]->displayName() + ": " + QString::number(elapsedTime) + " milliseconds.");
+        }
 
         std::vector<float4> renderLatticeVectors = _renderStructures[i][j]->cell()->renderTranslationVectors();
         _surfaceNumberOfInstances[i][j] = renderLatticeVectors.size();

@@ -183,7 +183,9 @@ void GLWidget::initializeGL()
 	QApplication::quit();
   }
 
-  initializeOpenGLFunctions();
+  if (!initializeOpenGLFunctions()) 
+	  qFatal("Failed to initialize OpenGL functions");
+
   _backgroundShader.initializeOpenGLFunctions();
   _atomShader.initializeOpenGLFunctions();
   _atomOrthographicImposterShader.initializeOpenGLFunctions();

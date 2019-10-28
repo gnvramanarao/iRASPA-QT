@@ -67,7 +67,7 @@ private:
   cl_kernel _kernel;
   size_t _workGroupSize;
   static const char* _energyGridUnitCellKernel;
-  static void callBack(cl_program progran, void *user_data);
+  static void __stdcall callBack(cl_program progran, void *user_data);
 };
 
 

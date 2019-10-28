@@ -11,11 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{5BEE3D9D-C022-3657-8F53-0D1E37325FD7}</ProjectGuid>
+    <ProjectGuid>{E62B9EF0-5200-32BF-AE4B-70180A1A486F}</ProjectGuid>
     <RootNamespace>iraspa</RootNamespace>
-    <Keyword>Qt4VSv1.0</Keyword>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
-    <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
+    <Keyword>QtVS_v300</Keyword>
+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion>10.0.18362.0</WindowsTargetPlatformMinVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -26,6 +26,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <IntermediateDirectory>release\</IntermediateDirectory>
     <PrimaryOutput>iraspa</PrimaryOutput>
+    <QtInstall>msvc2017_64</QtInstall>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <PlatformToolset>v142</PlatformToolset>
@@ -35,6 +36,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <IntermediateDirectory>debug\</IntermediateDirectory>
     <PrimaryOutput>iraspa</PrimaryOutput>
+    <QtInstall>msvc2017_64</QtInstall>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <PropertyGroup Condition="'$(QtMsBuild)'=='' or !Exists('$(QtMsBuild)\qt.targets')">
@@ -46,6 +48,12 @@
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
     <Import Project="$(QtMsBuild)\qt.props" />
   </ImportGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <QtModules>core;opengl;network;gui;widgets;qml;positioning;printsupport;webchannel;quick;webenginewidgets</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <QtModules>core;opengl;network;gui;widgets;qml;positioning;printsupport;webchannel;quick;webenginewidgets</QtModules>
+  </PropertyGroup>
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
@@ -56,29 +64,31 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">release\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">release\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">iraspa</TargetName>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</IgnoreImportLibrary>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">debug\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">debug\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">iraspa</TargetName>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</IgnoreImportLibrary>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;MathKit;FoundationKit;SymmetryKit;SimulationKit;RenderKit;iRASPAKit;iRASPA;..\vcpkg\packages\opencl_x64-windows-static\include;..\vcpkg\installed\x64-windows-static\include\python2.7;..\vcpkg\packages\liblzma_x64-windows-static\include;..\vcpkg\packages\zlib_x64-windows-static\include;..\..\..\..\QT\5.12.3\MSVC2017_64\include;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtOpenGL;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtWebEngineWidgets;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtPrintSupport;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtWidgets;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtWebEngineCore;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtQuick;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtGui;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtANGLE;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtWebChannel;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtQml;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtNetwork;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtPositioning;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtCore;release;C:\VulkanSDK\1.0.51.0\include;..\..\..\..\QT\5.12.3\MSVC2017_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -std:c++17 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;MathKit;FoundationKit;SymmetryKit;SimulationKit;RenderKit;iRASPAKit;iRASPA;..\..\..\vcpkg\installed\x64-windows-static\include;..\..\..\vcpkg\installed\x64-windows-static\include\python2.7;..\..\..\QT\5.12.5\MSVC2017_64\include;..\..\..\QT\5.12.5\MSVC2017_64\include\QtOpenGL;..\..\..\QT\5.12.5\MSVC2017_64\include\QtWebEngineWidgets;..\..\..\QT\5.12.5\MSVC2017_64\include\QtPrintSupport;..\..\..\QT\5.12.5\MSVC2017_64\include\QtWidgets;..\..\..\QT\5.12.5\MSVC2017_64\include\QtWebEngineCore;..\..\..\QT\5.12.5\MSVC2017_64\include\QtQuick;..\..\..\QT\5.12.5\MSVC2017_64\include\QtGui;..\..\..\QT\5.12.5\MSVC2017_64\include\QtANGLE;..\..\..\QT\5.12.5\MSVC2017_64\include\QtWebChannel;..\..\..\QT\5.12.5\MSVC2017_64\include\QtQml;..\..\..\QT\5.12.5\MSVC2017_64\include\QtNetwork;..\..\..\QT\5.12.5\MSVC2017_64\include\QtPositioning;..\..\..\QT\5.12.5\MSVC2017_64\include\QtCore;release;/include;..\..\..\QT\5.12.5\MSVC2017_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus /F 4194304 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
       <DebugInformationFormat>None</DebugInformationFormat>
       <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ObjectFileName>release\</ObjectFileName>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;QT_DEPRECATED_WARNINGS;QT_NO_DEBUG;QT_OPENGL_LIB;QT_WEBENGINEWIDGETS_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_WEBENGINECORE_LIB;QT_QUICK_LIB;QT_GUI_LIB;QT_WEBCHANNEL_LIB;QT_QML_LIB;QT_NETWORK_LIB;QT_POSITIONING_LIB;QT_CORE_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;QT_DEPRECATED_WARNINGS;QT_NO_DEBUG;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
-      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>
+      </ProgramDataBaseFileName>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
@@ -86,8 +96,8 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>"C:\Users\David Dubbeldam\Desktop\vcpkg\installed\x64-windows-static\lib\opengl32.lib";User32.lib;"C:\Users\David Dubbeldam\Desktop\vcpkg\packages\opencl_x64-windows-static\lib\OpenCL.lib";"C:\Users\David Dubbeldam\Desktop\vcpkg\installed\x64-windows-static\lib\python27.lib";"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x64\Advapi32.lib";"C:\Users\David Dubbeldam\Desktop\vcpkg\installed\x64-windows-static\lib\lzma.lib";"C:\Users\David Dubbeldam\Desktop\vcpkg\installed\x64-windows-static\lib\zlib.lib";$(QTDIR)\lib\Qt5OpenGL.lib;$(QTDIR)\lib\Qt5WebEngineWidgets.lib;$(QTDIR)\lib\Qt5PrintSupport.lib;$(QTDIR)\lib\Qt5Widgets.lib;$(QTDIR)\lib\Qt5WebEngineCore.lib;$(QTDIR)\lib\Qt5Quick.lib;$(QTDIR)\lib\Qt5Gui.lib;$(QTDIR)\lib\Qt5WebChannel.lib;$(QTDIR)\lib\Qt5Qml.lib;$(QTDIR)\lib\Qt5Network.lib;$(QTDIR)\lib\Qt5Positioning.lib;$(QTDIR)\lib\Qt5Core.lib;$(QTDIR)\lib\qtmain.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(QTDIR)\lib;C:\QT\5.12.3\MSVC2017_64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>C:\vcpkg\installed\x64-windows-static\lib\python27.lib;C:\vcpkg\installed\x64-windows-static\lib\lzma.lib;C:\vcpkg\installed\x64-windows-static\lib\zlib.lib;C:\vcpkg\installed\x64-windows-static\lib\OpenCL.lib;kernel32.lib;cfgmgr32.lib;user32.lib;ole32.lib;advapi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QTDIR)\lib;C:\openssl\lib;C:\Utils\my_sql\mysql-5.6.11-winx64\lib;C:\Utils\postgresql\pgsql\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -95,6 +105,7 @@
       <LinkIncremental>false</LinkIncremental>
       <OutputFile>$(OutDir)\iraspa.exe</OutputFile>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <StackReserveSize>4194304</StackReserveSize>
       <SubSystem>Windows</SubSystem>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Link>
@@ -107,62 +118,48 @@
       <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;QT_DEPRECATED_WARNINGS;QT_NO_DEBUG;QT_OPENGL_LIB;QT_WEBENGINEWIDGETS_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_WEBENGINECORE_LIB;QT_QUICK_LIB;QT_GUI_LIB;QT_WEBCHANNEL_LIB;QT_QML_LIB;QT_NETWORK_LIB;QT_POSITIONING_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <QtMoc>
-      <QTDIR>C:\QT\5.12.3\MSVC2017_64</QTDIR>
-      <OutputFile>$(Configuration)\moc_%(Filename).cpp</OutputFile>
-      <Define>UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;QT_DEPRECATED_WARNINGS;QT_NO_DEBUG;QT_OPENGL_LIB;QT_WEBENGINEWIDGETS_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_WEBENGINECORE_LIB;QT_QUICK_LIB;QT_GUI_LIB;QT_WEBCHANNEL_LIB;QT_QML_LIB;QT_NETWORK_LIB;QT_POSITIONING_LIB;QT_CORE_LIB</Define>
       <CompilerFlavor>msvc</CompilerFlavor>
       <Include>./$(Configuration)/moc_predefs.h</Include>
-      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
       <DynamicSource>output</DynamicSource>
-      <IncludePath>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;C:/QT/5.12.3/MSVC2017_64/mkspecs/win32-msvc;.;./MathKit;./FoundationKit;./SymmetryKit;./SimulationKit;./RenderKit;./iRASPAKit;./iRASPA;C:/Users/David Dubbeldam/Desktop/vcpkg/packages/opencl_$(Platform)-windows-static/include;C:/Users/David Dubbeldam/Desktop/vcpkg/installed/$(Platform)-windows-static/include/python2.7;C:/Users/David Dubbeldam/Desktop/vcpkg/packages/liblzma_$(Platform)-windows-static/include;C:/Users/David Dubbeldam/Desktop/vcpkg/packages/zlib_$(Platform)-windows-static/include;C:/QT/5.12.3/MSVC2017_64/include;C:/QT/5.12.3/MSVC2017_64/include/QtOpenGL;C:/QT/5.12.3/MSVC2017_64/include/QtWebEngineWidgets;C:/QT/5.12.3/MSVC2017_64/include/QtPrintSupport;C:/QT/5.12.3/MSVC2017_64/include/QtWidgets;C:/QT/5.12.3/MSVC2017_64/include/QtWebEngineCore;C:/QT/5.12.3/MSVC2017_64/include/QtQuick;C:/QT/5.12.3/MSVC2017_64/include/QtGui;C:/QT/5.12.3/MSVC2017_64/include/QtANGLE;C:/QT/5.12.3/MSVC2017_64/include/QtWebChannel;C:/QT/5.12.3/MSVC2017_64/include/QtQml;C:/QT/5.12.3/MSVC2017_64/include/QtNetwork;C:/QT/5.12.3/MSVC2017_64/include/QtPositioning;C:/QT/5.12.3/MSVC2017_64/include/QtCore;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.20.27508\ATLMFC\include;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.20.27508\include;C:\Program Files (x86)\Windows Kits\NETFXSDK\4.6.1\include\um;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt</IncludePath>
     </QtMoc>
     <QtRcc>
       <InitFuncName>iraspa-resources</InitFuncName>
-      <OutputFile>$(Configuration)\qrc_%(Filename).cpp</OutputFile>
-      <InputFile>%(FullPath)</InputFile>
-      <QTDIR>C:\QT\5.12.3\MSVC2017_64</QTDIR>
       <Compression>default</Compression>
-      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
     </QtRcc>
-    <QtUic>
-      <QTDIR>C:\QT\5.12.3\MSVC2017_64</QTDIR>
-      <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
-    </QtUic>
+    <QtUic />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;MathKit;FoundationKit;SymmetryKit;SimulationKit;RenderKit;iRASPAKit;iRASPA;..\vcpkg\packages\opencl_x64-windows-static\include;..\vcpkg\installed\x64-windows-static\include\python2.7;..\vcpkg\packages\liblzma_x64-windows-static\include;..\vcpkg\packages\zlib_x64-windows-static\include;..\..\..\..\QT\5.12.3\MSVC2017_64\include;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtOpenGL;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtWebEngineWidgets;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtPrintSupport;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtWidgets;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtWebEngineCore;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtQuick;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtGui;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtANGLE;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtWebChannel;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtQml;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtNetwork;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtPositioning;..\..\..\..\QT\5.12.3\MSVC2017_64\include\QtCore;debug;C:\VulkanSDK\1.0.51.0\include;..\..\..\..\QT\5.12.3\MSVC2017_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -std:c++17 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;MathKit;FoundationKit;SymmetryKit;SimulationKit;RenderKit;iRASPAKit;iRASPA;..\..\..\vcpkg\installed\x64-windows-static\include;..\..\..\vcpkg\installed\x64-windows-static\include\python2.7;..\..\..\QT\5.12.5\MSVC2017_64\include;..\..\..\QT\5.12.5\MSVC2017_64\include\QtOpenGL;..\..\..\QT\5.12.5\MSVC2017_64\include\QtWebEngineWidgets;..\..\..\QT\5.12.5\MSVC2017_64\include\QtPrintSupport;..\..\..\QT\5.12.5\MSVC2017_64\include\QtWidgets;..\..\..\QT\5.12.5\MSVC2017_64\include\QtWebEngineCore;..\..\..\QT\5.12.5\MSVC2017_64\include\QtQuick;..\..\..\QT\5.12.5\MSVC2017_64\include\QtGui;..\..\..\QT\5.12.5\MSVC2017_64\include\QtANGLE;..\..\..\QT\5.12.5\MSVC2017_64\include\QtWebChannel;..\..\..\QT\5.12.5\MSVC2017_64\include\QtQml;..\..\..\QT\5.12.5\MSVC2017_64\include\QtNetwork;..\..\..\QT\5.12.5\MSVC2017_64\include\QtPositioning;..\..\..\QT\5.12.5\MSVC2017_64\include\QtCore;debug;/include;..\..\..\QT\5.12.5\MSVC2017_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus /F 4194304 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExceptionHandling>Sync</ExceptionHandling>
-      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ObjectFileName>debug\</ObjectFileName>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;QT_DEPRECATED_WARNINGS;QT_OPENGL_LIB;QT_WEBENGINEWIDGETS_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_WEBENGINECORE_LIB;QT_QUICK_LIB;QT_GUI_LIB;QT_WEBCHANNEL_LIB;QT_QML_LIB;QT_NETWORK_LIB;QT_POSITIONING_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;QT_DEPRECATED_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <WarningLevel>Level3</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>"C:\Users\David Dubbeldam\Desktop\vcpkg\installed\x64-windows-static\lib\opengl32.lib";User32.lib;"C:\Users\David Dubbeldam\Desktop\vcpkg\packages\opencl_x64-windows-static\lib\OpenCL.lib";"C:\Users\David Dubbeldam\Desktop\vcpkg\installed\x64-windows-static\lib\python27.lib";"C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x64\Advapi32.lib";"C:\Users\David Dubbeldam\Desktop\vcpkg\installed\x64-windows-static\lib\lzma.lib";"C:\Users\David Dubbeldam\Desktop\vcpkg\installed\x64-windows-static\lib\zlib.lib";$(QTDIR)\lib\Qt5OpenGLd.lib;$(QTDIR)\lib\Qt5WebEngineWidgetsd.lib;$(QTDIR)\lib\Qt5PrintSupportd.lib;$(QTDIR)\lib\Qt5Widgetsd.lib;$(QTDIR)\lib\Qt5WebEngineCored.lib;$(QTDIR)\lib\Qt5Quickd.lib;$(QTDIR)\lib\Qt5Guid.lib;$(QTDIR)\lib\Qt5WebChanneld.lib;$(QTDIR)\lib\Qt5Qmld.lib;$(QTDIR)\lib\Qt5Networkd.lib;$(QTDIR)\lib\Qt5Positioningd.lib;$(QTDIR)\lib\Qt5Cored.lib;$(QTDIR)\lib\qtmaind.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(QTDIR)\lib;C:\QT\5.12.3\MSVC2017_64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>C:\vcpkg\installed\x64-windows-static\lib\python27.lib;C:\vcpkg\installed\x64-windows-static\lib\lzma.lib;C:\vcpkg\installed\x64-windows-static\lib\zlib.lib;C:\vcpkg\installed\x64-windows-static\lib\OpenCL.lib;kernel32.lib;cfgmgr32.lib;user32.lib;ole32.lib;advapi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QTDIR)\lib;C:\openssl\lib;C:\Utils\my_sql\mysql-5.6.11-winx64\lib;C:\Utils\postgresql\pgsql\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreImportLibrary>true</IgnoreImportLibrary>
       <OutputFile>$(OutDir)\iraspa.exe</OutputFile>
       <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <StackReserveSize>4194304</StackReserveSize>
       <SubSystem>Windows</SubSystem>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <StackReserveSize>4194304</StackReserveSize>
     </Link>
     <Midl>
       <DefaultCharType>Unsigned</DefaultCharType>
@@ -173,29 +170,15 @@
       <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;QT_DEPRECATED_WARNINGS;QT_OPENGL_LIB;QT_WEBENGINEWIDGETS_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_WEBENGINECORE_LIB;QT_QUICK_LIB;QT_GUI_LIB;QT_WEBCHANNEL_LIB;QT_QML_LIB;QT_NETWORK_LIB;QT_POSITIONING_LIB;QT_CORE_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <QtMoc>
-      <QTDIR>C:\QT\5.12.3\MSVC2017_64</QTDIR>
-      <OutputFile>$(Configuration)\moc_%(Filename).cpp</OutputFile>
-      <Define>UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;QT_DEPRECATED_WARNINGS;QT_OPENGL_LIB;QT_WEBENGINEWIDGETS_LIB;QT_PRINTSUPPORT_LIB;QT_WIDGETS_LIB;QT_WEBENGINECORE_LIB;QT_QUICK_LIB;QT_GUI_LIB;QT_WEBCHANNEL_LIB;QT_QML_LIB;QT_NETWORK_LIB;QT_POSITIONING_LIB;QT_CORE_LIB</Define>
       <CompilerFlavor>msvc</CompilerFlavor>
       <Include>./$(Configuration)/moc_predefs.h</Include>
-      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
       <DynamicSource>output</DynamicSource>
-      <IncludePath>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;C:/QT/5.12.3/MSVC2017_64/mkspecs/win32-msvc;.;./MathKit;./FoundationKit;./SymmetryKit;./SimulationKit;./RenderKit;./iRASPAKit;./iRASPA;C:/Users/David Dubbeldam/Desktop/vcpkg/packages/opencl_$(Platform)-windows-static/include;C:/Users/David Dubbeldam/Desktop/vcpkg/installed/$(Platform)-windows-static/include/python2.7;C:/Users/David Dubbeldam/Desktop/vcpkg/packages/liblzma_$(Platform)-windows-static/include;C:/Users/David Dubbeldam/Desktop/vcpkg/packages/zlib_$(Platform)-windows-static/include;C:/QT/5.12.3/MSVC2017_64/include;C:/QT/5.12.3/MSVC2017_64/include/QtOpenGL;C:/QT/5.12.3/MSVC2017_64/include/QtWebEngineWidgets;C:/QT/5.12.3/MSVC2017_64/include/QtPrintSupport;C:/QT/5.12.3/MSVC2017_64/include/QtWidgets;C:/QT/5.12.3/MSVC2017_64/include/QtWebEngineCore;C:/QT/5.12.3/MSVC2017_64/include/QtQuick;C:/QT/5.12.3/MSVC2017_64/include/QtGui;C:/QT/5.12.3/MSVC2017_64/include/QtANGLE;C:/QT/5.12.3/MSVC2017_64/include/QtWebChannel;C:/QT/5.12.3/MSVC2017_64/include/QtQml;C:/QT/5.12.3/MSVC2017_64/include/QtNetwork;C:/QT/5.12.3/MSVC2017_64/include/QtPositioning;C:/QT/5.12.3/MSVC2017_64/include/QtCore;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.20.27508\ATLMFC\include;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.20.27508\include;C:\Program Files (x86)\Windows Kits\NETFXSDK\4.6.1\include\um;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt;C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt</IncludePath>
     </QtMoc>
     <QtRcc>
-      <QTDIR>C:\QT\5.12.3\MSVC2017_64</QTDIR>
-      <InputFile>%(FullPath)</InputFile>
-      <OutputFile>$(Configuration)\qrc_%(Filename).cpp</OutputFile>
       <InitFuncName>iraspa-resources</InitFuncName>
       <Compression>default</Compression>
-      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
     </QtRcc>
-    <QtUic>
-      <QTDIR>C:\QT\5.12.3\MSVC2017_64</QTDIR>
-      <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
-      <InputFile>%(FullPath)</InputFile>
-    </QtUic>
+    <QtUic />
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="iRASPA\aboutdialog.cpp" />
@@ -586,120 +569,60 @@
     <CustomBuild Include="debug\moc_predefs.h.cbt">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\..\QT\5.12.3\MSVC2017_64\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -Zi -MDd -std:c++17 -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E ..\..\..\..\QT\5.12.3\MSVC2017_64\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;debug\moc_predefs.h</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\QT\5.12.5\MSVC2017_64\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus /F 4194304 -Zi -MDd -std:c++17 -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E ..\..\..\QT\5.12.5\MSVC2017_64\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;debug\moc_predefs.h</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generate moc_predefs.h</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">debug\moc_predefs.h;%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="release\moc_predefs.h.cbt">
       <FileType>Document</FileType>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\..\QT\5.12.3\MSVC2017_64\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -O2 -MD -std:c++17 -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E ..\..\..\..\QT\5.12.3\MSVC2017_64\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;release\moc_predefs.h</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\QT\5.12.5\MSVC2017_64\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus /F 4194304 -O2 -MD -std:c++17 -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E ..\..\..\QT\5.12.5\MSVC2017_64\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;release\moc_predefs.h</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generate moc_predefs.h</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">release\moc_predefs.h;%(Outputs)</Outputs>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </CustomBuild>
-    <ClInclude Include="ui_aboutdialog.h" />
-    <ClInclude Include="ui_appearanceadsorptionsurfaceform.h" />
-    <ClInclude Include="ui_appearanceannotationform.h" />
-    <ClInclude Include="ui_appearanceatomsform.h" />
-    <ClInclude Include="ui_appearancebondsform.h" />
-    <ClInclude Include="ui_appearanceunitcellform.h" />
-    <ClInclude Include="ui_camerabackgroundform.h" />
-    <ClInclude Include="ui_cameracameraform.h" />
-    <ClInclude Include="ui_cameralightsform.h" />
-    <ClInclude Include="ui_camerapicturesform.h" />
-    <ClInclude Include="ui_cameraselectionform.h" />
-    <ClInclude Include="ui_cellcellform.h" />
-    <ClInclude Include="ui_cellstructuralform.h" />
-    <ClInclude Include="ui_cellsymmetryform.h" />
-    <ClInclude Include="ui_elementsform.h" />
-    <ClInclude Include="ui_infochemicalform.h" />
-    <ClInclude Include="ui_infocitationform.h" />
-    <ClInclude Include="ui_infocreationform.h" />
-    <ClInclude Include="ui_infocreatorform.h" />
-    <ClInclude Include="ui_mainwindow.h" />
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="iRASPA\aboutdialog.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_aboutdialog.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_aboutdialog.h</OutputFile>
     </QtUic>
     <QtUic Include="iRASPA\appearanceadsorptionsurfaceform.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_appearanceadsorptionsurfaceform.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_appearanceadsorptionsurfaceform.h</OutputFile>
     </QtUic>
     <QtUic Include="iRASPA\appearanceannotationform.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_appearanceannotationform.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_appearanceannotationform.h</OutputFile>
     </QtUic>
     <QtUic Include="iRASPA\appearanceatomsform.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_appearanceatomsform.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_appearanceatomsform.h</OutputFile>
     </QtUic>
     <QtUic Include="iRASPA\appearancebondsform.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_appearancebondsform.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_appearancebondsform.h</OutputFile>
     </QtUic>
     <QtUic Include="iRASPA\appearanceunitcellform.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_appearanceunitcellform.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_appearanceunitcellform.h</OutputFile>
     </QtUic>
     <QtUic Include="iRASPA\camerabackgroundform.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_camerabackgroundform.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_camerabackgroundform.h</OutputFile>
     </QtUic>
     <QtUic Include="iRASPA\cameracameraform.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_cameracameraform.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_cameracameraform.h</OutputFile>
     </QtUic>
     <QtUic Include="iRASPA\cameralightsform.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_cameralightsform.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_cameralightsform.h</OutputFile>
     </QtUic>
     <QtUic Include="iRASPA\camerapicturesform.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_camerapicturesform.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_camerapicturesform.h</OutputFile>
     </QtUic>
     <QtUic Include="iRASPA\cameraselectionform.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_cameraselectionform.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_cameraselectionform.h</OutputFile>
     </QtUic>
     <QtUic Include="iRASPA\cellcellform.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_cellcellform.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_cellcellform.h</OutputFile>
     </QtUic>
     <QtUic Include="iRASPA\cellstructuralform.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_cellstructuralform.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_cellstructuralform.h</OutputFile>
     </QtUic>
     <QtUic Include="iRASPA\cellsymmetryform.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_cellsymmetryform.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_cellsymmetryform.h</OutputFile>
     </QtUic>
     <QtUic Include="iRASPA\elementsform.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_elementsform.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_elementsform.h</OutputFile>
     </QtUic>
     <QtUic Include="iRASPA\infochemicalform.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_infochemicalform.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_infochemicalform.h</OutputFile>
     </QtUic>
     <QtUic Include="iRASPA\infocitationform.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_infocitationform.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_infocitationform.h</OutputFile>
     </QtUic>
     <QtUic Include="iRASPA\infocreationform.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_infocreationform.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_infocreationform.h</OutputFile>
     </QtUic>
     <QtUic Include="iRASPA\infocreatorform.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_infocreatorform.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_infocreatorform.h</OutputFile>
     </QtUic>
     <QtUic Include="iRASPA\mainwindow.ui">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ui_mainwindow.h</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ui_mainwindow.h</OutputFile>
     </QtUic>
   </ItemGroup>
   <ItemGroup>
@@ -722,9 +645,4 @@
     <Import Project="$(QtMsBuild)\qt.targets" />
   </ImportGroup>
   <ImportGroup Label="ExtensionTargets" />
-  <ProjectExtensions>
-    <VisualStudio>
-      <UserProperties Qt5Version_x0020_x64="msvc2017_64" />
-    </VisualStudio>
-  </ProjectExtensions>
 </Project>

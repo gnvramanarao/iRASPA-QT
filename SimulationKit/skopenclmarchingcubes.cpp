@@ -71,7 +71,7 @@ void SKOpenCLMarchingCubes::initialize(bool isOpenCLInitialized, cl_context cont
   }
 }
 
-void SKOpenCLMarchingCubes::callBack(cl_program program, void *user_data)
+void __stdcall SKOpenCLMarchingCubes::callBack(cl_program program, void *user_data)
 {
   cl_int err;
 

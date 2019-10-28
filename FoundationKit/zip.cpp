@@ -43,6 +43,8 @@
 
 #ifndef QT_NO_TEXTODFWRITER
 
+#define LZMA_API_STATIC
+
 #include "zipreader.h"
 #include "zipwriter.h"
 #include <qdatetime.h>

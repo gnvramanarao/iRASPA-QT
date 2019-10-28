@@ -32,9 +32,15 @@
 #include <string>
 #include <iostream>
 #include <QtOpenGL>
-#include<QOpenGLFunctions_4_1_Core>
+#include <QOpenGLFunctions_3_3_Core>
 
-#define check_gl_error() _check_gl_error(__FILE__,__LINE__)
+#ifdef QT_DEBUG
+  #define check_gl_error() _check_gl_error(__FILE__,__LINE__)
+#else
+  #define check_gl_error() {}
+#endif
+
+#define release_check_gl_error() _check_gl_error(__FILE__,__LINE__)
 
 void _check_gl_error(const char *file, int line);
 

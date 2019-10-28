@@ -74,7 +74,7 @@ void SKOpenCLEnergyGridUnitCell::initialize(bool isOpenCLInitialized, cl_context
   }
 }
 
-void SKOpenCLEnergyGridUnitCell::callBack(cl_program program, void *user_data)
+void __stdcall SKOpenCLEnergyGridUnitCell::callBack(cl_program program, void *user_data)
 {
   cl_int err;
 

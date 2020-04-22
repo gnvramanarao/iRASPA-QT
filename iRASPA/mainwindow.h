@@ -60,6 +60,8 @@ public:
   SKColorSets &colorSets() {return _colorSets;}
   ForceFieldSets &forceFieldSets() {return _forceFieldSets;}
   ~MainWindow();
+  void setUndoAction(QAction *newUndoAction);
+  void setRedoAction(QAction *newRedoAction);
 private:
   Ui::MainWindow *ui;
   DocumentData _documentData{};
@@ -74,6 +76,10 @@ private:
    //HelpWidget* helpWindow;
    void acknowledgements();
    QDir directoryOf(const QString &subdir);
+   void createMenus();
+   QMenu *editMenu = nullptr;
+   QAction *undoAction = nullptr;
+   QAction *redoAction = nullptr;
 public slots:
    void importFile();
    void openFile();
@@ -82,4 +88,6 @@ public slots:
    int slideRightPanel(void);
    int slideDownPanel(void);
    int slideLeftPanel(void);
+
+
 };

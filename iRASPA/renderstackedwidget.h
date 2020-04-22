@@ -55,6 +55,12 @@ private:
   QRubberBand* _rubberBand;
   Tracking _tracking;
   QPoint _origin;
+  void selectAsymetricAtomsInRectangle(QRect rect, bool extend);
+  void exportToPDB() const;
+  void exportToMMCIF() const;
+  void exportToCIF() const;
+  void exportToXYZ() const;
+  void exportToPOSCAR() const;
 protected:
   bool eventFilter(QObject *obj, QEvent *event) override final;
 public slots:
@@ -82,6 +88,7 @@ private slots:
   void resetCameraToX();
   void setCameraToOrthographic();
   void setCameraToPerspective();
+  void showBoundingBox(bool checked);
 signals:
   void updateCameraModelViewMatrix();
   void updateCameraEulerAngles();
@@ -89,4 +96,5 @@ signals:
   void updateCameraProjection();
   void rendererWidgetResized();
   void updateAtomSelection();
+  void updateBondSelection();
 };

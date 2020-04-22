@@ -74,7 +74,7 @@ void SKOpenCLFindMinmumEnergyGridUnitCell::initialize(bool isOpenCLInitialized, 
   }
 }
 
-void __stdcall SKOpenCLFindMinmumEnergyGridUnitCell::callBack(cl_program program, void *user_data)
+void SKOpenCLFindMinmumEnergyGridUnitCell::callBack(cl_program program, void *user_data)
 {
   cl_int err;
 

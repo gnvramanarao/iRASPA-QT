@@ -28,6 +28,7 @@
  *************************************************************************************************************/
 
 #include "qdoubleslider.h"
+#define _USE_MATH_DEFINES
 #include <cmath>
 
 QDoubleSlider::QDoubleSlider(QWidget *parent) :
@@ -41,6 +42,18 @@ QDoubleSlider::QDoubleSlider(QWidget *parent) :
   connect(this, &QSlider::sliderMoved, this, &QDoubleSlider::convertIntToDouble);
   connect(this, &QSlider::valueChanged, this, &QDoubleSlider::convertIntToDouble);
 }
+
+QDoubleSlider::QDoubleSlider(Qt::Orientation orientation, QWidget *parent) : QSlider(orientation, parent)
+{
+  m_DoubleMin = 0.0;
+  m_DoubleMax = 1.0;
+  m_DoubleStep = 0.01;
+  updateRange();
+
+  connect(this, &QSlider::sliderMoved, this, &QDoubleSlider::convertIntToDouble);
+  connect(this, &QSlider::valueChanged, this, &QDoubleSlider::convertIntToDouble);
+}
+
 void QDoubleSlider::convertIntToDouble(int value)
 {
   double t = value * 1.0 / this->maximum();

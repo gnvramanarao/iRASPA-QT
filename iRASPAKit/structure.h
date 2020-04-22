@@ -33,6 +33,7 @@
 #include <QColor>
 #include <QDate>
 #include <utility>
+#include <type_traits>
 #include <mathkit.h>
 #include <symmetrykit.h>
 #include <simulationkit.h>
@@ -41,7 +42,9 @@
 
 enum class iRASPAStructureType : qint64 
 { 
-	none = 0, structure = 1, crystal = 2, molecularCrystal = 3, molecule = 4, protein = 5, proteinCrystal = 6 
+  none = 0, structure = 1, crystal = 2, molecularCrystal = 3, molecule = 4, protein = 5, proteinCrystal = 6,
+  proteinCrystalSolvent = 7, crystalSolvent = 8, molecularCrystalSolvent = 9,
+  ellipsoidPrimitive = 10, cylinderPrimitive = 11, polygonalPrismPrimitive = 12
 };
 
 
@@ -56,56 +59,7 @@ struct enum_hash
     }
 };
 
-enum class StructureType: qint64
-{
-  framework = 0, adsorbate = 1, cation = 2, ionicLiquid = 3, solvent = 4
-};
 
-enum class TemperatureScale: qint64
-{
-  Kelvin = 0, Celsius = 1
-};
-
-enum class PressureScale: qint64
-{
-  Pascal = 0, bar = 1
-};
-
-enum class CreationMethod: qint64
-{
-  unknown = 0, simulation = 1, experimental = 2
-};
-
-enum class UnitCellRelaxationMethod: qint64
-{
-  unknown = 0, allFree = 1, fixedAnglesIsotropic = 2, fixedAnglesAnistropic = 3, betaAnglefixed = 4, fixedVolumeFreeAngles = 5, allFixed = 6
-};
-
-enum class IonsRelaxationAlgorithm: qint64
-{
-  unknown = 0, none = 1, simplex = 2, simulatedAnnealing = 3, geneticAlgorithm = 4, steepestDescent = 5, conjugateGradient = 6, quasiNewton = 7, NewtonRaphson = 8, BakersMinimization = 9
-};
-
-enum class IonsRelaxationCheck: qint64
-{
-  unknown = 0, none = 1, allPositiveEigenvalues = 2, someSmallNegativeEigenvalues = 3, someSignificantNegativeEigenvalues = 4, manyNegativeEigenvalues = 5
-};
-
-
-enum class RepresentationType: qint64
-{
-  sticks_and_balls = 0, vdw = 1, unity = 2, multiple_values = 3
-};
-
-enum class RepresentationStyle: qint64
-{
-  custom = -1, defaultStyle = 0, fancy = 1, licorice = 2, multiple_values = 3
-};
-
-enum class ProbeMolecule: qint64
-{
-  helium = 0, methane = 1, nitrogen = 2, hydrogen = 3, water = 4, co2 = 5, xenon = 6, krypton = 7, argon = 8, multiple_values = 9
-};
 
 class Structure: public RKRenderStructure, public DisplayableProtocol
 {
@@ -115,9 +69,60 @@ public:
   //Structure(std::shared_ptr<SKAtomTreeController> atomTreeController, std::shared_ptr<SKBondSetController> bondSetController);
   virtual ~Structure() {}
 
+  enum class StructureType: qint64
+  {
+    framework = 0, adsorbate = 1, cation = 2, ionicLiquid = 3, solvent = 4
+  };
+
+  enum class TemperatureScale: qint64
+  {
+    Kelvin = 0, Celsius = 1
+  };
+
+  enum class PressureScale: qint64
+  {
+    Pascal = 0, bar = 1
+  };
+
+  enum class CreationMethod: qint64
+  {
+    unknown = 0, simulation = 1, experimental = 2
+  };
+
+  enum class UnitCellRelaxationMethod: qint64
+  {
+    unknown = 0, allFree = 1, fixedAnglesIsotropic = 2, fixedAnglesAnistropic = 3, betaAnglefixed = 4, fixedVolumeFreeAngles = 5, allFixed = 6
+  };
+
+  enum class IonsRelaxationAlgorithm: qint64
+  {
+    unknown = 0, none = 1, simplex = 2, simulatedAnnealing = 3, geneticAlgorithm = 4, steepestDescent = 5, conjugateGradient = 6, quasiNewton = 7, NewtonRaphson = 8, BakersMinimization = 9
+  };
+
+  enum class IonsRelaxationCheck: qint64
+  {
+    unknown = 0, none = 1, allPositiveEigenvalues = 2, someSmallNegativeEigenvalues = 3, someSignificantNegativeEigenvalues = 4, manyNegativeEigenvalues = 5
+  };
+
+
+  enum class RepresentationType: qint64
+  {
+    sticks_and_balls = 0, vdw = 1, unity = 2, multiple_values = 3
+  };
+
+  enum class RepresentationStyle: qint64
+  {
+    custom = -1, defaultStyle = 0, fancy = 1, licorice = 2, objects = 3, multiple_values = 4
+  };
+
+  enum class ProbeMolecule: qint64
+  {
+    helium = 0, methane = 1, nitrogen = 2, hydrogen = 3, water = 4, co2 = 5, xenon = 6, krypton = 7, argon = 8, multiple_values = 9
+  };
+
   virtual iRASPAStructureType structureType() {return iRASPAStructureType::structure;}
 
-  virtual double bondLenght(std::shared_ptr<SKBond> bond) { Q_UNUSED(bond); return 0;}
+
 
   QString displayName() const override {return _displayName;}
 
@@ -129,11 +134,34 @@ public:
 
   std::vector<double2> potentialParameters() const override {return std::vector<double2>();}
 
-  std::vector<RKInPerInstanceAttributesAtoms> renderAtoms() const override {return std::vector<RKInPerInstanceAttributesAtoms>();}
+  virtual std::vector<RKInPerInstanceAttributesAtoms> renderAtoms() const override;
+  virtual std::vector<RKInPerInstanceAttributesBonds> renderInternalBonds() const override;
+  virtual std::vector<RKInPerInstanceAttributesBonds> renderExternalBonds() const override;
+  virtual std::vector<RKInPerInstanceAttributesAtoms> renderUnitCellSpheres() const override;
+  virtual std::vector<RKInPerInstanceAttributesBonds> renderUnitCellCylinders() const override;
+
+  virtual std::vector<RKInPerInstanceAttributesAtoms> renderSelectedAtoms() const override;
+  virtual std::vector<RKInPerInstanceAttributesBonds> renderSelectedInternalBonds() const override;
+  virtual std::vector<RKInPerInstanceAttributesBonds> renderSelectedExternalBonds() const override;
+
+  virtual std::set<int> filterCartesianAtomPositions(std::function<bool(double3)> &);
+  virtual std::set<int> filterCartesianBondPositions(std::function<bool(double3)> &);
+
+  SKBoundingBox boundingBox() const override;
+  SKBoundingBox transformedBoundingBox() const final override;
+  void reComputeBoundingBox() final override;
+
+  void expandSymmetry();
+
+  virtual double bondLength(std::shared_ptr<SKBond> bond) const;
+  virtual double3 bondVector(std::shared_ptr<SKBond> bond) const;
+  virtual std::pair<double3, double3> computeChangedBondLength(std::shared_ptr<SKBond>, double) const;
 
   bool clipAtomsAtUnitCell() const override {return false;}
   bool clipBondsAtUnitCell() const override {return false;}
   bool colorAtomsWithBondColor() const override;
+
+
 
   std::vector<RKInPerInstanceAttributesText> renderTextData() const override {return std::vector<RKInPerInstanceAttributesText>();}
   RKTextType renderTextType() const override {return RKTextType::identifier;}
@@ -145,41 +173,39 @@ public:
   double3 renderTextOffset() const override {return double3();}
 
   void clearSelection();
-  void setAtomSelection(int atomId);
-  void addAtomToSelection(int atomId);
-  void toggleAtomSelection(int atomId);
-  void setAtomSelection(std::vector<int>& atomIds);
-  void addToAtomSelection(std::vector<int>& atomIds);
-  std::vector<RKInPerInstanceAttributesAtoms> renderSelectedAtoms() const override;
-  RKSelectionStyle renderSelectionStyle() const override {return _atomSelectionStyle;}
-  void setSelectionStyle(RKSelectionStyle style) {_atomSelectionStyle = style;}
-  double renderSelectionScaling() const override {return _selectionScaling;}
-  void setSelectionScaling(double scaling) {_selectionScaling = scaling;}
-  double renderAtomSelectionIntensity() const override {return _atomHDRBloomLevel;}
-  void setSelectionIntensity(double scaling) {_atomHDRBloomLevel = scaling;}
+  void setAtomSelection(int asymmetricAtomId);
+  void setBondSelection(int asymmetricBondId);
+  void addAtomToSelection(int asymmetricAtomId);
+  void addBondToSelection(int asymmetricBondId);
+  void toggleAtomSelection(int asymmetricAtomId);
+  void toggleBondSelection(int asymmetricAtomId);
+  void setAtomSelection(std::set<int>& atomIds);
+  void addToAtomSelection(std::set<int>& atomIds);
 
-  double renderSelectionStripesDensity() const override {return _atomSelectionStripesDensity;}
-  void setSelectionStripesDensity(double value) {_atomSelectionStripesDensity = value;}
-  double renderSelectionStripesFrequency() const override {return _atomSelectionStripesFrequency;}
-  void setSelectionStripesFrequency(double value) {_atomSelectionStripesFrequency = value;}
-  double renderSelectionWorleyNoise3DFrequency() const override {return _atomSelectionWorleyNoise3DFrequency;}
-  void setSelectionWorleyNoise3DFrequency(double value) {_atomSelectionWorleyNoise3DFrequency = value;}
-  double renderSelectionWorleyNoise3DJitter() const override {return _atomSelectionWorleyNoise3DJitter;}
-  void setSelectionWorleyNoise3DJitter(double value) {_atomSelectionWorleyNoise3DJitter = value;}
+  RKSelectionStyle atomSelectionStyle() const override {return _atomSelectionStyle;}
+  void setAtomSelectionStyle(RKSelectionStyle style) {_atomSelectionStyle = style;}
+  double atomSelectionScaling() const override {return _atomSelectionScaling;}
+  void setAtomSelectionScaling(double scaling) {_atomSelectionScaling = scaling;}
+  double atomSelectionIntensity() const override {return _atomSelectionIntensity;}
+  void setSelectionIntensity(double scaling) {_atomSelectionIntensity = scaling;}
 
-  double renderSelectionFrequency() const override;
-  void setSelectionFrequency(double value);
-  double renderSelectionDensity() const override;
-  void setSelectionDensity(double value);
+  double atomSelectionStripesDensity() const override {return _atomSelectionStripesDensity;}
+  void setAtomSelectionStripesDensity(double value) {_atomSelectionStripesDensity = value;}
+  double atomSelectionStripesFrequency() const override {return _atomSelectionStripesFrequency;}
+  void setAtomSelectionStripesFrequency(double value) {_atomSelectionStripesFrequency = value;}
+  double atomSelectionWorleyNoise3DFrequency() const override {return _atomSelectionWorleyNoise3DFrequency;}
+  void setAtomSelectionWorleyNoise3DFrequency(double value) {_atomSelectionWorleyNoise3DFrequency = value;}
+  double atomSelectionWorleyNoise3DJitter() const override {return _atomSelectionWorleyNoise3DJitter;}
+  void setAtomSelectionWorleyNoise3DJitter(double value) {_atomSelectionWorleyNoise3DJitter = value;}
+
+  double atomSelectionFrequency() const override;
+  void setAtomSelectionFrequency(double value);
+  double atomSelectionDensity() const override;
+  void setAtomSelectionDensity(double value);
 
   double3 CartesianPosition(double3 position, int3 replicaPosition) const override {return double();}
 
-  std::vector<RKInPerInstanceAttributesBonds> renderInternalBonds() const override {return std::vector<RKInPerInstanceAttributesBonds>();}
-  std::vector<RKInPerInstanceAttributesBonds> renderExternalBonds() const override {return std::vector<RKInPerInstanceAttributesBonds>();}
-  std::vector<RKInPerInstanceAttributesBonds> renderSelectedBonds() const override {return std::vector<RKInPerInstanceAttributesBonds>();}
 
-  std::vector<RKInPerInstanceAttributesAtoms> renderUnitCellSpheres() const override {return std::vector<RKInPerInstanceAttributesAtoms>();}
-  std::vector<RKInPerInstanceAttributesBonds> renderUnitCellCylinders() const override {return std::vector<RKInPerInstanceAttributesBonds>();}
 
   int numberOfAtoms() const override {return 0;}
   int numberOfInternalBonds() const override {return 0;}
@@ -249,8 +275,6 @@ public:
   void setAtomHDR(bool value) {_atomHDR = value;}
   double atomHDRExposure() const override {return _atomHDRExposure;}
   void setAtomHDRExposure(double value) {_atomHDRExposure = value;}
-  double atomHDRBloomLevel() const override {return _atomHDRBloomLevel;}
-  void setAtomHDRBloomLevel(bool value) {_atomHDRBloomLevel = value;}
 
 
   bool bondAmbientOcclusion() const override {return _bondAmbientOcclusion;}
@@ -279,8 +303,16 @@ public:
   void setBondHDR(bool value) {_bondHDR = value;}
   double bondHDRExposure() const override {return _bondHDRExposure;}
   void setBondHDRExposure(double value) {_bondHDRExposure = value;}
-  double bondHDRBloomLevel() const override {return _bondHDRBloomLevel;}
-  void setBondHDRBloomLevel(double value) {_bondHDRBloomLevel = value;}
+  double bondSelectionIntensity() const override {return _bondSelectionIntensity;}
+  void setBondSelectionIntensity(double value) {_bondSelectionIntensity = value;}
+
+  RKSelectionStyle bondSelectionStyle() const override {return _bondSelectionStyle;}
+  void setBondSelectionStyle(RKSelectionStyle style) {_bondSelectionStyle = style;}
+  double bondSelectionScaling() const override {return _bondSelectionScaling;}
+  double bondSelectionStripesDensity() const override {return _bondSelectionStripesDensity;}
+  double bondSelectionStripesFrequency() const override  {return _bondSelectionStripesFrequency;}
+  double bondSelectionWorleyNoise3DFrequency() const override {return _bondSelectionWorleyNoise3DFrequency;}
+  double bondSelectionWorleyNoise3DJitter() const override  {return _bondSelectionWorleyNoise3DJitter;}
 
   double bondHue() const override {return _bondHue;}
   void setBondHue(double value) {_bondHue = value;}
@@ -354,28 +386,26 @@ public:
   double adsorptionSurfaceBackSideShininess() const override {return _adsorptionSurfaceBackSideShininess;}
   void setAdsorptionSurfaceBackSideShininess(double value) {_adsorptionSurfaceBackSideShininess = value;}
 
-  SKBoundingBox boundingBox() const override {return SKBoundingBox();}
-  SKBoundingBox transformedBoundingBox() const override {return SKBoundingBox();}
-  void reComputeBoundingBox() final override;
-  void expandSymmetry() override {;}
+
 
   void setRepresentationStyle(RepresentationStyle style);
   void setRepresentationStyle(RepresentationStyle style, const SKColorSets &colorSets);
   RepresentationStyle atomRepresentationStyle() {return _atomRepresentationStyle;}
   void setRepresentationType(RepresentationType);
   RepresentationType atomRepresentationType() {return _atomRepresentationType;}
+  bool isUnity() const override final {return _atomRepresentationType == RepresentationType::unity;}
   void recheckRepresentationStyle();
 
   void setRepresentationColorSchemeIdentifier(const QString colorSchemeName, const SKColorSets &colorSets);
   QString atomColorSchemeIdentifier() {return _atomColorSchemeIdentifier;}
-  void setColorSchemeOrder(ColorSchemeOrder order) {_atomColorSchemeOrder = order;}
-  ColorSchemeOrder colorSchemeOrder() {return _atomColorSchemeOrder;}
+  void setColorSchemeOrder(SKColorSet::ColorSchemeOrder order) {_atomColorSchemeOrder = order;}
+  SKColorSet::ColorSchemeOrder colorSchemeOrder() {return _atomColorSchemeOrder;}
 
   QString atomForceFieldIdentifier() {return _atomForceFieldIdentifier;}
   void setAtomForceFieldIdentifier(QString identifier, ForceFieldSets &forceFieldSets);
   void updateForceField(ForceFieldSets &forceFieldSets);
-  void setForceFieldSchemeOrder(ForceFieldSchemeOrder order) {_atomForceFieldOrder = order;}
-  ForceFieldSchemeOrder forceFieldSchemeOrder() {return _atomForceFieldOrder;}
+  void setForceFieldSchemeOrder(ForceFieldSet::ForceFieldSchemeOrder order) {_atomForceFieldOrder = order;}
+  ForceFieldSet::ForceFieldSchemeOrder forceFieldSchemeOrder() {return _atomForceFieldOrder;}
 
   QString authorFirstName() {return _authorFirstName;}
   void setAuthorFirstName(QString name) {_authorFirstName = name;}
@@ -521,7 +551,7 @@ public:
 
   void computeBonds() override {;}
 protected:
-  qint64 _versionNumber{3};
+  qint64 _versionNumber{5};
   QString _displayName = QString("test123");
 
   std::shared_ptr<SKAtomTreeController> _atomsTreeController;
@@ -575,16 +605,16 @@ protected:
   RepresentationType _atomRepresentationType = RepresentationType::sticks_and_balls;
   RepresentationStyle _atomRepresentationStyle = RepresentationStyle::defaultStyle;
   QString _atomForceFieldIdentifier = QString("Default");
-  ForceFieldSchemeOrder _atomForceFieldOrder = ForceFieldSchemeOrder::elementOnly;
+  ForceFieldSet::ForceFieldSchemeOrder _atomForceFieldOrder = ForceFieldSet::ForceFieldSchemeOrder::elementOnly;
   QString _atomColorSchemeIdentifier = QString("Jmol");
-  ColorSchemeOrder _atomColorSchemeOrder = ColorSchemeOrder::elementOnly;
+  SKColorSet::ColorSchemeOrder _atomColorSchemeOrder = SKColorSet::ColorSchemeOrder::elementOnly;
 
   RKSelectionStyle _atomSelectionStyle = RKSelectionStyle::WorleyNoise3D;
   double _atomSelectionStripesDensity = 0.25;
   double _atomSelectionStripesFrequency = 12.0;
   double _atomSelectionWorleyNoise3DFrequency = 2.0;
   double _atomSelectionWorleyNoise3DJitter = 1.0;
-  double _selectionScaling = 1.2;
+  double _atomSelectionScaling = 1.2;
   double _selectionIntensity = 1.0;
 
 
@@ -601,7 +631,7 @@ protected:
 
   bool _atomHDR = true;
   double _atomHDRExposure = 1.5;
-  double _atomHDRBloomLevel = 0.5;
+  double _atomSelectionIntensity = 0.5;
 
   QColor _atomAmbientColor = QColor(255, 255, 255, 255);
   QColor _atomDiffuseColor = QColor(255, 255, 255, 255);
@@ -626,11 +656,18 @@ protected:
 
   bool _bondHDR = true;
   double _bondHDRExposure = 1.5;
-  double _bondHDRBloomLevel = 1.0;
 
   double _bondHue = 1.0;
   double _bondSaturation = 1.0;
   double _bondValue = 1.0;
+
+  RKSelectionStyle _bondSelectionStyle = RKSelectionStyle::striped;
+  double _bondSelectionScaling = 1.2;
+  double _bondSelectionStripesDensity = 0.25;
+  double _bondSelectionStripesFrequency = 12.0;
+  double _bondSelectionWorleyNoise3DFrequency = 2.0;
+  double _bondSelectionWorleyNoise3DJitter = 1.0;
+  double _bondSelectionIntensity = 0.5;
 
   bool _bondAmbientOcclusion = false;
 
@@ -713,7 +750,7 @@ protected:
   TemperatureScale _creationTemperatureScale = TemperatureScale::Kelvin;
   QString _creationPressure = QString("");
   PressureScale _creationPressureScale = PressureScale::Pascal;
-  CreationMethod _creationMethod = CreationMethod::unknown;
+  CreationMethod  _creationMethod = CreationMethod::unknown;
   UnitCellRelaxationMethod _creationUnitCellRelaxationMethod = UnitCellRelaxationMethod::unknown;
   QString _creationAtomicPositionsSoftwarePackage = QString("");
   IonsRelaxationAlgorithm _creationAtomicPositionsIonsRelaxationAlgorithm = IonsRelaxationAlgorithm::unknown;

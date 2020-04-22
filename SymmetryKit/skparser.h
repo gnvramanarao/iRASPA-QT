@@ -29,11 +29,12 @@
 
 #pragma once
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <QString>
 #include <map>
 #include <tuple>
 #include <string>
-#include <cmath>
 #include "skatomtreecontroller.h"
 #include "skcell.h"
 
@@ -41,6 +42,7 @@ class SKParser
 {
 public:
   SKParser();
+  virtual ~SKParser() = 0;
   virtual void startParsing() = 0;
   std::vector<std::vector<std::tuple<std::shared_ptr<SKAtomTreeController>, std::shared_ptr<SKCell>, int>>> movies();
 protected:

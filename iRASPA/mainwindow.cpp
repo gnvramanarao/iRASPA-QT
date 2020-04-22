@@ -48,6 +48,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 {
   ui->setupUi(this);
 
+  this->createMenus();
+
   // propagate mainWindow to all interested controllers
   this->propagateMainWindow(this,this);
 
@@ -61,11 +63,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
   ui->detailTabViewController->setAtomTreeView(ui->atomTreeView);
   ui->detailTabViewController->setBondListView(ui->bondListView);
 
-
-  //ui->projectTreeView->setModel(_documentData.projectTreeController());
   ui->projectTreeView->setController(_documentData.projectTreeController());
   QObject::connect(ui->projectTreeView->selectionModel(),&QItemSelectionModel::currentRowChanged,ui->projectTreeView,&ProjectTreeView::setSelectedProject);
-
 
   QModelIndex index1 = ui->projectTreeView->model()->index(0,0,QModelIndex());
   QModelIndex index2 = ui->projectTreeView->model()->index(2,0,QModelIndex());
@@ -77,12 +76,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
   QModelIndex index4 = ui->projectTreeView->model()->index(0,0,index2);
   ui->projectTreeView->expand(index4);
 
+
   this->propagateProject(std::shared_ptr<ProjectTreeNode>(nullptr), this);
 
   QObject::connect(ui->mainToolBar->rightPanel(),&QToolButton::clicked,this,&MainWindow::slideRightPanel);
   QObject::connect(ui->mainToolBar->downPanel(),&QToolButton::clicked,this,&MainWindow::slideDownPanel);
   QObject::connect(ui->mainToolBar->leftPanel(),&QToolButton::clicked,this,&MainWindow::slideLeftPanel);
-
 
   QObject::connect(ui->stackedRenderers, &RenderStackedWidget::updateCameraModelViewMatrix, ui->cameraTreeWidget, &CameraTreeWidgetController::reloadCameraModelViewMatrix);
   QObject::connect(ui->stackedRenderers, &RenderStackedWidget::updateCameraEulerAngles, ui->cameraTreeWidget, &CameraTreeWidgetController::reloadCameraEulerAngles);
@@ -120,8 +119,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
   QObject::connect(ui->atomTreeView->atomTreeModel(), &AtomTreeViewModel::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
   QObject::connect(ui->atomTreeView, &AtomTreeView::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
-  QObject::connect(ui->sceneTreeView->sceneTreeModel(), &SceneTreeViewModel::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
 
+  QObject::connect(ui->bondListView->bondListModel(), &BondListViewModel::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
+  QObject::connect(ui->bondListView, &BondListView::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
+
+  QObject::connect(ui->sceneTreeView->sceneTreeModel(), &SceneTreeViewModel::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
 
   QObject::connect(ui->appearanceTreeWidget, &AppearanceTreeWidgetController::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
 
@@ -154,18 +156,81 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 
   QObject::connect(ui->stackedRenderers, &RenderStackedWidget::updateAtomSelection,ui->atomTreeView, &AtomTreeView::reloadSelection);
+  QObject::connect(ui->stackedRenderers, &RenderStackedWidget::updateBondSelection,ui->bondListView, &BondListView::reloadSelection);
 
-  QObject::connect(ui->actionContents, &QAction::triggered, [this](bool){
+
+
+  readLibraryOfStructures();
+
+  std::cout.flush();
+  std::cout << "Done init" << std::endl;
+}
+
+void MainWindow::createMenus()
+{
+  QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
+  QAction *actionFileAbout = new QAction(tr("&About iRASPA"), this);
+  QObject::connect(actionFileAbout, &QAction::triggered, this, &MainWindow::showAboutDialog);
+  fileMenu->addAction(actionFileAbout);
+  QAction *actionFileImport = new QAction(tr("&Import"), this);
+  QObject::connect(actionFileImport, &QAction::triggered, this, &MainWindow::importFile);
+  fileMenu->addAction(actionFileImport);
+  QAction *actionFileOpen = new QAction(tr("&Open"), this);
+  QObject::connect(actionFileOpen, &QAction::triggered, this, &MainWindow::openFile);
+  fileMenu->addAction(actionFileOpen);
+  QAction *actionFileSave = new QAction(tr("&Save"), this);
+  QObject::connect(actionFileSave, &QAction::triggered, this, &MainWindow::saveFile);
+  fileMenu->addAction(actionFileSave);
+
+  undoAction = ui->projectTreeView->undoManager().createUndoAction(this, tr("&Undo"));
+  undoAction->setShortcuts(QKeySequence::Undo);
+
+  redoAction = ui->projectTreeView->undoManager().createRedoAction(this, tr("&Redo"));
+  redoAction->setShortcuts(QKeySequence::Redo);
+
+  editMenu = menuBar()->addMenu(tr("&Edit"));
+  editMenu->addAction(undoAction);
+  editMenu->addAction(redoAction);
+
+  QAction *actionHelpContents = new QAction(tr("&Contents"), this);
+  QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
+  helpMenu->addAction(actionHelpContents);
+
+  QObject::connect(actionHelpContents, &QAction::triggered, [this](bool){
      HelpWidget* helpWindow = new HelpWidget(this);
      helpWindow->resize(1200,800);
      helpWindow->show();
   });
 
-	readLibraryOfStructures();
+  //    editMenu->addAction(redoAction);
+  //    editMenu->addSeparator();
+  //    editMenu->addAction(deleteAction);
+  //    connect(editMenu, &QMenu::aboutToShow,
+  //            this, &MainWindow::itemMenuAboutToShow);
+  //    connect(editMenu, &QMenu::aboutToHide,
+  //            this, &MainWindow::itemMenuAboutToHide);
+}
+
+void MainWindow::setUndoAction(QAction *newUndoAction)
+{
+  editMenu->insertAction(undoAction, newUndoAction);
+  editMenu->removeAction(undoAction);
+  undoAction = newUndoAction;
+  undoAction->setShortcuts(QKeySequence::Undo);
+}
+
+void MainWindow::setRedoAction(QAction *newRedoAction)
+{
+  editMenu->insertAction(redoAction, newRedoAction);
+  editMenu->removeAction(redoAction);
+  redoAction = newRedoAction;
+  redoAction->setShortcuts(QKeySequence::Redo);
 }
 
 void MainWindow::setProject(std::shared_ptr<ProjectTreeNode> project)
 {
+  std::cout.flush();
+  qDebug() << "MainWindow setProject";
   if (project)
   {
     if(std::shared_ptr<iRASPAProject> iraspaProject = project->representedObject())
@@ -192,6 +257,8 @@ void MainWindow::setProject(std::shared_ptr<ProjectTreeNode> project)
       }
     }
   }
+  std::cout.flush();
+  qDebug() << "MainWindow setProject ending";
 }
 
 
@@ -271,6 +338,7 @@ void MainWindow::showAboutDialog()
 
 void MainWindow::importFile()
 {
+  std::cout.flush();
   qDebug() << "Import cif-file";
 
   QString selFilter = tr("cif/pdb files (*.cif *.pdb )");
@@ -386,6 +454,10 @@ void MainWindow::readLibraryOfStructures()
 
 void MainWindow::openFile()
 {
+  std::cout.flush();
+  std::cout << "openFile" <<  std::endl;
+  qDebug() << "MainWindow::openFile";
+
   QString selFilter = tr("IRASPA (*.irspdoc )");
   QUrl fileURL = QFileDialog::getOpenFileUrl(this,tr("Open File"),QDir::homePath() + QDir::separator() + "project.irspdoc",
                                              tr("iRASPA (*.irspdoc)"),&selFilter);
@@ -403,7 +475,7 @@ void MainWindow::openFile()
 
     try
     {
-      std::cout << "start reading color data: " << colorData.size() << std::endl;
+      qDebug() << "start reading color data: " << colorData.size();
       colorStream >> _colorSets;
     }
     catch(std::exception e)
@@ -411,25 +483,28 @@ void MainWindow::openFile()
       std::cout << "Error: " << e.what() << std::endl;
     }
 
+    qDebug() << "done reading color data" << colorData.size();
+
     QByteArray forceFieldData = reader.fileData("nl.darkwing.iRASPA_forceFieldData");
     QDataStream forceFieldStream(&forceFieldData, QIODevice::ReadOnly);
 
     try
     {
-      std::cout << "start reading force field data: " << forceFieldData.size() << std::endl;
+      qDebug() << "start reading force field data" << forceFieldData.size();
       forceFieldStream >> _forceFieldSets;
     }
     catch(std::exception e)
     {
       std::cout << "Error: " << e.what() << std::endl;
     }
+    qDebug() << "done reading force field data: " << forceFieldData.size();
 
     QByteArray data = reader.fileData("nl.darkwing.iRASPA_projectData");
     QDataStream stream(&data, QIODevice::ReadOnly);
 
     try
     {
-      std::cout << "start reading document data: " << data.size() << std::endl;
+      qDebug() << "start reading document data: " << data.size();
       stream >> _documentData;
     }
     catch (InvalidArchiveVersionException ex)
@@ -456,6 +531,8 @@ void MainWindow::openFile()
     }
     reader.close();
 
+    qDebug() << "Done readdata";
+
     ui->projectTreeView->reset();
 
     QModelIndex index1 = ui->projectTreeView->model()->index(0,0,QModelIndex());
@@ -467,6 +544,8 @@ void MainWindow::openFile()
 
     QModelIndex index4 = ui->projectTreeView->model()->index(0,0,index2);
     ui->projectTreeView->expand(index4);
+
+    std::cout << "End openFile" <<  std::endl;
   }
 }
 

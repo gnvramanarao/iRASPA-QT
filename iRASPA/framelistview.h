@@ -54,7 +54,7 @@ public:
   void setMainWindow(MainWindow* mainWindow) final override {_mainWindow = mainWindow;}
   void reloadSelection() override final;
   void reloadData() override final;
-  void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode);
+  void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode) override final;
 private:
   MainWindow* _mainWindow;
   std::shared_ptr<FrameListViewModel> _model;

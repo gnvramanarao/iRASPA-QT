@@ -31,6 +31,7 @@
 #include <QPainter>
 #include <QtCore>
 #include <QItemSelection>
+#include "deleteselectioncommand.h"
 
 AtomTreeView::AtomTreeView(QWidget* parent): QTreeView(parent ), _model(std::make_shared<AtomTreeViewModel>())
 {
@@ -63,13 +64,20 @@ AtomTreeView::AtomTreeView(QWidget* parent): QTreeView(parent ), _model(std::mak
 
 
   _dropIndicatorRect = QRect();
+
+  pushButtonDelegate = new AtomTreeViewPushButtonStyledItemDelegate(this);
+  this->setItemDelegateForColumn(1, pushButtonDelegate);
 }
 
 void AtomTreeView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 {
+  _projectTreeNode = projectTreeNode;
+  _projectStructure = nullptr;
+
   if (projectTreeNode)
   {
-    if(std::shared_ptr<iRASPAProject> iraspaProject = projectTreeNode->representedObject())
+    std::shared_ptr<iRASPAProject> iraspaProject = projectTreeNode->representedObject();
+    if(iraspaProject)
     {
       if(std::shared_ptr<Project> project = iraspaProject->project())
       {
@@ -78,13 +86,24 @@ void AtomTreeView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
            std::cout << "setProject : " << projectTreeNode->displayName().toStdString() << std::endl;
           _projectStructure = projectStructure;
           _structures = projectStructure->flattenedStructures();
-          //reloadData();
-          return;
         }
       }
     }
   }
-  _projectStructure = nullptr;
+
+}
+
+void AtomTreeView::keyPressEvent(QKeyEvent *event)
+{
+  if( event->type() == QEvent::KeyPress )
+  {
+    QKeyEvent * keyEvent = dynamic_cast<QKeyEvent*>(event);
+    if( keyEvent->key() == Qt::Key_Delete )
+    {
+      deleteSelection();
+    }
+  }
+  QTreeView::keyPressEvent(event);
 }
 
 SKAtomTreeNode* AtomTreeView::getItem(const QModelIndex &index) const
@@ -314,6 +333,33 @@ QSize AtomTreeView::sizeHint() const
   return QSize(500, 800);
 }
 
+void AtomTreeView::deleteSelection()
+{
+  qDebug() << "deleteSelection";
+  if(std::shared_ptr<ProjectTreeNode> projectTreeNode = _projectTreeNode.lock())
+  {
+    if(projectTreeNode->isEditable())
+    {
+      if(std::shared_ptr<iRASPAProject> iRASPAProject = projectTreeNode->representedObject())
+      {
+        if(std::shared_ptr<Project> project = iRASPAProject->project())
+        {
+          if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
+          {
+            std::shared_ptr<Structure> structure = _structures.front();
+            std::vector<std::shared_ptr<SKAtomTreeNode>> atoms = std::vector<std::shared_ptr<SKAtomTreeNode>>();
+            std::vector<IndexPath> atomSelection = std::vector<IndexPath>();
+            std::vector<std::shared_ptr<SKAsymmetricBond>> bonds = std::vector<std::shared_ptr<SKAsymmetricBond>>();
+            std::set<int> bondSelection = std::set<int>();
+            DeleteSelectionCommand *deleteSelectionCommand = new DeleteSelectionCommand(structure,atoms,atomSelection,bonds,bondSelection);
+            iRASPAProject->undoManager().push(deleteSelectionCommand);
+          }
+        }
+      }
+    }
+  }
+}
+
 void AtomTreeView::addAtomGroup(QModelIndex index)
 {
   if(_projectStructure)
@@ -337,7 +383,28 @@ void AtomTreeView::flattenHierachy()
 
 void AtomTreeView::makeSuperCell()
 {
-
+  if(std::shared_ptr<ProjectTreeNode> projectTreeNode = _projectTreeNode.lock())
+  {
+    if(projectTreeNode->isEditable())
+    {
+      if(std::shared_ptr<iRASPAProject> iRASPAProject = projectTreeNode->representedObject())
+      {
+        if(std::shared_ptr<Project> project = iRASPAProject->project())
+        {
+          if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
+          {
+            std::shared_ptr<Structure> structure = _structures.front();
+            std::set<SKAsymmetricAtom> asymmetricAtoms = std::set<SKAsymmetricAtom>();
+            std::vector<IndexPath> atomSelection = std::vector<IndexPath>();
+            std::vector<SKAsymmetricBond> asymmetricBonds = std::vector<SKAsymmetricBond>();
+            std::set<int> bondSelection = std::set<int>();
+            //DeleteSelectionCommand *deleteSelectionCommand = new DeleteSelectionCommand(structure,asymmetricAtoms,atomSelection,asymmetricBonds,bondSelection);
+            //iRASPAProject->undoManager().push(deleteSelectionCommand);
+          }
+        }
+      }
+    }
+  }
 }
 
 void AtomTreeView::ShowContextMenu(const QPoint &pos)
@@ -352,7 +419,6 @@ void AtomTreeView::ShowContextMenu(const QPoint &pos)
   });
   contextMenu.addAction(&actionAddAtomGroup);
 
-
   QAction actionFlattenHierarchy("Flatten hierarchy", this);
   connect(&actionFlattenHierarchy, &QAction::triggered, this, &AtomTreeView::flattenHierachy);
   contextMenu.addAction(&actionFlattenHierarchy);
@@ -361,6 +427,100 @@ void AtomTreeView::ShowContextMenu(const QPoint &pos)
   connect(&actionMakeSuperCell, &QAction::triggered, this, &AtomTreeView::makeSuperCell);
   contextMenu.addAction(&actionMakeSuperCell);
 
+  QMenu* subMenuSelection = contextMenu.addMenu( "Selection" );
+  QActionGroup* selectionGroup = new QActionGroup(this);
+  QAction actionSelectionInvert("Invert", this);
+  selectionGroup->addAction(&actionSelectionInvert);
+  subMenuSelection->addAction(&actionSelectionInvert);
+  //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
+  QAction actionCopyToNewMovie("CopyToNewMovie", this);
+  selectionGroup->addAction(&actionCopyToNewMovie);
+  subMenuSelection->addAction(&actionCopyToNewMovie);
+  //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
+  QAction actionMoveToNewMovie("CopyToNewMovie", this);
+  selectionGroup->addAction(&actionMoveToNewMovie);
+  subMenuSelection->addAction(&actionMoveToNewMovie);
+  //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
+
+  QMenu* subMenuVisibility = contextMenu.addMenu( "Visibility" );
+  QActionGroup* visibilityGroup = new QActionGroup(this);
+  QAction actionVisibilityMatchSelection("Match selection", this);
+  visibilityGroup->addAction(&actionVisibilityMatchSelection);
+  subMenuVisibility->addAction(&actionVisibilityMatchSelection);
+  //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
+  QAction actionVisibilityInvert("Invert", this);
+  visibilityGroup->addAction(&actionVisibilityInvert);
+  subMenuVisibility->addAction(&actionVisibilityInvert);
+  //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
+
+  QMenu* subMenuScrollTo = contextMenu.addMenu( "Visibility" );
+  QActionGroup* scrollToGroup = new QActionGroup(this);
+  QAction actionScrollToTop("Top", this);
+  scrollToGroup->addAction(&actionScrollToTop);
+  subMenuScrollTo->addAction(&actionScrollToTop);
+  //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
+  QAction actionScrollToBottom("Bottom", this);
+  scrollToGroup->addAction(&actionScrollToBottom);
+  subMenuScrollTo->addAction(&actionScrollToBottom);
+  //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
+  QAction actionScrollToFirstSelected("First selected", this);
+  scrollToGroup->addAction(&actionScrollToFirstSelected);
+  subMenuScrollTo->addAction(&actionScrollToFirstSelected);
+  //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
+  QAction actionScrollToLastSelected("Last selected", this);
+  scrollToGroup->addAction(&actionScrollToLastSelected);
+  subMenuScrollTo->addAction(&actionScrollToLastSelected);
+  //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
+
+
+  QMenu* subMenuExport = contextMenu.addMenu( "Export to" );
+  QActionGroup* exportToGroup = new QActionGroup(this);
+  QAction actionExportToPDB("PDB", this);
+  exportToGroup->addAction(&actionExportToPDB);
+  subMenuExport->addAction(&actionExportToPDB);
+  connect(&actionExportToPDB, &QAction::triggered, this, &AtomTreeView::exportToPDB);
+  QAction actionExportToMMCIF("mmCIF", this);
+  exportToGroup->addAction(&actionExportToMMCIF);
+  subMenuExport->addAction(&actionExportToMMCIF);
+  connect(&actionExportToMMCIF, &QAction::triggered, this, &AtomTreeView::exportToMMCIF);
+  QAction actionExportToCIF("CIF", this);
+  exportToGroup->addAction(&actionExportToCIF);
+  subMenuExport->addAction(&actionExportToCIF);
+  connect(&actionExportToCIF, &QAction::triggered, this, &AtomTreeView::exportToCIF);
+  QAction actionExportToXYZ("XYZ", this);
+  exportToGroup->addAction(&actionExportToXYZ);
+  subMenuExport->addAction(&actionExportToXYZ);
+  connect(&actionExportToXYZ, &QAction::triggered, this, &AtomTreeView::exportToXYZ);
+  QAction actionExportToPOSCAR("VASP POSCAR", this);
+  exportToGroup->addAction(&actionExportToPOSCAR);
+  subMenuExport->addAction(&actionExportToPOSCAR);
+  connect(&actionExportToPOSCAR, &QAction::triggered, this, &AtomTreeView::exportToPOSCAR);
+
   contextMenu.exec(viewport()->mapToGlobal(pos));
+}
+
+void AtomTreeView::exportToPDB() const
+{
+
+}
+
+void AtomTreeView::exportToMMCIF() const
+{
+
+}
+
+void AtomTreeView::exportToCIF() const
+{
+
+}
+
+void AtomTreeView::exportToXYZ() const
+{
+
+}
+
+void AtomTreeView::exportToPOSCAR() const
+{
+
 }
 

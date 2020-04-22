@@ -30,6 +30,7 @@
 #include "skatomtreecontroller.h"
 
 #include <stack>
+#include <algorithm>
 
 SKAtomTreeController::SKAtomTreeController()
 {
@@ -100,7 +101,7 @@ int SKAtomTreeController::filteredChildIndexOfItem(std::shared_ptr<SKAtomTreeNod
   {
     std::shared_ptr<SKAtomTreeNode> node = parentNode->_filteredAndSortedNodes[index];
 
-    stdx::optional<int> filteredIndex = parentNode->findChildIndex(node);
+    std::optional<int> filteredIndex = parentNode->findChildIndex(node);
 
     return *filteredIndex;
   }
@@ -151,6 +152,11 @@ std::shared_ptr<SKAtomTreeNode> SKAtomTreeController::nodeAtIndexPath(IndexPath 
 std::vector<std::shared_ptr<SKAtomTreeNode> > SKAtomTreeController::flattenedLeafNodes() const
 {
   return _hiddenRootNode->flattenedLeafNodes();
+}
+
+std::vector<std::shared_ptr<SKAsymmetricAtom> > SKAtomTreeController::flattenedObjects() const
+{
+   return _hiddenRootNode->flattenedObjects();
 }
 
 
@@ -219,6 +225,29 @@ std::vector<std::shared_ptr<SKAtomCopy>> SKAtomTreeController::atomCopies() cons
     }
   }
   return atomCopies;
+}
+
+void SKAtomTreeController::setTags()
+{
+  std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = flattenedLeafNodes();
+
+  int atomIndex=0;
+  int asymmetricAtomIndex=0;
+  for(std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
+  {
+    if(std::shared_ptr<SKAsymmetricAtom> asymmetricAtom = node->representedObject())
+    {
+      for(std::shared_ptr<SKAtomCopy> atom: asymmetricAtom->copies())
+      {
+        atom->setTag(atomIndex);
+        atom->setAsymmetricIndex(asymmetricAtomIndex);
+        atomIndex++;
+      }
+      asymmetricAtom->setTag(asymmetricAtomIndex);
+      asymmetricAtom->setAsymmetricIndex(asymmetricAtomIndex);
+      asymmetricAtomIndex++;
+    }
+  }
 }
 
 

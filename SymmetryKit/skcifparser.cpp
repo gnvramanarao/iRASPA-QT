@@ -157,7 +157,7 @@ void SKCIFParser::parseSymmetry(QString& string)
   if((string == QString("_symmetry_space_group_name_Hall").toLower()) ||
      (string == QString("_symmetry.space_group_name_Hall").toLower()))
   {
-    stdx::optional<QString> string = scanString();
+    std::optional<QString> string = scanString();
 
     if(string)
     {
@@ -171,7 +171,7 @@ void SKCIFParser::parseSymmetry(QString& string)
        (string == QString("_symmetry_space_group_name_H-M").toLower()) ||
        (string == QString("_symmetry.pdbx_full_space_group_name_H-M").toLower()))
     {
-      stdx::optional<QString> string = scanString();
+      std::optional<QString> string = scanString();
       if(string)
       {
         _spaceGroupHallNumber = SKSpaceGroup::HallNumberFromHMString(*string);
@@ -196,11 +196,11 @@ void SKCIFParser::parseName(QString& string)
   Q_UNUSED(string);
 }
 
-stdx::optional<QString> SKCIFParser::parseValue()
+std::optional<QString> SKCIFParser::parseValue()
 {
   if (_scanner.isAtEnd())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
 
   QString::const_iterator previousScanLocation = _scanner.scanLocation();
@@ -217,7 +217,7 @@ stdx::optional<QString> SKCIFParser::parseValue()
   {
     _scanner.setScanLocation(previousScanLocation);
 
-    return stdx::nullopt;
+    return std::nullopt;
   }
   else
   {
@@ -248,7 +248,7 @@ void SKCIFParser::parseLoop(QString& string)
   // set scanner back to the first <value>
   _scanner.setScanLocation(previousScanLocation);
 
-  stdx::optional<QString> value = stdx::nullopt;
+  std::optional<QString> value = std::nullopt;
   do
   {
     std::map<QString,QString> dictionary{};
@@ -354,7 +354,7 @@ double SKCIFParser::scanDouble()
   return 0.0;
 }
 
-stdx::optional<QString> SKCIFParser::scanString()
+std::optional<QString> SKCIFParser::scanString()
 {
   QString tempString;
   if (_scanner.scanUpToCharacters(CharacterSet::newlineCharacterSet(),tempString))
@@ -362,6 +362,6 @@ stdx::optional<QString> SKCIFParser::scanString()
     return tempString;
   }
 
-  return stdx::nullopt;
+  return std::nullopt;
 }
 

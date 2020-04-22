@@ -31,7 +31,6 @@
 
 #include <QString>
 #include <typeinfo>
-
 #include "structure.h"
 #include "crystal.h"
 #include "molecularcrystal.h"
@@ -39,7 +38,9 @@
 #include "proteincrystal.h"
 #include "molecule.h"
 #include "protein.h"
-
+#include "ellipsoidprimitive.h"
+#include "cylinderprimitive.h"
+#include "polygonalprismprimitive.h"
 
 
 class iRASPAStructure: public std::enable_shared_from_this<iRASPAStructure>, public DisplayableProtocol

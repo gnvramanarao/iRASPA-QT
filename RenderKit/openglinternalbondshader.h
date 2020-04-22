@@ -35,6 +35,11 @@
 #include <QGLFunctions>
 #include "openglshader.h"
 #include "rkrenderkitprotocols.h"
+#include "cappedcylindersinglebondgeometry.h"
+#include "cappedcylinderdoublebondgeometry.h"
+#include "cappedcylinderpartialdoublebondgeometry.h"
+#include "cappedcylindertriplebondgeometry.h"
+
 
 class OpenGLInternalBondShader: public OpenGLShader
 {
@@ -54,13 +59,40 @@ private:
   GLuint _program;
   std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> _renderStructures;
 
-  std::vector<std::vector<int>> _numberOfInternalBonds;
-  std::vector<std::vector<int>> _internalBondNumberOfIndices;
+  std::vector<std::vector<int>> _numberOfAllInternalBonds;
+  std::vector<std::vector<int>> _internalAllBondNumberOfIndices;
+  std::vector<std::vector<GLuint>> _vertexAllBondsInstanceBuffer;
+  std::vector<std::vector<GLuint>> _vertexAllBondsArrayObject;
+  std::vector<std::vector<GLuint>> _vertexAllBondsBuffer;
+  std::vector<std::vector<GLuint>> _indexAllBondsBuffer;
 
-  std::vector<std::vector<GLuint>> _vertexArrayObject;
-  std::vector<std::vector<GLuint>> _vertexInstanceBuffer;
-  std::vector<std::vector<GLuint>> _vertexBuffer;
-  std::vector<std::vector<GLuint>> _indexBuffer;
+  std::vector<std::vector<int>> _numberOfSingleInternalBonds;
+  std::vector<std::vector<int>> _internalSingleBondNumberOfIndices;
+  std::vector<std::vector<GLuint>> _vertexSingleBondsInstanceBuffer;
+  std::vector<std::vector<GLuint>> _vertexSingleBondsArrayObject;
+  std::vector<std::vector<GLuint>> _vertexSingleBondsBuffer;
+  std::vector<std::vector<GLuint>> _indexSingleBondsBuffer;
+
+  std::vector<std::vector<int>> _numberOfDoubleInternalBonds;
+  std::vector<std::vector<int>> _internalDoubleBondNumberOfIndices;
+  std::vector<std::vector<GLuint>> _vertexDoubleBondsInstanceBuffer;
+  std::vector<std::vector<GLuint>> _vertexDoubleBondsArrayObject;
+  std::vector<std::vector<GLuint>> _vertexDoubleBondsBuffer;
+  std::vector<std::vector<GLuint>> _indexDoubleBondsBuffer;
+
+  std::vector<std::vector<int>> _numberOfPartialDoubleInternalBonds;
+  std::vector<std::vector<int>> _internalPartialDoubleBondNumberOfIndices;
+  std::vector<std::vector<GLuint>> _vertexPartialDoubleBondsInstanceBuffer;
+  std::vector<std::vector<GLuint>> _vertexPartialDoubleBondsArrayObject;
+  std::vector<std::vector<GLuint>> _vertexPartialDoubleBondsBuffer;
+  std::vector<std::vector<GLuint>> _indexPartialDoubleBondsBuffer;
+
+  std::vector<std::vector<int>> _numberOfTripleInternalBonds;
+  std::vector<std::vector<int>> _internalTripleBondNumberOfIndices;
+  std::vector<std::vector<GLuint>> _vertexTripleBondsInstanceBuffer;
+  std::vector<std::vector<GLuint>> _vertexTripleBondsArrayObject;
+  std::vector<std::vector<GLuint>> _vertexTripleBondsBuffer;
+  std::vector<std::vector<GLuint>> _indexTripleBondsBuffer;
 
   GLint _vertexNormalAttributeLocation;
   GLint _vertexPositionAttributeLocation;

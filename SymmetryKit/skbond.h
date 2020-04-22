@@ -34,23 +34,8 @@
 #include <memory>
 #include <tuple>
 
-class SKAsymmetricAtom;
+//class SKAsymmetricAtom;
 class SKAtomCopy;
-
-
-class SKAsymmetricBond
-{
-public:
-  SKAsymmetricBond() {}
-  SKAsymmetricBond(std::shared_ptr<SKAsymmetricAtom> a, std::shared_ptr<SKAsymmetricAtom> b);
-  bool operator==(SKAsymmetricBond const& rhs) const;
-  inline std::shared_ptr<SKAsymmetricAtom> atom1() const {return this->_atom1.lock();}
-  inline std::shared_ptr<SKAsymmetricAtom> atom2() const {return this->_atom2.lock();}
-private:
-  std::weak_ptr<SKAsymmetricAtom> _atom1;
-  std::weak_ptr<SKAsymmetricAtom> _atom2;
-};
-
 
 
 class SKBond: public std::enable_shared_from_this<SKBond>
@@ -60,16 +45,24 @@ public:
     {
         internal = 0, external = 1
     };
-
+    SKBond();
     SKBond(std::shared_ptr<SKAtomCopy> a, std::shared_ptr<SKAtomCopy> b, BoundaryType type=BoundaryType::internal);
     inline std::shared_ptr<SKAtomCopy> atom1() const {return this->_atom1.lock();}
     inline std::shared_ptr<SKAtomCopy> atom2() const {return this->_atom2.lock();}
     BoundaryType boundaryType() {return _boundaryType;}
     bool operator==(SKBond const& rhs) const;
     double bondLength();
+    void setAtoms(std::shared_ptr<SKAtomCopy>, std::shared_ptr<SKAtomCopy>);
+    int getTag1() {return _tag1;}
+    int getTag2() {return _tag2;}
 private:
     std::weak_ptr<SKAtomCopy> _atom1;
     std::weak_ptr<SKAtomCopy> _atom2;
+    qint64 _tag1;
+    qint64 _tag2;
     BoundaryType _boundaryType = BoundaryType::internal;
+
+    friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<SKBond> &);
+    friend QDataStream &operator>>(QDataStream &, std::shared_ptr<SKBond> &);
 };
 

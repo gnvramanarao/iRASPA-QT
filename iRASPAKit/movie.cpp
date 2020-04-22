@@ -66,7 +66,7 @@ void Movie::setSelectedFrameIndex(int frameIndex)
   _selectedFrame = _frames[index];
 }
 
-stdx::optional<int> Movie::selectedFrameIndex()
+std::optional<int> Movie::selectedFrameIndex()
 {
   std::vector<std::shared_ptr<iRASPAStructure>>::const_iterator itr = std::find(_frames.begin(), _frames.end(), selectedFrame());
   if (itr != _frames.end())
@@ -75,7 +75,7 @@ stdx::optional<int> Movie::selectedFrameIndex()
     return row;
   }
 
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 std::vector<std::shared_ptr<Structure>> Movie::structures() const

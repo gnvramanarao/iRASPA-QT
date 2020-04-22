@@ -7,5 +7,4 @@ SOURCES +=
 
 HEADERS += \
     $$PWD/iraspakit.h \
-    $$PWD/iraspakitprotocols.h \
-    $$PWD/optional.h
+    $$PWD/iraspakitprotocols.h

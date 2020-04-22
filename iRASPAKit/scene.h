@@ -35,7 +35,7 @@
 #include <vector>
 #include <tuple>
 #include <unordered_set>
-#include "optional.h"
+#include <optional>
 #include <ostream>
 #include <sstream>
 #include <fstream>
@@ -50,13 +50,13 @@ public:
   Scene();
   Scene(const QUrl url, const SKColorSets& colorSets, ForceFieldSets &forcefieldSets, LogReporting *log);
   const std::vector<std::shared_ptr<Movie>> movies() const {return _movies;}
-  stdx::optional<int> findChildIndex(std::shared_ptr<Movie> movie);
+  std::optional<int> findChildIndex(std::shared_ptr<Movie> movie);
   void setSelectedMovie(std::shared_ptr<Movie> movie) {_selectedMovie = movie;}
   void setSelectedFrameIndices(int frameIndex);
   std::unordered_set<std::shared_ptr<Movie>>& selectedMovies() {return _selectedMovies;}
   std::shared_ptr<Movie> selectedMovie();
   QString displayName() const override final;
-  stdx::optional<int> selectMovieIndex();
+  std::optional<int> selectMovieIndex();
 
 private:
   qint64 _versionNumber{1};

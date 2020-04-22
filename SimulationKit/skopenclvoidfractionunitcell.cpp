@@ -74,7 +74,7 @@ void SKOpenCLVoidFractionUnitCell::initialize(bool isOpenCLInitialized, cl_conte
   }
 }
 
-void __stdcall SKOpenCLVoidFractionUnitCell::callBack(cl_program program, void *user_data)
+void SKOpenCLVoidFractionUnitCell::callBack(cl_program program, void *user_data)
 {
   cl_int err;
 

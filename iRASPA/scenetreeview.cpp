@@ -70,12 +70,12 @@ void SceneTreeView::reloadSelection()
   if(_sceneList)
   {
 
-    stdx::optional<int> sceneIndex = _sceneList->selectedSceneIndex();
+    std::optional<int> sceneIndex = _sceneList->selectedSceneIndex();
     if(sceneIndex)
     {
       QModelIndex parentItem = model()->index(*sceneIndex,0,QModelIndex());
 
-      stdx::optional<int> movieIndex = _sceneList->selectedScene()->selectMovieIndex();
+      std::optional<int> movieIndex = _sceneList->selectedScene()->selectMovieIndex();
 
       if(movieIndex)
       {

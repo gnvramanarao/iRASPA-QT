@@ -38,7 +38,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QUrl>
-#include "optional.h"
+#include <optional>
 #include <iraspakit.h>
 #include "iraspamainwindowconsumerprotocol.h"
 #include "cameracameraform.h"
@@ -132,7 +132,7 @@ private slots:
   void saveMovie();
 
   void setBackgroundColor();
-  stdx::optional<QColor> backgroundColor();
+  std::optional<QColor> backgroundColor();
   void setLinearGradientFromColor();
   void setLinearGradientToColor();
   void setLinearGradientAngle(double angle);

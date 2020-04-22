@@ -32,7 +32,8 @@
 #include <iostream>
 #include "glgeterror.h"
 #include "cylindergeometry.h"
-#include "cappedcylindergeometry.h"
+#include <algorithm>
+#include <type_traits>
 
 OpenGLInternalBondShader::OpenGLInternalBondShader()
 {
@@ -52,22 +53,70 @@ void OpenGLInternalBondShader::paintGL(GLuint structureUniformBuffer)
   check_gl_error();
 
   int index = 0;
-  for(int i=0;i<_renderStructures.size();i++)
+  for(size_t i=0;i<_renderStructures.size();i++)
   {
-    for(int j=0;j<_renderStructures[i].size();j++)
+    for(size_t j=0;j<_renderStructures[i].size();j++)
     {
-      if(_renderStructures[i][j]->drawBonds() && _renderStructures[i][j]->isVisible() && _internalBondNumberOfIndices[i][j]>0 && _numberOfInternalBonds[i][j]>0)
+      glBindBufferRange(GL_UNIFORM_BUFFER, 1, structureUniformBuffer, GLintptr(index * sizeof(RKStructureUniforms)), GLsizeiptr(sizeof(RKStructureUniforms)));
+
+      if (_renderStructures[i][j]->isUnity())
       {
-        glBindBufferRange(GL_UNIFORM_BUFFER, 1, structureUniformBuffer, GLintptr(index * sizeof(RKStructureUniforms)), GLsizeiptr(sizeof(RKStructureUniforms)));
+        if(_renderStructures[i][j]->drawBonds() && _renderStructures[i][j]->isVisible() && _internalAllBondNumberOfIndices[i][j]>0 && _numberOfAllInternalBonds[i][j]>0)
+        {
+          glBindVertexArray(_vertexAllBondsArrayObject[i][j]);
+          check_gl_error();
 
+          glDrawElementsInstanced(GL_TRIANGLES, _internalAllBondNumberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr, _numberOfAllInternalBonds[i][j]);
 
-        glBindVertexArray(_vertexArrayObject[i][j]);
-        check_gl_error();
+          check_gl_error();
+          glBindVertexArray(0);
+        }
+      }
+      else
+      {
+        if(_renderStructures[i][j]->drawBonds() && _renderStructures[i][j]->isVisible() && _internalSingleBondNumberOfIndices[i][j]>0 && _numberOfSingleInternalBonds[i][j]>0)
+        {
+          glBindVertexArray(_vertexSingleBondsArrayObject[i][j]);
+          check_gl_error();
 
-        glDrawElementsInstanced(GL_TRIANGLES, _internalBondNumberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr, _numberOfInternalBonds[i][j]);
+          glDrawElementsInstanced(GL_TRIANGLES, _internalSingleBondNumberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr, _numberOfSingleInternalBonds[i][j]);
 
-        check_gl_error();
-        glBindVertexArray(0);
+          check_gl_error();
+          glBindVertexArray(0);
+        }
+
+        if(_renderStructures[i][j]->drawBonds() && _renderStructures[i][j]->isVisible() && _internalDoubleBondNumberOfIndices[i][j]>0 && _numberOfDoubleInternalBonds[i][j]>0)
+        {
+          glBindVertexArray(_vertexDoubleBondsArrayObject[i][j]);
+          check_gl_error();
+
+          glDrawElementsInstanced(GL_TRIANGLES, _internalDoubleBondNumberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr, _numberOfDoubleInternalBonds[i][j]);
+
+          check_gl_error();
+          glBindVertexArray(0);
+        }
+
+        if(_renderStructures[i][j]->drawBonds() && _renderStructures[i][j]->isVisible() && _internalPartialDoubleBondNumberOfIndices[i][j]>0 && _numberOfPartialDoubleInternalBonds[i][j]>0)
+        {
+          glBindVertexArray(_vertexPartialDoubleBondsArrayObject[i][j]);
+          check_gl_error();
+
+          glDrawElementsInstanced(GL_TRIANGLES, _internalPartialDoubleBondNumberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr, _numberOfPartialDoubleInternalBonds[i][j]);
+
+          check_gl_error();
+          glBindVertexArray(0);
+        }
+
+        if(_renderStructures[i][j]->drawBonds() && _renderStructures[i][j]->isVisible() && _internalTripleBondNumberOfIndices[i][j]>0 && _numberOfTripleInternalBonds[i][j]>0)
+        {
+          glBindVertexArray(_vertexTripleBondsArrayObject[i][j]);
+          check_gl_error();
+
+          glDrawElementsInstanced(GL_TRIANGLES, _internalTripleBondNumberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr, _numberOfTripleInternalBonds[i][j]);
+
+          check_gl_error();
+          glBindVertexArray(0);
+        }
       }
       index++;
     }
@@ -83,22 +132,58 @@ void OpenGLInternalBondShader::reloadData()
 
 void OpenGLInternalBondShader::initializeVertexArrayObject()
 {
-  CappedCylinderGeometry cylinder =  CappedCylinderGeometry(1.0,41);
+  CappedCylinderSingleBondGeometry singleBondCylinder =  CappedCylinderSingleBondGeometry(1.0,41);
+  CappedCylinderDoubleBondGeometry doubleBondCylinder =  CappedCylinderDoubleBondGeometry(1.0,41);
+  CappedCylinderPartialDoubleBondGeometry partialDoubleBondCylinder =  CappedCylinderPartialDoubleBondGeometry(1.0,41);
+  CappedCylinderTripleBondGeometry tripleBondCylinder =  CappedCylinderTripleBondGeometry(1.0,41);
 
-  for(int i=0;i<_renderStructures.size();i++)
+  for(size_t i=0;i<_renderStructures.size();i++)
   {
-    for(int j=0;j<_renderStructures[i].size();j++)
+    for(size_t j=0;j<_renderStructures[i].size();j++)
     {
-      glBindVertexArray(_vertexArrayObject[i][j]);
+      std::vector<RKInPerInstanceAttributesBonds> bondInstanceData = _renderStructures[i][j]->renderInternalBonds();
+      _numberOfAllInternalBonds[i][j] = bondInstanceData.size();
+      _internalAllBondNumberOfIndices[i][j] = singleBondCylinder.indices().size();
+
+      std::vector<RKInPerInstanceAttributesBonds> singleBondInstanceData;
+      int32_t singleBondType = static_cast<typename std::underlying_type<SKAsymmetricBond::SKBondType>::type>(SKAsymmetricBond::SKBondType::singleBond);
+      std::copy_if(bondInstanceData.begin(), bondInstanceData.end(), std::back_inserter(singleBondInstanceData),
+                   [singleBondType](RKInPerInstanceAttributesBonds &i){return i.type == singleBondType;});
+      _numberOfSingleInternalBonds[i][j] = singleBondInstanceData.size();
+      _internalSingleBondNumberOfIndices[i][j] = singleBondCylinder.indices().size();
+
+      std::vector<RKInPerInstanceAttributesBonds> doubleBondInstanceData;
+      int32_t doubleBondType = static_cast<typename std::underlying_type<SKAsymmetricBond::SKBondType>::type>(SKAsymmetricBond::SKBondType::doubleBond);
+      std::copy_if(bondInstanceData.begin(), bondInstanceData.end(), std::back_inserter(doubleBondInstanceData),
+                   [doubleBondType](RKInPerInstanceAttributesBonds &i){return i.type == doubleBondType;});
+      _numberOfDoubleInternalBonds[i][j] = doubleBondInstanceData.size();
+      _internalDoubleBondNumberOfIndices[i][j] = doubleBondCylinder.indices().size();
+
+      std::vector<RKInPerInstanceAttributesBonds> partialDoubleBondInstanceData;
+      int32_t partialDoubleBondType = static_cast<typename std::underlying_type<SKAsymmetricBond::SKBondType>::type>(SKAsymmetricBond::SKBondType::partialDoubleBond);
+      std::copy_if(bondInstanceData.begin(), bondInstanceData.end(), std::back_inserter(partialDoubleBondInstanceData),
+                   [partialDoubleBondType](RKInPerInstanceAttributesBonds &i){return i.type == partialDoubleBondType;});
+      _numberOfPartialDoubleInternalBonds[i][j] = partialDoubleBondInstanceData.size();
+      _internalPartialDoubleBondNumberOfIndices[i][j] = singleBondCylinder.indices().size();
+
+      std::vector<RKInPerInstanceAttributesBonds> tripleBondInstanceData;
+      int32_t tripleBondType = static_cast<typename std::underlying_type<SKAsymmetricBond::SKBondType>::type>(SKAsymmetricBond::SKBondType::tripleBond);
+      std::copy_if(bondInstanceData.begin(), bondInstanceData.end(), std::back_inserter(tripleBondInstanceData),
+                   [tripleBondType](RKInPerInstanceAttributesBonds &i){return i.type == tripleBondType;});
+      _numberOfTripleInternalBonds[i][j] = tripleBondInstanceData.size();
+      _internalTripleBondNumberOfIndices[i][j] = tripleBondCylinder.indices().size();
+
+
+      glBindVertexArray(_vertexAllBondsArrayObject[i][j]);
       check_gl_error();
 
       glBindBuffer(GL_ARRAY_BUFFER, 0);
-      glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer[i][j]);
+      glBindBuffer(GL_ARRAY_BUFFER, _vertexAllBondsBuffer[i][j]);
       check_gl_error();
 
-      if(cylinder.vertices().size()>0)
+      if(singleBondCylinder.vertices().size()>0)
       {
-        glBufferData(GL_ARRAY_BUFFER, cylinder.vertices().size()*sizeof(RKVertex), cylinder.vertices().data(), GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, singleBondCylinder.vertices().size()*sizeof(RKVertex), singleBondCylinder.vertices().data(), GL_DYNAMIC_DRAW);
         check_gl_error();
       }
 
@@ -106,22 +191,253 @@ void OpenGLInternalBondShader::initializeVertexArrayObject()
       glVertexAttribPointer(_vertexNormalAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), (GLvoid *)offsetof(RKVertex,normal));
       check_gl_error();
 
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer[i][j]);
-      if(cylinder.indices().size()>0)
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexAllBondsBuffer[i][j]);
+      if(singleBondCylinder.indices().size()>0)
       {
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, cylinder.indices().size() * sizeof(GLshort), cylinder.indices().data(), GL_DYNAMIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, singleBondCylinder.indices().size() * sizeof(GLshort), singleBondCylinder.indices().data(), GL_DYNAMIC_DRAW);
         check_gl_error();
       }
 
-      std::vector<RKInPerInstanceAttributesBonds> bondInstanceData= _renderStructures[i][j]->renderInternalBonds();
-      _numberOfInternalBonds[i][j] = bondInstanceData.size();
-      _internalBondNumberOfIndices[i][j] = cylinder.indices().size();
+      glBindBuffer(GL_ARRAY_BUFFER, _vertexAllBondsInstanceBuffer[i][j]);
 
-      glBindBuffer(GL_ARRAY_BUFFER, _vertexInstanceBuffer[i][j]);
-
-      if(_numberOfInternalBonds[i][j]>0)
+      if(_numberOfAllInternalBonds[i][j]>0)
       {
-        glBufferData(GL_ARRAY_BUFFER, _numberOfInternalBonds[i][j]*sizeof(RKInPerInstanceAttributesBonds), bondInstanceData.data(), GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, _numberOfAllInternalBonds[i][j]*sizeof(RKInPerInstanceAttributesBonds), bondInstanceData.data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
+      glVertexAttribPointer(_instancePositionFirstAtomAttributeLocation, 4, GL_FLOAT,GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, position1));
+      glVertexAttribPointer(_instancePositionSecondAtomAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, position2));
+      glVertexAttribDivisor(_instancePositionFirstAtomAttributeLocation,1);
+      glVertexAttribDivisor(_instancePositionSecondAtomAttributeLocation,1);
+check_gl_error();
+
+      glVertexAttribPointer(_instanceColorFirstAtomAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, color1));
+      glVertexAttribPointer(_instanceColorSecondAtomAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, color2));
+      glVertexAttribDivisor(_instanceColorFirstAtomAttributeLocation,1);
+      glVertexAttribDivisor(_instanceColorSecondAtomAttributeLocation,1);
+check_gl_error();
+
+      glVertexAttribPointer(_instanceScaleAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, scale));
+      glVertexAttribDivisor(_instanceScaleAttributeLocation,1);
+check_gl_error();
+
+      glEnableVertexAttribArray(_vertexPositionAttributeLocation);
+      glEnableVertexAttribArray(_vertexNormalAttributeLocation);
+      glEnableVertexAttribArray(_instancePositionFirstAtomAttributeLocation);
+      glEnableVertexAttribArray(_instancePositionSecondAtomAttributeLocation);
+      glEnableVertexAttribArray(_instanceColorFirstAtomAttributeLocation);
+      glEnableVertexAttribArray(_instanceColorSecondAtomAttributeLocation);
+      glEnableVertexAttribArray(_instanceScaleAttributeLocation);
+check_gl_error();
+      glBindVertexArray(0);
+
+
+
+      glBindVertexArray(_vertexSingleBondsArrayObject[i][j]);
+      check_gl_error();
+
+
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
+      glBindBuffer(GL_ARRAY_BUFFER, _vertexSingleBondsBuffer[i][j]);
+      check_gl_error();
+
+      if(singleBondCylinder.vertices().size()>0)
+      {
+        glBufferData(GL_ARRAY_BUFFER, singleBondCylinder.vertices().size()*sizeof(RKVertex), singleBondCylinder.vertices().data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
+
+      glVertexAttribPointer(_vertexPositionAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), (GLvoid *)offsetof(RKVertex,position));
+      glVertexAttribPointer(_vertexNormalAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), (GLvoid *)offsetof(RKVertex,normal));
+      check_gl_error();
+
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexSingleBondsBuffer[i][j]);
+      if(singleBondCylinder.indices().size()>0)
+      {
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, singleBondCylinder.indices().size() * sizeof(GLshort), singleBondCylinder.indices().data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
+
+      glBindBuffer(GL_ARRAY_BUFFER, _vertexSingleBondsInstanceBuffer[i][j]);
+
+      if(_numberOfSingleInternalBonds[i][j]>0)
+      {
+        glBufferData(GL_ARRAY_BUFFER, _numberOfSingleInternalBonds[i][j]*sizeof(RKInPerInstanceAttributesBonds), singleBondInstanceData.data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
+      glVertexAttribPointer(_instancePositionFirstAtomAttributeLocation, 4, GL_FLOAT,GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, position1));
+      glVertexAttribPointer(_instancePositionSecondAtomAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, position2));
+      glVertexAttribDivisor(_instancePositionFirstAtomAttributeLocation,1);
+      glVertexAttribDivisor(_instancePositionSecondAtomAttributeLocation,1);
+check_gl_error();
+
+      glVertexAttribPointer(_instanceColorFirstAtomAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, color1));
+      glVertexAttribPointer(_instanceColorSecondAtomAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, color2));
+      glVertexAttribDivisor(_instanceColorFirstAtomAttributeLocation,1);
+      glVertexAttribDivisor(_instanceColorSecondAtomAttributeLocation,1);
+check_gl_error();
+
+      glVertexAttribPointer(_instanceScaleAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, scale));
+      glVertexAttribDivisor(_instanceScaleAttributeLocation,1);
+check_gl_error();
+
+      glEnableVertexAttribArray(_vertexPositionAttributeLocation);
+      glEnableVertexAttribArray(_vertexNormalAttributeLocation);
+      glEnableVertexAttribArray(_instancePositionFirstAtomAttributeLocation);
+      glEnableVertexAttribArray(_instancePositionSecondAtomAttributeLocation);
+      glEnableVertexAttribArray(_instanceColorFirstAtomAttributeLocation);
+      glEnableVertexAttribArray(_instanceColorSecondAtomAttributeLocation);
+      glEnableVertexAttribArray(_instanceScaleAttributeLocation);
+check_gl_error();
+      glBindVertexArray(0);
+
+
+      glBindVertexArray(_vertexDoubleBondsArrayObject[i][j]);
+      check_gl_error();
+
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
+      glBindBuffer(GL_ARRAY_BUFFER, _vertexDoubleBondsBuffer[i][j]);
+      check_gl_error();
+
+      if(doubleBondCylinder.vertices().size()>0)
+      {
+        glBufferData(GL_ARRAY_BUFFER, doubleBondCylinder.vertices().size()*sizeof(RKVertex), doubleBondCylinder.vertices().data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
+
+      glVertexAttribPointer(_vertexPositionAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), (GLvoid *)offsetof(RKVertex,position));
+      glVertexAttribPointer(_vertexNormalAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), (GLvoid *)offsetof(RKVertex,normal));
+      check_gl_error();
+
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexDoubleBondsBuffer[i][j]);
+      if(doubleBondCylinder.indices().size()>0)
+      {
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, doubleBondCylinder.indices().size() * sizeof(GLshort), doubleBondCylinder.indices().data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
+
+      glBindBuffer(GL_ARRAY_BUFFER, _vertexDoubleBondsInstanceBuffer[i][j]);
+
+      if(_numberOfDoubleInternalBonds[i][j]>0)
+      {
+        glBufferData(GL_ARRAY_BUFFER, _numberOfDoubleInternalBonds[i][j]*sizeof(RKInPerInstanceAttributesBonds), doubleBondInstanceData.data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
+      glVertexAttribPointer(_instancePositionFirstAtomAttributeLocation, 4, GL_FLOAT,GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, position1));
+      glVertexAttribPointer(_instancePositionSecondAtomAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, position2));
+      glVertexAttribDivisor(_instancePositionFirstAtomAttributeLocation,1);
+      glVertexAttribDivisor(_instancePositionSecondAtomAttributeLocation,1);
+check_gl_error();
+
+      glVertexAttribPointer(_instanceColorFirstAtomAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, color1));
+      glVertexAttribPointer(_instanceColorSecondAtomAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, color2));
+      glVertexAttribDivisor(_instanceColorFirstAtomAttributeLocation,1);
+      glVertexAttribDivisor(_instanceColorSecondAtomAttributeLocation,1);
+check_gl_error();
+
+      glVertexAttribPointer(_instanceScaleAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, scale));
+      glVertexAttribDivisor(_instanceScaleAttributeLocation,1);
+check_gl_error();
+
+      glEnableVertexAttribArray(_vertexPositionAttributeLocation);
+      glEnableVertexAttribArray(_vertexNormalAttributeLocation);
+      glEnableVertexAttribArray(_instancePositionFirstAtomAttributeLocation);
+      glEnableVertexAttribArray(_instancePositionSecondAtomAttributeLocation);
+      glEnableVertexAttribArray(_instanceColorFirstAtomAttributeLocation);
+      glEnableVertexAttribArray(_instanceColorSecondAtomAttributeLocation);
+      glEnableVertexAttribArray(_instanceScaleAttributeLocation);
+check_gl_error();
+      glBindVertexArray(0);
+
+
+
+      glBindVertexArray(_vertexPartialDoubleBondsArrayObject[i][j]);
+      check_gl_error();
+
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
+      glBindBuffer(GL_ARRAY_BUFFER, _vertexPartialDoubleBondsBuffer[i][j]);
+      check_gl_error();
+
+      if(partialDoubleBondCylinder.vertices().size()>0)
+      {
+        glBufferData(GL_ARRAY_BUFFER, partialDoubleBondCylinder.vertices().size()*sizeof(RKVertex), partialDoubleBondCylinder.vertices().data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
+
+      glVertexAttribPointer(_vertexPositionAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), (GLvoid *)offsetof(RKVertex,position));
+      glVertexAttribPointer(_vertexNormalAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), (GLvoid *)offsetof(RKVertex,normal));
+      check_gl_error();
+
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexPartialDoubleBondsBuffer[i][j]);
+      if(partialDoubleBondCylinder.indices().size()>0)
+      {
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, partialDoubleBondCylinder.indices().size() * sizeof(GLshort), partialDoubleBondCylinder.indices().data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
+
+      glBindBuffer(GL_ARRAY_BUFFER, _vertexPartialDoubleBondsInstanceBuffer[i][j]);
+
+      if(_numberOfPartialDoubleInternalBonds[i][j]>0)
+      {
+        glBufferData(GL_ARRAY_BUFFER, _numberOfPartialDoubleInternalBonds[i][j]*sizeof(RKInPerInstanceAttributesBonds), partialDoubleBondInstanceData.data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
+      glVertexAttribPointer(_instancePositionFirstAtomAttributeLocation, 4, GL_FLOAT,GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, position1));
+      glVertexAttribPointer(_instancePositionSecondAtomAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, position2));
+      glVertexAttribDivisor(_instancePositionFirstAtomAttributeLocation,1);
+      glVertexAttribDivisor(_instancePositionSecondAtomAttributeLocation,1);
+check_gl_error();
+
+      glVertexAttribPointer(_instanceColorFirstAtomAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, color1));
+      glVertexAttribPointer(_instanceColorSecondAtomAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, color2));
+      glVertexAttribDivisor(_instanceColorFirstAtomAttributeLocation,1);
+      glVertexAttribDivisor(_instanceColorSecondAtomAttributeLocation,1);
+check_gl_error();
+
+      glVertexAttribPointer(_instanceScaleAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, scale));
+      glVertexAttribDivisor(_instanceScaleAttributeLocation,1);
+check_gl_error();
+
+      glEnableVertexAttribArray(_vertexPositionAttributeLocation);
+      glEnableVertexAttribArray(_vertexNormalAttributeLocation);
+      glEnableVertexAttribArray(_instancePositionFirstAtomAttributeLocation);
+      glEnableVertexAttribArray(_instancePositionSecondAtomAttributeLocation);
+      glEnableVertexAttribArray(_instanceColorFirstAtomAttributeLocation);
+      glEnableVertexAttribArray(_instanceColorSecondAtomAttributeLocation);
+      glEnableVertexAttribArray(_instanceScaleAttributeLocation);
+check_gl_error();
+      glBindVertexArray(0);
+
+
+      glBindVertexArray(_vertexTripleBondsArrayObject[i][j]);
+      check_gl_error();
+
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
+      glBindBuffer(GL_ARRAY_BUFFER, _vertexTripleBondsBuffer[i][j]);
+      check_gl_error();
+
+      if(tripleBondCylinder.vertices().size()>0)
+      {
+        glBufferData(GL_ARRAY_BUFFER, tripleBondCylinder.vertices().size()*sizeof(RKVertex), tripleBondCylinder.vertices().data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
+
+      glVertexAttribPointer(_vertexPositionAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), (GLvoid *)offsetof(RKVertex,position));
+      glVertexAttribPointer(_vertexNormalAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), (GLvoid *)offsetof(RKVertex,normal));
+      check_gl_error();
+
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexTripleBondsBuffer[i][j]);
+      if(tripleBondCylinder.indices().size()>0)
+      {
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, tripleBondCylinder.indices().size() * sizeof(GLshort), tripleBondCylinder.indices().data(), GL_DYNAMIC_DRAW);
+        check_gl_error();
+      }
+
+      glBindBuffer(GL_ARRAY_BUFFER, _vertexTripleBondsInstanceBuffer[i][j]);
+
+      if(_numberOfTripleInternalBonds[i][j]>0)
+      {
+        glBufferData(GL_ARRAY_BUFFER, _numberOfTripleInternalBonds[i][j]*sizeof(RKInPerInstanceAttributesBonds), tripleBondInstanceData.data(), GL_DYNAMIC_DRAW);
         check_gl_error();
       }
       glVertexAttribPointer(_instancePositionFirstAtomAttributeLocation, 4, GL_FLOAT,GL_FALSE, sizeof(RKInPerInstanceAttributesBonds), (void*)offsetof(RKInPerInstanceAttributesBonds, position1));
@@ -156,42 +472,136 @@ check_gl_error();
 
 void OpenGLInternalBondShader::deleteBuffers()
 {
-  for(int i=0;i<_renderStructures.size();i++)
+  for(size_t i=0;i<_renderStructures.size();i++)
   {
-    glDeleteVertexArrays(_renderStructures[i].size(), _vertexArrayObject[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _vertexInstanceBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _vertexBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _indexBuffer[i].data());
+    glDeleteVertexArrays(_renderStructures[i].size(), _vertexAllBondsArrayObject[i].data());
+    glDeleteBuffers(_renderStructures[i].size(), _vertexAllBondsInstanceBuffer[i].data());
+    glDeleteBuffers(_renderStructures[i].size(), _vertexAllBondsBuffer[i].data());
+    glDeleteBuffers(_renderStructures[i].size(), _indexAllBondsBuffer[i].data());
+
+    glDeleteVertexArrays(_renderStructures[i].size(), _vertexSingleBondsArrayObject[i].data());
+    glDeleteBuffers(_renderStructures[i].size(), _vertexSingleBondsInstanceBuffer[i].data());
+    glDeleteBuffers(_renderStructures[i].size(), _vertexSingleBondsBuffer[i].data());
+    glDeleteBuffers(_renderStructures[i].size(), _indexSingleBondsBuffer[i].data());
+
+    glDeleteVertexArrays(_renderStructures[i].size(), _vertexDoubleBondsArrayObject[i].data());
+    glDeleteBuffers(_renderStructures[i].size(), _vertexDoubleBondsInstanceBuffer[i].data());
+    glDeleteBuffers(_renderStructures[i].size(), _vertexDoubleBondsBuffer[i].data());
+    glDeleteBuffers(_renderStructures[i].size(), _indexDoubleBondsBuffer[i].data());
+
+    glDeleteVertexArrays(_renderStructures[i].size(), _vertexPartialDoubleBondsArrayObject[i].data());
+    glDeleteBuffers(_renderStructures[i].size(), _vertexPartialDoubleBondsInstanceBuffer[i].data());
+    glDeleteBuffers(_renderStructures[i].size(), _vertexPartialDoubleBondsBuffer[i].data());
+    glDeleteBuffers(_renderStructures[i].size(), _indexPartialDoubleBondsBuffer[i].data());
+
+    glDeleteVertexArrays(_renderStructures[i].size(), _vertexTripleBondsArrayObject[i].data());
+    glDeleteBuffers(_renderStructures[i].size(), _vertexTripleBondsInstanceBuffer[i].data());
+    glDeleteBuffers(_renderStructures[i].size(), _vertexTripleBondsBuffer[i].data());
+    glDeleteBuffers(_renderStructures[i].size(), _indexTripleBondsBuffer[i].data());
   }
 }
 
 void OpenGLInternalBondShader::generateBuffers()
 {
-  _numberOfInternalBonds.resize(_renderStructures.size());
-  _internalBondNumberOfIndices.resize(_renderStructures.size());
+  _numberOfAllInternalBonds.resize(_renderStructures.size());
+  _internalAllBondNumberOfIndices.resize(_renderStructures.size());
+  _vertexAllBondsArrayObject.resize(_renderStructures.size());
+  _vertexAllBondsInstanceBuffer.resize(_renderStructures.size());
+  _vertexAllBondsBuffer.resize(_renderStructures.size());
+  _indexAllBondsBuffer.resize(_renderStructures.size());
 
-  _vertexArrayObject.resize(_renderStructures.size());
-  _vertexInstanceBuffer.resize(_renderStructures.size());
-  _vertexBuffer.resize(_renderStructures.size());
-  _indexBuffer.resize(_renderStructures.size());
+  _numberOfSingleInternalBonds.resize(_renderStructures.size());
+  _internalSingleBondNumberOfIndices.resize(_renderStructures.size());
+  _vertexSingleBondsArrayObject.resize(_renderStructures.size());
+  _vertexSingleBondsInstanceBuffer.resize(_renderStructures.size());
+  _vertexSingleBondsBuffer.resize(_renderStructures.size());
+  _indexSingleBondsBuffer.resize(_renderStructures.size());
 
-  for(int i=0;i<_renderStructures.size();i++)
+  _numberOfDoubleInternalBonds.resize(_renderStructures.size());
+  _internalDoubleBondNumberOfIndices.resize(_renderStructures.size());
+  _vertexDoubleBondsArrayObject.resize(_renderStructures.size());
+  _vertexDoubleBondsInstanceBuffer.resize(_renderStructures.size());
+  _vertexDoubleBondsBuffer.resize(_renderStructures.size());
+  _indexDoubleBondsBuffer.resize(_renderStructures.size());
+
+  _numberOfPartialDoubleInternalBonds.resize(_renderStructures.size());
+  _internalPartialDoubleBondNumberOfIndices.resize(_renderStructures.size());
+  _vertexPartialDoubleBondsArrayObject.resize(_renderStructures.size());
+  _vertexPartialDoubleBondsInstanceBuffer.resize(_renderStructures.size());
+  _vertexPartialDoubleBondsBuffer.resize(_renderStructures.size());
+  _indexPartialDoubleBondsBuffer.resize(_renderStructures.size());
+
+  _numberOfTripleInternalBonds.resize(_renderStructures.size());
+  _internalTripleBondNumberOfIndices.resize(_renderStructures.size());
+  _vertexTripleBondsArrayObject.resize(_renderStructures.size());
+  _vertexTripleBondsInstanceBuffer.resize(_renderStructures.size());
+  _vertexTripleBondsBuffer.resize(_renderStructures.size());
+  _indexTripleBondsBuffer.resize(_renderStructures.size());
+
+  for(size_t i=0;i<_renderStructures.size();i++)
   {
-    _numberOfInternalBonds[i].resize(_renderStructures[i].size());
-    _internalBondNumberOfIndices[i].resize(_renderStructures[i].size());
+    _numberOfAllInternalBonds[i].resize(_renderStructures[i].size());
+    _internalAllBondNumberOfIndices[i].resize(_renderStructures[i].size());
+    _vertexAllBondsArrayObject[i].resize(_renderStructures[i].size());
+    _vertexAllBondsInstanceBuffer[i].resize(_renderStructures[i].size());
+    _vertexAllBondsBuffer[i].resize(_renderStructures[i].size());
+    _indexAllBondsBuffer[i].resize(_renderStructures[i].size());
 
-    _vertexArrayObject[i].resize(_renderStructures[i].size());
-    _vertexInstanceBuffer[i].resize(_renderStructures[i].size());
-    _vertexBuffer[i].resize(_renderStructures[i].size());
-    _indexBuffer[i].resize(_renderStructures[i].size());
+    _numberOfSingleInternalBonds[i].resize(_renderStructures[i].size());
+    _internalSingleBondNumberOfIndices[i].resize(_renderStructures[i].size());
+    _vertexSingleBondsArrayObject[i].resize(_renderStructures[i].size());
+    _vertexSingleBondsInstanceBuffer[i].resize(_renderStructures[i].size());
+    _vertexSingleBondsBuffer[i].resize(_renderStructures[i].size());
+    _indexSingleBondsBuffer[i].resize(_renderStructures[i].size());
+
+    _numberOfDoubleInternalBonds[i].resize(_renderStructures[i].size());
+    _internalDoubleBondNumberOfIndices[i].resize(_renderStructures[i].size());
+    _vertexDoubleBondsArrayObject[i].resize(_renderStructures[i].size());
+    _vertexDoubleBondsInstanceBuffer[i].resize(_renderStructures[i].size());
+    _vertexDoubleBondsBuffer[i].resize(_renderStructures[i].size());
+    _indexDoubleBondsBuffer[i].resize(_renderStructures[i].size());
+
+    _numberOfPartialDoubleInternalBonds[i].resize(_renderStructures[i].size());
+    _internalPartialDoubleBondNumberOfIndices[i].resize(_renderStructures[i].size());
+    _vertexPartialDoubleBondsArrayObject[i].resize(_renderStructures[i].size());
+    _vertexPartialDoubleBondsInstanceBuffer[i].resize(_renderStructures[i].size());
+    _vertexPartialDoubleBondsBuffer[i].resize(_renderStructures[i].size());
+    _indexPartialDoubleBondsBuffer[i].resize(_renderStructures[i].size());
+
+    _numberOfTripleInternalBonds[i].resize(_renderStructures[i].size());
+    _internalTripleBondNumberOfIndices[i].resize(_renderStructures[i].size());
+    _vertexTripleBondsArrayObject[i].resize(_renderStructures[i].size());
+    _vertexTripleBondsInstanceBuffer[i].resize(_renderStructures[i].size());
+    _vertexTripleBondsBuffer[i].resize(_renderStructures[i].size());
+    _indexTripleBondsBuffer[i].resize(_renderStructures[i].size());
   }
 
-  for(int i=0;i<_renderStructures.size();i++)
+  for(size_t i=0;i<_renderStructures.size();i++)
   {
-    glGenVertexArrays(_renderStructures[i].size(), _vertexArrayObject[i].data());
-    glGenBuffers(_renderStructures[i].size(), _vertexInstanceBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _vertexBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _indexBuffer[i].data());
+    glGenVertexArrays(_renderStructures[i].size(), _vertexAllBondsArrayObject[i].data());
+    glGenBuffers(_renderStructures[i].size(), _vertexAllBondsInstanceBuffer[i].data());
+    glGenBuffers(_renderStructures[i].size(), _vertexAllBondsBuffer[i].data());
+    glGenBuffers(_renderStructures[i].size(), _indexAllBondsBuffer[i].data());
+
+    glGenVertexArrays(_renderStructures[i].size(), _vertexSingleBondsArrayObject[i].data());
+    glGenBuffers(_renderStructures[i].size(), _vertexSingleBondsInstanceBuffer[i].data());
+    glGenBuffers(_renderStructures[i].size(), _vertexSingleBondsBuffer[i].data());
+    glGenBuffers(_renderStructures[i].size(), _indexSingleBondsBuffer[i].data());
+
+    glGenVertexArrays(_renderStructures[i].size(), _vertexDoubleBondsArrayObject[i].data());
+    glGenBuffers(_renderStructures[i].size(), _vertexDoubleBondsInstanceBuffer[i].data());
+    glGenBuffers(_renderStructures[i].size(), _vertexDoubleBondsBuffer[i].data());
+    glGenBuffers(_renderStructures[i].size(), _indexDoubleBondsBuffer[i].data());
+
+    glGenVertexArrays(_renderStructures[i].size(), _vertexPartialDoubleBondsArrayObject[i].data());
+    glGenBuffers(_renderStructures[i].size(), _vertexPartialDoubleBondsInstanceBuffer[i].data());
+    glGenBuffers(_renderStructures[i].size(), _vertexPartialDoubleBondsBuffer[i].data());
+    glGenBuffers(_renderStructures[i].size(), _indexPartialDoubleBondsBuffer[i].data());
+
+    glGenVertexArrays(_renderStructures[i].size(), _vertexTripleBondsArrayObject[i].data());
+    glGenBuffers(_renderStructures[i].size(), _vertexTripleBondsInstanceBuffer[i].data());
+    glGenBuffers(_renderStructures[i].size(), _vertexTripleBondsBuffer[i].data());
+    glGenBuffers(_renderStructures[i].size(), _indexTripleBondsBuffer[i].data());
   }
 }
 
@@ -323,24 +733,8 @@ OpenGLVersionStringLiteral +
 OpenGLFrameUniformBlockStringLiteral +
 OpenGLStructureUniformBlockStringLiteral +
 OpenGLLightUniformBlockStringLiteral +
+OpenGLRGBHSVStringLiteral +
 R"foo(
-vec3 rgb2hsv(vec3 c)
-{
-  vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
-  vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
-  vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
-
-  float d = q.x - min(q.w, q.y);
-  float e = 1.0e-10;
-  return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
-}
-
-vec3 hsv2rgb(vec3 c)
-{
-  vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-  vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
-  return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
-}
 
 out vec4 vFragColor;
 

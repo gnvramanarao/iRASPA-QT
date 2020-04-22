@@ -34,8 +34,9 @@
 #include <vector>
 #include <map>
 #include <cwctype>
-#include <math.h>
-#include "optional.h"
+#define _USE_MATH_DEFINES
+#include <cmath>
+#include <optional>
 #include <foundationkit.h>
 #include "skparser.h"
 #include "skasymmetricatom.h"
@@ -47,14 +48,14 @@ class SKCIFParser: public SKParser
 public:
   SKCIFParser(QString fileContent, bool onlyAsymmetricUnitCell, CharacterSet charactersToBeSkipped): SKParser(), _scanner(fileContent, charactersToBeSkipped), _onlyAsymmetricUnitCell(onlyAsymmetricUnitCell) {}
   void startParsing() override final;
-  stdx::optional<int> spaceGroupHallNumber() {return _spaceGroupHallNumber;}
+  std::optional<int> spaceGroupHallNumber() {return _spaceGroupHallNumber;}
 private:
   Scanner _scanner;
   bool _onlyAsymmetricUnitCell;
   QString::const_iterator _previousScanLocation;
   std::vector<QString> _keys;
   std::map<QString,QString> _map;
-  stdx::optional<int> _spaceGroupHallNumber;
+  std::optional<int> _spaceGroupHallNumber;
   std::shared_ptr<SKAtomTreeController> _atomTreeController = std::make_shared<SKAtomTreeController>();
   std::vector<SKAsymmetricAtom> _atoms{};
 
@@ -66,10 +67,10 @@ private:
   void parseSymmetry(QString& string);
   void parseName(QString& string);
   void parseLoop(QString& string);
-  stdx::optional<QString> parseValue();
+  std::optional<QString> parseValue();
   void skipComment();
   qint64 scanInt();
   double scanDouble();
-  stdx::optional<QString> scanString();
+  std::optional<QString> scanString();
 };
 

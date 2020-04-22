@@ -271,7 +271,7 @@
             <enum>QTabWidget::North</enum>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>6</number>
            </property>
            <property name="elideMode">
             <enum>Qt::ElideRight</enum>
@@ -588,33 +588,6 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1226</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuFIle">
-    <property name="title">
-     <string>File</string>
-    </property>
-    <addaction name="actionAbout_iRASPA"/>
-    <addaction name="actionImport"/>
-    <addaction name="actionOpen"/>
-    <addaction name="actionSave"/>
-   </widget>
-   <widget class="QMenu" name="menuHelp">
-    <property name="title">
-     <string>Help</string>
-    </property>
-    <addaction name="actionContents"/>
-   </widget>
-   <addaction name="menuFIle"/>
-   <addaction name="menuHelp"/>
-  </widget>
   <widget class="iRASPAToolBar" name="mainToolBar">
    <property name="sizePolicy">
     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -629,36 +602,6 @@
     <bool>false</bool>
    </attribute>
   </widget>
-  <action name="actionImport">
-   <property name="text">
-    <string>Import</string>
-   </property>
-  </action>
-  <action name="actionAbout_iRASPA">
-   <property name="text">
-    <string>About iRASPA</string>
-   </property>
-  </action>
-  <action name="actionContents">
-   <property name="text">
-    <string>Contents</string>
-   </property>
-  </action>
-  <action name="actionIndex">
-   <property name="text">
-    <string>Index</string>
-   </property>
-  </action>
-  <action name="actionOpen">
-   <property name="text">
-    <string>Open...</string>
-   </property>
-  </action>
-  <action name="actionSave">
-   <property name="text">
-    <string>Save...</string>
-   </property>
-  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -759,72 +702,7 @@
  <resources>
   <include location="iraspa-resources.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>actionImport</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>importFile()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>612</x>
-     <y>383</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionAbout_iRASPA</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>showAboutDialog()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>612</x>
-     <y>383</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionOpen</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>openFile()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>612</x>
-     <y>383</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionSave</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>saveFile()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>612</x>
-     <y>383</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
  <slots>
   <slot>importFile()</slot>
   <slot>showAboutDialog()</slot>

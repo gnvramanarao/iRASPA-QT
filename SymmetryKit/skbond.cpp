@@ -31,27 +31,10 @@
 #include "skasymmetricatom.h"
 
 
-SKAsymmetricBond::SKAsymmetricBond(std::shared_ptr<SKAsymmetricAtom> a, std::shared_ptr<SKAsymmetricAtom> b)
+SKBond::SKBond()
 {
-  if(a->tag() < b->tag())
-  {
-     _atom1 = a;
-     _atom2 = b;
-  }
-  else
-  {
-     _atom1 = b;
-     _atom2 = a;
-  }
+
 }
-
-bool SKAsymmetricBond::operator==(SKAsymmetricBond const& rhs) const
-{
-  return (this->atom1().get() == rhs.atom1().get() && this->atom2().get() == rhs.atom2().get()) ||
-         (this->atom1().get() == rhs.atom2().get() && this->atom2().get() == rhs.atom1().get());
-}
-
-
 
 SKBond::SKBond(std::shared_ptr<SKAtomCopy> a, std::shared_ptr<SKAtomCopy> b, BoundaryType type)
 {
@@ -68,6 +51,20 @@ SKBond::SKBond(std::shared_ptr<SKAtomCopy> a, std::shared_ptr<SKAtomCopy> b, Bou
   _boundaryType = type;
 }
 
+void SKBond::setAtoms(std::shared_ptr<SKAtomCopy> a, std::shared_ptr<SKAtomCopy> b)
+{
+  if(a->tag() < b->tag())
+  {
+      _atom1 = a;
+      _atom2 = b;
+  }
+  else
+  {
+      _atom1 = b;
+      _atom2 = a;
+  }
+}
+
 bool SKBond::operator==(SKBond const& rhs) const
 {
   return this == &rhs;
@@ -78,4 +75,21 @@ double SKBond::bondLength()
   return (this->atom1()->position()-this->atom2()->position()).length();
 }
 
+QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<SKBond> &bond)
+{
+  stream << bond->atom1()->tag();
+  stream << bond->atom2()->tag();
+  stream << static_cast<typename std::underlying_type<SKBond::BoundaryType>::type>(bond->_boundaryType);
+  return stream;
+}
+
+QDataStream &operator>>(QDataStream &stream, std::shared_ptr<SKBond> &bond)
+{
+  stream >> bond->_tag1;
+  stream >> bond->_tag2;
+  qint64 boundaryType;
+  stream >> boundaryType;
+  bond->_boundaryType = SKBond::BoundaryType(boundaryType);
+  return stream;
+}
 

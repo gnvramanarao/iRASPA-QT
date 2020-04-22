@@ -48,7 +48,7 @@ class ProjectTreeView: public QTreeView, public MainWindowConsumer, public Reloa
 
 public:
   ProjectTreeView(QWidget* parent = nullptr);
-  QSize sizeHint() const;
+  QSize sizeHint() const override;
   void paintEvent(QPaintEvent *event) override final;
   void setMainWindow(MainWindow* mainWindow) final override {_mainWindow = mainWindow;}
   void setController(std::shared_ptr<ProjectTreeController> treeController);
@@ -60,6 +60,9 @@ public:
   void addGroupProject(QModelIndex index);
   void startDrag(Qt::DropActions supportedActions) override final;
   void dragMoveEvent(QDragMoveEvent *event) override final;
+  QUndoStack& undoManager() {return _undoStack;}
+  void focusInEvent( QFocusEvent* ) override final;
+  void focusOutEvent( QFocusEvent* ) override final;
 private:
   QRect _dropIndicatorRect;
   MainWindow* _mainWindow;
@@ -67,6 +70,7 @@ private:
   std::shared_ptr<ProjectTreeViewModel> _model;
   void paintDropIndicator(QPainter& painter);
   QAbstractItemView::DropIndicatorPosition position(QPoint pos, QRect rect, QModelIndex index);
+  QUndoStack _undoStack;
 public slots:
   void setSelectedProject(const QModelIndex& current, const QModelIndex& previous);
   void ShowContextMenu(const QPoint &pos);

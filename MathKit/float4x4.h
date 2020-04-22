@@ -83,7 +83,7 @@ union float4x4
   inline bool operator==(const float4x4& rhs) const;
   inline bool operator!=(const float4x4& rhs) const;
 
-  float4x4 transpose(void);
+  float4x4 const transpose(void);
   static float4x4 const inverse(const float4x4& right);
   void inverse();
   static float4x4 TransformationAroundArbitraryPoint(float4x4 m, float3 p);

@@ -27,15 +27,15 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#include "openglpickingshader.h"
+#include "openglatompickingshader.h"
 #include "openglatomshader.h"
 #include "openglatomorthographicimpostershader.h"
 
-OpenGLPickingShader::OpenGLPickingShader(OpenGLAtomShader &atomShader, OpenGLAtomOrthographicImposterShader &atomOrthographicImposterShader): _atomShader(atomShader), _atomOrthographicImposterShader(atomOrthographicImposterShader)
+OpenGLAtomPickingShader::OpenGLAtomPickingShader(OpenGLAtomShader &atomShader, OpenGLAtomOrthographicImposterShader &atomOrthographicImposterShader): _atomShader(atomShader), _atomOrthographicImposterShader(atomOrthographicImposterShader)
 {
 }
 
-void OpenGLPickingShader::generateFrameBuffers()
+void OpenGLAtomPickingShader::generateFrameBuffers()
 {
   GLenum status;
 
@@ -76,9 +76,8 @@ void OpenGLPickingShader::generateFrameBuffers()
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void OpenGLPickingShader::resizeGL(int w, int h)
+void OpenGLAtomPickingShader::resizeGL(int w, int h)
 {
-  std::cout << "resizeGL: " << w << ", " << h << std::endl;
   glBindTexture(GL_TEXTURE_2D, _texture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32UI, w, h, 0, GL_RGBA_INTEGER, GL_UNSIGNED_INT, nullptr);
   check_gl_error();
@@ -91,7 +90,7 @@ void OpenGLPickingShader::resizeGL(int w, int h)
   check_gl_error();
 }
 
-void OpenGLPickingShader::setRenderStructures(std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> structures)
+void OpenGLAtomPickingShader::setRenderStructures(std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> structures)
 {
   deleteBuffers();
   _renderStructures = structures;
@@ -99,15 +98,15 @@ void OpenGLPickingShader::setRenderStructures(std::vector<std::vector<std::share
 }
 
 
-void OpenGLPickingShader::deleteBuffers()
+void OpenGLAtomPickingShader::deleteBuffers()
 {
-  for(int i=0;i<_renderStructures.size();i++)
+  for(size_t i=0;i<_renderStructures.size();i++)
   {
     glDeleteVertexArrays(_renderStructures[i].size(), _atomPickingVertexArrayObject[i].data());
   }
 }
 
-void OpenGLPickingShader::generateBuffers()
+void OpenGLAtomPickingShader::generateBuffers()
 {
   _atomPickingVertexArrayObject.resize(_renderStructures.size());
 
@@ -116,14 +115,14 @@ void OpenGLPickingShader::generateBuffers()
     _atomPickingVertexArrayObject[i].resize(_renderStructures[i].size());
   }
 
-  for(int i=0;i<_renderStructures.size();i++)
+  for(size_t i=0;i<_renderStructures.size();i++)
   {
     glGenVertexArrays(_renderStructures[i].size(), _atomPickingVertexArrayObject[i].data());
 
   }
 }
 
-void OpenGLPickingShader::paintGL(int width,int height,GLuint structureUniformBuffer)
+void OpenGLAtomPickingShader::paintGL(int width,int height,GLuint structureUniformBuffer)
 {
 
   GLfloat black[4] = {0.0,0.0,0.0,0.0};
@@ -139,9 +138,9 @@ void OpenGLPickingShader::paintGL(int width,int height,GLuint structureUniformBu
   check_gl_error();
 
   int index = 0;
-  for(int i=0;i<_renderStructures.size();i++)
+  for(size_t i=0;i<_renderStructures.size();i++)
   {
-    for(int j=0;j<_renderStructures[i].size();j++)
+    for(size_t j=0;j<_renderStructures[i].size();j++)
     {
       if(_renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible() && _atomOrthographicImposterShader._numberOfIndices[i][j]>0 && _atomShader._numberOfDrawnAtoms[i][j]>0)
       {
@@ -161,7 +160,7 @@ void OpenGLPickingShader::paintGL(int width,int height,GLuint structureUniformBu
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
-std::array<int,4> OpenGLPickingShader::pickTexture(int x, int y, int width, int height)
+std::array<int,4> OpenGLAtomPickingShader::pickTexture(int x, int y, int width, int height)
 {
   std::array<int,4> pixel{0,0,0,0};
 
@@ -174,27 +173,23 @@ std::array<int,4> OpenGLPickingShader::pickTexture(int x, int y, int width, int 
   glReadPixels(x, height - y, 1, 1, GL_RGBA_INTEGER, GL_UNSIGNED_INT, pixel.data());
   check_gl_error();
 
-  //QImage img(width,height, QImage::Format_ARGB32);
-  //glReadPixels(0,0,width,height,GL_RGBA, GL_UNSIGNED_INT, img.bits());
-  //img.save("/Users/dubbelda/1.png","PNG");
-
   glReadBuffer(GL_NONE);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   return pixel;
 }
 
-void OpenGLPickingShader::reloadData()
+void OpenGLAtomPickingShader::reloadData()
 {
   initializeVertexArrayObject();
 }
 
-void OpenGLPickingShader::initializeVertexArrayObject()
+void OpenGLAtomPickingShader::initializeVertexArrayObject()
 {
 
-  for(int i=0;i<_renderStructures.size();i++)
+  for(size_t i=0;i<_renderStructures.size();i++)
   {
-    for(int j=0;j<_renderStructures[i].size();j++)
+    for(size_t j=0;j<_renderStructures[i].size();j++)
     {
       glBindVertexArray(_atomPickingVertexArrayObject[i][j]);
 
@@ -211,9 +206,13 @@ void OpenGLPickingShader::initializeVertexArrayObject()
       glVertexAttribPointer(_atomPickingScaleAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKInPerInstanceAttributesAtoms), reinterpret_cast<GLvoid*>(offsetof(RKInPerInstanceAttributesAtoms,scale)));
       glVertexAttribDivisor(_atomPickingScaleAttributeLocation, 1);
 
+      glVertexAttribIPointer(_atomPickingTagAttributeLocation, 1, GL_INT, sizeof(RKInPerInstanceAttributesAtoms), reinterpret_cast<GLvoid*>(offsetof(RKInPerInstanceAttributesAtoms,tag)));
+      glVertexAttribDivisor(_atomPickingTagAttributeLocation, 1);
+
       glEnableVertexAttribArray(_atomPickingVertexPositionAttributeLocation);
       glEnableVertexAttribArray(_atomPickingInstancePositionAttributeLocation);
       glEnableVertexAttribArray(_atomPickingScaleAttributeLocation);
+      glEnableVertexAttribArray(_atomPickingTagAttributeLocation);
 
 
       glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -222,12 +221,12 @@ void OpenGLPickingShader::initializeVertexArrayObject()
   }
 }
 
-void OpenGLPickingShader::loadShader(void)
+void OpenGLAtomPickingShader::loadShader(void)
 {
   GLuint vertexShader;
   GLuint fragmentShader;
-  vertexShader=compileShaderOfType(GL_VERTEX_SHADER,OpenGLPickingShader::_atomVertexShaderSource.c_str());
-  fragmentShader=compileShaderOfType(GL_FRAGMENT_SHADER,OpenGLPickingShader::_atomFragmentShaderSource.c_str());
+  vertexShader=compileShaderOfType(GL_VERTEX_SHADER,OpenGLAtomPickingShader::_atomVertexShaderSource.c_str());
+  fragmentShader=compileShaderOfType(GL_FRAGMENT_SHADER,OpenGLAtomPickingShader::_atomFragmentShaderSource.c_str());
 
   if (0 != vertexShader && 0 != fragmentShader)
   {
@@ -252,6 +251,8 @@ void OpenGLPickingShader::loadShader(void)
     _atomPickingScaleAttributeLocation = glGetAttribLocation(_atomPickingProgram, "instanceScale");
     if (_atomPickingScaleAttributeLocation < 0) qDebug() << "Shader did not contain the 'vertexPosition' attribute.";
 
+    _atomPickingTagAttributeLocation = glGetAttribLocation(_atomPickingProgram, "instanceTag");
+    if (_atomPickingTagAttributeLocation < 0) qDebug() << "Shader did not contain the 'instanceTag' attribute.";
 
     glDeleteShader(vertexShader);
     check_gl_error();
@@ -261,7 +262,7 @@ void OpenGLPickingShader::loadShader(void)
 }
 
 
-const std::string  OpenGLPickingShader::_atomVertexShaderSource =
+const std::string  OpenGLAtomPickingShader::_atomVertexShaderSource =
 OpenGLVersionStringLiteral +
 OpenGLFrameUniformBlockStringLiteral +
 OpenGLStructureUniformBlockStringLiteral +
@@ -270,6 +271,7 @@ in vec4 vertexPosition;
 
 in vec4 instancePosition;
 in vec4 instanceScale;
+in int instanceTag;
 
 // Inputs from vertex shader
 out VS_OUT
@@ -285,7 +287,7 @@ out VS_OUT
 
 void main(void)
 {
-  vs_out.instanceId = gl_InstanceID;
+  vs_out.instanceId = instanceTag;
   vec4 scale = structureUniforms.atomScaleFactor * instanceScale;
 
   vs_out.eye_position = frameUniforms.viewMatrix * structureUniforms.modelMatrix * instancePosition;
@@ -301,7 +303,7 @@ void main(void)
 }
 )foo";
 
-const std::string  OpenGLPickingShader::_atomFragmentShaderSource =
+const std::string  OpenGLAtomPickingShader::_atomFragmentShaderSource =
 OpenGLVersionStringLiteral +
 OpenGLFrameUniformBlockStringLiteral +
 OpenGLStructureUniformBlockStringLiteral +

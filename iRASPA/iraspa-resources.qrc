@@ -11,5 +11,9 @@
         <file>collapsed.png</file>
         <file>NSAddTemplate.png</file>
         <file>NSRemoveTemplate.png</file>
+        <file>SingleBond.png</file>
+        <file>TripleBond.png</file>
+        <file>DoubleBond.png</file>
+        <file>PartialDoubleBond.png</file>
     </qresource>
 </RCC>

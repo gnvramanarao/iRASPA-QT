@@ -59,9 +59,13 @@ public:
   Qt::ItemFlags flags(const QModelIndex &index) const override final;
 
   QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override final;
+  bool setData(const QModelIndex &index, const QVariant &value, int role) override final;
+
+  QModelIndexList selectedIndexes();
 private:
   std::shared_ptr<SKBondSetController> _bondSetController;
   std::shared_ptr<Structure> _structure;
 signals:
     void reloadRenderDataRenderer();
+    void rendererReloadData();
 };

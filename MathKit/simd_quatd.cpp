@@ -30,7 +30,7 @@
 #include "simd_quatd.h"
 
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include <cmath>
 #include "drand48.h"
 
 simd_quatd::simd_quatd(double ix, double iy, double iz, double r)

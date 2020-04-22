@@ -43,7 +43,7 @@ const IndexPath SKAtomTreeNode::indexPath()
   {
     IndexPath indexpath = lockedParent->indexPath();
 
-    stdx::optional<int> index = lockedParent->findChildIndex(shared_from_this());
+    std::optional<int> index = lockedParent->findChildIndex(shared_from_this());
 
     assert(index);
 
@@ -121,7 +121,7 @@ void SKAtomTreeNode::removeFromParent()
 {
   if(std::shared_ptr<SKAtomTreeNode> lockedParent = _parent.lock())
   {
-    stdx::optional<int> index = lockedParent->findChildIndex(shared_from_this());
+    std::optional<int> index = lockedParent->findChildIndex(shared_from_this());
     assert(index);
     if(index)
     {
@@ -276,7 +276,7 @@ std::vector<std::shared_ptr<SKAtomTreeNode>> SKAtomTreeNode::descendantGroupNode
 
 std::vector<std::shared_ptr<SKAsymmetricAtom>> SKAtomTreeNode::flattenedObjects()
 {
-  std::vector<std::shared_ptr<SKAsymmetricAtom>> objects{this->_representedObject};
+  std::vector<std::shared_ptr<SKAsymmetricAtom>> objects{};
 
   std::vector<std::shared_ptr<SKAsymmetricAtom>> groupObjects = this->descendantObjects();
   for(std::shared_ptr<SKAsymmetricAtom> object : groupObjects)
@@ -367,7 +367,7 @@ void SKAtomTreeNode::setFilteredNodesAsMatching()
 }
 
 
-stdx::optional<int> SKAtomTreeNode::findChildIndex(std::shared_ptr<SKAtomTreeNode> child)
+std::optional<int> SKAtomTreeNode::findChildIndex(std::shared_ptr<SKAtomTreeNode> child)
 {
   std::vector<std::shared_ptr<SKAtomTreeNode>>::iterator itr = std::find_if(_childNodes.begin(), _childNodes.end(), [=](const std::shared_ptr<SKAtomTreeNode> x) {
       return x == child;
@@ -379,7 +379,7 @@ stdx::optional<int> SKAtomTreeNode::findChildIndex(std::shared_ptr<SKAtomTreeNod
   }
 
 
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 int SKAtomTreeNode::row() const

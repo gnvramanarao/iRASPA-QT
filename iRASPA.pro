@@ -33,7 +33,7 @@ TEMPLATE = app
 DEFINES += QT_DEPRECATED_WARNINGS
 
 macx{
-  QMAKE_CXXFLAGS += -Wl,--stack,4194304
+  #QMAKE_CXXFLAGS += -Wl,--stack,4194304
   INCLUDEPATH += /System/Library/Frameworks/Python.framework/Versions/Current/include/python2.7
   QMAKE_LFLAGS += -framework OpenCL -framework Python
   LIBS += -llzma -lz

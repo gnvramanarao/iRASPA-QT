@@ -91,58 +91,58 @@ private:
   void reloadCellOriginY();
   void reloadCellOriginZ();
 
-  stdx::optional<iRASPAStructureType>  structureType();
+  std::optional<iRASPAStructureType>  structureType();
   SKBoundingBox boundingBox();
 
-  stdx::optional<double> unitCellAX();
-  stdx::optional<double> unitCellAY();
-  stdx::optional<double> unitCellAZ();
+  std::optional<double> unitCellAX();
+  std::optional<double> unitCellAY();
+  std::optional<double> unitCellAZ();
 
-  stdx::optional<double> unitCellBX();
-  stdx::optional<double> unitCellBY();
-  stdx::optional<double> unitCellBZ();
+  std::optional<double> unitCellBX();
+  std::optional<double> unitCellBY();
+  std::optional<double> unitCellBZ();
 
-  stdx::optional<double> unitCellCX();
-  stdx::optional<double> unitCellCY();
-  stdx::optional<double> unitCellCZ();
+  std::optional<double> unitCellCX();
+  std::optional<double> unitCellCY();
+  std::optional<double> unitCellCZ();
 
-  stdx::optional<double> unitCellLengthA();
+  std::optional<double> unitCellLengthA();
   void setUnitCellLengthA(double value);
-  stdx::optional<double> unitCellLengthB();
+  std::optional<double> unitCellLengthB();
   void setUnitCellLengthB(double value);
-  stdx::optional<double> unitCellLengthC();
+  std::optional<double> unitCellLengthC();
   void setUnitCellLengthC(double value);
 
-  stdx::optional<double> unitCellAngleAlpha();
+  std::optional<double> unitCellAngleAlpha();
   void setUnitCellAngleAlpha(double value);
-  stdx::optional<double> unitCellAngleBeta();
+  std::optional<double> unitCellAngleBeta();
   void setUnitCellAngleBeta(double value);
-  stdx::optional<double> unitCellAngleGamma();
+  std::optional<double> unitCellAngleGamma();
   void setUnitCellAngleGamma(double value);
 
-  stdx::optional<double> unitCellVolume();
-  stdx::optional<double> unitCellPerpendicularWidthX();
-  stdx::optional<double> unitCellPerpendicularWidthY();
-  stdx::optional<double> unitCellPerpendicularWidthZ();
+  std::optional<double> unitCellVolume();
+  std::optional<double> unitCellPerpendicularWidthX();
+  std::optional<double> unitCellPerpendicularWidthY();
+  std::optional<double> unitCellPerpendicularWidthZ();
 
-  stdx::optional<int> maximumReplicasX();
+  std::optional<int> maximumReplicasX();
   void setMaximumReplicasX(int value);
-  stdx::optional<int> maximumReplicasY();
+  std::optional<int> maximumReplicasY();
   void setMaximumReplicasY(int value);
-  stdx::optional<int> maximumReplicasZ();
+  std::optional<int> maximumReplicasZ();
   void setMaximumReplicasZ(int value);
-  stdx::optional<int> minimumReplicasX();
+  std::optional<int> minimumReplicasX();
   void setMinimumReplicasX(int value);
-  stdx::optional<int> minimumReplicasY();
+  std::optional<int> minimumReplicasY();
   void setMinimumReplicasY(int value);
-  stdx::optional<int> minimumReplicasZ();
+  std::optional<int> minimumReplicasZ();
   void setMinimumReplicasZ(int value);
 
-  stdx::optional<double> originX();
+  std::optional<double> originX();
   void setOriginX(double value);
-  stdx::optional<double> originY();
+  std::optional<double> originY();
   void setOriginY(double value);
-  stdx::optional<double> originZ();
+  std::optional<double> originZ();
   void setOriginZ(double value);
 
   void reloadStructureProperties();
@@ -163,26 +163,26 @@ private:
   void reloadStructuralRestrictingPoreDiameter();
   void reloadStructuralLargestDiamtereAlongAViablePath();
 
-  stdx::optional<double> structuralMass();
-  stdx::optional<double> structuralDensity();
-  stdx::optional<double> structureHeliumVoidFraction();
-  stdx::optional<double> structureSpecificVolume();
-  stdx::optional<double> structureAccessiblePoreVolume();
+  std::optional<double> structuralMass();
+  std::optional<double> structuralDensity();
+  std::optional<double> structureHeliumVoidFraction();
+  std::optional<double> structureSpecificVolume();
+  std::optional<double> structureAccessiblePoreVolume();
   void setFrameworkProbeMolecule(int value);
-  stdx::optional<ProbeMolecule> frameworkProbeMolecule();
-  stdx::optional<double> structureVolumetricNitrogenSurfaceArea();
-  stdx::optional<double> structureGravimetricNitrogenSurfaceArea();
-  stdx::optional<int> structureNumberOfChannelSystems();
+  std::optional<Structure::ProbeMolecule> frameworkProbeMolecule();
+  std::optional<double> structureVolumetricNitrogenSurfaceArea();
+  std::optional<double> structureGravimetricNitrogenSurfaceArea();
+  std::optional<int> structureNumberOfChannelSystems();
   void setStructureNumberOfChannelSystems(int value);
-  stdx::optional<int> structureNumberOfInaccessiblePockets();
+  std::optional<int> structureNumberOfInaccessiblePockets();
   void setStructureNumberOfInaccessiblePockets(int value);
-  stdx::optional<int> structureDimensionalityOfPoreSystem();
+  std::optional<int> structureDimensionalityOfPoreSystem();
   void setStructureDimensionalityOfPoreSystem(int value);
-  stdx::optional<double> structureLargestCavityDiameter();
+  std::optional<double> structureLargestCavityDiameter();
   void setStructureLargestCavityDiameter(double value);
-  stdx::optional<double> structureRestrictingPoreLimitingDiameter();
+  std::optional<double> structureRestrictingPoreLimitingDiameter();
   void setStructureRestrictingPoreLimitingDiameter(double value);
-  stdx::optional<double> structureLargestCavityDiameterAlongAviablePath();
+  std::optional<double> structureLargestCavityDiameterAlongAviablePath();
   void setStructureLargestCavityDiameterAlongAviablePath(double value);
 
   void reloadSymmetryProperties();
@@ -203,22 +203,22 @@ private:
   void reloadSpaceGroupSchoenfliesSymbol();
   void reloadSpaceGroupSymmorphicity();
 
-  stdx::optional<int> symmetrySpaceGroupHallNumber();
+  std::optional<int> symmetrySpaceGroupHallNumber();
   void setSymmetrySpaceGroupHallNumber(int value);
-  stdx::optional<int> symmetrySpaceGroupStamdardNumber();
+  std::optional<int> symmetrySpaceGroupStamdardNumber();
   void setSymmetrySpaceGroupStandardNumber(int value);
-  stdx::optional<double> symmetryPrecision();
+  std::optional<double> symmetryPrecision();
   void setSymmetryPrecision(double value);
-  stdx::optional<QString> symmetryCenteringString();
-  stdx::optional<QString> symmetryHolohedryString();
-  stdx::optional<QString> symmetryQualifierString();
+  std::optional<QString> symmetryCenteringString();
+  std::optional<QString> symmetryHolohedryString();
+  std::optional<QString> symmetryQualifierString();
 
-  stdx::optional<bool> symmetryInversion();
-  stdx::optional<QString> symmetryInversionCenterString();
-  stdx::optional<bool> symmetryCentrosymmetric();
-  stdx::optional<bool> symmetryEnatiomorphic();
-  stdx::optional<int> symmetryPointGroup();
-  stdx::optional<QString> symmetrySymmorphicity();
+  std::optional<bool> symmetryInversion();
+  std::optional<QString> symmetryInversionCenterString();
+  std::optional<bool> symmetryCentrosymmetric();
+  std::optional<bool> symmetryEnatiomorphic();
+  std::optional<int> symmetryPointGroup();
+  std::optional<QString> symmetrySymmorphicity();
 
 private slots:
   void expandCellItem();

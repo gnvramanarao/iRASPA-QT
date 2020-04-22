@@ -28,7 +28,8 @@
  *************************************************************************************************************/
 
 #include "skcell.h"
-#include <math.h>
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <iostream>
 #include <vector>
 #include <algorithm>

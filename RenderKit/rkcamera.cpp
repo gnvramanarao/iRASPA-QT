@@ -29,8 +29,6 @@
 
 #include "rkcamera.h"
 #include "QtDebug"
-#define _USE_MATH_DEFINES
-#include <math.h>
 
 RKCamera::RKCamera()
 {
@@ -491,8 +489,6 @@ double3 RKCamera::myGluUnProject(double3 position, QRect viewPort)
   double4x4 finalMatrix;
   double4 inVector = double4();
 
-  qDebug() << "CHECK: " << viewPort << position.x << ", " << position.y << ", " << position.z;
-
   // Map x and y from window coordinates
   inVector.x = (position.x - double(viewPort.left())) / double(viewPort.width());
   inVector.y = (position.y - double(viewPort.top())) / double(viewPort.height());
@@ -613,7 +609,6 @@ std::vector<int> RKCamera::selectPositionsInRectangle(std::vector<double3> &posi
   for(int j=0;j<numberOfObjects;j++)
   {
     double3 position = positions[j] + origin;
-    qDebug() << "position: " << position.x << ", " << position.y << ", " << position.z;
     if((double3::dot(position-Points0,FrustrumPlane0)<0) &&
       (double3::dot(position-Points2,FrustrumPlane1)<0) &&
       (double3::dot(position-Points4,FrustrumPlane2)<0) &&
@@ -622,8 +617,6 @@ std::vector<int> RKCamera::selectPositionsInRectangle(std::vector<double3> &posi
         indexSet.push_back(j);
       }
   }
-
-  std::cout << "SELECTION: " << indexSet.size() << std::endl;
 
   return indexSet;
 }
@@ -648,8 +641,8 @@ QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<RKCamera> &ca
   stream << camera->_distance;
   stream << camera->_orthoScale;
   stream << camera->_angleOfView;
-  stream << camera->_frustrumType;
-  stream << camera->_resetDirectionType;
+  stream << static_cast<typename std::underlying_type<FrustrumType>::type>(camera->_frustrumType);
+  stream << static_cast<typename std::underlying_type<ResetDirectionType>::type>(camera->_resetDirectionType);
 
   stream << camera->_resetFraction;
 
@@ -688,8 +681,12 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<RKCamera> &camera)
   stream >> camera->_distance;
   stream >> camera->_orthoScale;
   stream >> camera->_angleOfView;
-  stream >> camera->_frustrumType;
-  stream >> camera->_resetDirectionType;
+  qint64 frustrumType;
+  stream >> frustrumType;
+  camera->_frustrumType = FrustrumType(frustrumType);
+  qint64 resetDirectionType;
+  stream >> resetDirectionType;
+  camera->_resetDirectionType = ResetDirectionType(resetDirectionType);
 
   stream >> camera->_resetFraction;
 

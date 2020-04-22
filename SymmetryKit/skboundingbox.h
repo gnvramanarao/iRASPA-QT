@@ -39,8 +39,9 @@ public:
   SKBoundingBox();
   SKBoundingBox(double3 minimum, double3 maximum);
   SKBoundingBox(const double3 center, const double3 width, const double scale);
-  double3 widths();
-  std::array<double3,8> corners();
+  double3 widths() const;
+  std::array<double3,8> const corners() const;
+  std::array<std::pair<double3, double3>, 12> const sides() const;
   double3 center();
   double boundingSphereRadius();
   double3 maximum() const {return _maximum;}

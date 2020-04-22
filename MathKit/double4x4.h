@@ -75,7 +75,7 @@ union double4x4
   inline bool operator==(const double4x4& rhs) const;
   inline bool operator!=(const double4x4& rhs) const;
 
-  double4x4 transpose(void);
+  double4x4 const transpose(void);
   static double4x4 const inverse(const double4x4& right);
   void inverse();
   static double4x4 TransformationAroundArbitraryPoint(double4x4 m, double3 p);

@@ -31,7 +31,7 @@
 #include "float4x4.h"
 
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include <cmath>
 
 #define sqr( x ) (( x )*( x ))
 #define SIGN(a,b) ((b)>=0.0?fabs(a):-fabs(a))
@@ -135,7 +135,7 @@ float3x3 const float3x3::inverse(const float3x3& a)
 }
 
 
-float3x3 float3x3::transpose(void)
+float3x3 const float3x3::transpose(void)
 {
   float3x3 res;
 

@@ -118,7 +118,7 @@ QModelIndex SceneTreeViewModel::parent(const QModelIndex &index) const
     std::shared_ptr<Scene> scene = parentForMovie(movie->shared_from_this());
 
 
-    stdx::optional<int> row = scene->findChildIndex(movie->shared_from_this());
+    std::optional<int> row = scene->findChildIndex(movie->shared_from_this());
 
     if(row)
     {

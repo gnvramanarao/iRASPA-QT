@@ -36,20 +36,23 @@
 #include <mathkit.h>
 #include <QColor>
 
-enum class ColorScheme: qint64
-{
-  jmol = 0, rasmol_modern = 1, rasmol = 2, vesta = 3, multiple_values = 4
-};
 
-enum class ColorSchemeOrder: qint64
-{
-  elementOnly = 0, forceFieldFirst = 1, forceFieldOnly = 2, multiple_values = 3
-};
 
 class SKColorSet
 {
 public:
   SKColorSet() {}
+
+  enum class ColorScheme: qint64
+  {
+    jmol = 0, rasmol_modern = 1, rasmol = 2, vesta = 3, multiple_values = 4
+  };
+
+  enum class ColorSchemeOrder: qint64
+  {
+    elementOnly = 0, forceFieldFirst = 1, forceFieldOnly = 2, multiple_values = 3
+  };
+
   SKColorSet(QString name, SKColorSet& from, bool editable);
   SKColorSet(ColorScheme scheme);
   const QString displayName() const {return _displayName;}

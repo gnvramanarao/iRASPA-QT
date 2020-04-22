@@ -39,7 +39,7 @@
 #include <QCache>
 #include <QOpenGLTexture>
 #include <foundationkit.h>
-#include "optional.h"
+#include <optional>
 #include "rkrenderkitprotocols.h"
 #include "rkrenderuniforms.h"
 #include "openglatomshader.h"
@@ -49,7 +49,7 @@
 #include "openglexternalbondshader.h"
 #include "openglunitcellsphereshader.h"
 #include "openglunitcellcylindershader.h"
-#include "openglpickingshader.h"
+#include "openglatompickingshader.h"
 #include "openglbackgroundshader.h"
 #include "openglatomselectionworleynoise3dshader.h"
 #include "openglatomselectionworleynoise3dorthographicimpostershader.h"
@@ -64,6 +64,19 @@
 #include "rkcamera.h"
 #include "trackball.h"
 #include "skopenclenergygridunitcell.h"
+#include "openglinternalbondselectionstripesshader.h"
+#include "openglexternalbondselectionstripesshader.h"
+#include "openglinternalbondselectionworleynoise3dshader.h"
+#include "openglexternalbondselectionworleynoise3dshader.h"
+#include "openglinternalbondselectionglowshader.h"
+#include "openglexternalbondselectionglowshader.h"
+#include "openglinternalbondpickingshader.h"
+#include "openglexternalbondpickingshader.h"
+#include "openglboundingboxcylindershader.h"
+#include "openglboundingboxsphereshader.h"
+#include "openglsphereobjectshader.h"
+#include "openglcylinderobjectshader.h"
+#include "openglpolygonalprismobjectshader.h"
 
 #ifdef Q_OS_MACOS
   #include <OpenCL/opencl.h>
@@ -160,7 +173,7 @@ private:
   OpenGLExternalBondShader _externalBondShader;
   OpenGLUnitCellSphereShader _unitCellSphereShader;
   OpenGLUnitCellCylinderShader _unitCellCylinderShader;
-  OpenGLPickingShader _pickingShader;
+  OpenGLAtomPickingShader _atomPickingShader;
   OpenGLAtomSelectionWorleyNoise3DShader _atomSelectionWorleyNoise3DShader;
   OpenGLAtomSelectionWorleyNoise3DOrthographicImposterShader _atomSelectionWorleyNoise3DOrthographicImposterShader;
   OpenGLAtomSelectionWorleyNoise3DPerspectiveImposterShader _atomSelectionWorleyNoise3DPerspectiveImposterShader;
@@ -168,9 +181,22 @@ private:
   OpenGLAtomSelectionStripesOrthographicImposterShader _atomSelectionStripesOrthographicImposterShader;
   OpenGLAtomSelectionStripesPerspectiveImposterShader _atomSelectionStripesPerspectiveImposterShader;
   OpenGLAtomSelectionGlowShader _atomSelectionGlowShader;
+  OpenGLInternalBondSelectionStripesShader _internalBondSelectionStripesShader;
+  OpenGLExternalBondSelectionStripesShader _externalBondSelectionStripesShader;
+  OpenGLInternalBondSelectionWorleyNoise3DShader _internalBondSelectionWorleyNoise3DShader;
+  OpenGLExternalBondSelectionWorleyNoise3DShader _externalBondSelectionWorleyNoise3DShader;
+  OpenGLInternalBondSelectionGlowShader _internalBondSelectionGlowShader;
+  OpenGLExternalBondSelectionGlowShader _externalBondSelectionGlowShader;
   OpenGLBlurShader _blurShader;
   OpenGLAmbientOcclusionShadowMapShader _atomAmbientOcclusionShader;
   OpenGLEnergySurface _energySurfaceShader;
+  OpenGLInternalBondPickingShader _internalBondPickingShader;
+  OpenGLExternalBondPickingShader _externalBondPickingShader;
+  OpenGLBoundingBoxCylinderShader _boundingBoxCylinderShader;
+  OpenGLBoundingBoxSphereShader _boundingBoxSphereShader;
+  OpenGLSphereObjectShader _sphereObjectShader;
+  OpenGLCylinderObjectShader _cylinderObjectShader;
+  OpenGLPolygonalPrismObjectShader _polygonalPrismObjectShader;
 
   void drawSceneToFramebuffer(GLuint framebuffer);
 
@@ -183,8 +209,8 @@ private:
 
   TrackBall _trackBall = TrackBall();
 
-  stdx::optional<QPoint> _startPoint = stdx::nullopt;
-  stdx::optional<QPoint> _panStartPoint = stdx::nullopt;
+  std::optional<QPoint> _startPoint = std::nullopt;
+  std::optional<QPoint> _panStartPoint = std::nullopt;
 
   GLint _downSampleInputTextureUniformLocation;
   GLint _blurredInputTextureUniformLocation;

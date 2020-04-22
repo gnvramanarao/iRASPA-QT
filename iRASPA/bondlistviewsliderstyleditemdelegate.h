@@ -30,6 +30,12 @@
 #pragma once
 
 #include <QStyledItemDelegate>
+#include <QWidget>
+#include <QStyledItemDelegate>
+#include <QTreeView>
+#include "qdoubleslider.h"
+
+class BondListView;
 
 class BondListViewSliderStyledItemDelegate : public QStyledItemDelegate
 {
@@ -38,15 +44,19 @@ public:
     BondListViewSliderStyledItemDelegate(QWidget *parent);
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const override;
-    //QSize sizeHint(const QStyleOptionViewItem &option,
-     //              const QModelIndex &index) const override;
-    //QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
-     //                     const QModelIndex &index) const override;
-    //void setEditorData(QWidget *editor, const QModelIndex &index) const override;
-    //void setModelData(QWidget *editor, QAbstractItemModel *model,
-    //                  const QModelIndex &index) const override;
-
+               const QModelIndex &index) const override final;
+    void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const override final;
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
+                         const QModelIndex &index) const Q_DECL_OVERRIDE;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const override;
+    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
 private slots:
-    //void commitAndCloseEditor();
+  //void commitAndCloseEditor();
+  void cellEntered(const QModelIndex &index);
+  void setSliderValue(double level);
+private:
+  QDoubleSlider * slider;
+  BondListView *treeView;
+  bool isOneCellInEditMode = false;
+  QPersistentModelIndex currentEditedCellIndex;
 };

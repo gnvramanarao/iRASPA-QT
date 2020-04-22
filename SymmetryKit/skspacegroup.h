@@ -31,7 +31,7 @@
 
 #include <vector>
 #include <QString>
-#include "optional.h"
+#include <optional>
 #include "skspacegroupsetting.h"
 
 class SKSpaceGroup
@@ -43,8 +43,8 @@ public:
 
   static std::vector<QString> latticeTranslationStrings(int HallNumber);
   static QString inversionCenterString(int HallNumber);
-  static stdx::optional<int> HallNumberFromHMString(QString inputString);
-  static stdx::optional<int> HallNumber(QString inputString);
+  static std::optional<int> HallNumberFromHMString(QString inputString);
+  static std::optional<int> HallNumber(QString inputString);
   static const std::vector<SKSpaceGroupSetting>& spaceGroupData() {return SKSpaceGroup::_spaceGroupData;}
   static const std::vector<std::vector<int>>  spaceGroupHallData;
 private:

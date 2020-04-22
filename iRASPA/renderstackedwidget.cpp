@@ -152,14 +152,25 @@ bool RenderStackedWidget::eventFilter(QObject *obj, QEvent *event)
         {
           pixel = widget->pickTexture(me->x(), me->y(), this->width(), this->height());
 
-          if(pixel[0]>0)
+          int structureIdentifier = pixel[1];
+          int movieIdentifier = pixel[2];
+          int pickedObject  = pixel[3];
+
+          switch(pixel[0])
           {
-            int structureIdentifier = pixel[1];
-            int movieIdentifier = pixel[2];
-            int pickedAtom  = pixel[3];
-            _structures[structureIdentifier][movieIdentifier]->setAtomSelection(pickedAtom);
+          case 1:
+            _structures[structureIdentifier][movieIdentifier]->setAtomSelection(pickedObject);
             reloadData();
             emit updateAtomSelection();
+            emit updateBondSelection();
+            break;
+          case 2:
+            _structures[structureIdentifier][movieIdentifier]->setBondSelection(pickedObject);
+            reloadData();
+            emit updateBondSelection();
+            break;
+          default:
+            break;
           }
         }
         break;
@@ -167,47 +178,62 @@ bool RenderStackedWidget::eventFilter(QObject *obj, QEvent *event)
         if (RKRenderViewController* widget = dynamic_cast<RKRenderViewController*>(currentWidget()))
         {
           pixel = widget->pickTexture(me->x(), me->y(), this->width(), this->height());
-          if(pixel[0]>0)
+          int structureIdentifier = pixel[1];
+          int movieIdentifier = pixel[2];
+          int pickedObject  = pixel[3];
+          switch(pixel[0])
           {
-            int structureIdentifier = pixel[1];
-            int movieIdentifier = pixel[2];
-            int pickedAtom  = pixel[3];
-            _structures[structureIdentifier][movieIdentifier]->toggleAtomSelection(pickedAtom);
+          case 1:
+            _structures[structureIdentifier][movieIdentifier]->toggleAtomSelection(pickedObject);
             reloadData();
             emit updateAtomSelection();
+            emit updateBondSelection();
+            break;
+          case 2:
+            _structures[structureIdentifier][movieIdentifier]->toggleBondSelection(pickedObject);
+            reloadData();
+            emit updateBondSelection();
+            break;
+          default:
+            break;
           }
         }
         break;
       case Tracking::draggedNewSelection:
         if (std::shared_ptr<RKCamera> camera = _camera.lock())
         {
-          for(int i=0; i< _structures.size();i++)
+          selectAsymetricAtomsInRectangle(rect, false);
+          /*
+          for(size_t i=0; i< _structures.size();i++)
           {
-            for(int j=0; j<_structures[i].size(); j++)
+            for(size_t j=0; j<_structures[i].size(); j++)
             {
-              std::vector<double3> atomPositions = _structures[i][j]->atomPositions();
-              std::vector<int> atomIds = camera->selectPositionsInRectangle(atomPositions, rect, _structures[i][j]->origin(), QRect(QPoint(0.0,0.0), this->size()));
-              _structures[i][j]->setAtomSelection(atomIds);
+             // std::vector<double3> atomPositions = _structures[i][j]->atomPositions();
+             // std::vector<int> atomIds = camera->selectPositionsInRectangle(atomPositions, rect, _structures[i][j]->origin(), QRect(QPoint(0.0,0.0), this->size()));
+             // _structures[i][j]->setAtomSelection(atomIds);
             }
           }
           reloadData();
-          emit updateAtomSelection();
+          emit updateAtomSelection();*/
         }
         break;
       case Tracking::draggedAddToSelection:
         if (std::shared_ptr<RKCamera> camera = _camera.lock())
         {
-          for(int i=0; i< _structures.size();i++)
+          selectAsymetricAtomsInRectangle(rect, true);
+
+          /*
+          for(size_t i=0; i< _structures.size();i++)
           {
-            for(int j=0; j<_structures[i].size(); j++)
+            for(size_t j=0; j<_structures[i].size(); j++)
             {
-              std::vector<double3> atomPositions = _structures[i][j]->atomPositions();
-              std::vector<int> atomIds = camera->selectPositionsInRectangle(atomPositions, rect, _structures[i][j]->origin(), QRect(QPoint(0.0,0.0), this->size()));
-              _structures[i][j]->addToAtomSelection(atomIds);
+            //  std::vector<double3> atomPositions = _structures[i][j]->atomPositions();
+            //  std::vector<int> atomIds = camera->selectPositionsInRectangle(atomPositions, rect, _structures[i][j]->origin(), QRect(QPoint(0.0,0.0), this->size()));
+            //  _structures[i][j]->addToAtomSelection(atomIds);
             }
           }
           reloadData();
-          emit updateAtomSelection();
+          emit updateAtomSelection();*/
         }
         break;
       case Tracking::translateSelection:
@@ -215,9 +241,9 @@ bool RenderStackedWidget::eventFilter(QObject *obj, QEvent *event)
       case Tracking::measurement:
         break;
       case Tracking::backgroundClick:
-        for(int i=0; i< _structures.size();i++)
+        for(size_t i=0; i< _structures.size();i++)
         {
-          for(int j=0; j<_structures[i].size(); j++)
+          for(size_t j=0; j<_structures[i].size(); j++)
           {
             _structures[i][j]->clearSelection();
           }
@@ -225,15 +251,31 @@ bool RenderStackedWidget::eventFilter(QObject *obj, QEvent *event)
         if (RKRenderViewController* widget = dynamic_cast<RKRenderViewController*>(currentWidget()))
         {
           pixel = widget->pickTexture(me->x(), me->y(), this->width(), this->height());
-          if(pixel[0]>0)
+
+          int structureIdentifier = pixel[1];
+          int movieIdentifier = pixel[2];
+          int pickedObject  = pixel[3];
+          switch(pixel[0])
           {
-            int structureIdentifier = pixel[1];
-            int movieIdentifier = pixel[2];
-            int pickedAtom  = pixel[3];
-            _structures[structureIdentifier][movieIdentifier]->setAtomSelection(pickedAtom);
+          case 0:
+            reloadData();
+            emit updateAtomSelection();
+            emit updateBondSelection();
+            break;
+          case 1:
+            _structures[structureIdentifier][movieIdentifier]->setAtomSelection(pickedObject);
+            reloadData();
+            emit updateAtomSelection();
+            emit updateBondSelection();
+            break;
+          case 2:
+            _structures[structureIdentifier][movieIdentifier]->setBondSelection(pickedObject);
+            reloadData();
+            emit updateBondSelection();
+            break;
+          default:
+            break;
           }
-          reloadData();
-          emit updateAtomSelection();
         }
         break;
       default:
@@ -242,6 +284,63 @@ bool RenderStackedWidget::eventFilter(QObject *obj, QEvent *event)
   }
 
   return false;
+}
+
+void RenderStackedWidget::selectAsymetricAtomsInRectangle(QRect rect, bool extend)
+{
+  if (std::shared_ptr<RKCamera> camera = _camera.lock())
+  {
+    QRect viewPortBounds = QRect(QPoint(0.0,0.0), this->size());
+    double3 Points0 = camera->myGluUnProject(double3(double(rect.left()), double(viewPortBounds.size().height() - rect.top()), 0.0), viewPortBounds);
+    double3 Points1 = camera->myGluUnProject(double3(double(rect.left()), double(viewPortBounds.size().height() - rect.top()), 1.0), viewPortBounds);
+
+    double3 Points2 = camera->myGluUnProject(double3(double(rect.left()), double(viewPortBounds.size().height() - rect.bottom()), 0.0), viewPortBounds);
+    double3 Points3 = camera->myGluUnProject(double3(double(rect.left()), double(viewPortBounds.size().height() - rect.bottom()), 1.0), viewPortBounds);
+
+    double3 Points4 = camera->myGluUnProject(double3(double(rect.right()), double(viewPortBounds.size().height() - rect.bottom()), 0.0), viewPortBounds);
+    double3 Points5 = camera->myGluUnProject(double3(double(rect.right()), double(viewPortBounds.size().height() - rect.bottom()), 1.0), viewPortBounds);
+
+    double3 Points6 = camera->myGluUnProject(double3(double(rect.right()), double(viewPortBounds.size().height() - rect.top()), 0.0), viewPortBounds);
+    double3 Points7 = camera->myGluUnProject(double3(double(rect.right()), double(viewPortBounds.size().height() - rect.top()), 1.0), viewPortBounds);
+
+    double3 FrustrumPlane0 = double3::cross(Points0 - Points1, Points0 - Points2).normalise();
+    double3 FrustrumPlane1 = double3::cross(Points2 - Points3, Points2 - Points4).normalise();
+    double3 FrustrumPlane2 = double3::cross(Points4 - Points5, Points4 - Points6).normalise();
+    double3 FrustrumPlane3 = double3::cross(Points6 - Points7, Points6 - Points0).normalise();
+
+
+    std::function<bool(double3)> closure = [=](double3 position) -> bool {
+      return (double3::dot(position-Points0,FrustrumPlane0)<0) &&
+             (double3::dot(position-Points2,FrustrumPlane1)<0) &&
+             (double3::dot(position-Points4,FrustrumPlane2)<0) &&
+             (double3::dot(position-Points6,FrustrumPlane3)<0);
+    };
+
+    for(size_t i=0; i< _structures.size();i++)
+    {
+      for(size_t j=0; j<_structures[i].size(); j++)
+      {
+        std::set<int> indexSetSelectedAtoms = _structures[i][j]->filterCartesianAtomPositions(closure);
+        std::set<int> indexSetSelectedBonds = _structures[i][j]->filterCartesianBondPositions(closure);
+
+        qDebug() << "indexSetSelectedBonds: " << indexSetSelectedBonds.size();
+
+        if(extend)
+        {
+          _structures[i][j]->addToAtomSelection(indexSetSelectedAtoms);
+          _structures[i][j]->bondSetController()->addSelectedObjects(indexSetSelectedBonds);
+        }
+        else
+        {
+          _structures[i][j]->setAtomSelection(indexSetSelectedAtoms);
+          _structures[i][j]->bondSetController()->setSelectedObjects(indexSetSelectedBonds);
+        }
+      }
+    }
+    reloadData();
+    emit updateAtomSelection();
+    emit updateBondSelection();
+  }
 }
 
 
@@ -267,15 +366,12 @@ void RenderStackedWidget::setProject(std::shared_ptr<ProjectTreeNode> projectTre
           this->_camera = projectStructure->camera();
           _structures = projectStructure->structures();
 
-          qDebug() << "RenderStackedWidget: setProject, number of structures" << _structures.size();
+
         }
       }
     }
   }
 }
-
-
-
 
 void RenderStackedWidget::ShowContextMenu(const QPoint &pos)
 {
@@ -317,6 +413,40 @@ void RenderStackedWidget::ShowContextMenu(const QPoint &pos)
     subMenuCameraProjection->addAction(&actionPerspective);
     connect(&actionPerspective, &QAction::triggered, this, &RenderStackedWidget::setCameraToPerspective);
     actionPerspective.setChecked(project->camera()->isPerspective());
+
+    QAction _actionShowBoundingBox("Show bounding box", this);
+    _actionShowBoundingBox.setCheckable(true);
+    _actionShowBoundingBox.setChecked(project->showBoundingBox());
+    connect(&_actionShowBoundingBox, &QAction::toggled, this, &RenderStackedWidget::showBoundingBox);
+    contextMenu.addAction(&_actionShowBoundingBox);
+
+    QAction _actionComputeAOHighQuality("Compute AO high quality", this);
+    //connect(&_actionComputeAOHighQuality, &QAction::toggled, this, &RenderStackedWidget::showBoundingBox);
+    contextMenu.addAction(&_actionComputeAOHighQuality);
+
+    QMenu* subMenuExport = contextMenu.addMenu( "Export to" );
+    QActionGroup* exportToGroup = new QActionGroup(this);
+    QAction actionExportToPDB("PDB", this);
+    exportToGroup->addAction(&actionExportToPDB);
+    subMenuExport->addAction(&actionExportToPDB);
+    connect(&actionOrthographic, &QAction::triggered, this, &RenderStackedWidget::exportToPDB);
+    QAction actionExportToMMCIF("mmCIF", this);
+    exportToGroup->addAction(&actionExportToMMCIF);
+    subMenuExport->addAction(&actionExportToMMCIF);
+    connect(&actionOrthographic, &QAction::triggered, this, &RenderStackedWidget::exportToMMCIF);
+    QAction actionExportToCIF("CIF", this);
+    exportToGroup->addAction(&actionExportToCIF);
+    subMenuExport->addAction(&actionExportToCIF);
+    connect(&actionOrthographic, &QAction::triggered, this, &RenderStackedWidget::exportToCIF);
+    QAction actionExportToXYZ("XYZ", this);
+    exportToGroup->addAction(&actionExportToXYZ);
+    subMenuExport->addAction(&actionExportToXYZ);
+    connect(&actionOrthographic, &QAction::triggered, this, &RenderStackedWidget::exportToXYZ);
+    QAction actionExportToPOSCAR("VASP POSCAR", this);
+    exportToGroup->addAction(&actionExportToPOSCAR);
+    subMenuExport->addAction(&actionExportToPOSCAR);
+    connect(&actionOrthographic, &QAction::triggered, this, &RenderStackedWidget::exportToPOSCAR);
+
 
     contextMenu.exec(mapToGlobal(pos));
   }
@@ -431,6 +561,16 @@ void RenderStackedWidget::setCameraToPerspective()
   }
 }
 
+void RenderStackedWidget::showBoundingBox(bool checked)
+{
+  if(std::shared_ptr<ProjectStructure> project = this->project.lock())
+  {
+    project->setShowBoundingBox(checked);
+    emit reloadData();
+  }
+}
+
+
 void RenderStackedWidget::createPicture(QUrl fileURL, int width, int height)
 {
   if (RKRenderViewController* widget = dynamic_cast<RKRenderViewController*>(currentWidget()))
@@ -444,20 +584,11 @@ void RenderStackedWidget::createPicture(QUrl fileURL, int width, int height)
 void RenderStackedWidget::redraw()
 {
   currentWidget()->update();
-
-  //foreach(QObject *child, currentWidget()->children())
-  //{
-  //  if (RKRenderViewController* widget = dynamic_cast<RKRenderViewController*>(child))
-  //  {
-  //    widget->redraw();
-  //  }
-  //}
 }
 
 
 void RenderStackedWidget::redrawWithLowQuality()
 {
-  std::cout << "redrawWithLowQuality" << std::endl;
   if (RKRenderViewController* widget = dynamic_cast<RKRenderViewController*>(currentWidget()))
   {
     widget->redrawWithLowQuality();
@@ -466,7 +597,6 @@ void RenderStackedWidget::redrawWithLowQuality()
 
 void RenderStackedWidget::redrawWithMediumQuality()
 {
-  std::cout << "redrawWithMediumQuality" << std::endl;
   if (RKRenderViewController* widget = dynamic_cast<RKRenderViewController*>(currentWidget()))
   {
     widget->redrawWithMediumQuality();
@@ -475,17 +605,14 @@ void RenderStackedWidget::redrawWithMediumQuality()
 
 void RenderStackedWidget::redrawWithHighQuality()
 {
-  std::cout << "redrawWithHighQuality" << std::endl;
   if (RKRenderViewController* widget = dynamic_cast<RKRenderViewController*>(currentWidget()))
   {
     widget->redrawWithHighQuality();
   }
-  std::cout << "end redrawWithHighQuality" << std::endl;
 }
 
 void RenderStackedWidget::redrawWithPictureQuality()
 {
-  std::cout << "redrawWithPictureQuality" << std::endl;
   if (RKRenderViewController* widget = dynamic_cast<RKRenderViewController*>(currentWidget()))
   {
     widget->redrawWithPictureQuality();
@@ -523,5 +650,50 @@ void RenderStackedWidget::computeNitrogenSurfaceArea(std::vector<std::shared_ptr
   if (RKRenderViewController* widget = dynamic_cast<RKRenderViewController*>(currentWidget()))
   {
     widget->computeNitrogenSurfaceArea(structures);
+  }
+}
+
+void RenderStackedWidget::exportToPDB() const
+{
+  if(std::shared_ptr<ProjectStructure> project = this->project.lock())
+  {
+    //project->camera()->setCameraToPerspective();
+    //emit updateCameraProjection();
+  }
+}
+
+void RenderStackedWidget::exportToMMCIF() const
+{
+  if(std::shared_ptr<ProjectStructure> project = this->project.lock())
+  {
+    //project->camera()->setCameraToPerspective();
+    //emit updateCameraProjection();
+  }
+}
+
+void RenderStackedWidget::exportToCIF() const
+{
+  if(std::shared_ptr<ProjectStructure> project = this->project.lock())
+  {
+    //project->camera()->setCameraToPerspective();
+    //emit updateCameraProjection();
+  }
+}
+
+void RenderStackedWidget::exportToXYZ() const
+{
+  if(std::shared_ptr<ProjectStructure> project = this->project.lock())
+  {
+    //project->camera()->setCameraToPerspective();
+    //emit updateCameraProjection();
+  }
+}
+
+void RenderStackedWidget::exportToPOSCAR() const
+{
+  if(std::shared_ptr<ProjectStructure> project = this->project.lock())
+  {
+    //project->camera()->setCameraToPerspective();
+    //emit updateCameraProjection();
   }
 }

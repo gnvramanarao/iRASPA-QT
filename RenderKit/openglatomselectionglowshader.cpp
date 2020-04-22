@@ -48,7 +48,7 @@ void OpenGLAtomSelectionGlowShader::setRenderStructures(std::vector<std::vector<
 
 void OpenGLAtomSelectionGlowShader::deleteBuffers()
 {
-  for(int i=0;i<_renderStructures.size();i++)
+  for(size_t i=0;i<_renderStructures.size();i++)
   {
     glDeleteBuffers(_renderStructures[i].size(), _vertexBuffer[i].data());
     glDeleteBuffers(_renderStructures[i].size(), _indexBuffer[i].data());
@@ -74,7 +74,7 @@ void OpenGLAtomSelectionGlowShader::generateBuffers()
     _vertexArrayObject[i].resize(_renderStructures[i].size());
   }
 
-  for(int i=0;i<_renderStructures.size();i++)
+  for(size_t i=0;i<_renderStructures.size();i++)
   {
     glGenBuffers(_renderStructures[i].size(), _vertexBuffer[i].data());
     glGenBuffers(_renderStructures[i].size(), _indexBuffer[i].data());
@@ -93,7 +93,7 @@ void OpenGLAtomSelectionGlowShader::paintGL(GLuint structureUniformBuffer)
   {
     for(size_t j=0;j<_renderStructures[i].size();j++)
     {
-      if(_renderStructures[i][j]->renderSelectionStyle() == RKSelectionStyle::glow && _renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible() && _numberOfIndices[i][j]>0 && _atomSelectionShader._numberOfDrawnAtoms[i][j]>0)
+      if(_renderStructures[i][j]->atomSelectionStyle() == RKSelectionStyle::glow && _renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible() && _numberOfIndices[i][j]>0 && _atomSelectionShader._numberOfDrawnAtoms[i][j]>0)
       {
         glBindBufferRange(GL_UNIFORM_BUFFER, 1, structureUniformBuffer, GLintptr(index * sizeof(RKStructureUniforms)), GLsizeiptr(sizeof(RKStructureUniforms)));
         glBindVertexArray(_vertexArrayObject[i][j]);
@@ -120,9 +120,9 @@ void OpenGLAtomSelectionGlowShader::initializeVertexArrayObject()
 {
   QuadGeometry quad = QuadGeometry();
 
-  for(int i=0;i<_renderStructures.size();i++)
+  for(size_t i=0;i<_renderStructures.size();i++)
   {
-    for(int j=0;j<_renderStructures[i].size();j++)
+    for(size_t j=0;j<_renderStructures[i].size();j++)
     {
       glBindVertexArray(_vertexArrayObject[i][j]);
       check_gl_error();
@@ -257,7 +257,7 @@ in vec4 instanceDiffuseColor;
 
 void main(void)
 {
-  vec4 scale = structureUniforms.selectionScaling * structureUniforms.atomScaleFactor * instanceScale;
+  vec4 scale = structureUniforms.atomSelectionScaling * structureUniforms.atomScaleFactor * instanceScale;
   vs_out.ambient = lightUniforms.lights[0].ambient * structureUniforms.atomAmbientColor * instanceAmbientColor;
   vs_out.diffuse = lightUniforms.lights[0].diffuse * structureUniforms.atomDiffuseColor * instanceDiffuseColor;
 
@@ -305,6 +305,6 @@ void main(void)
   pos = frameUniforms.projectionMatrix * pos;
   gl_FragDepth = 0.5*(pos.z / pos.w)+0.5;
 
-  vFragColor = vec4(structureUniforms.atomHDRBloomLevel * (fs_in.ambient.xyz+fs_in.diffuse.xyz),1.0);
+  vFragColor = vec4(structureUniforms.atomSelectionIntensity * (fs_in.ambient.xyz+fs_in.diffuse.xyz),1.0);
 }
 )foo";

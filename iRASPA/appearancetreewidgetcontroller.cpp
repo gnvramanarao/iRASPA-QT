@@ -90,9 +90,10 @@ AppearanceTreeWidgetController::AppearanceTreeWidgetController(QWidget* parent):
   _appearanceAtomsForm->forceFieldSchemeOrderComboBox->insertItem(1,"Force field first");
   _appearanceAtomsForm->forceFieldSchemeOrderComboBox->insertItem(2,"Force field only");
 
-  _appearanceAtomsForm->atomSelectionStyleComboBox->insertItem(0,"Worley Noise 3D");
-  _appearanceAtomsForm->atomSelectionStyleComboBox->insertItem(1,"Stripes");
-  _appearanceAtomsForm->atomSelectionStyleComboBox->insertItem(2,"Glow");
+  _appearanceAtomsForm->atomSelectionStyleComboBox->insertItem(0,"None");
+  _appearanceAtomsForm->atomSelectionStyleComboBox->insertItem(1,"Worley Noise 3D");
+  _appearanceAtomsForm->atomSelectionStyleComboBox->insertItem(2,"Stripes");
+  _appearanceAtomsForm->atomSelectionStyleComboBox->insertItem(3,"Glow");
 
   // Bonds
   //=========================================================================
@@ -478,7 +479,7 @@ void AppearanceTreeWidgetController::reloadAtomRepresentationType()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<RepresentationType> type=representationType())
+    if (std::optional<Structure::RepresentationType> type=representationType())
     {
       if(int index = _appearanceAtomsForm->atomRepresentationType->findText("Multiple values"); index>=0)
       {
@@ -501,7 +502,7 @@ void AppearanceTreeWidgetController::reloadAtomRepresentationStyle()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<RepresentationStyle> type=representationStyle())
+    if (std::optional<Structure::RepresentationStyle> type=representationStyle())
     {
       if(int index = _appearanceAtomsForm->atomRepresentationStyle->findText("Multiple values"); index>=0)
       {
@@ -513,8 +514,8 @@ void AppearanceTreeWidgetController::reloadAtomRepresentationStyle()
       }
       if(int(*type)<0)
       {
-         whileBlocking(_appearanceAtomsForm->atomRepresentationStyle)->insertItem(int(RepresentationStyle::multiple_values),"Custom");
-         whileBlocking(_appearanceAtomsForm->atomRepresentationStyle)->setCurrentIndex(int(RepresentationStyle::multiple_values));
+         whileBlocking(_appearanceAtomsForm->atomRepresentationStyle)->insertItem(int(Structure::RepresentationStyle::multiple_values),"Custom");
+         whileBlocking(_appearanceAtomsForm->atomRepresentationStyle)->setCurrentIndex(int(Structure::RepresentationStyle::multiple_values));
       }
       else
       {
@@ -540,7 +541,7 @@ void AppearanceTreeWidgetController::reloadAtomColorSet()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<QString> colorSchemName = colorSchemeIdentifier())
+    if (std::optional<QString> colorSchemName = colorSchemeIdentifier())
     {
       if(int index = _appearanceAtomsForm->atomRepresentationStyle->findText("Multiple values"); index>=0)
       {
@@ -563,7 +564,7 @@ void AppearanceTreeWidgetController::reloadAtomColorSetOrder()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<ColorSchemeOrder> type = colorSchemeOrder())
+    if (std::optional<SKColorSet::ColorSchemeOrder> type = colorSchemeOrder())
     {
       if(int index = _appearanceAtomsForm->colorSchemeOrderComboBox->findText("Multiple values"); index>=0)
       {
@@ -586,7 +587,7 @@ void AppearanceTreeWidgetController::reloadAtomForceFieldSet()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<QString> forceFieldIdentifier = forceFieldSchemeIdentifier())
+    if (std::optional<QString> forceFieldIdentifier = forceFieldSchemeIdentifier())
     {
       if(int index = _appearanceAtomsForm->atomRepresentationStyle->findText("Multiple values"); index>=0)
       {
@@ -609,7 +610,7 @@ void AppearanceTreeWidgetController::reloadAtomForceFieldSetOrder()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<ForceFieldSchemeOrder> type = forceFieldSchemeOrder())
+    if (std::optional<ForceFieldSet::ForceFieldSchemeOrder> type = forceFieldSchemeOrder())
     {
       if(int index = _appearanceAtomsForm->forceFieldSchemeOrderComboBox->findText("Multiple values"); index>=0)
       {
@@ -632,7 +633,7 @@ void AppearanceTreeWidgetController::reloadAtomDrawAtoms()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<bool> state = atomDrawAtoms())
+    if (std::optional<bool> state = atomDrawAtoms())
     {
       whileBlocking(_appearanceAtomsForm->atomDrawAtomsCheckBox)->setTristate(false);
       whileBlocking(_appearanceAtomsForm->atomDrawAtomsCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
@@ -649,7 +650,7 @@ void AppearanceTreeWidgetController::reloadAtomSelectionStyle()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<RKSelectionStyle> type = atomSelectionStyle())
+    if (std::optional<RKSelectionStyle> type = atomSelectionStyle())
     {
       if(int index = _appearanceAtomsForm->atomSelectionStyleComboBox->findText("Multiple values"); index>=0)
       {
@@ -666,7 +667,7 @@ void AppearanceTreeWidgetController::reloadAtomSelectionStyle()
       whileBlocking(_appearanceAtomsForm->atomSelectionStyleComboBox)->setCurrentText("Multiple values");
     }
 
-    if (stdx::optional<double> size = atomSelectionStyleNu())
+    if (std::optional<double> size = atomSelectionStyleNu())
     {
      whileBlocking(_appearanceAtomsForm->atomSelectionStyleNuDoubleSpinBox)->setValue(*size);
     }
@@ -675,7 +676,7 @@ void AppearanceTreeWidgetController::reloadAtomSelectionStyle()
       whileBlocking(_appearanceAtomsForm->atomSelectionStyleNuDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<double> size = atomSelectionStyleRho())
+    if (std::optional<double> size = atomSelectionStyleRho())
     {
       whileBlocking(_appearanceAtomsForm->atomSelectionStyleRhoDoubleSpinBox)->setValue(*size);
     }
@@ -690,7 +691,7 @@ void AppearanceTreeWidgetController::reloadAtomSelectionIntensity()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> size = atomSelectionIntensity())
+    if (std::optional<double> size = atomSelectionIntensity())
     {
       whileBlocking(_appearanceAtomsForm->atomSelectionItensityDoubleSpinBox)->setValue(*size);
       whileBlocking(_appearanceAtomsForm->atomSelectionItensityDoubleSlider)->setDoubleValue(*size);
@@ -706,7 +707,7 @@ void AppearanceTreeWidgetController::reloadAtomSelectionScaling()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> size = atomSelectionScaling())
+    if (std::optional<double> size = atomSelectionScaling())
     {
       whileBlocking(_appearanceAtomsForm->atomSelectionScalingDoubleSpinBox)->setValue(*size);
       whileBlocking(_appearanceAtomsForm->atomSelectionScalingDoubleSlider)->setDoubleValue(*size);
@@ -722,7 +723,7 @@ void AppearanceTreeWidgetController::reloadAtomSizeScalingDoubleSpinBox()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> size = atomSizeScaling())
+    if (std::optional<double> size = atomSizeScaling())
     {
       whileBlocking(_appearanceAtomsForm->atomSizeScalingSpinBox)->setValue(*size);
     }
@@ -737,7 +738,7 @@ void AppearanceTreeWidgetController::reloadAtomSizeScalingDoubleSlider()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> size = atomSizeScaling())
+    if (std::optional<double> size = atomSizeScaling())
     {
       whileBlocking(_appearanceAtomsForm->atomAtomicSizeScalingSlider)->setDoubleValue(*size);
     }
@@ -749,7 +750,7 @@ void AppearanceTreeWidgetController::reloadAtomHighDynamicRange()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<bool> state = atomHighDynamicRange())
+    if (std::optional<bool> state = atomHighDynamicRange())
     {
       whileBlocking(_appearanceAtomsForm->atomHighDynamicRangeCheckBox)->setTristate(false);
       whileBlocking(_appearanceAtomsForm->atomHighDynamicRangeCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
@@ -766,7 +767,7 @@ void AppearanceTreeWidgetController::reloadAtomHDRExposure()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = atomHDRExposure())
+    if (std::optional<double> value = atomHDRExposure())
     {
       whileBlocking(_appearanceAtomsForm->atomHDRExposureDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceAtomsForm->atomHDRExposureDoubleSlider)->setDoubleValue(*value);
@@ -782,7 +783,7 @@ void AppearanceTreeWidgetController::reloadAtomHue()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = atomHue())
+    if (std::optional<double> value = atomHue())
     {
       whileBlocking(_appearanceAtomsForm->atomHueDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceAtomsForm->atomHueDoubleSlider)->setDoubleValue(*value);
@@ -798,7 +799,7 @@ void AppearanceTreeWidgetController::reloadAtomSaturation()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = atomSaturation())
+    if (std::optional<double> value = atomSaturation())
     {
       whileBlocking(_appearanceAtomsForm->atomSaturationDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceAtomsForm->atomSaturationDoubleSlider)->setDoubleValue(*value);
@@ -814,7 +815,7 @@ void AppearanceTreeWidgetController::reloadAtomValue()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = atomValue())
+    if (std::optional<double> value = atomValue())
     {
       whileBlocking(_appearanceAtomsForm->atomValueDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceAtomsForm->atomValueDoubleSlider)->setDoubleValue(*value);
@@ -830,7 +831,7 @@ void AppearanceTreeWidgetController::reloadAtomAmbientOcclusion()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<bool> state = atomAmbientOcclusion())
+    if (std::optional<bool> state = atomAmbientOcclusion())
     {
       whileBlocking(_appearanceAtomsForm->atomAmbientOcclusionCheckBox)->setTristate(false);
       whileBlocking(_appearanceAtomsForm->atomAmbientOcclusionCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
@@ -847,7 +848,7 @@ void AppearanceTreeWidgetController::reloadAtomAmbientLight()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = atomAmbientLightIntensity())
+    if (std::optional<double> value = atomAmbientLightIntensity())
     {
       whileBlocking(_appearanceAtomsForm->atomAmbientIntensityDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceAtomsForm->atomAmbientIntensityDoubleSlider)->setDoubleValue(*value);
@@ -857,7 +858,7 @@ void AppearanceTreeWidgetController::reloadAtomAmbientLight()
       whileBlocking(_appearanceAtomsForm->atomAmbientIntensityDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<QColor> value = atomAmbientLightColor())
+    if (std::optional<QColor> value = atomAmbientLightColor())
     {
       whileBlocking(_appearanceAtomsForm->atomAmbientColorPushButton)->setText("color");
       whileBlocking(_appearanceAtomsForm->atomAmbientColorPushButton)->setColor(*value);
@@ -874,7 +875,7 @@ void AppearanceTreeWidgetController::reloadAtomDiffuseLight()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = atomDiffuseLightIntensity())
+    if (std::optional<double> value = atomDiffuseLightIntensity())
     {
       whileBlocking(_appearanceAtomsForm->atomDiffuseItensityDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceAtomsForm->atomDiffuseIntensityDoubleSlider)->setDoubleValue(*value);
@@ -884,7 +885,7 @@ void AppearanceTreeWidgetController::reloadAtomDiffuseLight()
       whileBlocking(_appearanceAtomsForm->atomDiffuseItensityDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<QColor> value = atomDiffuseLightColor())
+    if (std::optional<QColor> value = atomDiffuseLightColor())
     {
       whileBlocking(_appearanceAtomsForm->atomDiffuseColorPushButton)->setText("color");
       whileBlocking(_appearanceAtomsForm->atomDiffuseColorPushButton)->setColor(*value);
@@ -901,7 +902,7 @@ void AppearanceTreeWidgetController::reloadAtomSpecularLight()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = atomSpecularLightIntensity())
+    if (std::optional<double> value = atomSpecularLightIntensity())
     {
       whileBlocking(_appearanceAtomsForm->atomSpecularIntensityDoubleSpinBoxBox)->setValue(*value);
       whileBlocking(_appearanceAtomsForm->atomSpecularIntensityDoubleSlider)->setDoubleValue(*value);
@@ -911,7 +912,7 @@ void AppearanceTreeWidgetController::reloadAtomSpecularLight()
       whileBlocking(_appearanceAtomsForm->atomSpecularIntensityDoubleSpinBoxBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<QColor> value = atomSpecularLightColor())
+    if (std::optional<QColor> value = atomSpecularLightColor())
     {
       whileBlocking(_appearanceAtomsForm->atomSpecularColorPushButton)->setText("color");
       whileBlocking(_appearanceAtomsForm->atomSpecularColorPushButton)->setColor(*value);
@@ -928,7 +929,7 @@ void AppearanceTreeWidgetController::reloadAtomShininess()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = atomShininessy())
+    if (std::optional<double> value = atomShininessy())
     {
       whileBlocking(_appearanceAtomsForm->atomShininessDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceAtomsForm->atomShininessDoubleSlider)->setDoubleValue(*value);
@@ -947,9 +948,9 @@ void AppearanceTreeWidgetController::setRepresentationType(int value)
   std::cout << "setRepresentationType " << value << std::endl;
   for(std::shared_ptr<Structure> structure: _structures)
   {
-    if(value>=0 && value<int(RepresentationType::multiple_values))
+    if(value>=0 && value<int(Structure::RepresentationType::multiple_values))
     {
-      structure->setRepresentationType(RepresentationType(value));
+      structure->setRepresentationType(Structure::RepresentationType(value));
       structure->recheckRepresentationStyle();
     }
   }
@@ -958,16 +959,16 @@ void AppearanceTreeWidgetController::setRepresentationType(int value)
   emit rendererReloadData();
 }
 
-stdx::optional<RepresentationType> AppearanceTreeWidgetController::representationType()
+std::optional<Structure::RepresentationType> AppearanceTreeWidgetController::representationType()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
-  std::unordered_set<RepresentationType, enum_hash> set = std::unordered_set<RepresentationType, enum_hash>{};
+  std::unordered_set<Structure::RepresentationType, enum_hash> set = std::unordered_set<Structure::RepresentationType, enum_hash>{};
   for(std::shared_ptr<Structure> structure: _structures)
   {
-    RepresentationType value = structure->atomRepresentationType();
+    Structure::RepresentationType value = structure->atomRepresentationType();
     set.insert(value);
   }
 
@@ -975,17 +976,17 @@ stdx::optional<RepresentationType> AppearanceTreeWidgetController::representatio
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setRepresentationStyle(int value)
 {
   std::cout << "setRepresentationStyle " << value << std::endl;
-  if(value >= 0 && value <= int(RepresentationStyle::multiple_values))  // also include "Custom"
+  if(value >= 0 && value <= int(Structure::RepresentationStyle::multiple_values))  // also include "Custom"
   {
     for(std::shared_ptr<Structure> structure: _structures)
     {
-      structure->setRepresentationStyle(RepresentationStyle(value), _mainWindow->colorSets());
+      structure->setRepresentationStyle(Structure::RepresentationStyle(value), _mainWindow->colorSets());
     }
 
     reloadAtomProperties();
@@ -994,17 +995,17 @@ void AppearanceTreeWidgetController::setRepresentationStyle(int value)
   }
 }
 
-stdx::optional<RepresentationStyle> AppearanceTreeWidgetController::representationStyle()
+std::optional<Structure::RepresentationStyle> AppearanceTreeWidgetController::representationStyle()
 {
   std::cout << "representationStyle " << std::endl;
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
-  std::unordered_set<RepresentationStyle, enum_hash> set = std::unordered_set<RepresentationStyle, enum_hash>{};
+  std::unordered_set<Structure::RepresentationStyle, enum_hash> set = std::unordered_set<Structure::RepresentationStyle, enum_hash>{};
   for(std::shared_ptr<Structure> structure: _structures)
   {
-    RepresentationStyle value = structure->atomRepresentationStyle();
+    Structure::RepresentationStyle value = structure->atomRepresentationStyle();
     set.insert(value);
   }
 
@@ -1013,7 +1014,7 @@ stdx::optional<RepresentationStyle> AppearanceTreeWidgetController::representati
     return *set.begin();
   }
   std::cout << "representationStyle end" << std::endl;
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setColorSchemeComboBoxIndex(int value)
@@ -1032,11 +1033,11 @@ void AppearanceTreeWidgetController::setColorSchemeComboBoxIndex(int value)
   }
 }
 
-stdx::optional<QString> AppearanceTreeWidgetController::colorSchemeIdentifier()
+std::optional<QString> AppearanceTreeWidgetController::colorSchemeIdentifier()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1049,16 +1050,16 @@ stdx::optional<QString> AppearanceTreeWidgetController::colorSchemeIdentifier()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setColorSchemeOrder(int value)
 {
-  if(value>=0 && value<int(ColorSchemeOrder::multiple_values))
+  if(value>=0 && value<int(SKColorSet::ColorSchemeOrder::multiple_values))
   {
     for(std::shared_ptr<Structure> structure: _structures)
     {
-      structure->setColorSchemeOrder(ColorSchemeOrder(value));
+      structure->setColorSchemeOrder(SKColorSet::ColorSchemeOrder(value));
       structure->recheckRepresentationStyle();
     }
     reloadAtomProperties();
@@ -1066,16 +1067,16 @@ void AppearanceTreeWidgetController::setColorSchemeOrder(int value)
   }
 }
 
-stdx::optional<ColorSchemeOrder> AppearanceTreeWidgetController::colorSchemeOrder()
+std::optional<SKColorSet::ColorSchemeOrder> AppearanceTreeWidgetController::colorSchemeOrder()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
-  std::unordered_set<ColorSchemeOrder, enum_hash> set = std::unordered_set<ColorSchemeOrder, enum_hash>{};
+  std::unordered_set<SKColorSet::ColorSchemeOrder, enum_hash> set = std::unordered_set<SKColorSet::ColorSchemeOrder, enum_hash>{};
   for(std::shared_ptr<Structure> structure: _structures)
   {
-    ColorSchemeOrder value = structure->colorSchemeOrder();
+    SKColorSet::ColorSchemeOrder value = structure->colorSchemeOrder();
     set.insert(value);
   }
 
@@ -1083,7 +1084,7 @@ stdx::optional<ColorSchemeOrder> AppearanceTreeWidgetController::colorSchemeOrde
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setForcefieldSchemeComboBoxIndex(int value)
@@ -1101,11 +1102,11 @@ void AppearanceTreeWidgetController::setForcefieldSchemeComboBoxIndex(int value)
   }
 }
 
-stdx::optional<QString> AppearanceTreeWidgetController::forceFieldSchemeIdentifier()
+std::optional<QString> AppearanceTreeWidgetController::forceFieldSchemeIdentifier()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1118,16 +1119,16 @@ stdx::optional<QString> AppearanceTreeWidgetController::forceFieldSchemeIdentifi
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setForceFieldSchemeOrder(int value)
 {
-  if(value>=0 && value<int(ForceFieldSchemeOrder::multiple_values))
+  if(value>=0 && value<int(ForceFieldSet::ForceFieldSchemeOrder::multiple_values))
   {
     for(std::shared_ptr<Structure> structure: _structures)
     {
-      structure->setForceFieldSchemeOrder(ForceFieldSchemeOrder(value));
+      structure->setForceFieldSchemeOrder(ForceFieldSet::ForceFieldSchemeOrder(value));
       structure->recheckRepresentationStyle();
     }
     reloadAtomProperties();
@@ -1135,16 +1136,16 @@ void AppearanceTreeWidgetController::setForceFieldSchemeOrder(int value)
   }
 }
 
-stdx::optional<ForceFieldSchemeOrder> AppearanceTreeWidgetController::forceFieldSchemeOrder()
+std::optional<ForceFieldSet::ForceFieldSchemeOrder> AppearanceTreeWidgetController::forceFieldSchemeOrder()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
-  std::unordered_set<ForceFieldSchemeOrder, enum_hash> set = std::unordered_set<ForceFieldSchemeOrder, enum_hash>{};
+  std::unordered_set<ForceFieldSet::ForceFieldSchemeOrder, enum_hash> set = std::unordered_set<ForceFieldSet::ForceFieldSchemeOrder, enum_hash>{};
   for(std::shared_ptr<Structure> structure: _structures)
   {
-    ForceFieldSchemeOrder value = structure->forceFieldSchemeOrder();
+    ForceFieldSet::ForceFieldSchemeOrder value = structure->forceFieldSchemeOrder();
     set.insert(value);
   }
 
@@ -1152,7 +1153,7 @@ stdx::optional<ForceFieldSchemeOrder> AppearanceTreeWidgetController::forceField
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAtomSelectionStyle(int value)
@@ -1161,7 +1162,7 @@ void AppearanceTreeWidgetController::setAtomSelectionStyle(int value)
   {
     for(std::shared_ptr<Structure> structure: _structures)
     {
-      structure->setSelectionStyle(RKSelectionStyle(value));
+      structure->setAtomSelectionStyle(RKSelectionStyle(value));
       structure->recheckRepresentationStyle();
     }
     reloadAtomProperties();
@@ -1169,16 +1170,16 @@ void AppearanceTreeWidgetController::setAtomSelectionStyle(int value)
   }
 }
 
-stdx::optional<RKSelectionStyle> AppearanceTreeWidgetController::atomSelectionStyle()
+std::optional<RKSelectionStyle> AppearanceTreeWidgetController::atomSelectionStyle()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<RKSelectionStyle, enum_hash> set = std::unordered_set<RKSelectionStyle, enum_hash>{};
   for(std::shared_ptr<Structure> structure: _structures)
   {
-    RKSelectionStyle value = structure->renderSelectionStyle();
+    RKSelectionStyle value = structure->atomSelectionStyle();
     set.insert(value);
   }
 
@@ -1186,30 +1187,30 @@ stdx::optional<RKSelectionStyle> AppearanceTreeWidgetController::atomSelectionSt
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAtomSelectionStyleNu(double value)
 {
   for(std::shared_ptr<Structure> structure: _structures)
   {
-    structure->setSelectionFrequency(value);
+    structure->setAtomSelectionFrequency(value);
     structure->recheckRepresentationStyle();
    }
    reloadAtomProperties();
    emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::atomSelectionStyleNu()
+std::optional<double> AppearanceTreeWidgetController::atomSelectionStyleNu()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
   {
-    double value = structure->renderSelectionFrequency();
+    double value = structure->atomSelectionFrequency();
     set.insert(value);
   }
 
@@ -1217,30 +1218,30 @@ stdx::optional<double> AppearanceTreeWidgetController::atomSelectionStyleNu()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAtomSelectionStyleRho(double value)
 {
   for(std::shared_ptr<Structure> structure: _structures)
   {
-    structure->setSelectionDensity(value);
+    structure->setAtomSelectionDensity(value);
     structure->recheckRepresentationStyle();
    }
    reloadAtomProperties();
    emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::atomSelectionStyleRho()
+std::optional<double> AppearanceTreeWidgetController::atomSelectionStyleRho()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
   {
-    double value = structure->renderSelectionDensity();
+    double value = structure->atomSelectionDensity();
     set.insert(value);
   }
 
@@ -1248,7 +1249,7 @@ stdx::optional<double> AppearanceTreeWidgetController::atomSelectionStyleRho()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAtomSelectionIntensity(double value)
@@ -1262,16 +1263,16 @@ void AppearanceTreeWidgetController::setAtomSelectionIntensity(double value)
   emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::atomSelectionIntensity()
+std::optional<double> AppearanceTreeWidgetController::atomSelectionIntensity()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
   {
-    double value = structure->renderAtomSelectionIntensity();
+    double value = structure->atomSelectionIntensity();
     set.insert(value);
   }
 
@@ -1279,30 +1280,30 @@ stdx::optional<double> AppearanceTreeWidgetController::atomSelectionIntensity()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAtomSelectionScaling(double value)
 {
   for(std::shared_ptr<Structure> structure: _structures)
   {
-    structure->setSelectionScaling(value);
+    structure->setAtomSelectionScaling(value);
     structure->recheckRepresentationStyle();
   }
   reloadAtomProperties();
   emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::atomSelectionScaling()
+std::optional<double> AppearanceTreeWidgetController::atomSelectionScaling()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
   {
-    double value = structure->renderSelectionScaling();
+    double value = structure->atomSelectionScaling();
     set.insert(value);
   }
 
@@ -1310,7 +1311,7 @@ stdx::optional<double> AppearanceTreeWidgetController::atomSelectionScaling()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 
@@ -1326,11 +1327,11 @@ void AppearanceTreeWidgetController::setAtomDrawAtoms(int state)
    emit rendererReloadData();
 }
 
-stdx::optional<bool> AppearanceTreeWidgetController::atomDrawAtoms()
+std::optional<bool> AppearanceTreeWidgetController::atomDrawAtoms()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<bool> set = std::unordered_set<bool>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1342,7 +1343,7 @@ stdx::optional<bool> AppearanceTreeWidgetController::atomDrawAtoms()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAtomSizeScalingDoubleSpinBox(double size)
@@ -1391,11 +1392,11 @@ void AppearanceTreeWidgetController::setAtomSizeScalingDoubleSliderFinal()
   emit redrawRendererWithHighQuality();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::atomSizeScaling()
+std::optional<double> AppearanceTreeWidgetController::atomSizeScaling()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1408,7 +1409,7 @@ stdx::optional<double> AppearanceTreeWidgetController::atomSizeScaling()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 
@@ -1423,11 +1424,11 @@ void AppearanceTreeWidgetController::setAtomHighDynamicRange(int value)
   emit rendererReloadData();
 }
 
-stdx::optional<bool> AppearanceTreeWidgetController::atomHighDynamicRange()
+std::optional<bool> AppearanceTreeWidgetController::atomHighDynamicRange()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<bool> set = std::unordered_set<bool>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1440,7 +1441,7 @@ stdx::optional<bool> AppearanceTreeWidgetController::atomHighDynamicRange()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAtomHDRExposure(double value)
@@ -1454,11 +1455,11 @@ void AppearanceTreeWidgetController::setAtomHDRExposure(double value)
   emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::atomHDRExposure()
+std::optional<double> AppearanceTreeWidgetController::atomHDRExposure()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1471,7 +1472,7 @@ stdx::optional<double> AppearanceTreeWidgetController::atomHDRExposure()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAtomHue(double value)
@@ -1485,11 +1486,11 @@ void AppearanceTreeWidgetController::setAtomHue(double value)
    emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::atomHue()
+std::optional<double> AppearanceTreeWidgetController::atomHue()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1502,7 +1503,7 @@ stdx::optional<double> AppearanceTreeWidgetController::atomHue()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAtomSaturation(double value)
@@ -1516,11 +1517,11 @@ void AppearanceTreeWidgetController::setAtomSaturation(double value)
    emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::atomSaturation()
+std::optional<double> AppearanceTreeWidgetController::atomSaturation()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1533,7 +1534,7 @@ stdx::optional<double> AppearanceTreeWidgetController::atomSaturation()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAtomValue(double value)
@@ -1547,11 +1548,11 @@ void AppearanceTreeWidgetController::setAtomValue(double value)
   emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::atomValue()
+std::optional<double> AppearanceTreeWidgetController::atomValue()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1564,7 +1565,7 @@ stdx::optional<double> AppearanceTreeWidgetController::atomValue()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAtomAmbientOcclusion(int value)
@@ -1578,11 +1579,11 @@ void AppearanceTreeWidgetController::setAtomAmbientOcclusion(int value)
   emit rendererReloadData();
 }
 
-stdx::optional<bool> AppearanceTreeWidgetController::atomAmbientOcclusion()
+std::optional<bool> AppearanceTreeWidgetController::atomAmbientOcclusion()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<bool> set = std::unordered_set<bool>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1594,7 +1595,7 @@ stdx::optional<bool> AppearanceTreeWidgetController::atomAmbientOcclusion()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAtomAmbientLightIntensity(double value)
@@ -1608,11 +1609,11 @@ void AppearanceTreeWidgetController::setAtomAmbientLightIntensity(double value)
    emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::atomAmbientLightIntensity()
+std::optional<double> AppearanceTreeWidgetController::atomAmbientLightIntensity()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1625,7 +1626,7 @@ stdx::optional<double> AppearanceTreeWidgetController::atomAmbientLightIntensity
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAtomAmbientLightColor()
@@ -1644,11 +1645,11 @@ void AppearanceTreeWidgetController::setAtomAmbientLightColor()
   }
 }
 
-stdx::optional<QColor> AppearanceTreeWidgetController::atomAmbientLightColor()
+std::optional<QColor> AppearanceTreeWidgetController::atomAmbientLightColor()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<QColor> set = std::unordered_set<QColor>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1661,7 +1662,7 @@ stdx::optional<QColor> AppearanceTreeWidgetController::atomAmbientLightColor()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAtomDiffuseLightIntensity(double value)
@@ -1675,11 +1676,11 @@ void AppearanceTreeWidgetController::setAtomDiffuseLightIntensity(double value)
    emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::atomDiffuseLightIntensity()
+std::optional<double> AppearanceTreeWidgetController::atomDiffuseLightIntensity()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1692,7 +1693,7 @@ stdx::optional<double> AppearanceTreeWidgetController::atomDiffuseLightIntensity
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAtomDiffuseLightColor()
@@ -1711,11 +1712,11 @@ void AppearanceTreeWidgetController::setAtomDiffuseLightColor()
   }
 }
 
-stdx::optional<QColor> AppearanceTreeWidgetController::atomDiffuseLightColor()
+std::optional<QColor> AppearanceTreeWidgetController::atomDiffuseLightColor()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<QColor> set = std::unordered_set<QColor>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1728,7 +1729,7 @@ stdx::optional<QColor> AppearanceTreeWidgetController::atomDiffuseLightColor()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAtomSpecularLightIntensity(double value)
@@ -1742,11 +1743,11 @@ void AppearanceTreeWidgetController::setAtomSpecularLightIntensity(double value)
    emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::atomSpecularLightIntensity()
+std::optional<double> AppearanceTreeWidgetController::atomSpecularLightIntensity()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1759,7 +1760,7 @@ stdx::optional<double> AppearanceTreeWidgetController::atomSpecularLightIntensit
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAtomSpecularLightColor()
@@ -1778,11 +1779,11 @@ void AppearanceTreeWidgetController::setAtomSpecularLightColor()
   }
 }
 
-stdx::optional<QColor> AppearanceTreeWidgetController::atomSpecularLightColor()
+std::optional<QColor> AppearanceTreeWidgetController::atomSpecularLightColor()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<QColor> set = std::unordered_set<QColor>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1795,7 +1796,7 @@ stdx::optional<QColor> AppearanceTreeWidgetController::atomSpecularLightColor()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAtomShininess(double value)
@@ -1809,11 +1810,11 @@ void AppearanceTreeWidgetController::setAtomShininess(double value)
    emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::atomShininessy()
+std::optional<double> AppearanceTreeWidgetController::atomShininessy()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1826,7 +1827,7 @@ stdx::optional<double> AppearanceTreeWidgetController::atomShininessy()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 // reload bond surface properties
@@ -1838,7 +1839,7 @@ void AppearanceTreeWidgetController::reloadDrawBondsCheckBox()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<bool> state = bondDrawBonds())
+    if (std::optional<bool> state = bondDrawBonds())
     {
       whileBlocking(_appearanceBondsForm->drawBondsCheckBox)->setTristate(false);
       whileBlocking(_appearanceBondsForm->drawBondsCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
@@ -1855,7 +1856,7 @@ void AppearanceTreeWidgetController::reloadBondSizeScaling()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> size = bondSizeScaling())
+    if (std::optional<double> size = bondSizeScaling())
     {
       whileBlocking(_appearanceBondsForm->bondSizeScalingDoubleSpinBox)->setValue(*size);
       whileBlocking(_appearanceBondsForm->bondSizeScalingDoubleSlider)->setDoubleValue(*size);
@@ -1872,7 +1873,7 @@ void AppearanceTreeWidgetController::reloadBondColorMode()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<RKBondColorMode> type=bondColorMode())
+    if (std::optional<RKBondColorMode> type=bondColorMode())
     {
       if(int index = _appearanceBondsForm->bondColorModeComboBox->findText("Multiple values"); index>=0)
       {
@@ -1895,7 +1896,7 @@ void AppearanceTreeWidgetController::reloadBondHighDynamicRange()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<bool> state = bondHighDynamicRange())
+    if (std::optional<bool> state = bondHighDynamicRange())
     {
       whileBlocking(_appearanceBondsForm->bondHighDynamicRangeCheckBox)->setTristate(false);
       whileBlocking(_appearanceBondsForm->bondHighDynamicRangeCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
@@ -1912,7 +1913,7 @@ void AppearanceTreeWidgetController::reloadBondHDRExposure()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = bondHDRExposure())
+    if (std::optional<double> value = bondHDRExposure())
     {
       whileBlocking(_appearanceBondsForm->bondHDRExposureDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceBondsForm->bondHDRExposureDoubleSlider)->setDoubleValue(*value);
@@ -1928,7 +1929,7 @@ void AppearanceTreeWidgetController::reloadBondHue()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = bondHue())
+    if (std::optional<double> value = bondHue())
     {
       whileBlocking(_appearanceBondsForm->bondHueDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceBondsForm->bondHueDoubleSlider)->setDoubleValue(*value);
@@ -1944,7 +1945,7 @@ void AppearanceTreeWidgetController::reloadBondSaturation()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = bondSaturation())
+    if (std::optional<double> value = bondSaturation())
     {
       whileBlocking(_appearanceBondsForm->bondSaturationDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceBondsForm->bondSaturationDoubleSlider)->setDoubleValue(*value);
@@ -1960,7 +1961,7 @@ void AppearanceTreeWidgetController::reloadBondValue()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = bondValue())
+    if (std::optional<double> value = bondValue())
     {
       whileBlocking(_appearanceBondsForm->bondValueDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceBondsForm->bondValueDoubleSlider)->setDoubleValue(*value);
@@ -1976,7 +1977,7 @@ void AppearanceTreeWidgetController::reloadBondAmbientOcclusion()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<bool> state = bondAmbientOcclusion())
+    if (std::optional<bool> state = bondAmbientOcclusion())
     {
       whileBlocking(_appearanceBondsForm->bondAmbientOcclusionCheckBox)->setTristate(false);
       whileBlocking(_appearanceBondsForm->bondAmbientOcclusionCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
@@ -1993,7 +1994,7 @@ void AppearanceTreeWidgetController::reloadBondAmbientLight()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = bondAmbientLightIntensity())
+    if (std::optional<double> value = bondAmbientLightIntensity())
     {
       whileBlocking(_appearanceBondsForm->bondAmbientIntensityDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceBondsForm->bondAmbientIntensityDoubleSlider)->setDoubleValue(*value);
@@ -2003,7 +2004,7 @@ void AppearanceTreeWidgetController::reloadBondAmbientLight()
       whileBlocking(_appearanceBondsForm->bondAmbientIntensityDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<QColor> value = bondAmbientLightColor())
+    if (std::optional<QColor> value = bondAmbientLightColor())
     {
       whileBlocking(_appearanceBondsForm->bondAmbientColorPushButton)->setText("color");
       whileBlocking(_appearanceBondsForm->bondAmbientColorPushButton)->setColor(*value);
@@ -2020,7 +2021,7 @@ void AppearanceTreeWidgetController::reloadBondDiffuseLight()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = bondDiffuseLightIntensity())
+    if (std::optional<double> value = bondDiffuseLightIntensity())
     {
       whileBlocking(_appearanceBondsForm->bondDiffuseIntensityDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceBondsForm->bondDiffuseIntensityDoubleSlider)->setDoubleValue(*value);
@@ -2030,7 +2031,7 @@ void AppearanceTreeWidgetController::reloadBondDiffuseLight()
       whileBlocking(_appearanceBondsForm->bondDiffuseIntensityDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<QColor> value = bondDiffuseLightColor())
+    if (std::optional<QColor> value = bondDiffuseLightColor())
     {
       whileBlocking(_appearanceBondsForm->bondDiffuseColorPushButton)->setText("color");
       whileBlocking(_appearanceBondsForm->bondDiffuseColorPushButton)->setColor(*value);
@@ -2047,7 +2048,7 @@ void AppearanceTreeWidgetController::reloadBondSpecularLight()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = bondSpecularLightIntensity())
+    if (std::optional<double> value = bondSpecularLightIntensity())
     {
       whileBlocking(_appearanceBondsForm->bondSpecularIntensityDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceBondsForm->bondSpecularIntensityDoubleSlider)->setDoubleValue(*value);
@@ -2057,7 +2058,7 @@ void AppearanceTreeWidgetController::reloadBondSpecularLight()
       whileBlocking(_appearanceBondsForm->bondSpecularIntensityDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<QColor> value = bondSpecularLightColor())
+    if (std::optional<QColor> value = bondSpecularLightColor())
     {
       whileBlocking(_appearanceBondsForm->bondSpecularColorPushButton)->setText("color");
       whileBlocking(_appearanceBondsForm->bondSpecularColorPushButton)->setColor(*value);
@@ -2074,7 +2075,7 @@ void AppearanceTreeWidgetController::reloadBondShininess()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = bondShininessy())
+    if (std::optional<double> value = bondShininessy())
     {
       whileBlocking(_appearanceBondsForm->bondShininessDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceBondsForm->bondShininessDoubleSlider)->setDoubleValue(*value);
@@ -2099,11 +2100,11 @@ void AppearanceTreeWidgetController::setBondDrawBonds(int state)
    emit rendererReloadData();
 }
 
-stdx::optional<bool> AppearanceTreeWidgetController::bondDrawBonds()
+std::optional<bool> AppearanceTreeWidgetController::bondDrawBonds()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<bool> set = std::unordered_set<bool>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2116,7 +2117,7 @@ stdx::optional<bool> AppearanceTreeWidgetController::bondDrawBonds()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setBondSizeScaling(double size)
@@ -2131,11 +2132,11 @@ void AppearanceTreeWidgetController::setBondSizeScaling(double size)
    emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::bondSizeScaling()
+std::optional<double> AppearanceTreeWidgetController::bondSizeScaling()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2148,7 +2149,7 @@ stdx::optional<double> AppearanceTreeWidgetController::bondSizeScaling()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setBondColorMode(int value)
@@ -2162,11 +2163,11 @@ void AppearanceTreeWidgetController::setBondColorMode(int value)
    emit rendererReloadData();
 }
 
-stdx::optional<RKBondColorMode> AppearanceTreeWidgetController::bondColorMode()
+std::optional<RKBondColorMode> AppearanceTreeWidgetController::bondColorMode()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<RKBondColorMode, enum_hash> set = std::unordered_set<RKBondColorMode, enum_hash>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2179,7 +2180,7 @@ stdx::optional<RKBondColorMode> AppearanceTreeWidgetController::bondColorMode()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setBondHighDynamicRange(int value)
@@ -2193,11 +2194,11 @@ void AppearanceTreeWidgetController::setBondHighDynamicRange(int value)
   emit rendererReloadData();
 }
 
-stdx::optional<bool> AppearanceTreeWidgetController::bondHighDynamicRange()
+std::optional<bool> AppearanceTreeWidgetController::bondHighDynamicRange()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<bool> set = std::unordered_set<bool>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2210,7 +2211,7 @@ stdx::optional<bool> AppearanceTreeWidgetController::bondHighDynamicRange()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setBondHDRExposure(double value)
@@ -2224,11 +2225,11 @@ void AppearanceTreeWidgetController::setBondHDRExposure(double value)
   emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::bondHDRExposure()
+std::optional<double> AppearanceTreeWidgetController::bondHDRExposure()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2241,7 +2242,7 @@ stdx::optional<double> AppearanceTreeWidgetController::bondHDRExposure()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setBondHue(double value)
@@ -2255,11 +2256,11 @@ void AppearanceTreeWidgetController::setBondHue(double value)
    emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::bondHue()
+std::optional<double> AppearanceTreeWidgetController::bondHue()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2272,7 +2273,7 @@ stdx::optional<double> AppearanceTreeWidgetController::bondHue()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setBondSaturation(double value)
@@ -2286,11 +2287,11 @@ void AppearanceTreeWidgetController::setBondSaturation(double value)
    emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::bondSaturation()
+std::optional<double> AppearanceTreeWidgetController::bondSaturation()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2303,7 +2304,7 @@ stdx::optional<double> AppearanceTreeWidgetController::bondSaturation()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setBondValue(double value)
@@ -2317,11 +2318,11 @@ void AppearanceTreeWidgetController::setBondValue(double value)
   emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::bondValue()
+std::optional<double> AppearanceTreeWidgetController::bondValue()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2334,7 +2335,7 @@ stdx::optional<double> AppearanceTreeWidgetController::bondValue()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setBondAmbientOcclusion(int value)
@@ -2348,11 +2349,11 @@ void AppearanceTreeWidgetController::setBondAmbientOcclusion(int value)
   emit rendererReloadData();
 }
 
-stdx::optional<bool> AppearanceTreeWidgetController::bondAmbientOcclusion()
+std::optional<bool> AppearanceTreeWidgetController::bondAmbientOcclusion()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<bool> set = std::unordered_set<bool>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2364,7 +2365,7 @@ stdx::optional<bool> AppearanceTreeWidgetController::bondAmbientOcclusion()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setBondAmbientLightIntensity(double value)
@@ -2378,11 +2379,11 @@ void AppearanceTreeWidgetController::setBondAmbientLightIntensity(double value)
    emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::bondAmbientLightIntensity()
+std::optional<double> AppearanceTreeWidgetController::bondAmbientLightIntensity()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2395,7 +2396,7 @@ stdx::optional<double> AppearanceTreeWidgetController::bondAmbientLightIntensity
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setBondAmbientLightColor()
@@ -2414,11 +2415,11 @@ void AppearanceTreeWidgetController::setBondAmbientLightColor()
   }
 }
 
-stdx::optional<QColor> AppearanceTreeWidgetController::bondAmbientLightColor()
+std::optional<QColor> AppearanceTreeWidgetController::bondAmbientLightColor()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<QColor> set = std::unordered_set<QColor>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2431,7 +2432,7 @@ stdx::optional<QColor> AppearanceTreeWidgetController::bondAmbientLightColor()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setBondDiffuseLightIntensity(double value)
@@ -2445,11 +2446,11 @@ void AppearanceTreeWidgetController::setBondDiffuseLightIntensity(double value)
    emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::bondDiffuseLightIntensity()
+std::optional<double> AppearanceTreeWidgetController::bondDiffuseLightIntensity()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2462,7 +2463,7 @@ stdx::optional<double> AppearanceTreeWidgetController::bondDiffuseLightIntensity
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setBondDiffuseLightColor()
@@ -2481,11 +2482,11 @@ void AppearanceTreeWidgetController::setBondDiffuseLightColor()
   }
 }
 
-stdx::optional<QColor> AppearanceTreeWidgetController::bondDiffuseLightColor()
+std::optional<QColor> AppearanceTreeWidgetController::bondDiffuseLightColor()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<QColor> set = std::unordered_set<QColor>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2498,7 +2499,7 @@ stdx::optional<QColor> AppearanceTreeWidgetController::bondDiffuseLightColor()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setBondSpecularLightIntensity(double value)
@@ -2512,11 +2513,11 @@ void AppearanceTreeWidgetController::setBondSpecularLightIntensity(double value)
    emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::bondSpecularLightIntensity()
+std::optional<double> AppearanceTreeWidgetController::bondSpecularLightIntensity()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2529,7 +2530,7 @@ stdx::optional<double> AppearanceTreeWidgetController::bondSpecularLightIntensit
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setBondSpecularLightColor()
@@ -2548,11 +2549,11 @@ void AppearanceTreeWidgetController::setBondSpecularLightColor()
   }
 }
 
-stdx::optional<QColor> AppearanceTreeWidgetController::bondSpecularLightColor()
+std::optional<QColor> AppearanceTreeWidgetController::bondSpecularLightColor()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<QColor> set = std::unordered_set<QColor>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2565,7 +2566,7 @@ stdx::optional<QColor> AppearanceTreeWidgetController::bondSpecularLightColor()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setBondShininess(double value)
@@ -2579,11 +2580,11 @@ void AppearanceTreeWidgetController::setBondShininess(double value)
    emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::bondShininessy()
+std::optional<double> AppearanceTreeWidgetController::bondShininessy()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2596,7 +2597,7 @@ stdx::optional<double> AppearanceTreeWidgetController::bondShininessy()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 
@@ -2607,7 +2608,7 @@ void AppearanceTreeWidgetController::reloadDrawUnitCell()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<bool> state = drawUnitCell())
+    if (std::optional<bool> state = drawUnitCell())
     {
       whileBlocking(_appearanceUnitCellForm->drawUnitCellCheckBox)->setTristate(false);
       whileBlocking(_appearanceUnitCellForm->drawUnitCellCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
@@ -2624,7 +2625,7 @@ void AppearanceTreeWidgetController::reloadUnitCellSizeScaling()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> size = unitCellSizeScaling())
+    if (std::optional<double> size = unitCellSizeScaling())
     {
       whileBlocking(_appearanceUnitCellForm->unitCellSizeScalingDoubleSpinBox)->setValue(*size);
       whileBlocking(_appearanceUnitCellForm->unitCellSizeScalingDoubleSlider)->setDoubleValue(*size);
@@ -2640,7 +2641,7 @@ void AppearanceTreeWidgetController::reloadUnitCellDiffuseLight()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = unitCellDiffuseLightIntensity())
+    if (std::optional<double> value = unitCellDiffuseLightIntensity())
     {
       whileBlocking(_appearanceUnitCellForm->diffuseIntensityDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceUnitCellForm->diffuseIntensityDoubleSlider)->setDoubleValue(*value);
@@ -2650,7 +2651,7 @@ void AppearanceTreeWidgetController::reloadUnitCellDiffuseLight()
       whileBlocking(_appearanceUnitCellForm->diffuseIntensityDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<QColor> value = bondDiffuseLightColor())
+    if (std::optional<QColor> value = bondDiffuseLightColor())
     {
       whileBlocking(_appearanceUnitCellForm->diffuseColorPushButton)->setText("color");
       whileBlocking(_appearanceUnitCellForm->diffuseColorPushButton)->setColor(*value);
@@ -2675,11 +2676,11 @@ void AppearanceTreeWidgetController::setDrawUnitCell(int state)
    emit rendererReloadData();
 }
 
-stdx::optional<bool> AppearanceTreeWidgetController::drawUnitCell()
+std::optional<bool> AppearanceTreeWidgetController::drawUnitCell()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<bool> set = std::unordered_set<bool>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2691,7 +2692,7 @@ stdx::optional<bool> AppearanceTreeWidgetController::drawUnitCell()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setUnitCellSizeScaling(double size)
@@ -2705,11 +2706,11 @@ void AppearanceTreeWidgetController::setUnitCellSizeScaling(double size)
    emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::unitCellSizeScaling()
+std::optional<double> AppearanceTreeWidgetController::unitCellSizeScaling()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2722,7 +2723,7 @@ stdx::optional<double> AppearanceTreeWidgetController::unitCellSizeScaling()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setUnitCellDiffuseLightIntensity(double value)
@@ -2736,11 +2737,11 @@ void AppearanceTreeWidgetController::setUnitCellDiffuseLightIntensity(double val
    emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::unitCellDiffuseLightIntensity()
+std::optional<double> AppearanceTreeWidgetController::unitCellDiffuseLightIntensity()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2753,7 +2754,7 @@ stdx::optional<double> AppearanceTreeWidgetController::unitCellDiffuseLightInten
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setUnitCellDiffuseLightColor()
@@ -2772,11 +2773,11 @@ void AppearanceTreeWidgetController::setUnitCellDiffuseLightColor()
   }
 }
 
-stdx::optional<QColor> AppearanceTreeWidgetController::unitCellDiffuseLightColor()
+std::optional<QColor> AppearanceTreeWidgetController::unitCellDiffuseLightColor()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<QColor> set = std::unordered_set<QColor>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2789,7 +2790,7 @@ stdx::optional<QColor> AppearanceTreeWidgetController::unitCellDiffuseLightColor
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 
@@ -2800,7 +2801,7 @@ void AppearanceTreeWidgetController::reloadDrawAdsorptionSurfaceCheckBox()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<bool> state = drawAdsorptionSurface())
+    if (std::optional<bool> state = drawAdsorptionSurface())
     {
       whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceCheckBox)->setTristate(false);
       whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
@@ -2817,7 +2818,7 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceProbeMoleculePopupBo
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<ProbeMolecule> type=adsorptionSurfaceProbeMolecule())
+    if (std::optional<Structure::ProbeMolecule> type=adsorptionSurfaceProbeMolecule())
     {
       if(int index = _appearanceAdsorptionSurfaceForm->probeParticleComboBox->findText("Mult. Val."); index>=0)
       {
@@ -2825,7 +2826,7 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceProbeMoleculePopupBo
       }
       if(int(*type)<0)
       {
-       whileBlocking(_appearanceAdsorptionSurfaceForm->probeParticleComboBox)->setCurrentIndex(int(ProbeMolecule::multiple_values));
+       whileBlocking(_appearanceAdsorptionSurfaceForm->probeParticleComboBox)->setCurrentIndex(int(Structure::ProbeMolecule::multiple_values));
       }
       else
       {
@@ -2847,13 +2848,13 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceIsovalue()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = adsorptionSurfaceMinimumValue())
+    if (std::optional<double> value = adsorptionSurfaceMinimumValue())
     {
       whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSlider)->setDoubleMinimum(*value);
       whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSpinBox)->setMinimum(*value);
     }
 
-    if (stdx::optional<double> value = adsorptionSurfaceIsovalue())
+    if (std::optional<double> value = adsorptionSurfaceIsovalue())
     {
       whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSlider)->setDoubleValue(*value);
@@ -2869,7 +2870,7 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceOpacity()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = adsorptionSurfaceOpacity())
+    if (std::optional<double> value = adsorptionSurfaceOpacity())
     {
       whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceOpacityDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceOpacityDoubleSlider)->setDoubleValue(*value);
@@ -2885,7 +2886,7 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceInsideHighDynamicRan
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<bool> state = adsorptionSurfaceInsideHighDynamicRange())
+    if (std::optional<bool> state = adsorptionSurfaceInsideHighDynamicRange())
     {
       whileBlocking(_appearanceAdsorptionSurfaceForm->insideHighDynamicRangecheckBox)->setTristate(false);
       whileBlocking(_appearanceAdsorptionSurfaceForm->insideHighDynamicRangecheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
@@ -2902,7 +2903,7 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceInsideHDRExposure()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = adsorptionSurfaceInsideHDRExposure())
+    if (std::optional<double> value = adsorptionSurfaceInsideHDRExposure())
     {
       whileBlocking(_appearanceAdsorptionSurfaceForm->insideHDRExposureDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceAdsorptionSurfaceForm->insideHDRExposureDoubleSlider)->setDoubleValue(*value);
@@ -2918,7 +2919,7 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceInsideAmbientLight()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = adsorptionSurfaceInsideAmbientLightIntensity())
+    if (std::optional<double> value = adsorptionSurfaceInsideAmbientLightIntensity())
     {
       whileBlocking(_appearanceAdsorptionSurfaceForm->insideAmbientLightIntensityDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceAdsorptionSurfaceForm->insideAmbientLightIntensityDoubleSlider)->setDoubleValue(*value);
@@ -2928,7 +2929,7 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceInsideAmbientLight()
       whileBlocking(_appearanceAdsorptionSurfaceForm->insideAmbientLightIntensityDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<QColor> value = adsorptionSurfaceInsideAmbientLightColor())
+    if (std::optional<QColor> value = adsorptionSurfaceInsideAmbientLightColor())
     {
       whileBlocking(_appearanceAdsorptionSurfaceForm->insideAmbientColorPushButton)->setText("color");
       whileBlocking(_appearanceAdsorptionSurfaceForm->insideAmbientColorPushButton)->setColor(*value);
@@ -2945,7 +2946,7 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceInsideDiffuseLight()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = adsorptionSurfaceInsideDiffuseLightIntensity())
+    if (std::optional<double> value = adsorptionSurfaceInsideDiffuseLightIntensity())
     {
       whileBlocking(_appearanceAdsorptionSurfaceForm->insideDiffuseLightIntensityDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceAdsorptionSurfaceForm->insideDiffuseLightIntensityDoubleSlider)->setDoubleValue(*value);
@@ -2955,7 +2956,7 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceInsideDiffuseLight()
       whileBlocking(_appearanceAdsorptionSurfaceForm->insideDiffuseLightIntensityDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<QColor> value = adsorptionSurfaceInsideDiffuseLightColor())
+    if (std::optional<QColor> value = adsorptionSurfaceInsideDiffuseLightColor())
     {
       whileBlocking(_appearanceAdsorptionSurfaceForm->insideDiffuseColorPushButton)->setText("color");
       whileBlocking(_appearanceAdsorptionSurfaceForm->insideDiffuseColorPushButton)->setColor(*value);
@@ -2972,7 +2973,7 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceInsideSpecularLight(
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = adsorptionSurfaceInsideSpecularLightIntensity())
+    if (std::optional<double> value = adsorptionSurfaceInsideSpecularLightIntensity())
     {
       whileBlocking(_appearanceAdsorptionSurfaceForm->insideSpecularLightIntensityDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceAdsorptionSurfaceForm->insideSpecularLightIntensityDoubleSlider)->setDoubleValue(*value);
@@ -2982,7 +2983,7 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceInsideSpecularLight(
       whileBlocking(_appearanceAdsorptionSurfaceForm->insideSpecularLightIntensityDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<QColor> value = adsorptionSurfaceInsideSpecularLightColor())
+    if (std::optional<QColor> value = adsorptionSurfaceInsideSpecularLightColor())
     {
       whileBlocking(_appearanceAdsorptionSurfaceForm->insideSpecularColorPushButton)->setText("color");
       whileBlocking(_appearanceAdsorptionSurfaceForm->insideSpecularColorPushButton)->setColor(*value);
@@ -2999,7 +3000,7 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceInsideShininess()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = adsorptionSurfaceInsideShininessy())
+    if (std::optional<double> value = adsorptionSurfaceInsideShininessy())
     {
       whileBlocking(_appearanceAdsorptionSurfaceForm->insideShininessDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceAdsorptionSurfaceForm->insideShininessDoubleSlider)->setDoubleValue(*value);
@@ -3015,7 +3016,7 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceOutsideHighDynamicRa
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<bool> state = adsorptionSurfaceOutsideHighDynamicRange())
+    if (std::optional<bool> state = adsorptionSurfaceOutsideHighDynamicRange())
     {
       whileBlocking(_appearanceAdsorptionSurfaceForm->outsideHighDynamicRangecheckBox)->setTristate(false);
       whileBlocking(_appearanceAdsorptionSurfaceForm->outsideHighDynamicRangecheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
@@ -3032,7 +3033,7 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceOutsideHDRExposure()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = adsorptionSurfaceOutsideHDRExposure())
+    if (std::optional<double> value = adsorptionSurfaceOutsideHDRExposure())
     {
       whileBlocking(_appearanceAdsorptionSurfaceForm->outsideHDRExposureDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceAdsorptionSurfaceForm->outsideHDRExposureDoubleSlider)->setDoubleValue(*value);
@@ -3048,7 +3049,7 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceOutsideAmbientLight(
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = adsorptionSurfaceOutsideAmbientLightIntensity())
+    if (std::optional<double> value = adsorptionSurfaceOutsideAmbientLightIntensity())
     {
       whileBlocking(_appearanceAdsorptionSurfaceForm->outsideAmbientLightIntensityDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceAdsorptionSurfaceForm->outsideAmbientLightIntensityDoubleSlider)->setDoubleValue(*value);
@@ -3058,7 +3059,7 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceOutsideAmbientLight(
       whileBlocking(_appearanceAdsorptionSurfaceForm->outsideAmbientLightIntensityDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<QColor> value = adsorptionSurfaceOutsideAmbientLightColor())
+    if (std::optional<QColor> value = adsorptionSurfaceOutsideAmbientLightColor())
     {
       whileBlocking(_appearanceAdsorptionSurfaceForm->outsideAmbientColorPushButton)->setText("color");
       whileBlocking(_appearanceAdsorptionSurfaceForm->outsideAmbientColorPushButton)->setColor(*value);
@@ -3075,7 +3076,7 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceOutsideDiffuseLight(
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = adsorptionSurfaceOutsideDiffuseLightIntensity())
+    if (std::optional<double> value = adsorptionSurfaceOutsideDiffuseLightIntensity())
     {
       whileBlocking(_appearanceAdsorptionSurfaceForm->outsideDiffuseLightIntensityDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceAdsorptionSurfaceForm->outsideDiffuseLightIntensityDoubleSlider)->setDoubleValue(*value);
@@ -3085,7 +3086,7 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceOutsideDiffuseLight(
       whileBlocking(_appearanceAdsorptionSurfaceForm->outsideDiffuseLightIntensityDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<QColor> value = adsorptionSurfaceOutsideDiffuseLightColor())
+    if (std::optional<QColor> value = adsorptionSurfaceOutsideDiffuseLightColor())
     {
       whileBlocking(_appearanceAdsorptionSurfaceForm->outsideDiffuseColorPushButton)->setText("color");
       whileBlocking(_appearanceAdsorptionSurfaceForm->outsideDiffuseColorPushButton)->setColor(*value);
@@ -3102,7 +3103,7 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceOutsideSpecularLight
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = adsorptionSurfaceOutsideSpecularLightIntensity())
+    if (std::optional<double> value = adsorptionSurfaceOutsideSpecularLightIntensity())
     {
       whileBlocking(_appearanceAdsorptionSurfaceForm->outsideSpecularLightIntensityDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceAdsorptionSurfaceForm->outsideSpecularLightIntensityDoubleSlider)->setDoubleValue(*value);
@@ -3112,7 +3113,7 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceOutsideSpecularLight
       whileBlocking(_appearanceAdsorptionSurfaceForm->outsideSpecularLightIntensityDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<QColor> value = adsorptionSurfaceOutsideSpecularLightColor())
+    if (std::optional<QColor> value = adsorptionSurfaceOutsideSpecularLightColor())
     {
       whileBlocking(_appearanceAdsorptionSurfaceForm->outsideSpecularColorPushButton)->setText("color");
       whileBlocking(_appearanceAdsorptionSurfaceForm->outsideSpecularColorPushButton)->setColor(*value);
@@ -3129,7 +3130,7 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceOutsideShininess()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = adsorptionSurfaceOutsideShininessy())
+    if (std::optional<double> value = adsorptionSurfaceOutsideShininessy())
     {
       whileBlocking(_appearanceAdsorptionSurfaceForm->outsideShininessDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceAdsorptionSurfaceForm->outsideShininessDoubleSlider)->setDoubleValue(*value);
@@ -3152,11 +3153,11 @@ void AppearanceTreeWidgetController::setDrawAdsorptionSurface(int state)
    emit rendererReloadData();
 }
 
-stdx::optional<bool> AppearanceTreeWidgetController::drawAdsorptionSurface()
+std::optional<bool> AppearanceTreeWidgetController::drawAdsorptionSurface()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<bool> set = std::unordered_set<bool>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -3169,16 +3170,16 @@ stdx::optional<bool> AppearanceTreeWidgetController::drawAdsorptionSurface()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAdsorptionSurfaceProbeMolecule(int value)
 {
-  if(value>=0 && value<int(ProbeMolecule::multiple_values))
+  if(value>=0 && value<int(Structure::ProbeMolecule::multiple_values))
   {
     for(std::shared_ptr<Structure> structure: _structures)
     {
-      structure->setAdsorptionSurfaceProbeMolecule(ProbeMolecule(value));
+      structure->setAdsorptionSurfaceProbeMolecule(Structure::ProbeMolecule(value));
       structure->recheckRepresentationStyle();
     }
     emit invalidateIsosurface(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
@@ -3189,16 +3190,16 @@ void AppearanceTreeWidgetController::setAdsorptionSurfaceProbeMolecule(int value
   }
 }
 
-stdx::optional<ProbeMolecule> AppearanceTreeWidgetController::adsorptionSurfaceProbeMolecule()
+std::optional<Structure::ProbeMolecule> AppearanceTreeWidgetController::adsorptionSurfaceProbeMolecule()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
-  std::unordered_set<ProbeMolecule, enum_hash> set = std::unordered_set<ProbeMolecule, enum_hash>{};
+  std::unordered_set<Structure::ProbeMolecule, enum_hash> set = std::unordered_set<Structure::ProbeMolecule, enum_hash>{};
   for(std::shared_ptr<Structure> structure: _structures)
   {
-    ProbeMolecule value = structure->adsorptionSurfaceProbeMolecule();
+    Structure::ProbeMolecule value = structure->adsorptionSurfaceProbeMolecule();
     set.insert(value);
   }
 
@@ -3206,7 +3207,7 @@ stdx::optional<ProbeMolecule> AppearanceTreeWidgetController::adsorptionSurfaceP
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAdsorptionSurfaceIsovalue(double value)
@@ -3219,11 +3220,11 @@ void AppearanceTreeWidgetController::setAdsorptionSurfaceIsovalue(double value)
   emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceIsovalue()
+std::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceIsovalue()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -3236,15 +3237,15 @@ stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceIsovalue
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 
-stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceMinimumValue()
+std::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceMinimumValue()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -3257,7 +3258,7 @@ stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceMinimumV
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 
@@ -3274,11 +3275,11 @@ void AppearanceTreeWidgetController::setAdsorptionSurfaceOpacity(double value)
   }
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceOpacity()
+std::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceOpacity()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -3291,7 +3292,7 @@ stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceOpacity(
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAdsorptionSurfaceInsideHighDynamicRange(int value)
@@ -3304,11 +3305,11 @@ void AppearanceTreeWidgetController::setAdsorptionSurfaceInsideHighDynamicRange(
   emit rendererReloadData();
 }
 
-stdx::optional<bool> AppearanceTreeWidgetController::adsorptionSurfaceInsideHighDynamicRange()
+std::optional<bool> AppearanceTreeWidgetController::adsorptionSurfaceInsideHighDynamicRange()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<bool> set = std::unordered_set<bool>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -3321,7 +3322,7 @@ stdx::optional<bool> AppearanceTreeWidgetController::adsorptionSurfaceInsideHigh
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAdsorptionSurfaceInsideHDRExposure(double value)
@@ -3334,11 +3335,11 @@ void AppearanceTreeWidgetController::setAdsorptionSurfaceInsideHDRExposure(doubl
   emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceInsideHDRExposure()
+std::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceInsideHDRExposure()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -3351,7 +3352,7 @@ stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceInsideHD
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAdsorptionSurfaceInsideAmbientLightIntensity(double value)
@@ -3364,11 +3365,11 @@ void AppearanceTreeWidgetController::setAdsorptionSurfaceInsideAmbientLightInten
   emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceInsideAmbientLightIntensity()
+std::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceInsideAmbientLightIntensity()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -3381,7 +3382,7 @@ stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceInsideAm
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAdsorptionSurfaceInsideAmbientLightColor()
@@ -3398,11 +3399,11 @@ void AppearanceTreeWidgetController::setAdsorptionSurfaceInsideAmbientLightColor
   }
 }
 
-stdx::optional<QColor> AppearanceTreeWidgetController::adsorptionSurfaceInsideAmbientLightColor()
+std::optional<QColor> AppearanceTreeWidgetController::adsorptionSurfaceInsideAmbientLightColor()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<QColor> set = std::unordered_set<QColor>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -3415,7 +3416,7 @@ stdx::optional<QColor> AppearanceTreeWidgetController::adsorptionSurfaceInsideAm
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAdsorptionSurfaceInsideDiffuseLightIntensity(double value)
@@ -3428,11 +3429,11 @@ void AppearanceTreeWidgetController::setAdsorptionSurfaceInsideDiffuseLightInten
   emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceInsideDiffuseLightIntensity()
+std::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceInsideDiffuseLightIntensity()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -3445,7 +3446,7 @@ stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceInsideDi
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAdsorptionSurfaceInsideDiffuseLightColor()
@@ -3462,11 +3463,11 @@ void AppearanceTreeWidgetController::setAdsorptionSurfaceInsideDiffuseLightColor
   }
 }
 
-stdx::optional<QColor> AppearanceTreeWidgetController::adsorptionSurfaceInsideDiffuseLightColor()
+std::optional<QColor> AppearanceTreeWidgetController::adsorptionSurfaceInsideDiffuseLightColor()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<QColor> set = std::unordered_set<QColor>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -3479,7 +3480,7 @@ stdx::optional<QColor> AppearanceTreeWidgetController::adsorptionSurfaceInsideDi
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAdsorptionSurfaceInsideSpecularLightIntensity(double value)
@@ -3492,11 +3493,11 @@ void AppearanceTreeWidgetController::setAdsorptionSurfaceInsideSpecularLightInte
   emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceInsideSpecularLightIntensity()
+std::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceInsideSpecularLightIntensity()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -3509,7 +3510,7 @@ stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceInsideSp
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAdsorptionSurfaceInsideSpecularLightColor()
@@ -3526,11 +3527,11 @@ void AppearanceTreeWidgetController::setAdsorptionSurfaceInsideSpecularLightColo
   }
 }
 
-stdx::optional<QColor> AppearanceTreeWidgetController::adsorptionSurfaceInsideSpecularLightColor()
+std::optional<QColor> AppearanceTreeWidgetController::adsorptionSurfaceInsideSpecularLightColor()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<QColor> set = std::unordered_set<QColor>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -3543,7 +3544,7 @@ stdx::optional<QColor> AppearanceTreeWidgetController::adsorptionSurfaceInsideSp
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAdsorptionSurfaceInsideShininess(double value)
@@ -3556,11 +3557,11 @@ void AppearanceTreeWidgetController::setAdsorptionSurfaceInsideShininess(double 
   emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceInsideShininessy()
+std::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceInsideShininessy()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -3573,7 +3574,7 @@ stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceInsideSh
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAdsorptionSurfaceOutsideHighDynamicRange(int value)
@@ -3586,11 +3587,11 @@ void AppearanceTreeWidgetController::setAdsorptionSurfaceOutsideHighDynamicRange
   emit rendererReloadData();
 }
 
-stdx::optional<bool> AppearanceTreeWidgetController::adsorptionSurfaceOutsideHighDynamicRange()
+std::optional<bool> AppearanceTreeWidgetController::adsorptionSurfaceOutsideHighDynamicRange()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<bool> set = std::unordered_set<bool>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -3603,7 +3604,7 @@ stdx::optional<bool> AppearanceTreeWidgetController::adsorptionSurfaceOutsideHig
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAdsorptionSurfaceOutsideHDRExposure(double value)
@@ -3616,11 +3617,11 @@ void AppearanceTreeWidgetController::setAdsorptionSurfaceOutsideHDRExposure(doub
   emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceOutsideHDRExposure()
+std::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceOutsideHDRExposure()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -3633,7 +3634,7 @@ stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceOutsideH
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAdsorptionSurfaceOutsideAmbientLightIntensity(double value)
@@ -3646,11 +3647,11 @@ void AppearanceTreeWidgetController::setAdsorptionSurfaceOutsideAmbientLightInte
   emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceOutsideAmbientLightIntensity()
+std::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceOutsideAmbientLightIntensity()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -3663,7 +3664,7 @@ stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceOutsideA
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAdsorptionSurfaceOutsideAmbientLightColor()
@@ -3680,11 +3681,11 @@ void AppearanceTreeWidgetController::setAdsorptionSurfaceOutsideAmbientLightColo
   }
 }
 
-stdx::optional<QColor> AppearanceTreeWidgetController::adsorptionSurfaceOutsideAmbientLightColor()
+std::optional<QColor> AppearanceTreeWidgetController::adsorptionSurfaceOutsideAmbientLightColor()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<QColor> set = std::unordered_set<QColor>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -3697,7 +3698,7 @@ stdx::optional<QColor> AppearanceTreeWidgetController::adsorptionSurfaceOutsideA
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAdsorptionSurfaceOutsideDiffuseLightIntensity(double value)
@@ -3710,11 +3711,11 @@ void AppearanceTreeWidgetController::setAdsorptionSurfaceOutsideDiffuseLightInte
   emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceOutsideDiffuseLightIntensity()
+std::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceOutsideDiffuseLightIntensity()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -3727,7 +3728,7 @@ stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceOutsideD
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAdsorptionSurfaceOutsideDiffuseLightColor()
@@ -3744,11 +3745,11 @@ void AppearanceTreeWidgetController::setAdsorptionSurfaceOutsideDiffuseLightColo
   }
 }
 
-stdx::optional<QColor> AppearanceTreeWidgetController::adsorptionSurfaceOutsideDiffuseLightColor()
+std::optional<QColor> AppearanceTreeWidgetController::adsorptionSurfaceOutsideDiffuseLightColor()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<QColor> set = std::unordered_set<QColor>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -3761,7 +3762,7 @@ stdx::optional<QColor> AppearanceTreeWidgetController::adsorptionSurfaceOutsideD
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAdsorptionSurfaceOutsideSpecularLightIntensity(double value)
@@ -3774,11 +3775,11 @@ void AppearanceTreeWidgetController::setAdsorptionSurfaceOutsideSpecularLightInt
   emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceOutsideSpecularLightIntensity()
+std::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceOutsideSpecularLightIntensity()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -3791,7 +3792,7 @@ stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceOutsideS
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAdsorptionSurfaceOutsideSpecularLightColor()
@@ -3808,11 +3809,11 @@ void AppearanceTreeWidgetController::setAdsorptionSurfaceOutsideSpecularLightCol
   }
 }
 
-stdx::optional<QColor> AppearanceTreeWidgetController::adsorptionSurfaceOutsideSpecularLightColor()
+std::optional<QColor> AppearanceTreeWidgetController::adsorptionSurfaceOutsideSpecularLightColor()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<QColor> set = std::unordered_set<QColor>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -3825,7 +3826,7 @@ stdx::optional<QColor> AppearanceTreeWidgetController::adsorptionSurfaceOutsideS
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void AppearanceTreeWidgetController::setAdsorptionSurfaceOutsideShininess(double value)
@@ -3838,11 +3839,11 @@ void AppearanceTreeWidgetController::setAdsorptionSurfaceOutsideShininess(double
   emit rendererReloadData();
 }
 
-stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceOutsideShininessy()
+std::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceOutsideShininessy()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -3855,7 +3856,7 @@ stdx::optional<double> AppearanceTreeWidgetController::adsorptionSurfaceOutsideS
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 // expansion

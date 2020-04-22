@@ -36,21 +36,746 @@
 #include <QDebug>
 
 
-bool Crystal::clipAtomsAtUnitCell() const
+// MARK: Rendering
+// =====================================================================
+
+std::vector<RKInPerInstanceAttributesAtoms> Crystal::renderAtoms() const
 {
-  return _atomRepresentationType == RepresentationType::unity;
+  int minimumReplicaX = _cell->minimumReplicaX();
+  int minimumReplicaY = _cell->minimumReplicaY();
+  int minimumReplicaZ = _cell->minimumReplicaZ();
+
+  int maximumReplicaX = _cell->maximumReplicaX();
+  int maximumReplicaY = _cell->maximumReplicaY();
+  int maximumReplicaZ = _cell->maximumReplicaZ();
+
+  std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
+
+  std::vector<RKInPerInstanceAttributesAtoms> atomData = std::vector<RKInPerInstanceAttributesAtoms>();
+
+  uint32_t asymmetricAtomIndex = 0;
+  for(std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
+  {
+     if(std::shared_ptr<SKAsymmetricAtom> atom = node->representedObject())
+     {
+       bool isVisible = atom->isVisible();
+
+       if(isVisible)
+       {
+         QColor color = atom->color();
+
+         float4 ambient = float4(color.redF(),color.greenF(),color.blueF(),color.alphaF());
+         float4 diffuse = float4(color.redF(),color.greenF(),color.blueF(),color.alphaF());
+
+         float4 specular = float4(1.0,1.0,1.0,1.0);
+
+         double radius = atom->drawRadius() * atom->occupancy();
+         float4 scale = float4(radius,radius,radius,1.0);
+
+         if(atom->occupancy()<1.0)
+         {
+           diffuse = float4(1.0,1.0,1.0,1.0);
+         }
+
+         for(std::shared_ptr<SKAtomCopy> copy : atom->copies())
+         {
+           if(copy->type() == SKAtomCopy::AtomCopyType::copy)
+           {
+             for(int k1=minimumReplicaX;k1<=maximumReplicaX;k1++)
+             {
+               for(int k2=minimumReplicaY;k2<=maximumReplicaY;k2++)
+               {
+                 for(int k3=minimumReplicaZ;k3<=maximumReplicaZ;k3++)
+                 {
+                   float4 position = float4(_cell->unitCell() * (copy->position() + double3(k1,k2,k3)), 1.0);
+
+                   RKInPerInstanceAttributesAtoms atom1 = RKInPerInstanceAttributesAtoms(position, ambient, diffuse, specular, scale, asymmetricAtomIndex);
+                   atomData.push_back(atom1);
+                 }
+               }
+             }
+           }
+         }
+       }
+     }
+     asymmetricAtomIndex++;
+  }
+
+  return atomData;
 }
 
-bool Crystal::clipBondsAtUnitCell() const
+std::vector<RKInPerInstanceAttributesBonds> Crystal::renderInternalBonds() const
 {
-  return true;
+  int minimumReplicaX = _cell->minimumReplicaX();
+  int minimumReplicaY = _cell->minimumReplicaY();
+  int minimumReplicaZ = _cell->minimumReplicaZ();
+
+  int maximumReplicaX = _cell->maximumReplicaX();
+  int maximumReplicaY = _cell->maximumReplicaY();
+  int maximumReplicaZ = _cell->maximumReplicaZ();
+
+  std::vector<RKInPerInstanceAttributesBonds> data =  std::vector<RKInPerInstanceAttributesBonds>();
+
+  const std::vector<std::shared_ptr<SKAsymmetricBond>> asymmetricBonds = _bondSetController->arrangedObjects();
+
+  uint32_t asymmetricBondIndex = 0;
+  for(std::shared_ptr<SKAsymmetricBond> asymmetricBond : asymmetricBonds)
+  {
+    bool isVisble = asymmetricBond->isVisible() && asymmetricBond->atom1()->isVisible()  && asymmetricBond->atom2()->isVisible();
+
+    if(isVisble)
+    {
+      const std::vector<std::shared_ptr<SKBond>> bonds = asymmetricBond->copies();
+      for(std::shared_ptr<SKBond> bond : bonds)
+      {
+        if(bond->atom1()->type() == SKAtomCopy::AtomCopyType::copy && bond->atom2()->type() == SKAtomCopy::AtomCopyType::copy && bond->boundaryType() == SKBond::BoundaryType::internal)
+        {
+          QColor color1 = bond->atom1()->parent()->color();
+          QColor color2 = bond->atom2()->parent()->color();
+
+          for(int k1=minimumReplicaX;k1<=maximumReplicaX;k1++)
+          {
+            for(int k2=minimumReplicaY;k2<=maximumReplicaY;k2++)
+            {
+              for(int k3=minimumReplicaZ;k3<=maximumReplicaZ;k3++)
+              {
+                double3 pos1 = _cell->unitCell() * (bond->atom1()->position()+double3(k1,k2,k3));
+                double3 pos2 = _cell->unitCell() * (bond->atom2()->position()+double3(k1,k2,k3));
+                double bondLength = (pos2-pos1).length();
+                double drawRadius1 = bond->atom1()->parent()->drawRadius()/bondLength;
+                double drawRadius2 = bond->atom2()->parent()->drawRadius()/bondLength;
+
+                RKInPerInstanceAttributesBonds bondData = RKInPerInstanceAttributesBonds(
+                            float4(pos1,1.0),
+                            float4(pos2,1.0),
+                            float4(color1.redF(),color1.greenF(),color1.blueF(),color1.alphaF()),
+                            float4(color2.redF(),color2.greenF(),color2.blueF(),color2.alphaF()),
+                            float4(drawRadius1, std::min(bond->atom1()->parent()->occupancy(),bond->atom2()->parent()->occupancy()), drawRadius2, drawRadius1/drawRadius2),
+                            asymmetricBondIndex,
+                            static_cast<typename std::underlying_type<SKAsymmetricBond::SKBondType>::type>(asymmetricBond->getBondType()));
+                data.push_back(bondData);
+              }
+            }
+          }
+        }
+      }
+    }
+    asymmetricBondIndex++;
+  }
+
+  return data;
 }
+
+std::vector<RKInPerInstanceAttributesBonds> Crystal::renderExternalBonds() const
+{
+  int minimumReplicaX = _cell->minimumReplicaX();
+  int minimumReplicaY = _cell->minimumReplicaY();
+  int minimumReplicaZ = _cell->minimumReplicaZ();
+
+  int maximumReplicaX = _cell->maximumReplicaX();
+  int maximumReplicaY = _cell->maximumReplicaY();
+  int maximumReplicaZ = _cell->maximumReplicaZ();
+
+  std::vector<RKInPerInstanceAttributesBonds> data =  std::vector<RKInPerInstanceAttributesBonds>();
+
+  const std::vector<std::shared_ptr<SKAsymmetricBond>> asymmetricBonds = _bondSetController->arrangedObjects();
+
+  uint32_t asymmetricBondIndex = 0;
+  for(std::shared_ptr<SKAsymmetricBond> asymmetricBond : asymmetricBonds)
+  {
+    bool isVisible = asymmetricBond->isVisible() && asymmetricBond->atom1()->isVisible()  && asymmetricBond->atom2()->isVisible();
+
+    if(isVisible)
+    {
+      const std::vector<std::shared_ptr<SKBond>> bonds = asymmetricBond->copies();
+      for(std::shared_ptr<SKBond> bond : bonds)
+      {
+        if(bond->boundaryType() == SKBond::BoundaryType::external)
+        {
+          QColor color1 = bond->atom1()->parent()->color();
+          QColor color2 = bond->atom2()->parent()->color();
+
+          for(int k1=minimumReplicaX;k1<=maximumReplicaX;k1++)
+          {
+            for(int k2=minimumReplicaY;k2<=maximumReplicaY;k2++)
+            {
+              for(int k3=minimumReplicaZ;k3<=maximumReplicaZ;k3++)
+              {
+                double3 frac_pos1 = bond->atom1()->position()+double3(k1,k2,k3);
+                double3 frac_pos2 = bond->atom2()->position()+double3(k1,k2,k3);
+
+                double3 dr = frac_pos2 - frac_pos1;
+
+                dr.x -= rint(dr.x);
+                dr.y -= rint(dr.y);
+                dr.z -= rint(dr.z);
+
+                double3 pos1 = _cell->unitCell() * frac_pos1;  //+ bond.atom1.asymmetricParentAtom.displacement
+                double3 pos2 = _cell->unitCell() * frac_pos2;  // + bond.atom2.asymmetricParentAtom.displacement
+
+                dr = _cell->unitCell() * dr;
+                double bondLength = dr.length();
+
+                double drawRadius1 = bond->atom1()->parent()->drawRadius()/bondLength;
+                double drawRadius2 = bond->atom2()->parent()->drawRadius()/bondLength;
+
+                RKInPerInstanceAttributesBonds bondData = RKInPerInstanceAttributesBonds(
+                              float4(pos1,1.0),
+                              float4(pos1 + dr,1.0),
+                              float4(color1.redF(),color1.greenF(),color1.blueF(),color1.alphaF()),
+                              float4(color2.redF(),color2.greenF(),color2.blueF(),color2.alphaF()),
+                              float4(drawRadius1, std::min(bond->atom1()->parent()->occupancy(),bond->atom2()->parent()->occupancy()), drawRadius2, drawRadius1/drawRadius2),
+                              asymmetricBondIndex,
+                              static_cast<typename std::underlying_type<SKAsymmetricBond::SKBondType>::type>(asymmetricBond->getBondType()));
+                data.push_back(bondData);
+
+                RKInPerInstanceAttributesBonds bondData2 = RKInPerInstanceAttributesBonds(
+                              float4(pos2,1.0),
+                              float4(pos2 - dr,1.0),
+                              float4(color2.redF(),color2.greenF(),color2.blueF(),color2.alphaF()),
+                              float4(color1.redF(),color1.greenF(),color1.blueF(),color1.alphaF()),
+                              float4(drawRadius2, std::min(bond->atom2()->parent()->occupancy(),bond->atom1()->parent()->occupancy()), drawRadius1, drawRadius2/drawRadius1),
+                              asymmetricBondIndex,
+                              static_cast<typename std::underlying_type<SKAsymmetricBond::SKBondType>::type>(asymmetricBond->getBondType()));
+                data.push_back(bondData2);
+              }
+            }
+          }
+        }
+      }
+    }
+    asymmetricBondIndex++;
+  }
+
+  return data;
+}
+
+
+std::vector<RKInPerInstanceAttributesAtoms> Crystal::renderUnitCellSpheres() const
+{
+  int minimumReplicaX = _cell->minimumReplicaX();
+  int minimumReplicaY = _cell->minimumReplicaY();
+  int minimumReplicaZ = _cell->minimumReplicaZ();
+
+  int maximumReplicaX = _cell->maximumReplicaX();
+  int maximumReplicaY = _cell->maximumReplicaY();
+  int maximumReplicaZ = _cell->maximumReplicaZ();
+
+  std::vector<RKInPerInstanceAttributesAtoms> data = std::vector<RKInPerInstanceAttributesAtoms>();
+
+  uint32_t asymmetricBondIndex=0;
+  for(int k1=minimumReplicaX;k1<=maximumReplicaX+1;k1++)
+  {
+    for(int k2=minimumReplicaY;k2<=maximumReplicaY+1;k2++)
+    {
+      for(int k3=minimumReplicaZ;k3<=maximumReplicaZ+1;k3++)
+      {
+        double3 position = _cell->unitCell() * double3(k1,k2,k3); // + origin();
+        float4 ambient = float4(1.0,1.0,1.0,1.0);
+        float4 diffuse = float4(1.0,1.0,1.0,1.0);
+        float4 specular = float4(1.0,1.0,1.0,1.0);
+        float4 scale = float4(0.1,0.1,0.1,1.0);
+        RKInPerInstanceAttributesAtoms sphere = RKInPerInstanceAttributesAtoms(float4(position,1.0), ambient, diffuse, specular, scale, asymmetricBondIndex);
+        data.push_back(sphere);
+      }
+    }
+    asymmetricBondIndex++;
+  }
+
+  return data;
+}
+
+std::vector<RKInPerInstanceAttributesBonds> Crystal::renderUnitCellCylinders() const
+{
+    int minimumReplicaX = _cell->minimumReplicaX();
+    int minimumReplicaY = _cell->minimumReplicaY();
+    int minimumReplicaZ = _cell->minimumReplicaZ();
+
+    int maximumReplicaX = _cell->maximumReplicaX();
+    int maximumReplicaY = _cell->maximumReplicaY();
+    int maximumReplicaZ = _cell->maximumReplicaZ();
+
+    std::vector<RKInPerInstanceAttributesBonds> data = std::vector<RKInPerInstanceAttributesBonds>();
+
+    for(int k1=minimumReplicaX;k1<=maximumReplicaX+1;k1++)
+    {
+      for(int k2=minimumReplicaY;k2<=maximumReplicaY+1;k2++)
+      {
+        for(int k3=minimumReplicaZ;k3<=maximumReplicaZ+1;k3++)
+        {
+          if(k1<=maximumReplicaX)
+          {
+            double3 position1 = _cell->unitCell() * double3(k1,k2,k3); // + origin();
+            double3 position2 = _cell->unitCell() * double3(k1+1,k2,k3); // + origin();
+            float4 scale = float4(0.1,1.0,0.1,1.0);
+            RKInPerInstanceAttributesBonds cylinder =
+                    RKInPerInstanceAttributesBonds(float4(position1,1.0),
+                                                   float4(position2,1.0),
+                                                   float4(1.0,1.0,1.0,1.0),
+                                                   float4(1.0,1.0,1.0,1.0),
+                                                   scale,0,0);
+            data.push_back(cylinder);
+          }
+
+          if(k2<=maximumReplicaY)
+          {
+            double3 position1 = _cell->unitCell() * double3(k1,k2,k3); // + origin();
+            double3 position2 = _cell->unitCell() * double3(k1,k2+1,k3); // + origin();
+            float4 scale = float4(0.1,1.0,0.1,1.0);
+            RKInPerInstanceAttributesBonds cylinder =
+                    RKInPerInstanceAttributesBonds(float4(position1,1.0),
+                                                   float4(position2,1.0),
+                                                   float4(1.0,1.0,1.0,1.0),
+                                                   float4(1.0,1.0,1.0,1.0),
+                                                   scale,0,0);
+            data.push_back(cylinder);
+          }
+
+          if(k3<=maximumReplicaZ)
+          {
+            double3 position1 = _cell->unitCell() * double3(k1,k2,k3); // + origin();
+            double3 position2 = _cell->unitCell() * double3(k1,k2,k3+1); // + origin();
+            float4 scale = float4(0.1,1.0,0.1,1.0);
+            RKInPerInstanceAttributesBonds cylinder =
+                    RKInPerInstanceAttributesBonds(float4(position1,1.0),
+                                                   float4(position2,1.0),
+                                                   float4(1.0,1.0,1.0,1.0),
+                                                   float4(1.0,1.0,1.0,1.0),
+                                                   scale,0,0);
+            data.push_back(cylinder);
+          }
+        }
+      }
+    }
+
+    return data;
+}
+
+
+// MARK: Rendering selection
+// =====================================================================
+
+std::vector<RKInPerInstanceAttributesAtoms> Crystal::renderSelectedAtoms() const
+{
+  int minimumReplicaX = _cell->minimumReplicaX();
+  int minimumReplicaY = _cell->minimumReplicaY();
+  int minimumReplicaZ = _cell->minimumReplicaZ();
+
+  int maximumReplicaX = _cell->maximumReplicaX();
+  int maximumReplicaY = _cell->maximumReplicaY();
+  int maximumReplicaZ = _cell->maximumReplicaZ();
+
+  std::unordered_set<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->selectedTreeNodes();
+
+  std::vector<RKInPerInstanceAttributesAtoms> atomData = std::vector<RKInPerInstanceAttributesAtoms>();
+
+  uint32_t asymmetricAtomIndex = 0;
+  for (std::shared_ptr<SKAtomTreeNode> node : asymmetricAtomNodes)
+  {
+    if (std::shared_ptr<SKAsymmetricAtom> atom = node->representedObject())
+    {
+      for (std::shared_ptr<SKAtomCopy> copy : atom->copies())
+      {
+        if (copy->type() == SKAtomCopy::AtomCopyType::copy)
+        {
+          QColor color = atom->color();
+          double w = atom->isVisible() ? 1.0 : -1.0;
+          //std::cout << "here" << std::endl;
+          for (int k1 = minimumReplicaX;k1 <= maximumReplicaX;k1++)
+          {
+            for (int k2 = minimumReplicaY;k2 <= maximumReplicaY;k2++)
+            {
+              for (int k3 = minimumReplicaZ;k3 <= maximumReplicaZ;k3++)
+              {
+                float4 position = float4(_cell->unitCell() * (copy->position() + double3(k1, k2, k3)), w);
+
+                float4 ambient = float4(color.redF(), color.greenF(), color.blueF(), color.alphaF());
+                float4 diffuse = float4(color.redF(), color.greenF(), color.blueF(), color.alphaF());
+
+                float4 specular = float4(1.0, 1.0, 1.0, 1.0);
+                double radius = atom->drawRadius() * atom->occupancy();
+                float4 scale = float4(radius, radius, radius, 1.0);
+
+                RKInPerInstanceAttributesAtoms atom1 = RKInPerInstanceAttributesAtoms(position, ambient, diffuse, specular, scale, asymmetricAtomIndex);
+                atomData.push_back(atom1);
+              }
+            }
+          }
+        }
+      }
+    }
+    asymmetricAtomIndex++;
+  }
+
+  return atomData;
+}
+
+std::vector<RKInPerInstanceAttributesBonds> Crystal::renderSelectedInternalBonds() const
+{
+  int minimumReplicaX = _cell->minimumReplicaX();
+  int minimumReplicaY = _cell->minimumReplicaY();
+  int minimumReplicaZ = _cell->minimumReplicaZ();
+
+  int maximumReplicaX = _cell->maximumReplicaX();
+  int maximumReplicaY = _cell->maximumReplicaY();
+  int maximumReplicaZ = _cell->maximumReplicaZ();
+
+  std::vector<RKInPerInstanceAttributesBonds> data =  std::vector<RKInPerInstanceAttributesBonds>();
+
+  const std::vector<std::shared_ptr<SKAsymmetricBond>> asymmetricBonds = _bondSetController->arrangedObjects();
+
+  for(int asymmetricBondIndex: _bondSetController->selectedObjects())
+  {
+    std::shared_ptr<SKAsymmetricBond> asymmetricBond = _bondSetController->arrangedObjects()[asymmetricBondIndex];
+    bool isVisible = asymmetricBond->isVisible() && asymmetricBond->atom1()->isVisible()  && asymmetricBond->atom2()->isVisible();
+
+    if(isVisible)
+    {
+      const std::vector<std::shared_ptr<SKBond>> bonds = asymmetricBond->copies();
+      for(std::shared_ptr<SKBond> bond : bonds)
+      {
+        if(bond->atom1()->type() == SKAtomCopy::AtomCopyType::copy && bond->atom2()->type() == SKAtomCopy::AtomCopyType::copy && bond->boundaryType() == SKBond::BoundaryType::internal)
+        {
+          QColor color1 = bond->atom1()->parent()->color();
+          QColor color2 = bond->atom2()->parent()->color();
+
+          for(int k1=minimumReplicaX;k1<=maximumReplicaX;k1++)
+          {
+            for(int k2=minimumReplicaY;k2<=maximumReplicaY;k2++)
+            {
+              for(int k3=minimumReplicaZ;k3<=maximumReplicaZ;k3++)
+              {
+                double3 pos1 = _cell->unitCell() * (bond->atom1()->position()+double3(k1,k2,k3));
+                double3 pos2 = _cell->unitCell() * (bond->atom2()->position()+double3(k1,k2,k3));
+                double bondLength = (pos2-pos1).length();
+                double drawRadius1 = bond->atom1()->parent()->drawRadius()/bondLength;
+                double drawRadius2 = bond->atom2()->parent()->drawRadius()/bondLength;
+
+                RKInPerInstanceAttributesBonds bondData = RKInPerInstanceAttributesBonds(
+                            float4(pos1,1.0),
+                            float4(pos2,1.0),
+                            float4(color1.redF(),color1.greenF(),color1.blueF(),color1.alphaF()),
+                            float4(color2.redF(),color2.greenF(),color2.blueF(),color2.alphaF()),
+                            float4(drawRadius1, std::min(bond->atom1()->parent()->occupancy(),bond->atom2()->parent()->occupancy()), drawRadius2, drawRadius1/drawRadius2),
+                            asymmetricBondIndex,
+                            static_cast<typename std::underlying_type<SKAsymmetricBond::SKBondType>::type>(asymmetricBond->getBondType()));
+                data.push_back(bondData);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return data;
+}
+
+std::vector<RKInPerInstanceAttributesBonds> Crystal::renderSelectedExternalBonds() const
+{
+  std::vector<RKInPerInstanceAttributesBonds> data = std::vector<RKInPerInstanceAttributesBonds>();
+
+  int minimumReplicaX = _cell->minimumReplicaX();
+  int minimumReplicaY = _cell->minimumReplicaY();
+  int minimumReplicaZ = _cell->minimumReplicaZ();
+
+  int maximumReplicaX = _cell->maximumReplicaX();
+  int maximumReplicaY = _cell->maximumReplicaY();
+  int maximumReplicaZ = _cell->maximumReplicaZ();
+
+  const std::vector<std::shared_ptr<SKAsymmetricBond>> asymmetricBonds = _bondSetController->arrangedObjects();
+
+  for(int asymmetricBondIndex: _bondSetController->selectedObjects())
+  {
+    std::shared_ptr<SKAsymmetricBond> asymmetricBond = _bondSetController->arrangedObjects()[asymmetricBondIndex];
+    const std::vector<std::shared_ptr<SKBond>> bonds = asymmetricBond->copies();
+    for(std::shared_ptr<SKBond> bond : bonds)
+    {
+      if(bond->boundaryType() == SKBond::BoundaryType::external)
+      {
+        QColor color1 = bond->atom1()->parent()->color();
+        QColor color2 = bond->atom2()->parent()->color();
+        double w = (asymmetricBond->isVisible() && bond->atom1()->parent()->isVisible()  && bond->atom2()->parent()->isVisible()) ? 1.0 : -1.0;
+        for(int k1=minimumReplicaX;k1<=maximumReplicaX;k1++)
+        {
+          for(int k2=minimumReplicaY;k2<=maximumReplicaY;k2++)
+          {
+            for(int k3=minimumReplicaZ;k3<=maximumReplicaZ;k3++)
+            {
+              double3 frac_pos1 = bond->atom1()->position()+double3(k1,k2,k3);
+              double3 frac_pos2 = bond->atom2()->position()+double3(k1,k2,k3);
+
+              double3 dr = frac_pos2 - frac_pos1;
+
+              // apply boundary condition
+              dr.x -= rint(dr.x);
+              dr.y -= rint(dr.y);
+              dr.z -= rint(dr.z);
+
+              double3 pos1 = _cell->unitCell() * frac_pos1;  //+ bond.atom1.asymmetricParentAtom.displacement
+              double3 pos2 = _cell->unitCell() * frac_pos2;  // + bond.atom2.asymmetricParentAtom.displacement
+
+              dr = _cell->unitCell() * dr;
+              double bondLength = dr.length();
+
+              double drawRadius1 = bond->atom1()->parent()->drawRadius()/bondLength;
+              double drawRadius2 = bond->atom2()->parent()->drawRadius()/bondLength;
+
+              RKInPerInstanceAttributesBonds bondData = RKInPerInstanceAttributesBonds(
+                            float4(pos1,w),
+                            float4(pos1 + dr,w),
+                            float4(color1.redF(),color1.greenF(),color1.blueF(),color1.alphaF()),
+                            float4(color2.redF(),color2.greenF(),color2.blueF(),color2.alphaF()),
+                            float4(drawRadius1, std::min(bond->atom1()->parent()->occupancy(),bond->atom2()->parent()->occupancy()), drawRadius2, drawRadius1/drawRadius2),
+                            asymmetricBondIndex,
+                            static_cast<typename std::underlying_type<SKAsymmetricBond::SKBondType>::type>(asymmetricBond->getBondType()));
+              data.push_back(bondData);
+
+              RKInPerInstanceAttributesBonds bondData2 = RKInPerInstanceAttributesBonds(
+                            float4(pos2,w),
+                            float4(pos2 - dr,w),
+                            float4(color2.redF(),color2.greenF(),color2.blueF(),color2.alphaF()),
+                            float4(color1.redF(),color1.greenF(),color1.blueF(),color1.alphaF()),
+                            float4(drawRadius2, std::min(bond->atom2()->parent()->occupancy(),bond->atom1()->parent()->occupancy()), drawRadius1, drawRadius2/drawRadius1),
+                            asymmetricBondIndex,
+                            static_cast<typename std::underlying_type<SKAsymmetricBond::SKBondType>::type>(asymmetricBond->getBondType()));
+              data.push_back(bondData2);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return data;
+}
+
+
+
+// MARK: Filtering
+// =====================================================================
+
+std::vector<double3> Crystal::atomPositions() const
+{
+  int minimumReplicaX = _cell->minimumReplicaX();
+  int minimumReplicaY = _cell->minimumReplicaY();
+  int minimumReplicaZ = _cell->minimumReplicaZ();
+
+  int maximumReplicaX = _cell->maximumReplicaX();
+  int maximumReplicaY = _cell->maximumReplicaY();
+  int maximumReplicaZ = _cell->maximumReplicaZ();
+
+  std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
+
+  std::vector<double3> atomData = std::vector<double3>();
+
+  double4x4 rotationMatrix = double4x4::AffinityMatrixToTransformationAroundArbitraryPoint(double4x4(_orientation), boundingBox().center());
+
+  for(std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
+  {
+    if(std::shared_ptr<SKAsymmetricAtom> atom = node->representedObject())
+    {
+      for(std::shared_ptr<SKAtomCopy> copy : atom->copies())
+      {
+        if(copy->type() == SKAtomCopy::AtomCopyType::copy)
+        {
+          double3 pos = copy->position();
+          for(int k1=minimumReplicaX;k1<=maximumReplicaX;k1++)
+          {
+            for(int k2=minimumReplicaY;k2<=maximumReplicaY;k2++)
+            {
+              for(int k3=minimumReplicaZ;k3<=maximumReplicaZ;k3++)
+              {
+                double3 fractionalPosition = double3(pos.x + double(k1), pos.y + double(k2), pos.z + double(k3));
+                double3 cartesianPosition = _cell->convertToCartesian(fractionalPosition);
+
+                double4 position = rotationMatrix * double4(cartesianPosition.x, cartesianPosition.y, cartesianPosition.z, 1.0);
+
+                atomData.push_back(double3(position.x,position.y,position.z));
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return atomData;
+}
+
+std::set<int> Crystal::filterCartesianAtomPositions(std::function<bool(double3)> & closure)
+{
+  std::set<int> data;
+
+  int minimumReplicaX = _cell->minimumReplicaX();
+  int minimumReplicaY = _cell->minimumReplicaY();
+  int minimumReplicaZ = _cell->minimumReplicaZ();
+
+  int maximumReplicaX = _cell->maximumReplicaX();
+  int maximumReplicaY = _cell->maximumReplicaY();
+  int maximumReplicaZ = _cell->maximumReplicaZ();
+
+  double4x4 rotationMatrix = double4x4::AffinityMatrixToTransformationAroundArbitraryPoint(double4x4(_orientation), boundingBox().center());
+
+  std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
+
+  uint32_t asymmetricAtomIndex = 0;
+  for(std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
+  {
+    if(std::shared_ptr<SKAsymmetricAtom> atom = node->representedObject())
+    {
+      if (atom->isVisible())
+      {
+        for(std::shared_ptr<SKAtomCopy> copy : atom->copies())
+        {
+          if(copy->type() == SKAtomCopy::AtomCopyType::copy)
+          {
+            double3 pos = copy->position();
+            for(int k1=minimumReplicaX;k1<=maximumReplicaX;k1++)
+            {
+              for(int k2=minimumReplicaY;k2<=maximumReplicaY;k2++)
+              {
+                for(int k3=minimumReplicaZ;k3<=maximumReplicaZ;k3++)
+                {
+                  double3 fractionalPosition = double3(pos.x + double(k1), pos.y + double(k2), pos.z + double(k3));
+                  double3 cartesianPosition = _cell->convertToCartesian(fractionalPosition);
+
+                  double4 position = rotationMatrix * double4(cartesianPosition.x, cartesianPosition.y, cartesianPosition.z, 1.0);
+
+                  double3 absoluteCartesianPosition = double3(position.x,position.y,position.z) + _origin;
+
+                  if(closure(absoluteCartesianPosition))
+                  {
+
+                    data.insert(asymmetricAtomIndex);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    asymmetricAtomIndex++;
+  }
+
+  return data;
+}
+
+std::set<int> Crystal::filterCartesianBondPositions(std::function<bool(double3)> &closure)
+{
+  std::set<int> data;
+
+  int minimumReplicaX = _cell->minimumReplicaX();
+  int minimumReplicaY = _cell->minimumReplicaY();
+  int minimumReplicaZ = _cell->minimumReplicaZ();
+
+  int maximumReplicaX = _cell->maximumReplicaX();
+  int maximumReplicaY = _cell->maximumReplicaY();
+  int maximumReplicaZ = _cell->maximumReplicaZ();
+
+  const std::vector<std::shared_ptr<SKAsymmetricBond>> asymmetricBonds = _bondSetController->arrangedObjects();
+
+  double4x4 rotationMatrix = double4x4::AffinityMatrixToTransformationAroundArbitraryPoint(double4x4(_orientation), boundingBox().center());
+
+  uint32_t asymmetricBondIndex = 0;
+  for(std::shared_ptr<SKAsymmetricBond> asymmetricBond : asymmetricBonds)
+  {
+    bool isVisible = asymmetricBond->isVisible() && asymmetricBond->atom1()->isVisible()  && asymmetricBond->atom2()->isVisible();
+
+    if (isVisible)
+    {
+      const std::vector<std::shared_ptr<SKBond>> bonds = asymmetricBond->copies();
+      for(std::shared_ptr<SKBond> bond : bonds)
+      {
+        for(int k1=minimumReplicaX;k1<=maximumReplicaX;k1++)
+        {
+          for(int k2=minimumReplicaY;k2<=maximumReplicaY;k2++)
+          {
+            for(int k3=minimumReplicaZ;k3<=maximumReplicaZ;k3++)
+            {
+              double3 frac_pos1 = bond->atom1()->position()+double3(k1,k2,k3);
+              double3 frac_pos2 = bond->atom2()->position()+double3(k1,k2,k3);
+
+              double3 dr = frac_pos2 - frac_pos1;
+
+              // apply boundary condition
+              dr.x -= rint(dr.x);
+              dr.y -= rint(dr.y);
+              dr.z -= rint(dr.z);
+
+              double3 pos1 = _cell->unitCell() * frac_pos1;
+              double3 pos2 = _cell->unitCell() * frac_pos2;
+
+              dr = _cell->unitCell() * dr;
+
+              double3 cartesianPosition1 = pos1 + 0.5 * dr ;
+              double4 position1 = rotationMatrix * double4(cartesianPosition1.x, cartesianPosition1.y, cartesianPosition1.z, 1.0);
+              double3 absoluteCartesianPosition1 = double3(position1.x,position1.y,position1.z) + _origin;
+              if (closure(absoluteCartesianPosition1))
+              {
+                data.insert(asymmetricBondIndex);
+              }
+
+              double3 cartesianPosition2 = pos2 - 0.5 * dr ;
+              double4 position2 = rotationMatrix * double4(cartesianPosition2.x, cartesianPosition2.y, cartesianPosition2.z, 1.0);
+              double3 absoluteCartesianPosition2 = double3(position2.x,position2.y,position2.z) + _origin;
+              if (closure(absoluteCartesianPosition2))
+              {
+                data.insert(asymmetricBondIndex);
+              }
+            }
+          }
+        }
+      }
+    }
+    asymmetricBondIndex++;
+  }
+
+  return data;
+}
+
+// MARK: Bounding box
+// =====================================================================
+
+SKBoundingBox Crystal::boundingBox() const
+{
+  double3 minimumReplica = _cell->minimumReplicas();
+  double3 maximumReplica = _cell->maximumReplicas();
+
+  double3 c0 = _cell->unitCell() * double3(minimumReplica);
+  double3 c1 = _cell->unitCell() * double3(maximumReplica.x+1, minimumReplica.y,   minimumReplica.z);
+  double3 c2 = _cell->unitCell() * double3(maximumReplica.x+1, maximumReplica.y+1, minimumReplica.z);
+  double3 c3 = _cell->unitCell() * double3(minimumReplica.x,   maximumReplica.y+1, minimumReplica.z);
+  double3 c4 = _cell->unitCell() * double3(minimumReplica.x,   minimumReplica.y,   maximumReplica.z+1);
+  double3 c5 = _cell->unitCell() * double3(maximumReplica.x+1, minimumReplica.y,   maximumReplica.z+1);
+  double3 c6 = _cell->unitCell() * double3(maximumReplica.x+1, maximumReplica.y+1, maximumReplica.z+1);
+  double3 c7 = _cell->unitCell() * double3(minimumReplica.x,   maximumReplica.y+1, maximumReplica.z+1);
+
+  double valuesX[8] = {c0.x, c1.x, c2.x, c3.x, c4.x, c5.x, c6.x, c7.x};
+  double valuesY[8] = {c0.y, c1.y, c2.y, c3.y, c4.y, c5.y, c6.y, c7.y};
+  double valuesZ[8] = {c0.z, c1.z, c2.z, c3.z, c4.z, c5.z, c6.z, c7.z};
+
+  double3 minimum = double3(*std::min_element(valuesX,valuesX+8),
+                            *std::min_element(valuesY,valuesY+8),
+                            *std::min_element(valuesZ,valuesZ+8));
+
+  double3 maximum = double3(*std::max_element(valuesX,valuesX+8),
+                            *std::max_element(valuesY,valuesY+8),
+                            *std::max_element(valuesZ,valuesZ+8));
+
+  return SKBoundingBox(minimum,maximum);
+}
+
+
+
+// MARK: Symmetry
+// =====================================================================
 
 void Crystal::expandSymmetry()
 {
   std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
 
-  int index=0;
   for(std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
   {
     std::vector<std::shared_ptr<SKAtomCopy>> atomCopies = std::vector<std::shared_ptr<SKAtomCopy>>{};
@@ -87,181 +812,6 @@ void Crystal::expandSymmetry(std::shared_ptr<SKAsymmetricAtom> asymmetricAtom)
 }
 
 
-std::vector<RKInPerInstanceAttributesAtoms> Crystal::renderAtoms() const
-{
-  int numberOfReplicas = _cell->numberOfReplicas();
-
-  int minimumReplicaX = _cell->minimumReplicaX();
-  int minimumReplicaY = _cell->minimumReplicaY();
-  int minimumReplicaZ = _cell->minimumReplicaZ();
-
-  int maximumReplicaX = _cell->maximumReplicaX();
-  int maximumReplicaY = _cell->maximumReplicaY();
-  int maximumReplicaZ = _cell->maximumReplicaZ();
-
-  std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
-
-  std::vector<RKInPerInstanceAttributesAtoms> atomData = std::vector<RKInPerInstanceAttributesAtoms>();
-
-  int index = 0;
-  for(std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
-  {
-     if(std::shared_ptr<SKAsymmetricAtom> atom = node->representedObject())
-     {
-       for(std::shared_ptr<SKAtomCopy> copy : atom->copies())
-       {
-         copy->setAsymmetricIndex(index);
-
-         if(copy->type() == SKAtomCopy::AtomCopyType::copy)
-         {
-           QColor color = atom->color();
-           double w = atom->isVisible() ? 1.0 : -1.0;
-           for(int k1=minimumReplicaX;k1<=maximumReplicaX;k1++)
-           {
-             for(int k2=minimumReplicaY;k2<=maximumReplicaY;k2++)
-             {
-               for(int k3=minimumReplicaZ;k3<=maximumReplicaZ;k3++)
-               {
-
-                 float4 position = float4(_cell->unitCell() * (copy->position() + double3(k1,k2,k3)), w);
-
-                 float4 ambient = float4(color.redF(),color.greenF(),color.blueF(),color.alphaF());
-                 float4 diffuse = float4(color.redF(),color.greenF(),color.blueF(),color.alphaF());
-
-                 float4 specular = float4(1.0,1.0,1.0,1.0);
-
-                 double radius = atom->drawRadius() * atom->occupancy();
-                 float4 scale = float4(radius,radius,radius,1.0);
-
-                 if(atom->occupancy()<1.0)
-                 {
-                   diffuse = float4(1.0,1.0,1.0,1.0);
-                 }
-
-                 RKInPerInstanceAttributesAtoms atom1 = RKInPerInstanceAttributesAtoms(position, ambient, diffuse, specular, scale);
-                 atomData.push_back(atom1);
-
-               }
-             }
-           }
-         }
-       }
-     }
-     index++;
-  }
-
-  return atomData;
-}
-
-std::vector<RKInPerInstanceAttributesAtoms> Crystal::renderSelectedAtoms() const
-{
-	int numberOfReplicas = _cell->numberOfReplicas();
-
-	int minimumReplicaX = _cell->minimumReplicaX();
-	int minimumReplicaY = _cell->minimumReplicaY();
-	int minimumReplicaZ = _cell->minimumReplicaZ();
-
-	int maximumReplicaX = _cell->maximumReplicaX();
-	int maximumReplicaY = _cell->maximumReplicaY();
-	int maximumReplicaZ = _cell->maximumReplicaZ();
-
-	std::unordered_set<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->selectedTreeNodes();
-
-	std::vector<RKInPerInstanceAttributesAtoms> atomData = std::vector<RKInPerInstanceAttributesAtoms>();
-
-
-	for (std::shared_ptr<SKAtomTreeNode> node : asymmetricAtomNodes)
-	{
-		if (std::shared_ptr<SKAsymmetricAtom> atom = node->representedObject())
-		{
-			for (std::shared_ptr<SKAtomCopy> copy : atom->copies())
-			{
-				if (copy->type() == SKAtomCopy::AtomCopyType::copy)
-				{
-					QColor color = atom->color();
-					double w = atom->isVisible() ? 1.0 : -1.0;
-					//std::cout << "here" << std::endl;
-					for (int k1 = minimumReplicaX;k1 <= maximumReplicaX;k1++)
-					{
-						for (int k2 = minimumReplicaY;k2 <= maximumReplicaY;k2++)
-						{
-							for (int k3 = minimumReplicaZ;k3 <= maximumReplicaZ;k3++)
-							{
-								//std::cout << "position: " << copy->position() .x << "," << copy->position().y << ", " << copy->position().z << std::endl;
-
-								float4 position = float4(_cell->unitCell() * (copy->position() + double3(k1, k2, k3)), w);
-
-								float4 ambient = float4(color.redF(), color.greenF(), color.blueF(), color.alphaF());
-								float4 diffuse = float4(color.redF(), color.greenF(), color.blueF(), color.alphaF());
-
-								float4 specular = float4(1.0, 1.0, 1.0, 1.0);
-								double radius = atom->drawRadius() * atom->occupancy();
-								float4 scale = float4(radius, radius, radius, 1.0);
-
-								RKInPerInstanceAttributesAtoms atom1 = RKInPerInstanceAttributesAtoms(position, ambient, diffuse, specular, scale);
-								atomData.push_back(atom1);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return atomData;
-}
-
-
-std::vector<double3> Crystal::atomPositions() const
-{
-    int numberOfReplicas = _cell->numberOfReplicas();
-
-    int minimumReplicaX = _cell->minimumReplicaX();
-    int minimumReplicaY = _cell->minimumReplicaY();
-    int minimumReplicaZ = _cell->minimumReplicaZ();
-
-    int maximumReplicaX = _cell->maximumReplicaX();
-    int maximumReplicaY = _cell->maximumReplicaY();
-    int maximumReplicaZ = _cell->maximumReplicaZ();
-
-    std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
-
-    std::vector<double3> atomData = std::vector<double3>();
-
-
-    for(std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
-    {
-       if(std::shared_ptr<SKAsymmetricAtom> atom = node->representedObject())
-       {
-         for(std::shared_ptr<SKAtomCopy> copy : atom->copies())
-         {
-           if(copy->type() == SKAtomCopy::AtomCopyType::copy)
-           {
-             double3 pos = copy->position();
-             for(int k1=minimumReplicaX;k1<=maximumReplicaX;k1++)
-             {
-               for(int k2=minimumReplicaY;k2<=maximumReplicaY;k2++)
-               {
-                 for(int k3=minimumReplicaZ;k3<=maximumReplicaZ;k3++)
-                 {
-                   double4x4 rotationMatrix = double4x4::AffinityMatrixToTransformationAroundArbitraryPoint(double4x4(_orientation), boundingBox().center());
-
-                   double3 fractionalPosition = double3(pos.x + double(k1), pos.y + double(k2), pos.z + double(k3));
-                   double3 cartesianPosition = _cell->convertToCartesian(fractionalPosition);
-
-                   double4 position = rotationMatrix * double4(cartesianPosition.x, cartesianPosition.y, cartesianPosition.z, 1.0);
-
-                   atomData.push_back(double3(position.x,position.y,position.z));
-                 }
-               }
-             }
-           }
-         }
-       }
-    }
-
-    return atomData;
-}
 
 std::vector<double3> Crystal::atomUnitCellPositions() const
 {
@@ -285,6 +835,67 @@ std::vector<double3> Crystal::atomUnitCellPositions() const
     }
 
     return atomData;
+}
+
+
+// MARK: bond-computations
+// =====================================================================
+
+double Crystal::bondLength(std::shared_ptr<SKBond> bond) const
+{
+  double3 pos1 = bond->atom1()->position();
+  double3 pos2 = bond->atom2()->position();
+  double3 ds = pos2 - pos1;
+  ds.x -= floor(ds.x + 0.5);
+  ds.y -= floor(ds.y + 0.5);
+  ds.z -= floor(ds.z + 0.5);
+  return (_cell->unitCell() * ds).length();
+}
+
+double3 Crystal::bondVector(std::shared_ptr<SKBond> bond) const
+{
+  double3 pos1 = bond->atom1()->position();
+  double3 pos2 = bond->atom2()->position();
+  double3 ds = pos2 - pos1;
+  ds.x -= floor(ds.x + 0.5);
+  ds.y -= floor(ds.y + 0.5);
+  ds.z -= floor(ds.z + 0.5);
+  return ds;
+}
+
+std::pair<double3, double3> Crystal::computeChangedBondLength(std::shared_ptr<SKBond> bond, double bondLength) const
+{
+  double3 pos1 = bond->atom1()->position();
+  std::shared_ptr<SKAsymmetricAtom> asymmetricAtom1 = bond->atom1()->parent();
+
+  double3 pos2 = bond->atom2()->position();
+  std::shared_ptr<SKAsymmetricAtom> asymmetricAtom2 = bond->atom2()->parent();
+
+  double oldBondLength = this->bondLength(bond);
+
+  double3 bondVector = this->bondVector(bond).normalise();
+
+  bool isAllFixed1 = asymmetricAtom1->isFixed().x && asymmetricAtom1->isFixed().y && asymmetricAtom1->isFixed().z;
+  bool isAllFixed2 = asymmetricAtom2->isFixed().x && asymmetricAtom2->isFixed().y && asymmetricAtom2->isFixed().z;
+
+  if(!isAllFixed1 && !isAllFixed2)
+  {
+    double3 newPos1 = _cell->convertToFractional(_cell->convertToCartesian(pos1) - 0.5 * (bondLength - oldBondLength) * bondVector);
+    double3 newPos2 = _cell->convertToFractional(_cell->convertToCartesian(pos2) + 0.5 * (bondLength - oldBondLength) * bondVector);
+    return std::make_pair(newPos1, newPos2);
+  }
+  else if(isAllFixed1 && !isAllFixed2)
+  {
+    double3 newPos2 = _cell->convertToFractional(_cell->convertToCartesian(pos1) + bondLength * bondVector);
+    return std::make_pair(pos1, newPos2);
+  }
+  else if(!isAllFixed1 && isAllFixed2)
+  {
+    double3 newPos1 = _cell->convertToFractional(_cell->convertToCartesian(pos2) - bondLength * bondVector);
+    return std::make_pair(newPos1, pos2);
+  }
+
+  return std::make_pair(pos1,pos2);
 }
 
 std::vector<double2> Crystal::potentialParameters() const
@@ -312,318 +923,21 @@ std::vector<double2> Crystal::potentialParameters() const
     return atomData;
 }
 
-std::vector<RKInPerInstanceAttributesBonds> Crystal::renderInternalBonds() const
-{
-  int index = 0;
-
-  int numberOfReplicas = _cell->numberOfReplicas();
-
-  int minimumReplicaX = _cell->minimumReplicaX();
-  int minimumReplicaY = _cell->minimumReplicaY();
-  int minimumReplicaZ = _cell->minimumReplicaZ();
-
-  int maximumReplicaX = _cell->maximumReplicaX();
-  int maximumReplicaY = _cell->maximumReplicaY();
-  int maximumReplicaZ = _cell->maximumReplicaZ();
-
-  const std::unordered_set<std::shared_ptr<SKBond>> bonds = _bondSetController->arrangedObjects();
-
-  std::vector<RKInPerInstanceAttributesBonds> data =  std::vector<RKInPerInstanceAttributesBonds>();
-  for(std::shared_ptr<SKBond> bond : bonds)
-  {
-    if(bond->atom1()->type() == SKAtomCopy::AtomCopyType::copy && bond->atom2()->type() == SKAtomCopy::AtomCopyType::copy &&
-            bond->boundaryType() == SKBond::BoundaryType::internal)
-    {
-      QColor color1 = bond->atom1()->parent()->color();
-      QColor color2 = bond->atom2()->parent()->color();
-      double w = (bond->atom1()->parent()->isVisible()  && bond->atom2()->parent()->isVisible()) ? 1.0 : -1.0;
-      for(int k1=minimumReplicaX;k1<=maximumReplicaX;k1++)
-      {
-        for(int k2=minimumReplicaY;k2<=maximumReplicaY;k2++)
-        {
-          for(int k3=minimumReplicaZ;k3<=maximumReplicaZ;k3++)
-          {
-            double3 pos1 = _cell->unitCell() * (bond->atom1()->position()+double3(k1,k2,k3));
-            double3 pos2 = _cell->unitCell() * (bond->atom2()->position()+double3(k1,k2,k3));
-            double bondLength = (pos2-pos1).length();
-            double drawRadius1 = bond->atom1()->parent()->drawRadius()/bondLength;
-            double drawRadius2 = bond->atom2()->parent()->drawRadius()/bondLength;
-
-            RKInPerInstanceAttributesBonds bondData = RKInPerInstanceAttributesBonds(
-                        float4(pos1,w),
-                        float4(pos2,w),
-                        float4(color1.redF(),color1.greenF(),color1.blueF(),color1.alphaF()),
-                        float4(color2.redF(),color2.greenF(),color2.blueF(),color2.alphaF()),
-                        float4(drawRadius1, std::min(bond->atom1()->parent()->occupancy(),bond->atom2()->parent()->occupancy()), drawRadius2, drawRadius1/drawRadius2));
-            data.push_back(bondData);
-          }
-        }
-      }
-    }
-  }
-
-  return data;
-}
-
-std::vector<RKInPerInstanceAttributesBonds> Crystal::renderExternalBonds() const
-{
-  int index = 0;
-
-  int numberOfReplicas = _cell->numberOfReplicas();
-
-  int minimumReplicaX = _cell->minimumReplicaX();
-  int minimumReplicaY = _cell->minimumReplicaY();
-  int minimumReplicaZ = _cell->minimumReplicaZ();
-
-  int maximumReplicaX = _cell->maximumReplicaX();
-  int maximumReplicaY = _cell->maximumReplicaY();
-  int maximumReplicaZ = _cell->maximumReplicaZ();
-
-  const std::unordered_set<std::shared_ptr<SKBond>> bonds = _bondSetController->arrangedObjects();
-
-  std::vector<RKInPerInstanceAttributesBonds> data =  std::vector<RKInPerInstanceAttributesBonds>();
-  for(std::shared_ptr<SKBond> bond : bonds)
-  {
-    if(bond->atom1()->type() == SKAtomCopy::AtomCopyType::copy && bond->atom2()->type() == SKAtomCopy::AtomCopyType::copy &&
-            bond->boundaryType() == SKBond::BoundaryType::external)
-    {
-      QColor color1 = bond->atom1()->parent()->color();
-      QColor color2 = bond->atom2()->parent()->color();
-      double w = (bond->atom1()->parent()->isVisible()  && bond->atom2()->parent()->isVisible()) ? 1.0 : -1.0;
-      for(int k1=minimumReplicaX;k1<=maximumReplicaX;k1++)
-      {
-        for(int k2=minimumReplicaY;k2<=maximumReplicaY;k2++)
-        {
-          for(int k3=minimumReplicaZ;k3<=maximumReplicaZ;k3++)
-          {
-            double3 frac_pos1 = bond->atom1()->position()+double3(k1,k2,k3);
-            double3 frac_pos2 = bond->atom2()->position()+double3(k1,k2,k3);
-
-            double3 dr = frac_pos2 - frac_pos1;
-
-            // apply boundary condition
-            dr.x -= rint(dr.x);
-            dr.y -= rint(dr.y);
-            dr.z -= rint(dr.z);
-
-            double3 pos1 = _cell->unitCell() * frac_pos1;  //+ bond.atom1.asymmetricParentAtom.displacement
-            double3 pos2 = _cell->unitCell() * frac_pos2;  // + bond.atom2.asymmetricParentAtom.displacement
-
-            dr = _cell->unitCell() * dr;
-            double bondLength = dr.length();
-
-
-            double drawRadius1 = bond->atom1()->parent()->drawRadius()/bondLength;
-            double drawRadius2 = bond->atom2()->parent()->drawRadius()/bondLength;
-
-            RKInPerInstanceAttributesBonds bondData = RKInPerInstanceAttributesBonds(
-                          float4(pos1,w),
-                          float4(pos1 + dr,w),
-                          float4(color1.redF(),color1.greenF(),color1.blueF(),color1.alphaF()),
-                          float4(color2.redF(),color2.greenF(),color2.blueF(),color2.alphaF()),
-                          float4(drawRadius1, std::min(bond->atom1()->parent()->occupancy(),bond->atom2()->parent()->occupancy()), drawRadius2, drawRadius1/drawRadius2));
-            data.push_back(bondData);
-
-            RKInPerInstanceAttributesBonds bondData2 = RKInPerInstanceAttributesBonds(
-                          float4(pos2,w),
-                          float4(pos2 - dr,w),
-                          float4(color2.redF(),color2.greenF(),color2.blueF(),color2.alphaF()),
-                          float4(color1.redF(),color1.greenF(),color1.blueF(),color1.alphaF()),
-                          float4(drawRadius2, std::min(bond->atom2()->parent()->occupancy(),bond->atom1()->parent()->occupancy()), drawRadius1, drawRadius2/drawRadius1));
-            data.push_back(bondData2);
-          }
-        }
-      }
-    }
-  }
-
-  return data;
-}
-
-
-std::vector<RKInPerInstanceAttributesAtoms> Crystal::renderUnitCellSpheres() const
-{
-  int minimumReplicaX = _cell->minimumReplicaX();
-  int minimumReplicaY = _cell->minimumReplicaY();
-  int minimumReplicaZ = _cell->minimumReplicaZ();
-
-  int maximumReplicaX = _cell->maximumReplicaX();
-  int maximumReplicaY = _cell->maximumReplicaY();
-  int maximumReplicaZ = _cell->maximumReplicaZ();
-
-  std::vector<RKInPerInstanceAttributesAtoms> data = std::vector<RKInPerInstanceAttributesAtoms>();
-
-  for(int k1=minimumReplicaX;k1<=maximumReplicaX+1;k1++)
-  {
-    for(int k2=minimumReplicaY;k2<=maximumReplicaY+1;k2++)
-    {
-      for(int k3=minimumReplicaZ;k3<=maximumReplicaZ+1;k3++)
-      {
-        double3 position = _cell->unitCell() * double3(k1,k2,k3); // + origin();
-        float4 ambient = float4(1.0,1.0,1.0,1.0);
-        float4 diffuse = float4(1.0,1.0,1.0,1.0);
-        float4 specular = float4(1.0,1.0,1.0,1.0);
-        float4 scale = float4(0.1,0.1,0.1,1.0);
-        RKInPerInstanceAttributesAtoms sphere = RKInPerInstanceAttributesAtoms(float4(position,1.0), ambient, diffuse, specular, scale);
-        data.push_back(sphere);
-      }
-    }
-  }
-
-  return data;
-}
-
-std::vector<RKInPerInstanceAttributesBonds> Crystal::renderUnitCellCylinders() const
-{
-    int minimumReplicaX = _cell->minimumReplicaX();
-    int minimumReplicaY = _cell->minimumReplicaY();
-    int minimumReplicaZ = _cell->minimumReplicaZ();
-
-    int maximumReplicaX = _cell->maximumReplicaX();
-    int maximumReplicaY = _cell->maximumReplicaY();
-    int maximumReplicaZ = _cell->maximumReplicaZ();
-
-    std::vector<RKInPerInstanceAttributesBonds> data = std::vector<RKInPerInstanceAttributesBonds>();
-
-    for(int k1=minimumReplicaX;k1<=maximumReplicaX+1;k1++)
-    {
-      for(int k2=minimumReplicaY;k2<=maximumReplicaY+1;k2++)
-      {
-        for(int k3=minimumReplicaZ;k3<=maximumReplicaZ+1;k3++)
-        {
-          if(k1<=maximumReplicaX)
-          {
-            double3 position1 = _cell->unitCell() * double3(k1,k2,k3); // + origin();
-            double3 position2 = _cell->unitCell() * double3(k1+1,k2,k3); // + origin();
-            float4 scale = float4(0.1,1.0,0.1,1.0);
-            RKInPerInstanceAttributesBonds cylinder =
-                    RKInPerInstanceAttributesBonds(float4(position1,1.0),
-                                                   float4(position2,1.0),
-                                                   float4(1.0,1.0,1.0,1.0),
-                                                   float4(1.0,1.0,1.0,1.0),
-                                                    scale);
-            data.push_back(cylinder);
-          }
-
-          if(k2<=maximumReplicaY)
-          {
-            double3 position1 = _cell->unitCell() * double3(k1,k2,k3); // + origin();
-            double3 position2 = _cell->unitCell() * double3(k1,k2+1,k3); // + origin();
-            float4 scale = float4(0.1,1.0,0.1,1.0);
-            RKInPerInstanceAttributesBonds cylinder =
-                    RKInPerInstanceAttributesBonds(float4(position1,1.0),
-                                                   float4(position2,1.0),
-                                                   float4(1.0,1.0,1.0,1.0),
-                                                   float4(1.0,1.0,1.0,1.0),
-                                                   scale);
-            data.push_back(cylinder);
-          }
-
-          if(k3<=maximumReplicaZ)
-          {
-            double3 position1 = _cell->unitCell() * double3(k1,k2,k3); // + origin();
-            double3 position2 = _cell->unitCell() * double3(k1,k2,k3+1); // + origin();
-            float4 scale = float4(0.1,1.0,0.1,1.0);
-            RKInPerInstanceAttributesBonds cylinder =
-                    RKInPerInstanceAttributesBonds(float4(position1,1.0),
-                                                   float4(position2,1.0),
-                                                   float4(1.0,1.0,1.0,1.0),
-                                                   float4(1.0,1.0,1.0,1.0),
-                                                   scale);
-            data.push_back(cylinder);
-          }
-        }
-      }
-    }
-
-    return data;
-}
-
-SKBoundingBox Crystal::boundingBox() const
-{
-  SKBoundingBox currentBoundingBox = _cell->boundingBox();
-  double3 minimumReplica = _cell->minimumReplicas();
-  double3 maximumReplica = _cell->maximumReplicas();
-
-  double4x4 rotationMatrix = double4x4::AffinityMatrixToTransformationAroundArbitraryPoint(double4x4(_orientation), currentBoundingBox.center());
-
-  double3 c0 = _cell->unitCell() * double3(minimumReplica);
-  double3 c1 = _cell->unitCell() * double3(maximumReplica.x+1, minimumReplica.y,   minimumReplica.z);
-  double3 c2 = _cell->unitCell() * double3(maximumReplica.x+1, maximumReplica.y+1, minimumReplica.z);
-  double3 c3 = _cell->unitCell() * double3(minimumReplica.x,   maximumReplica.y+1, minimumReplica.z);
-  double3 c4 = _cell->unitCell() * double3(minimumReplica.x,   minimumReplica.y,   maximumReplica.z+1);
-  double3 c5 = _cell->unitCell() * double3(maximumReplica.x+1, minimumReplica.y,   maximumReplica.z+1);
-  double3 c6 = _cell->unitCell() * double3(maximumReplica.x+1, maximumReplica.y+1, maximumReplica.z+1);
-  double3 c7 = _cell->unitCell() * double3(minimumReplica.x,   maximumReplica.y+1, maximumReplica.z+1);
-
-  double4 r0 = rotationMatrix * double4(c0.x,c0.y,c0.z,1.0);
-  double4 r1 = rotationMatrix * double4(c1.x,c1.y,c1.z,1.0);
-  double4 r2 = rotationMatrix * double4(c2.x,c2.y,c2.z,1.0);
-  double4 r3 = rotationMatrix * double4(c3.x,c3.y,c3.z,1.0);
-  double4 r4 = rotationMatrix * double4(c4.x,c4.y,c4.z,1.0);
-  double4 r5 = rotationMatrix * double4(c5.x,c5.y,c5.z,1.0);
-  double4 r6 = rotationMatrix * double4(c6.x,c6.y,c6.z,1.0);
-  double4 r7 = rotationMatrix * double4(c7.x,c7.y,c7.z,1.0);
-
-  double valuesX[8] = {r0.x, r1.x, r2.x, r3.x, r4.x, r5.x, r6.x, r7.x};
-  double valuesY[8] = {r0.y, r1.y, r2.y, r3.y, r4.y, r5.y, r6.y, r7.y};
-  double valuesZ[8] = {r0.z, r1.z, r2.z, r3.z, r4.z, r5.z, r6.z, r7.z};
-
-  double3 minimum = double3(*std::min_element(valuesX,valuesX+8),
-                            *std::min_element(valuesY,valuesY+8),
-                            *std::min_element(valuesZ,valuesZ+8));
-
-  std::cout << "Minimum: " << minimum.x << ", " << minimum.y << ", " << minimum.z << std::endl;
-
-  double3 maximum = double3(*std::max_element(valuesX,valuesX+8),
-                            *std::max_element(valuesY,valuesY+8),
-                            *std::max_element(valuesZ,valuesZ+8));
-
-  return SKBoundingBox(minimum,maximum);
-}
-
-SKBoundingBox Crystal::transformedBoundingBox() const
-{
-  return boundingBox();
-}
-
-void Crystal::setTags()
-{
-  std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
-
-  int index=0;
-  int nodeIndex=0;
-  for(std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
-  {
-    if(std::shared_ptr<SKAsymmetricAtom> atom = node->representedObject())
-    {
-      for(std::shared_ptr<SKAtomCopy> copy: atom->copies())
-      {
-        copy->setTag(index);
-        copy->setAsymmetricIndex(nodeIndex);
-        index++;
-      }
-      atom->setTag(nodeIndex);
-      atom->setAsymmetricIndex(nodeIndex);
-      nodeIndex++;
-    }
-  }
-}
-
 
 
 void Crystal::computeBonds()
 {
   std::vector<std::shared_ptr<SKAtomCopy>> copies =  _atomsTreeController->atomCopies();
 
-  _bondSetController->clear();
-  for(int i=0;i<copies.size();i++)
+  std::vector<std::shared_ptr<SKBond>> bonds;
+
+  for(size_t i=0;i<copies.size();i++)
   {
     copies[i]->setType(SKAtomCopy::AtomCopyType::copy);
     double3 posA = _cell->unitCell() * copies[i]->position();
     int elementIdentifierA = copies[i]->parent()->elementIdentifier();
     double covalentRadiusA = PredefinedElements::predefinedElements[elementIdentifierA]._covalentRadius;
-    for(int j=i+1;j<copies.size();j++)
+    for(size_t j=i+1;j<copies.size();j++)
     {
       if((copies[i]->parent()->occupancy() == 1.0 && copies[j]->parent()->occupancy() == 1.0) ||
          (copies[i]->parent()->occupancy() < 1.0 && copies[j]->parent()->occupancy() < 1.0))
@@ -645,51 +959,40 @@ void Crystal::computeBonds()
           if (separationVector.length() > bondCriteria)
           {
             std::shared_ptr<SKBond> bond = std::make_shared<SKBond>(copies[i],copies[j], SKBond::BoundaryType::external);
-            _bondSetController->append(bond);
+            bonds.push_back(bond);
           }
           else
           {
             std::shared_ptr<SKBond> bond = std::make_shared<SKBond>(copies[i],copies[j], SKBond::BoundaryType::internal);
-            _bondSetController->append(bond);
+            bonds.push_back(bond);
           }
         }
       }
     }
   }
 
-  int numberOfBonds = 0;
-  for(std::shared_ptr<SKBond> bond : _bondSetController->arrangedObjects())
-  {
-    if(bond->atom1()->type() == SKAtomCopy::AtomCopyType::copy && bond->atom2()->type() == SKAtomCopy::AtomCopyType::copy)
-        numberOfBonds++;
-  }
-
-  setTags();
-  _bondSetController->sort();
-  //std::cout << "Number of bonds: " << numberOfBonds << std::endl;
+  std::vector<std::shared_ptr<SKBond>> filtered_bonds;
+  std::copy_if (bonds.begin(), bonds.end(), std::back_inserter(filtered_bonds), [](std::shared_ptr<SKBond> i){return i->atom1()->type() == SKAtomCopy::AtomCopyType::copy && i->atom2()->type() == SKAtomCopy::AtomCopyType::copy;} );
+  _bondSetController->setBonds(filtered_bonds);
 }
 
-double Crystal::bondLenght(std::shared_ptr<SKBond> bond)
+
+bool Crystal::clipAtomsAtUnitCell() const
 {
-  double3 pos1 = bond->atom1()->position();
-  double3 pos2 = bond->atom2()->position();
-  double3 ds = pos2 - pos1;
-  ds.x -= floor(ds.x + 0.5);
-  ds.y -= floor(ds.y + 0.5);
-  ds.z -= floor(ds.z + 0.5);
-  return (_cell->unitCell() * ds).length();
-
+  return _atomRepresentationType == RepresentationType::unity;
 }
 
+bool Crystal::clipBondsAtUnitCell() const
+{
+  return true;
+}
 
 void Crystal::setSpaceGroupHallNumber(int HallNumber)
 {
   _spaceGroup = SKSpaceGroup(HallNumber);
 
-  std::cout << "Crystal spacegroup set to: " << HallNumber << std::endl;
-
   expandSymmetry();
-  setTags();
+  _atomsTreeController->setTags();
 
   computeBonds();
 }

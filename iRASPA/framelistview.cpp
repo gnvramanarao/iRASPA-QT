@@ -78,7 +78,7 @@ void FrameListView::reloadSelection()
 {
   if(_movie)
   {
-    stdx::optional<int> frameIndex = _movie->selectedFrameIndex();
+    std::optional<int> frameIndex = _movie->selectedFrameIndex();
     if(frameIndex)
     {
       std::shared_ptr<iRASPAStructure> frame = _movie->selectedFrame();

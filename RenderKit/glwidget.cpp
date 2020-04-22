@@ -60,7 +60,7 @@ GLWidget::GLWidget(QWidget* parent ): QOpenGLWidget(parent),
     _externalBondShader(),
     _unitCellSphereShader(),
     _unitCellCylinderShader(),
-    _pickingShader(_atomShader,_atomOrthographicImposterShader),
+    _atomPickingShader(_atomShader,_atomOrthographicImposterShader),
     _atomSelectionWorleyNoise3DShader(),
     _atomSelectionWorleyNoise3DOrthographicImposterShader(_atomSelectionWorleyNoise3DShader),
     _atomSelectionWorleyNoise3DPerspectiveImposterShader(_atomSelectionWorleyNoise3DShader),
@@ -68,12 +68,24 @@ GLWidget::GLWidget(QWidget* parent ): QOpenGLWidget(parent),
     _atomSelectionStripesOrthographicImposterShader(_atomSelectionWorleyNoise3DShader),
     _atomSelectionStripesPerspectiveImposterShader(_atomSelectionWorleyNoise3DShader),
     _atomSelectionGlowShader(_atomSelectionWorleyNoise3DShader),
+    _internalBondSelectionStripesShader(),
+    _externalBondSelectionStripesShader(),
+    _internalBondSelectionWorleyNoise3DShader(),
+    _externalBondSelectionWorleyNoise3DShader(),
+    _internalBondSelectionGlowShader(),
+    _externalBondSelectionGlowShader(),
     _blurShader(),
-    _atomAmbientOcclusionShader(_atomShader,_atomOrthographicImposterShader)
+    _atomAmbientOcclusionShader(_atomShader,_atomOrthographicImposterShader),
+    _internalBondPickingShader(_atomPickingShader),
+    _externalBondPickingShader(_atomPickingShader),
+    _boundingBoxCylinderShader(),
+    _boundingBoxSphereShader(),
+    _sphereObjectShader(),
+    _cylinderObjectShader(),
+    _polygonalPrismObjectShader()
 {
   setAttribute( Qt::WA_OpaquePaintEvent );
   setFocusPolicy(Qt::StrongFocus);
-
 }
 
 void GLWidget::setLogReportingWidget(LogReporting *logReporting)
@@ -88,7 +100,8 @@ void GLWidget::setRenderDataSource(std::shared_ptr<RKRenderDataSource> source)
   makeCurrent();
 
   _dataSource = source;
-  //_atomAmbientOcclusionShader.setRenderDataSource(source);
+  _boundingBoxCylinderShader.setRenderDataSource(source);
+  _boundingBoxSphereShader.setRenderDataSource(source);
   if(std::shared_ptr<RKRenderDataSource> dataSource = source)
   {
     _camera = dataSource->camera();
@@ -98,31 +111,30 @@ void GLWidget::setRenderDataSource(std::shared_ptr<RKRenderDataSource> source)
       camera->resetForNewBoundingBox(dataSource->renderBoundingBox());
     }
 
-	_renderStructures = dataSource->renderStructures();
+    _renderStructures = dataSource->renderStructures();
 
-	if (_isOpenGLInitialized)
-	{
-	  _backgroundShader.reload(dataSource);
+    if (_isOpenGLInitialized)
+    {
+      _backgroundShader.reload(dataSource);
 
-	  _blurShader.resizeGL(_width, _height);
-	}
+      _blurShader.resizeGL(_width, _height);
+    }
   }
 
   if (_isOpenGLInitialized)
   {
     reloadData();
-	update();
+    update();
 
-	if (source)
-	{
+    if (source)
+    {
       renderSceneToImage(width(), height());
-	}
+    }
   }
 }
 
 void GLWidget::redraw()
 {
-  //_quality = RKRenderQuality::high;
   update();
 }
 
@@ -165,7 +177,7 @@ void GLWidget::invalidateIsosurface(std::vector<std::shared_ptr<RKRenderStructur
 std::array<int,4> GLWidget::pickTexture(int x, int y, int width, int height)
 {
   makeCurrent();
-  return _pickingShader.pickTexture(x,y,width,height);
+  return _atomPickingShader.pickTexture(x,y,width,height);
 }
 
 void GLWidget::initializeGL()
@@ -177,10 +189,10 @@ void GLWidget::initializeGL()
 
   if(!context())
   {
-	QMessageBox messageBox;
-	messageBox.setFixedSize(650, 200);
-	messageBox.critical(nullptr, tr("Critical error"), "No OpenGL context present, install OpenGL drivers (>=3.3)");
-	QApplication::quit();
+    QMessageBox messageBox;
+    messageBox.setFixedSize(650, 200);
+    messageBox.critical(nullptr, tr("Critical error"), "No OpenGL context present, install OpenGL drivers (>=3.3)");
+    QApplication::quit();
   }
 
   if (!initializeOpenGLFunctions()) 
@@ -194,7 +206,7 @@ void GLWidget::initializeGL()
   _externalBondShader.initializeOpenGLFunctions();
   _unitCellSphereShader.initializeOpenGLFunctions();
   _unitCellCylinderShader.initializeOpenGLFunctions();
-  _pickingShader.initializeOpenGLFunctions();
+  _atomPickingShader.initializeOpenGLFunctions();
   _atomSelectionWorleyNoise3DShader.initializeOpenGLFunctions();
   _atomSelectionWorleyNoise3DOrthographicImposterShader.initializeOpenGLFunctions();
   _atomSelectionWorleyNoise3DPerspectiveImposterShader.initializeOpenGLFunctions();
@@ -205,7 +217,19 @@ void GLWidget::initializeGL()
   _blurShader.initializeOpenGLFunctions();
   _atomAmbientOcclusionShader.initializeOpenGLFunctions();
   _energySurfaceShader.initializeOpenGLFunctions();
-
+  _internalBondSelectionStripesShader.initializeOpenGLFunctions();
+  _externalBondSelectionStripesShader.initializeOpenGLFunctions();
+  _internalBondSelectionWorleyNoise3DShader.initializeOpenGLFunctions();
+  _externalBondSelectionWorleyNoise3DShader.initializeOpenGLFunctions();
+  _internalBondSelectionGlowShader.initializeOpenGLFunctions();
+  _externalBondSelectionGlowShader.initializeOpenGLFunctions();
+  _internalBondPickingShader.initializeOpenGLFunctions();
+  _externalBondPickingShader.initializeOpenGLFunctions();
+  _boundingBoxCylinderShader.initializeOpenGLFunctions();
+  _boundingBoxSphereShader.initializeOpenGLFunctions();
+  _sphereObjectShader.initializeOpenGLFunctions();
+  _cylinderObjectShader.initializeOpenGLFunctions();
+  _polygonalPrismObjectShader.initializeOpenGLFunctions();
 
   _logReporter->logMessage(LogReporting::ErrorLevel::verbose, "OpenGL initialized");
 
@@ -339,7 +363,7 @@ void GLWidget::initializeGL()
 
   _blurShader.initializeFramebuffers();
 
-  _pickingShader.generateFrameBuffers();
+  _atomPickingShader.generateFrameBuffers();
 
 
   // Set up the context with OpenCL/OpenGL interop.
@@ -575,7 +599,7 @@ void GLWidget::initializeGL()
   _externalBondShader.loadShader();
   _unitCellSphereShader.loadShader();
   _unitCellCylinderShader.loadShader();
-  _pickingShader.loadShader();
+  _atomPickingShader.loadShader();
   _atomSelectionWorleyNoise3DShader.loadShader();
   _atomSelectionWorleyNoise3DOrthographicImposterShader.loadShader();
   _atomSelectionWorleyNoise3DPerspectiveImposterShader.loadShader();
@@ -586,6 +610,19 @@ void GLWidget::initializeGL()
   _blurShader.loadShader();
   _atomAmbientOcclusionShader.loadShader();
   _energySurfaceShader.loadShader();
+  _internalBondSelectionStripesShader.loadShader();
+  _externalBondSelectionStripesShader.loadShader();
+  _internalBondSelectionWorleyNoise3DShader.loadShader();
+  _externalBondSelectionWorleyNoise3DShader.loadShader();
+  _internalBondSelectionGlowShader.loadShader();
+  _externalBondSelectionGlowShader.loadShader();
+  _internalBondPickingShader.loadShader();
+  _externalBondPickingShader.loadShader();
+  _boundingBoxCylinderShader.loadShader();
+  _boundingBoxSphereShader.loadShader();
+  _sphereObjectShader.loadShader();
+  _cylinderObjectShader.loadShader();
+  _polygonalPrismObjectShader.loadShader();
 
   _atomShader.generateBuffers();
   _atomOrthographicImposterShader.generateBuffers();
@@ -594,7 +631,7 @@ void GLWidget::initializeGL()
   _externalBondShader.generateBuffers();
   _unitCellSphereShader.generateBuffers();
   _unitCellCylinderShader.generateBuffers();
-  _pickingShader.generateBuffers();
+  _atomPickingShader.generateBuffers();
   _atomSelectionWorleyNoise3DShader.generateBuffers();
   _atomSelectionWorleyNoise3DOrthographicImposterShader.generateBuffers();
   _atomSelectionWorleyNoise3DPerspectiveImposterShader.generateBuffers();
@@ -604,6 +641,19 @@ void GLWidget::initializeGL()
   _atomSelectionGlowShader.generateBuffers();
   _atomAmbientOcclusionShader.generateBuffers();
   _energySurfaceShader.generateBuffers();
+  _internalBondSelectionStripesShader.generateBuffers();
+  _externalBondSelectionStripesShader.generateBuffers();
+  _internalBondSelectionWorleyNoise3DShader.generateBuffers();
+  _externalBondSelectionWorleyNoise3DShader.generateBuffers();
+  _internalBondSelectionGlowShader.generateBuffers();
+  _externalBondSelectionGlowShader.generateBuffers();
+  _internalBondPickingShader.generateBuffers();
+  _externalBondPickingShader.generateBuffers();
+  _boundingBoxCylinderShader.generateBuffers();
+  _boundingBoxSphereShader.generateBuffers();
+  _sphereObjectShader.generateBuffers();
+  _cylinderObjectShader.generateBuffers();
+  _polygonalPrismObjectShader.generateBuffers();
 
   _backgroundShader.initializeVertexArrayObject();
   _atomShader.initializeVertexArrayObject();
@@ -613,7 +663,7 @@ void GLWidget::initializeGL()
   _externalBondShader.initializeVertexArrayObject();
   _unitCellSphereShader.initializeVertexArrayObject();
   _unitCellSphereShader.initializeVertexArrayObject();
-  _pickingShader.initializeVertexArrayObject();
+  _atomPickingShader.initializeVertexArrayObject();
   _atomSelectionWorleyNoise3DShader.initializeVertexArrayObject();
   _atomSelectionWorleyNoise3DOrthographicImposterShader.initializeVertexArrayObject();
   _atomSelectionWorleyNoise3DPerspectiveImposterShader.initializeVertexArrayObject();
@@ -624,6 +674,19 @@ void GLWidget::initializeGL()
   _atomAmbientOcclusionShader.initializeVertexArrayObject();
   _energySurfaceShader.initializeVertexArrayObject();
   _blurShader.initializeVertexArrayObject();
+  _internalBondSelectionStripesShader.initializeVertexArrayObject();
+  _externalBondSelectionStripesShader.initializeVertexArrayObject();
+  _internalBondSelectionWorleyNoise3DShader.initializeVertexArrayObject();
+  _externalBondSelectionWorleyNoise3DShader.initializeVertexArrayObject();
+  _internalBondSelectionGlowShader.initializeVertexArrayObject();
+  _externalBondSelectionGlowShader.initializeVertexArrayObject();
+  _internalBondPickingShader.initializeVertexArrayObject();
+  _externalBondPickingShader.initializeVertexArrayObject();
+  _boundingBoxCylinderShader.initializeVertexArrayObject();
+  _boundingBoxSphereShader.initializeVertexArrayObject();
+  _sphereObjectShader.initializeVertexArrayObject();
+  _cylinderObjectShader.initializeVertexArrayObject();
+  _polygonalPrismObjectShader.initializeVertexArrayObject();
 
   initializeTransformUniforms();
   check_gl_error();
@@ -664,8 +727,6 @@ void GLWidget::initializeGL()
   glBindVertexArray(0);
   check_gl_error();
 
-
-
   _isOpenGLInitialized = true;
 }
 
@@ -676,7 +737,7 @@ void GLWidget::resizeGL( int w, int h )
     camera->updateCameraForWindowResize(w, h);
   }
 
-  _pickingShader.resizeGL(w,h);
+  _atomPickingShader.resizeGL(w,h);
 
 
   _width = std::max(16, w);
@@ -751,7 +812,6 @@ void GLWidget::resizeGL( int w, int h )
   {
     _blurShader.resizeGL(_width,_height);
   }
-  std::cout << "end resize" << std::endl;
 }
 
 
@@ -766,7 +826,9 @@ void GLWidget::paintGL()
   glGetIntegerv( GL_FRAMEBUFFER_BINDING, &prev_fbo_id );
 
   // pass mouse coordinates (real coordinates twice larger for retina-displays)
-  _pickingShader.paintGL(_width, _height, _structureUniformBuffer);
+  _atomPickingShader.paintGL(_width, _height, _structureUniformBuffer);
+  _internalBondPickingShader.paintGL(_width, _height, _structureUniformBuffer);
+  _externalBondPickingShader.paintGL(_width, _height, _structureUniformBuffer);
 
   glViewport(0,0,_width * _devicePixelRatio,_height * _devicePixelRatio);
 
@@ -977,79 +1039,65 @@ void GLWidget::drawSceneToFramebuffer(GLuint framebuffer)
   glEnable(GL_DEPTH_TEST);
 
 
-  //_atomShader.paintGL(_atomAmbientOcclusionShader.generatedAmbientOcclusionTextures());
   if (std::shared_ptr<RKCamera> camera = _camera.lock())
   {
-
-    if(camera->isOrthographic())
+    if(_quality == RKRenderQuality:: high || _quality == RKRenderQuality:: picture)
     {
-      if(_quality == RKRenderQuality:: high || _quality == RKRenderQuality:: picture)
-      {
-        _atomShader.paintGL(_atomAmbientOcclusionShader.generatedAmbientOcclusionTextures(), _structureUniformBuffer);
-      }
-      else
-      {
-        _atomOrthographicImposterShader.paintGL(_atomAmbientOcclusionShader.generatedAmbientOcclusionTextures(), _structureUniformBuffer);
-      }
-
-      _internalBondShader.paintGL(_structureUniformBuffer);
-      _externalBondShader.paintGL(_structureUniformBuffer);
-      _unitCellSphereShader.paintGL(_structureUniformBuffer);
-      _unitCellCylinderShader.paintGL(_structureUniformBuffer);
-
-      _energySurfaceShader.paintGLOpaque(_structureUniformBuffer,_isosurfaceUniformBuffer);
-
-      if(_quality == RKRenderQuality:: high || _quality == RKRenderQuality:: picture)
-      {
-        _atomSelectionWorleyNoise3DShader.paintGL(_structureUniformBuffer);
-        _atomSelectionStripesShader.paintGL(_structureUniformBuffer);
-      }
-      else
-      {
-        _atomSelectionWorleyNoise3DOrthographicImposterShader.paintGL(_structureUniformBuffer);
-        _atomSelectionStripesOrthographicImposterShader.paintGL(_structureUniformBuffer);
-      }
-
-      _energySurfaceShader.paintGLTransparent(_structureUniformBuffer,_isosurfaceUniformBuffer);
+      _atomShader.paintGL(_atomAmbientOcclusionShader.generatedAmbientOcclusionTextures(), _structureUniformBuffer);
     }
     else
     {
-      if(_quality == RKRenderQuality:: high || _quality == RKRenderQuality:: picture)
+      if(camera->isOrthographic())
       {
-        _atomShader.paintGL(_atomAmbientOcclusionShader.generatedAmbientOcclusionTextures(), _structureUniformBuffer);
+        _atomOrthographicImposterShader.paintGL(_atomAmbientOcclusionShader.generatedAmbientOcclusionTextures(), _structureUniformBuffer);
       }
       else
       {
         _atomPerspectiveImposterShader.paintGL(_atomAmbientOcclusionShader.generatedAmbientOcclusionTextures(), _structureUniformBuffer);
       }
-
-      _internalBondShader.paintGL(_structureUniformBuffer);
-      _externalBondShader.paintGL(_structureUniformBuffer);
-      _unitCellSphereShader.paintGL(_structureUniformBuffer);
-      _unitCellCylinderShader.paintGL(_structureUniformBuffer);
-
-      _energySurfaceShader.paintGLOpaque(_structureUniformBuffer,_isosurfaceUniformBuffer);
-
-      if(_quality == RKRenderQuality:: high || _quality == RKRenderQuality:: picture)
-      {
-        _atomSelectionWorleyNoise3DShader.paintGL(_structureUniformBuffer);
-        _atomSelectionStripesShader.paintGL(_structureUniformBuffer);
-      }
-      else
-      {
-        _atomSelectionWorleyNoise3DPerspectiveImposterShader.paintGL(_structureUniformBuffer);
-        _atomSelectionStripesPerspectiveImposterShader.paintGL(_structureUniformBuffer);
-      }
-
-      _energySurfaceShader.paintGLTransparent(_structureUniformBuffer,_isosurfaceUniformBuffer);
     }
 
+    _internalBondShader.paintGL(_structureUniformBuffer);
+    _externalBondShader.paintGL(_structureUniformBuffer);
+    _unitCellSphereShader.paintGL(_structureUniformBuffer);
+    _unitCellCylinderShader.paintGL(_structureUniformBuffer);
+    _sphereObjectShader.paintGLOpaque(_structureUniformBuffer);
+    _cylinderObjectShader.paintGLOpaque(_structureUniformBuffer);
+    _polygonalPrismObjectShader.paintGLOpaque(_structureUniformBuffer);
+
+    _boundingBoxCylinderShader.paintGL();
+    _boundingBoxSphereShader.paintGL();
+
+    _energySurfaceShader.paintGLOpaque(_structureUniformBuffer,_isosurfaceUniformBuffer);
+
+    if(_quality == RKRenderQuality:: high || _quality == RKRenderQuality:: picture)
+    {
+      _atomSelectionWorleyNoise3DShader.paintGL(_structureUniformBuffer);
+      _atomSelectionStripesShader.paintGL(_structureUniformBuffer);
+    }
+    else
+    {
+      _atomSelectionWorleyNoise3DOrthographicImposterShader.paintGL(_structureUniformBuffer);
+      _atomSelectionStripesOrthographicImposterShader.paintGL(_structureUniformBuffer);
+    }
+
+    _internalBondSelectionStripesShader.paintGL(_structureUniformBuffer);
+    _externalBondSelectionStripesShader.paintGL(_structureUniformBuffer);
+    _internalBondSelectionWorleyNoise3DShader.paintGL(_structureUniformBuffer);
+    _externalBondSelectionWorleyNoise3DShader.paintGL(_structureUniformBuffer);
+
+    _energySurfaceShader.paintGLTransparent(_structureUniformBuffer,_isosurfaceUniformBuffer);
+    _sphereObjectShader.paintGLTransparent(_structureUniformBuffer);
+    _cylinderObjectShader.paintGLTransparent(_structureUniformBuffer);
+    _polygonalPrismObjectShader.paintGLTransparent(_structureUniformBuffer);
   }
 
   glDrawBuffer(GL_COLOR_ATTACHMENT1);
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(GL_COLOR_BUFFER_BIT);
   _atomSelectionGlowShader.paintGL(_structureUniformBuffer);
+  _internalBondSelectionGlowShader.paintGL(_structureUniformBuffer);
+  _externalBondSelectionGlowShader.paintGL(_structureUniformBuffer);
 
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER,0);
 }
@@ -1207,7 +1255,7 @@ void GLWidget::initializeTransformUniforms()
   glUniformBlockBinding(_externalBondShader.boxProgram(), glGetUniformBlockIndex(_externalBondShader.boxProgram(), "FrameUniformBlock"), 0);
   glUniformBlockBinding(_unitCellSphereShader.program(), glGetUniformBlockIndex(_unitCellSphereShader.program(), "FrameUniformBlock"), 0);
   glUniformBlockBinding(_unitCellCylinderShader.program(), glGetUniformBlockIndex(_unitCellCylinderShader.program(), "FrameUniformBlock"), 0);
-  glUniformBlockBinding(_pickingShader.atomPickingProgram(), glGetUniformBlockIndex(_pickingShader.atomPickingProgram(), "FrameUniformBlock"), 0);
+  glUniformBlockBinding(_atomPickingShader.atomPickingProgram(), glGetUniformBlockIndex(_atomPickingShader.atomPickingProgram(), "FrameUniformBlock"), 0);
   glUniformBlockBinding(_atomSelectionWorleyNoise3DShader.program(), glGetUniformBlockIndex(_atomSelectionWorleyNoise3DShader.program(), "FrameUniformBlock"), 0);
   glUniformBlockBinding(_atomSelectionWorleyNoise3DOrthographicImposterShader.program(), glGetUniformBlockIndex(_atomSelectionWorleyNoise3DOrthographicImposterShader.program(), "FrameUniformBlock"), 0);
   glUniformBlockBinding(_atomSelectionWorleyNoise3DPerspectiveImposterShader.program(), glGetUniformBlockIndex(_atomSelectionWorleyNoise3DPerspectiveImposterShader.program(), "FrameUniformBlock"), 0);
@@ -1216,6 +1264,21 @@ void GLWidget::initializeTransformUniforms()
   glUniformBlockBinding(_atomSelectionStripesPerspectiveImposterShader.program(), glGetUniformBlockIndex(_atomSelectionStripesPerspectiveImposterShader.program(), "FrameUniformBlock"), 0);
   glUniformBlockBinding(_atomSelectionGlowShader.program(), glGetUniformBlockIndex(_atomSelectionGlowShader.program(), "FrameUniformBlock"), 0);
   glUniformBlockBinding(_energySurfaceShader.program(), glGetUniformBlockIndex(_energySurfaceShader.program(), "FrameUniformBlock"), 0);
+  glUniformBlockBinding(_internalBondSelectionStripesShader.program(), glGetUniformBlockIndex(_internalBondSelectionStripesShader.program(), "FrameUniformBlock"), 0);
+  glUniformBlockBinding(_externalBondSelectionStripesShader.program(), glGetUniformBlockIndex(_externalBondSelectionStripesShader.program(), "FrameUniformBlock"), 0);
+  glUniformBlockBinding(_internalBondSelectionWorleyNoise3DShader.program(), glGetUniformBlockIndex(_internalBondSelectionWorleyNoise3DShader.program(), "FrameUniformBlock"), 0);
+  glUniformBlockBinding(_externalBondSelectionWorleyNoise3DShader.program(), glGetUniformBlockIndex(_externalBondSelectionWorleyNoise3DShader.program(), "FrameUniformBlock"), 0);
+  glUniformBlockBinding(_internalBondSelectionGlowShader.program(), glGetUniformBlockIndex(_internalBondSelectionGlowShader.program(), "FrameUniformBlock"), 0);
+  glUniformBlockBinding(_externalBondSelectionGlowShader.program(), glGetUniformBlockIndex(_externalBondSelectionGlowShader.program(), "FrameUniformBlock"), 0);
+  glUniformBlockBinding(_internalBondPickingShader.program(), glGetUniformBlockIndex(_internalBondPickingShader.program(), "FrameUniformBlock"), 0);
+  glUniformBlockBinding(_externalBondPickingShader.program(), glGetUniformBlockIndex(_externalBondPickingShader.program(), "FrameUniformBlock"), 0);
+  glUniformBlockBinding(_boundingBoxCylinderShader.program(), glGetUniformBlockIndex(_boundingBoxCylinderShader.program(), "FrameUniformBlock"), 0);
+  glUniformBlockBinding(_boundingBoxSphereShader.program(), glGetUniformBlockIndex(_boundingBoxSphereShader.program(), "FrameUniformBlock"), 0);
+  glUniformBlockBinding(_sphereObjectShader.program(), glGetUniformBlockIndex(_sphereObjectShader.program(), "FrameUniformBlock"), 0);
+  glUniformBlockBinding(_cylinderObjectShader.program(), glGetUniformBlockIndex(_cylinderObjectShader.program(), "FrameUniformBlock"), 0);
+  glUniformBlockBinding(_polygonalPrismObjectShader.program(), glGetUniformBlockIndex(_polygonalPrismObjectShader.program(), "FrameUniformBlock"), 0);
+
+
 
   check_gl_error();
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
@@ -1263,7 +1326,7 @@ void GLWidget::initializeStructureUniforms()
   glUniformBlockBinding(_externalBondShader.boxProgram(), glGetUniformBlockIndex(_externalBondShader.boxProgram(), "StructureUniformBlock"), 1);
   glUniformBlockBinding(_unitCellSphereShader.program(), glGetUniformBlockIndex(_unitCellSphereShader.program(), "StructureUniformBlock"), 1);
   glUniformBlockBinding(_unitCellCylinderShader.program(), glGetUniformBlockIndex(_unitCellCylinderShader.program(), "StructureUniformBlock"), 1);
-  glUniformBlockBinding(_pickingShader.atomPickingProgram(), glGetUniformBlockIndex(_pickingShader.atomPickingProgram(), "StructureUniformBlock"), 1);
+  glUniformBlockBinding(_atomPickingShader.atomPickingProgram(), glGetUniformBlockIndex(_atomPickingShader.atomPickingProgram(), "StructureUniformBlock"), 1);
   glUniformBlockBinding(_atomSelectionWorleyNoise3DShader.program(), glGetUniformBlockIndex(_atomSelectionWorleyNoise3DShader.program(), "StructureUniformBlock"), 1);
   glUniformBlockBinding(_atomSelectionWorleyNoise3DOrthographicImposterShader.program(), glGetUniformBlockIndex(_atomSelectionWorleyNoise3DOrthographicImposterShader.program(), "StructureUniformBlock"), 1);
   glUniformBlockBinding(_atomSelectionWorleyNoise3DPerspectiveImposterShader.program(), glGetUniformBlockIndex(_atomSelectionWorleyNoise3DPerspectiveImposterShader.program(), "StructureUniformBlock"), 1);
@@ -1272,6 +1335,18 @@ void GLWidget::initializeStructureUniforms()
   glUniformBlockBinding(_atomSelectionStripesPerspectiveImposterShader.program(), glGetUniformBlockIndex(_atomSelectionStripesPerspectiveImposterShader.program(), "StructureUniformBlock"), 1);
   glUniformBlockBinding(_atomSelectionGlowShader.program(), glGetUniformBlockIndex(_atomSelectionGlowShader.program(), "StructureUniformBlock"), 1);
   glUniformBlockBinding(_energySurfaceShader.program(), glGetUniformBlockIndex(_energySurfaceShader.program(), "StructureUniformBlock"), 1);
+  glUniformBlockBinding(_internalBondSelectionStripesShader.program(), glGetUniformBlockIndex(_internalBondSelectionStripesShader.program(), "StructureUniformBlock"), 1);
+  glUniformBlockBinding(_externalBondSelectionStripesShader.program(), glGetUniformBlockIndex(_externalBondSelectionStripesShader.program(), "StructureUniformBlock"), 1);
+  glUniformBlockBinding(_internalBondSelectionWorleyNoise3DShader.program(), glGetUniformBlockIndex(_internalBondSelectionWorleyNoise3DShader.program(), "StructureUniformBlock"), 1);
+  glUniformBlockBinding(_externalBondSelectionWorleyNoise3DShader.program(), glGetUniformBlockIndex(_externalBondSelectionWorleyNoise3DShader.program(), "StructureUniformBlock"), 1);
+  glUniformBlockBinding(_internalBondSelectionGlowShader.program(), glGetUniformBlockIndex(_internalBondSelectionGlowShader.program(), "StructureUniformBlock"), 1);
+  glUniformBlockBinding(_externalBondSelectionGlowShader.program(), glGetUniformBlockIndex(_externalBondSelectionGlowShader.program(), "StructureUniformBlock"), 1);
+  glUniformBlockBinding(_internalBondPickingShader.program(), glGetUniformBlockIndex(_internalBondPickingShader.program(), "StructureUniformBlock"), 1);
+  glUniformBlockBinding(_externalBondPickingShader.program(), glGetUniformBlockIndex(_externalBondPickingShader.program(), "StructureUniformBlock"), 1);
+  glUniformBlockBinding(_sphereObjectShader.program(), glGetUniformBlockIndex(_sphereObjectShader.program(), "StructureUniformBlock"), 1);
+  glUniformBlockBinding(_cylinderObjectShader.program(), glGetUniformBlockIndex(_cylinderObjectShader.program(), "StructureUniformBlock"), 1);
+  glUniformBlockBinding(_polygonalPrismObjectShader.program(), glGetUniformBlockIndex(_polygonalPrismObjectShader.program(), "StructureUniformBlock"), 1);
+
 
   check_gl_error();
   std::vector<RKStructureUniforms> structureUniforms{RKStructureUniforms()};
@@ -1366,6 +1441,19 @@ void GLWidget::initializeLightUniforms()
   glUniformBlockBinding(_atomSelectionStripesPerspectiveImposterShader.program(), glGetUniformBlockIndex(_atomSelectionStripesPerspectiveImposterShader.program(), "LightsUniformBlock"), 3);
   glUniformBlockBinding(_atomSelectionGlowShader.program(), glGetUniformBlockIndex(_atomSelectionGlowShader.program(), "LightsUniformBlock"), 3);
   glUniformBlockBinding(_energySurfaceShader.program(), glGetUniformBlockIndex(_energySurfaceShader.program(), "LightsUniformBlock"), 3);
+  glUniformBlockBinding(_internalBondSelectionStripesShader.program(), glGetUniformBlockIndex(_internalBondSelectionStripesShader.program(), "LightsUniformBlock"), 3);
+  glUniformBlockBinding(_externalBondSelectionStripesShader.program(), glGetUniformBlockIndex(_externalBondSelectionStripesShader.program(), "LightsUniformBlock"), 3);
+  glUniformBlockBinding(_internalBondSelectionWorleyNoise3DShader.program(), glGetUniformBlockIndex(_internalBondSelectionWorleyNoise3DShader.program(), "LightsUniformBlock"), 3);
+  glUniformBlockBinding(_externalBondSelectionWorleyNoise3DShader.program(), glGetUniformBlockIndex(_externalBondSelectionWorleyNoise3DShader.program(), "LightsUniformBlock"), 3);
+  glUniformBlockBinding(_internalBondSelectionGlowShader.program(), glGetUniformBlockIndex(_internalBondSelectionGlowShader.program(), "LightsUniformBlock"), 3);
+  glUniformBlockBinding(_externalBondSelectionGlowShader.program(), glGetUniformBlockIndex(_externalBondSelectionGlowShader.program(), "LightsUniformBlock"), 3);
+  glUniformBlockBinding(_boundingBoxCylinderShader.program(), glGetUniformBlockIndex(_boundingBoxCylinderShader.program(), "LightsUniformBlock"), 3);
+  glUniformBlockBinding(_boundingBoxSphereShader.program(), glGetUniformBlockIndex(_boundingBoxSphereShader.program(), "LightsUniformBlock"), 3);
+  glUniformBlockBinding(_sphereObjectShader.program(), glGetUniformBlockIndex(_sphereObjectShader.program(), "LightsUniformBlock"), 3);
+  glUniformBlockBinding(_cylinderObjectShader.program(), glGetUniformBlockIndex(_cylinderObjectShader.program(), "LightsUniformBlock"), 3);
+  glUniformBlockBinding(_polygonalPrismObjectShader.program(), glGetUniformBlockIndex(_polygonalPrismObjectShader.program(), "LightsUniformBlock"), 3);
+
+
   std::vector<RKLightsUniforms> lightUniforms{RKLightsUniforms()};
   glBufferData(GL_UNIFORM_BUFFER, sizeof(RKLightsUniforms) * lightUniforms.size(), lightUniforms.data(), GL_DYNAMIC_DRAW);  // FIX
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
@@ -1383,6 +1471,7 @@ void GLWidget::updateLightUniforms()
 
 void GLWidget::reloadData()
 {
+  qDebug() << "GLWidget reloadData";
   makeCurrent();
 
   if(_dataSource)
@@ -1416,19 +1505,34 @@ void GLWidget::reloadData()
     _atomSelectionGlowShader.setRenderStructures(_dataSource->renderStructures());
 	check_gl_error();
 
-    _pickingShader.setRenderStructures(_dataSource->renderStructures());
+    _atomPickingShader.setRenderStructures(_dataSource->renderStructures());
 	check_gl_error();
     _atomAmbientOcclusionShader.setRenderStructures(_dataSource->renderStructures());
 	check_gl_error();
     _energySurfaceShader.setRenderStructures(_dataSource->renderStructures());
 	check_gl_error();
+
+    _internalBondSelectionStripesShader.setRenderStructures(_dataSource->renderStructures());
+    _externalBondSelectionStripesShader.setRenderStructures(_dataSource->renderStructures());
+    _internalBondSelectionWorleyNoise3DShader.setRenderStructures(_dataSource->renderStructures());
+    _externalBondSelectionWorleyNoise3DShader.setRenderStructures(_dataSource->renderStructures());
+    _internalBondSelectionGlowShader.setRenderStructures(_dataSource->renderStructures());
+    _externalBondSelectionGlowShader.setRenderStructures(_dataSource->renderStructures());
+
+    _internalBondPickingShader.setRenderStructures(_dataSource->renderStructures());
+    _externalBondPickingShader.setRenderStructures(_dataSource->renderStructures());
+
+    _sphereObjectShader.setRenderStructures(_dataSource->renderStructures());
+    _cylinderObjectShader.setRenderStructures(_dataSource->renderStructures());
+    _polygonalPrismObjectShader.setRenderStructures(_dataSource->renderStructures());
+
   }
   check_gl_error();
 
   _atomShader.reloadData();
   _atomOrthographicImposterShader.reloadData();
   _atomPerspectiveImposterShader.reloadData();
-  _pickingShader.reloadData();
+  _atomPickingShader.reloadData();
   _atomAmbientOcclusionShader.reloadData(_dataSource);
   _energySurfaceShader.reloadData();
   check_gl_error();
@@ -1449,6 +1553,24 @@ void GLWidget::reloadData()
   _atomSelectionStripesOrthographicImposterShader.reloadData();
   _atomSelectionStripesPerspectiveImposterShader.reloadData();
   _atomSelectionGlowShader.reloadData();
+
+
+  _internalBondSelectionStripesShader.reloadData();
+  _externalBondSelectionStripesShader.reloadData();
+  _internalBondSelectionWorleyNoise3DShader.reloadData();
+  _externalBondSelectionWorleyNoise3DShader.reloadData();
+  _internalBondSelectionGlowShader.reloadData();
+  _externalBondSelectionGlowShader.reloadData();
+
+  _internalBondPickingShader.reloadData();
+  _externalBondPickingShader.reloadData();
+
+  _boundingBoxCylinderShader.reloadData();
+  _boundingBoxSphereShader.reloadData();
+
+  _sphereObjectShader.reloadData();
+  _cylinderObjectShader.reloadData();
+  _polygonalPrismObjectShader.reloadData();
 
   update();
 
@@ -1462,19 +1584,21 @@ void GLWidget::reloadData(RKRenderQuality ambientOcclusionQuality)
 
 void GLWidget::reloadAmbientOcclusionData()
 {
+  qDebug() << "GLWidget reloadAmbientOcclusionData";
   makeCurrent();
   _atomAmbientOcclusionShader.reloadData(_dataSource);
 }
 
 void GLWidget::reloadRenderData()
 {
+  qDebug() << "GLWidget reloadRenderData";
   makeCurrent();
 
   check_gl_error();
   _atomShader.reloadData();
   _atomOrthographicImposterShader.reloadData();
   _atomPerspectiveImposterShader.reloadData();
-  _pickingShader.reloadData();
+  _atomPickingShader.reloadData();
   _atomAmbientOcclusionShader.reloadData(_dataSource);
   _energySurfaceShader.reloadData();
 
@@ -1493,6 +1617,20 @@ void GLWidget::reloadRenderData()
   _atomSelectionStripesOrthographicImposterShader.reloadData();
   _atomSelectionStripesPerspectiveImposterShader.reloadData();
   _atomSelectionGlowShader.reloadData();
+
+  _internalBondSelectionStripesShader.reloadData();
+  _externalBondSelectionStripesShader.reloadData();
+  _internalBondSelectionWorleyNoise3DShader.reloadData();
+  _externalBondSelectionWorleyNoise3DShader.reloadData();
+  _internalBondSelectionGlowShader.reloadData();
+  _externalBondSelectionGlowShader.reloadData();
+
+  _internalBondPickingShader.reloadData();
+  _externalBondPickingShader.reloadData();
+
+  _sphereObjectShader.reloadData();
+  _cylinderObjectShader.reloadData();
+  _polygonalPrismObjectShader.reloadData();
 
   update();
 }
@@ -1518,6 +1656,13 @@ void GLWidget::reloadSelectionData()
   _atomSelectionStripesOrthographicImposterShader.reloadData();
   _atomSelectionStripesPerspectiveImposterShader.reloadData();
   _atomSelectionGlowShader.reloadData();
+
+  _internalBondSelectionStripesShader.reloadData();
+  _externalBondSelectionStripesShader.reloadData();
+  _internalBondSelectionWorleyNoise3DShader.reloadData();
+  _externalBondSelectionWorleyNoise3DShader.reloadData();
+  _internalBondSelectionGlowShader.reloadData();
+  _externalBondSelectionGlowShader.reloadData();
 }
 
 void GLWidget::reloadBackgroundImage()
@@ -1587,7 +1732,7 @@ void GLWidget::loadShader(void)
     _downSampleInputTextureUniformLocation = glGetUniformLocation(_program, "originalTexture");
     _blurredInputTextureUniformLocation = glGetUniformLocation(_program, "blurredTexture");
     _downSamplePositionAttributeLocation = glGetAttribLocation(_program, "position");
-	_numberOfMultiSamplePointsUniformLocation = glGetUniformLocation(_program, "numberOfMultiSamplePoints");
+    _numberOfMultiSamplePointsUniformLocation = glGetUniformLocation(_program, "numberOfMultiSamplePoints");
 
     if (_downSampleInputTextureUniformLocation < 0) qDebug() << "Shader did not contain the 'originalTexture' uniform.";
     if (_downSamplePositionAttributeLocation < 0) qDebug() << "Shader did not contain the 'position' attribute.";

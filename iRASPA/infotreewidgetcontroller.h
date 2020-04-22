@@ -37,7 +37,7 @@
 #include <QGroupBox>
 #include <QPushButton>
 #include <QLabel>
-#include "optional.h"
+#include <optional>
 #include <iraspakit.h>
 #include "iraspamainwindowconsumerprotocol.h"
 #include "infocreatorform.h"
@@ -86,23 +86,23 @@ private:
   void reloadAuthorAffiliationInstituteName();
   void reloadAuthorAffiliationCityName();
   void reloadAuthorAffiliationCountryName();
-  stdx::optional<QString> authorFirstName();
+  std::optional<QString> authorFirstName();
   void setAuthorFirstName(QString name);
-  stdx::optional<QString> authorMiddleName();
+  std::optional<QString> authorMiddleName();
   void setAuthorMiddleName(QString name);
-  stdx::optional<QString> authorLastName();
+  std::optional<QString> authorLastName();
   void setAuthorLastName(QString name);
-  stdx::optional<QString> authorOrchidID();
+  std::optional<QString> authorOrchidID();
   void setAuthorOrchidID(QString name);
-  stdx::optional<QString> authorResearcherID();
+  std::optional<QString> authorResearcherID();
   void setAuthorResearcherID(QString name);
-  stdx::optional<QString> authorAffiliationUniversityName();
+  std::optional<QString> authorAffiliationUniversityName();
   void setAuthorAffiliationUniversityName(QString name);
-  stdx::optional<QString> authorAffiliationFacultyName();
+  std::optional<QString> authorAffiliationFacultyName();
   void setAuthorAffiliationFacultyName(QString name);
-  stdx::optional<QString> authorAffiliationInstituteName();
+  std::optional<QString> authorAffiliationInstituteName();
   void setAuthorAffiliationInstituteName(QString name);
-  stdx::optional<QString> authorAffiliationCityName();
+  std::optional<QString> authorAffiliationCityName();
   void setAuthorAffiliationCityName(QString name);
 
   void reloadCreationDate();
@@ -120,45 +120,45 @@ private:
   void reloadCreationAtomicChargesEigenvalues();
   void reloadCreationAtomicChargesForceField();
   void reloadCreationAtomicChargesForceFieldDetails();
-  stdx::optional<QDate> creationDate();
+  std::optional<QDate> creationDate();
   void setCreationDate(QDate date);
-  stdx::optional<QString> creationTemperature();
+  std::optional<QString> creationTemperature();
   void setCreationTemperature(QString name);
-  stdx::optional<QString> creationPressure();
+  std::optional<QString> creationPressure();
   void setCreationPressure(QString name);
-  stdx::optional<QString> creationMethod();
+  std::optional<QString> creationMethod();
   void setCreationMethod(QString name);
-  stdx::optional<QString> creationRelaxUnitCell();
+  std::optional<QString> creationRelaxUnitCell();
   void setCreationRelaxUnitCell(QString name);
-  stdx::optional<QString> creationAtomicPositionsSoftwarePackage();
+  std::optional<QString> creationAtomicPositionsSoftwarePackage();
   void setCreationAtomicPositionsSoftwarePackage(QString name);
-  stdx::optional<QString> creationAtomicPositionsAlgorithm();
+  std::optional<QString> creationAtomicPositionsAlgorithm();
   void setCreationAtomicPositionsAlgorithm(QString name);
-  stdx::optional<QString> creationAtomicPositionsEigenvalues();
+  std::optional<QString> creationAtomicPositionsEigenvalues();
   void setCreationAtomicPositionsEigenvalues(QString name);
-  stdx::optional<QString> creationAtomicPositionsForceField();
+  std::optional<QString> creationAtomicPositionsForceField();
   void setCreationAtomicPositionsForceField(QString name);
-  stdx::optional<QString> creationAtomicPositionsForceFieldDetails();
+  std::optional<QString> creationAtomicPositionsForceFieldDetails();
   void setCreationAtomicPositionsForceFieldDetails(QString name);
-  stdx::optional<QString> creationAtomicChargesSoftwarePackage();
+  std::optional<QString> creationAtomicChargesSoftwarePackage();
   void setCreationAtomicChargesSoftwarePackage(QString name);
-  stdx::optional<QString> creationAtomicChargesAlgorithm();
+  std::optional<QString> creationAtomicChargesAlgorithm();
   void setCreationAtomicChargesAlgorithm(QString name);
-  stdx::optional<QString> creationAtomicChargesEigenvalues();
+  std::optional<QString> creationAtomicChargesEigenvalues();
   void setCreationAtomicChargesEigenvalues(QString name);
-  stdx::optional<QString> creationAtomicChargesForceField();
+  std::optional<QString> creationAtomicChargesForceField();
   void setCreationAtomicChargesForceField(QString name);
-  stdx::optional<QString> creationAtomicChargesForceFieldDetails();
+  std::optional<QString> creationAtomicChargesForceFieldDetails();
   void setCreationAtomicChargesForceFieldDetails(QString name);
 
   void reloadChemicalFormulaMoiety();
   void reloadChemicalFormulaSum();
   void reloadChemicalNameSystematic();
-  stdx::optional<QString> chemicalFormulaMoiety();
+  std::optional<QString> chemicalFormulaMoiety();
   void setChemicalFormulaMoiety(QString name);
-  stdx::optional<QString> chemicalFormulaSum();
+  std::optional<QString> chemicalFormulaSum();
   void setChemicalFormulaSum(QString name);
-  stdx::optional<QString> chemicalNameSystematic();
+  std::optional<QString> chemicalNameSystematic();
   void setChemicalNameSystematic(QString name);
 
   void reloadCitationArticleTitle();
@@ -168,21 +168,21 @@ private:
   void reloadCitationPublicationDate();
   void reloadCitationPublicationDOI();
   void reloadCitationPublicationDatabaseCodes();
-  stdx::optional<QString> citationArticleTitle();
+  std::optional<QString> citationArticleTitle();
   void setCitationArticleTitle(QString name);
-  stdx::optional<QString> citationJournalTitle();
+  std::optional<QString> citationJournalTitle();
   void setCitationJournalTitle(QString name);
-  stdx::optional<QString> citationArticleAuthors();
+  std::optional<QString> citationArticleAuthors();
   void setCitationArticleAuthors(QString name);
-  stdx::optional<QString> citationJournalVolume();
+  std::optional<QString> citationJournalVolume();
   void setCitationJournalVolume(QString name);
-  stdx::optional<QString> citationJournalNumber();
+  std::optional<QString> citationJournalNumber();
   void setCitationJournalNumber(QString name);
-  stdx::optional<QDate> citationPublicationDate();
+  std::optional<QDate> citationPublicationDate();
   void setCitationPublicationDate(QDate date);
-  stdx::optional<QString> citationDOI();
+  std::optional<QString> citationDOI();
   void setCitationDOI(QString name);
-  stdx::optional<QString> citationDatabaseCodes();
+  std::optional<QString> citationDatabaseCodes();
   void setCitationDatabaseCodes(QString name);
 
 private slots:

@@ -37,14 +37,16 @@
 #include "forcefieldtype.h"
 #include <iostream>
 
-enum class ForceFieldSchemeOrder: qint64
-{
-  elementOnly = 0, forceFieldFirst = 1, forceFieldOnly = 2, multiple_values = 3
-};
+
 
 class ForceFieldSet
 {
 public:
+  enum class ForceFieldSchemeOrder: qint64
+  {
+    elementOnly = 0, forceFieldFirst = 1, forceFieldOnly = 2, multiple_values = 3
+  };
+
   ForceFieldSet();
   ForceFieldSet(QString name, ForceFieldSet& forcefieldset, bool editable=false);
   QString displayName() const {return _displayName;}

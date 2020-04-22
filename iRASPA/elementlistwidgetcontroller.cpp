@@ -51,7 +51,7 @@ void ElementListWidgetController::setStructures(std::vector<std::shared_ptr<Stru
   reloadData();
 }
 
-void ElementListWidgetController::setColorComboBoxIndex(int type)
+void ElementListWidgetController::setColorComboBoxIndex(size_t type)
 {
   if(_mainWindow)
   {
@@ -310,7 +310,7 @@ void ElementListWidgetController::reloadColorData()
   }
 }
 
- stdx::optional<size_t> ElementListWidgetController::rowForItem(QObject* item)
+ std::optional<size_t> ElementListWidgetController::rowForItem(QObject* item)
 {
   ElementsForm* elementForm = qobject_cast<ElementsForm*>(item);
 
@@ -326,7 +326,7 @@ void ElementListWidgetController::reloadColorData()
     }
   }
 
-  return  stdx::nullopt;
+  return  std::nullopt;
 }
 
 void ElementListWidgetController::addNewForceFieldAtomType()
@@ -489,7 +489,7 @@ void ElementListWidgetController::removeForceFieldAtomType()
 void ElementListWidgetController::selectColorButton()
 {
   SelectColorButton *button = static_cast<SelectColorButton *>(sender());
-   stdx::optional<size_t> row = rowForItem(button->parent());
+   std::optional<size_t> row = rowForItem(button->parent());
 
   if(_mainWindow)
   {
@@ -527,7 +527,7 @@ void ElementListWidgetController::selectColorButton()
 void ElementListWidgetController::setEpsilonParameter(double parameter)
 {
   SelectColorButton *button = static_cast<SelectColorButton *>(sender());
-   stdx::optional<size_t> row = rowForItem(button->parent());
+   std::optional<size_t> row = rowForItem(button->parent());
 
   if(_mainWindow)
   {
@@ -555,7 +555,7 @@ void ElementListWidgetController::setEpsilonParameter(double parameter)
 void ElementListWidgetController::setSigmaParameter(double parameter)
 {
   SelectColorButton *button = static_cast<SelectColorButton *>(sender());
-   stdx::optional<size_t> row = rowForItem(button->parent());
+   std::optional<size_t> row = rowForItem(button->parent());
 
   if(_mainWindow)
   {
@@ -582,7 +582,7 @@ void ElementListWidgetController::setSigmaParameter(double parameter)
 void ElementListWidgetController::setMass(double mass)
 {
   QAbstractButton *button = static_cast<QAbstractButton *>(sender());
-   stdx::optional<size_t> row = rowForItem(button->parent());
+   std::optional<size_t> row = rowForItem(button->parent());
 
   if(_mainWindow)
   {

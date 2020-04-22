@@ -69,7 +69,7 @@ void OpenGLAmbientOcclusionShadowMapShader::invalidateCachedAmbientOcclusionText
 
 void OpenGLAmbientOcclusionShadowMapShader::reloadData(std::shared_ptr<RKRenderDataSource> dataSource)
 {
-  std::cout << "RELOAD DATA OpenGLAmbientOcclusionShadowMapShader" << std::endl;
+  qDebug() << "OpenGLAmbientOcclusionShadowMapShader reloadData";
   initializeVertexArrayObject();
 
   adjustAmbientOcclusionTextureSize();
@@ -383,9 +383,9 @@ void  OpenGLAmbientOcclusionShadowMapShader::updateAmbientOcclusionTextures(std:
   //std::vector<std::shared_ptr<RKRenderStructure>> structures = flatten(_renderStructures);
 
 
-  for(int i=0;i<_renderStructures.size();i++)
+  for(size_t i=0;i<_renderStructures.size();i++)
   {
-    for(int j=0;j<_renderStructures[i].size();j++)
+    for(size_t j=0;j<_renderStructures[i].size();j++)
     {
       if(_renderStructures[i][j]->atomAmbientOcclusion() && _renderStructures[i][j]->isVisible())
       {
@@ -587,9 +587,9 @@ void  OpenGLAmbientOcclusionShadowMapShader::updateAmbientOcclusionTextures(std:
 }
 
 const std::string OpenGLAmbientOcclusionShadowMapShader::_vertexAmbientOcclusionShaderSource =
+OpenGLVersionStringLiteral +
+OpenGLStructureUniformBlockStringLiteral +
 std::string(R"foo(
-#version 330
-
 layout (std140) uniform ShadowUniformBlock
 {
   mat4 projectionMatrix;
@@ -598,78 +598,6 @@ layout (std140) uniform ShadowUniformBlock
   mat4 normalMatrix;
 } shadowUniforms;
 
-layout (std140) uniform StructureUniformBlock
-{
-  int sceneIdentifier;
-  int MovieIdentifier;
-  float atomScaleFactor;
-  int numberOfMultiSamplePoints;
-
-  bool ambientOcclusion;
-  int ambientOcclusionPatchNumber;
-  float ambientOcclusionPatchSize;
-  float ambientOcclusionInverseTextureSize;
-
-  vec4 changeHueSaturationValue;
-
-  bool atomHDR;
-  float atomHDRExposure;
-  float atomHDRBloomLevel;
-  bool clipAtomsAtUnitCell;
-
-  vec4 atomAmbientColor;
-  vec4 atomDiffuseColor;
-  vec4 atomSpecularColor;
-  float atomShininess;
-
-  float bondHue;
-  float bondSaturation;
-  float bondValue;
-
-  //----------------------------------------  128 bytes boundary
-
-  bool bondHDR;
-  float bondHDRExposure;
-  float bondHDRBloomLevel;
-  bool clipBondsAtUnitCell;
-
-
-  vec4 bondAmbientColor;
-  vec4 bondDiffuseColor;
-  vec4 bondSpecularColor;
-
-
-  float bondShininess;
-  float bondScaling;
-  int bondColorMode;
-  float unitCellScaling;
-  vec4 unitCellColor;
-
-  vec4 clipPlaneLeft;
-  vec4 clipPlaneRight;
-
-  //----------------------------------------  256 bytes boundary
-
-  vec4 clipPlaneTop;
-  vec4 clipPlaneBottom;
-  vec4 clipPlaneFront;
-  vec4 clipPlaneBack;
-
-  mat4 modelMatrix;
-
-  mat4 boxMatrix;
-  float atomSelectionStripesDensity;
-  float atomSelectionStripesFrequency;
-  float atomSelectionWorleyNoise3DFrequency;
-  float atomSelectionWorleyNoise3DJitter;
-
-  vec4 atomAnnotationTextDisplacement;
-  vec4 atomAnnotationTextColor;
-  float atomAnnotationTextScaling;
-  float bondAnnotationTextScaling;
-  float selectionScaling;
-  bool pad;
-} structureUniforms;
 
 
 // Inputs from vertex shader
@@ -712,10 +640,9 @@ void main()
 
 
 const std::string OpenGLAmbientOcclusionShadowMapShader::_fragmentAmbientOcclusionShaderSource =
-
+OpenGLVersionStringLiteral +
+OpenGLStructureUniformBlockStringLiteral +
 std::string(R"foo(
-#version 330
-
 layout (std140) uniform ShadowUniformBlock
 {
   mat4 projectionMatrix;
@@ -724,76 +651,6 @@ layout (std140) uniform ShadowUniformBlock
   mat4 normalMatrix;
 } shadowUniforms;
 
-layout (std140) uniform StructureUniformBlock
-{
-  int sceneIdentifier;
-  int MovieIdentifier;
-  float atomScaleFactor;
-  int numberOfMultiSamplePoints;
-
-  bool ambientOcclusion;
-  int ambientOcclusionPatchNumber;
-  float ambientOcclusionPatchSize;
-  float ambientOcclusionInverseTextureSize;
-
-  vec4 changeHueSaturationValue;
-
-  bool atomHDR;
-  float atomHDRExposure;
-  float atomHDRBloomLevel;
-  bool clipAtomsAtUnitCell;
-
-  vec4 atomAmbientColor;
-  vec4 atomDiffuseColor;
-  vec4 atomSpecularColor;
-  float atomShininess;
-
-  float bondHue;
-  float bondSaturation;
-  float bondValue;
-
-  //----------------------------------------  128 bytes boundary
-
-  bool bondHDR;
-  float bondHDRExposure;
-  float bondHDRBloomLevel;
-  bool clipBondsAtUnitCell;
-
-  vec4 bondAmbientColor;
-  vec4 bondDiffuseColor;
-  vec4 bondSpecularColor;
-
-  float bondShininess;
-  float bondScaling;
-  int bondColorMode;
-  float unitCellScaling;
-  vec4 unitCellColor;
-
-  vec4 clipPlaneLeft;
-  vec4 clipPlaneRight;
-
-  //----------------------------------------  256 bytes boundary
-
-  vec4 clipPlaneTop;
-  vec4 clipPlaneBottom;
-  vec4 clipPlaneFront;
-  vec4 clipPlaneBack;
-
-  mat4 modelMatrix;
-
-  mat4 boxMatrix;
-  float atomSelectionStripesDensity;
-  float atomSelectionStripesFrequency;
-  float atomSelectionWorleyNoise3DFrequency;
-  float atomSelectionWorleyNoise3DJitter;
-
-  vec4 atomAnnotationTextDisplacement;
-  vec4 atomAnnotationTextColor;
-  float atomAnnotationTextScaling;
-  float bondAnnotationTextScaling;
-  float selectionScaling;
-  bool pad;
-} structureUniforms;
 
 
 vec3 coordinateFromTexturePosition(vec2 texturePosition)
@@ -852,9 +709,9 @@ void main()
 )foo");
 
 const std::string OpenGLAmbientOcclusionShadowMapShader::_vertexShadowMapShaderSource =
+OpenGLVersionStringLiteral +
+OpenGLStructureUniformBlockStringLiteral +
 std::string(R"foo(
-#version 330
-
 layout (std140) uniform ShadowUniformBlock
 {
   mat4 projectionMatrix;
@@ -862,77 +719,6 @@ layout (std140) uniform ShadowUniformBlock
   mat4 shadowMatrix;
   mat4 normalMatrix;
 } shadowUniforms;
-
-layout (std140) uniform StructureUniformBlock
-{
-  int sceneIdentifier;
-  int MovieIdentifier;
-  float atomScaleFactor;
-  int numberOfMultiSamplePoints;
-
-  bool ambientOcclusion;
-  int ambientOcclusionPatchNumber;
-  float ambientOcclusionPatchSize;
-  float ambientOcclusionInverseTextureSize;
-
-  vec4 changeHueSaturationValue;
-
-  bool atomHDR;
-  float atomHDRExposure;
-  float atomHDRBloomLevel;
-  bool clipAtomssAtUnitCell;
-
-  vec4 atomAmbientColor;
-  vec4 atomDiffuseColor;
-  vec4 atomSpecularColor;
-  float atomShininess;
-
-  float bondHue;
-  float bondSaturation;
-  float bondValue;
-
-  //----------------------------------------  128 bytes boundary
-
-  bool bondHDR;
-  float bondHDRExposure;
-  float bondHDRBloomLevel;
-  bool clipBondsAtUnitCell;
-
-  vec4 bondAmbientColor;
-  vec4 bondDiffuseColor;
-  vec4 bondSpecularColor;
-
-  float bondShininess;
-  float bondScaling;
-  int bondColorMode;
-  float unitCellScaling;
-  vec4 unitCellColor;
-
-  vec4 clipPlaneLeft;
-  vec4 clipPlaneRight;
-
-  //----------------------------------------  256 bytes boundary
-
-  vec4 clipPlaneTop;
-  vec4 clipPlaneBottom;
-  vec4 clipPlaneFront;
-  vec4 clipPlaneBack;
-
-  mat4 modelMatrix;
-
-  mat4 boxMatrix;
-  float atomSelectionStripesDensity;
-  float atomSelectionStripesFrequency;
-  float atomSelectionWorleyNoise3DFrequency;
-  float atomSelectionWorleyNoise3DJitter;
-
-  vec4 atomAnnotationTextDisplacement;
-  vec4 atomAnnotationTextColor;
-  float atomAnnotationTextScaling;
-  float bondAnnotationTextScaling;
-  float selectionScaling;
-  bool pad;
-} structureUniforms;
 
 in vec4 vertexPosition;
 in vec4 instancePosition;

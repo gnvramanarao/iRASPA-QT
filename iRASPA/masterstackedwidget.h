@@ -43,7 +43,7 @@ public:
   MasterStackedWidget(QWidget* parent = 0 );
   void setMainWindow(MainWindow* mainWindow) final override {_mainWindow = mainWindow;}
   void setProject(std::shared_ptr<ProjectTreeNode> project) final override {_project = project;}
-  QSize sizeHint() const;
+  QSize sizeHint() const override;
 private:
   std::weak_ptr<ProjectTreeNode> _project;
   MainWindow * _mainWindow;

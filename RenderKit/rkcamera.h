@@ -29,14 +29,16 @@
 
 #pragma once
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <QRect>
 #include <QSize>
 #include <vector>
-#include <math.h>
 #include <cfloat>
 #include <algorithm>
 #include <symmetrykit.h>
 #include <foundationkit.h>
+#include <type_traits>
 
 enum class ResetDirectionType: qint64
 {

@@ -1,4 +1,6 @@
 #include "drand48.h"
+
+#define _USE_MATH_DEFINES
 #include <cmath>
 
 #ifdef _WIN32

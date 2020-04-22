@@ -33,7 +33,7 @@
 #include <QModelIndex>
 #include <unordered_set>
 #include <vector>
-#include "optional.h"
+#include <optional>
 #include <foundationkit.h>
 #include "projecttreenode.h"
 

@@ -28,8 +28,9 @@
  *************************************************************************************************************/
 
 #include "celltreewidgetcontroller.h"
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <iostream>
-#include <math.h>
 #include <QLabel>
 #include <QSpinBox>
 #include <mathkit.h>
@@ -330,7 +331,7 @@ void CellTreeWidgetController::reloadStructureType()
 	_cellCellForm->cellStructureTypeComboBox->setEnabled(false);
 	if (!_structures.empty())
 	{
-		if (stdx::optional<iRASPAStructureType> type = structureType())
+    if (std::optional<iRASPAStructureType> type = structureType())
 		{
 			if (int index = _cellCellForm->cellStructureTypeComboBox->findText("Multiple values"); index >= 0)
 			{
@@ -369,7 +370,7 @@ void CellTreeWidgetController::reloadUnitCellLengths()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = unitCellLengthA())
+    if (std::optional<double> value = unitCellLengthA())
     {
       whileBlocking(_cellCellForm->unitCellADoubleSpinBox)->setValue(*value);
     }
@@ -378,7 +379,7 @@ void CellTreeWidgetController::reloadUnitCellLengths()
       whileBlocking(_cellCellForm->unitCellADoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<double> value = unitCellLengthB())
+    if (std::optional<double> value = unitCellLengthB())
     {
       whileBlocking(_cellCellForm->unitCellBDoubleSpinBox)->setValue(*value);
     }
@@ -387,7 +388,7 @@ void CellTreeWidgetController::reloadUnitCellLengths()
       whileBlocking(_cellCellForm->unitCellBDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<double> value = unitCellLengthC())
+    if (std::optional<double> value = unitCellLengthC())
     {
       whileBlocking(_cellCellForm->unitCellCDoubleSpinBox)->setValue(*value);
     }
@@ -401,7 +402,7 @@ void CellTreeWidgetController::reloadUnitCellAngles()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = unitCellAngleAlpha())
+    if (std::optional<double> value = unitCellAngleAlpha())
     {
       whileBlocking(_cellCellForm->unitCellAlphaDoubleSpinBox)->setValue(*value);
     }
@@ -410,7 +411,7 @@ void CellTreeWidgetController::reloadUnitCellAngles()
       whileBlocking(_cellCellForm->unitCellAlphaDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<double> value = unitCellAngleBeta())
+    if (std::optional<double> value = unitCellAngleBeta())
     {
       whileBlocking(_cellCellForm->unitCellBetaDoubleSpinBox)->setValue(*value);
     }
@@ -419,7 +420,7 @@ void CellTreeWidgetController::reloadUnitCellAngles()
       whileBlocking(_cellCellForm->unitCellBetaDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<double> value = unitCellAngleGamma())
+    if (std::optional<double> value = unitCellAngleGamma())
     {
       whileBlocking(_cellCellForm->unitCellGammaDoubleSpinBox)->setValue(*value);
     }
@@ -434,7 +435,7 @@ void CellTreeWidgetController::reloadUnitCell()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = unitCellAX())
+    if (std::optional<double> value = unitCellAX())
     {
       whileBlocking(_cellCellForm->unitCellAXDoubleSpinBox)->setValue(*value);
     }
@@ -443,7 +444,7 @@ void CellTreeWidgetController::reloadUnitCell()
       whileBlocking(_cellCellForm->unitCellAXDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<double> value = unitCellAY())
+    if (std::optional<double> value = unitCellAY())
     {
       whileBlocking(_cellCellForm->unitCellAYDoubleSpinBox)->setValue(*value);
     }
@@ -452,7 +453,7 @@ void CellTreeWidgetController::reloadUnitCell()
       whileBlocking(_cellCellForm->unitCellAYDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<double> value = unitCellAZ())
+    if (std::optional<double> value = unitCellAZ())
     {
       whileBlocking(_cellCellForm->unitCellAZDoubleSpinBox)->setValue(*value);
     }
@@ -461,7 +462,7 @@ void CellTreeWidgetController::reloadUnitCell()
       whileBlocking(_cellCellForm->unitCellAZDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<double> value = unitCellBX())
+    if (std::optional<double> value = unitCellBX())
     {
       whileBlocking(_cellCellForm->unitCellBXDoubleSpinBox)->setValue(*value);
     }
@@ -470,7 +471,7 @@ void CellTreeWidgetController::reloadUnitCell()
       whileBlocking(_cellCellForm->unitCellBXDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<double> value = unitCellBY())
+    if (std::optional<double> value = unitCellBY())
     {
       whileBlocking(_cellCellForm->unitCellBYDoubleSpinBox)->setValue(*value);
     }
@@ -479,7 +480,7 @@ void CellTreeWidgetController::reloadUnitCell()
       whileBlocking(_cellCellForm->unitCellBYDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<double> value = unitCellBZ())
+    if (std::optional<double> value = unitCellBZ())
     {
       whileBlocking(_cellCellForm->unitCellBZDoubleSpinBox)->setValue(*value);
     }
@@ -488,7 +489,7 @@ void CellTreeWidgetController::reloadUnitCell()
       whileBlocking(_cellCellForm->unitCellBZDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<double> value = unitCellCX())
+    if (std::optional<double> value = unitCellCX())
     {
       whileBlocking(_cellCellForm->unitCellCXDoubleSpinBox)->setValue(*value);
     }
@@ -497,7 +498,7 @@ void CellTreeWidgetController::reloadUnitCell()
       whileBlocking(_cellCellForm->unitCellCXDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<double> value = unitCellCY())
+    if (std::optional<double> value = unitCellCY())
     {
       whileBlocking(_cellCellForm->unitCellCYDoubleSpinBox)->setValue(*value);
     }
@@ -506,7 +507,7 @@ void CellTreeWidgetController::reloadUnitCell()
       whileBlocking(_cellCellForm->unitCellCYDoubleSpinBox)->setText("Mult. Val.");
     }
 
-    if (stdx::optional<double> value = unitCellCZ())
+    if (std::optional<double> value = unitCellCZ())
     {
       whileBlocking(_cellCellForm->unitCellCZDoubleSpinBox)->setValue(*value);
     }
@@ -521,7 +522,7 @@ void CellTreeWidgetController::reloadCellVolume()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = unitCellVolume())
+    if (std::optional<double> value = unitCellVolume())
     {
       whileBlocking(_cellCellForm->volumeDoubleSpinBox)->setValue(*value);
     }
@@ -536,7 +537,7 @@ void CellTreeWidgetController::reloadCellPerpendicularWidthX()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = unitCellPerpendicularWidthX())
+    if (std::optional<double> value = unitCellPerpendicularWidthX())
     {
       whileBlocking(_cellCellForm->perpendicularWidthXDoubleSpinBox)->setValue(*value);
     }
@@ -551,7 +552,7 @@ void CellTreeWidgetController::reloadCellPerpendicularWidthY()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = unitCellPerpendicularWidthY())
+    if (std::optional<double> value = unitCellPerpendicularWidthY())
     {
       whileBlocking(_cellCellForm->perpendicularWidthYDoubleSpinBox)->setValue(*value);
     }
@@ -566,7 +567,7 @@ void CellTreeWidgetController::reloadCellPerpendicularWidthZ()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = unitCellPerpendicularWidthZ())
+    if (std::optional<double> value = unitCellPerpendicularWidthZ())
     {
       whileBlocking(_cellCellForm->perpendicularWidthZDoubleSpinBox)->setValue(*value);
     }
@@ -581,7 +582,7 @@ void CellTreeWidgetController::reloadCellMaximumReplicasX()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<int> value = maximumReplicasX())
+    if (std::optional<int> value = maximumReplicasX())
     {
       whileBlocking(_cellCellForm->cellMaximumReplicaX)->setValue(*value);
     }
@@ -596,7 +597,7 @@ void CellTreeWidgetController::reloadCellMinimumReplicasX()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<int> value = minimumReplicasX())
+    if (std::optional<int> value = minimumReplicasX())
     {
       whileBlocking(_cellCellForm->cellMinimumReplicaX)->setValue(*value);
     }
@@ -611,7 +612,7 @@ void CellTreeWidgetController::reloadCellMaximumReplicasY()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<int> value = maximumReplicasY())
+    if (std::optional<int> value = maximumReplicasY())
     {
       whileBlocking(_cellCellForm->cellMaximumReplicaY)->setValue(*value);
     }
@@ -626,7 +627,7 @@ void CellTreeWidgetController::reloadCellMinimumReplicasY()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<int> value = minimumReplicasY())
+    if (std::optional<int> value = minimumReplicasY())
     {
       whileBlocking(_cellCellForm->cellMinimumReplicaY)->setValue(*value);
     }
@@ -641,7 +642,7 @@ void CellTreeWidgetController::reloadCellMaximumReplicasZ()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<int> value = maximumReplicasZ())
+    if (std::optional<int> value = maximumReplicasZ())
     {
       whileBlocking(_cellCellForm->cellMaximumReplicaZ)->setValue(*value);
     }
@@ -656,7 +657,7 @@ void CellTreeWidgetController::reloadCellMinimumReplicasZ()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<int> value = minimumReplicasZ())
+    if (std::optional<int> value = minimumReplicasZ())
     {
       whileBlocking(_cellCellForm->cellMinimumReplicaZ)->setValue(*value);
     }
@@ -671,7 +672,7 @@ void CellTreeWidgetController::reloadCellOriginX()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = originX())
+    if (std::optional<double> value = originX())
     {
       whileBlocking(_cellCellForm->originXDoubleSpinBox)->setValue(*value);
     }
@@ -686,7 +687,7 @@ void CellTreeWidgetController::reloadCellOriginY()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = originY())
+    if (std::optional<double> value = originY())
     {
       whileBlocking(_cellCellForm->originYDoubleSpinBox)->setValue(*value);
     }
@@ -701,7 +702,7 @@ void CellTreeWidgetController::reloadCellOriginZ()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = originZ())
+    if (std::optional<double> value = originZ())
     {
       whileBlocking(_cellCellForm->originZDoubleSpinBox)->setValue(*value);
     }
@@ -713,11 +714,11 @@ void CellTreeWidgetController::reloadCellOriginZ()
 }
 
 
-stdx::optional<iRASPAStructureType> CellTreeWidgetController::structureType()
+std::optional<iRASPAStructureType> CellTreeWidgetController::structureType()
 {
 	if (_structures.empty())
 	{
-		return stdx::nullopt;
+    return std::nullopt;
 	}
     std::unordered_set<iRASPAStructureType, enum_hash> set = std::unordered_set<iRASPAStructureType, enum_hash>{};
 	for (std::shared_ptr<Structure> structure : _structures)
@@ -731,7 +732,7 @@ stdx::optional<iRASPAStructureType> CellTreeWidgetController::structureType()
       iRASPAStructureType value = *set.begin();
       return value;
 	}
-	return stdx::nullopt;
+  return std::nullopt;
 }
 
 SKBoundingBox CellTreeWidgetController::boundingBox()
@@ -761,11 +762,11 @@ SKBoundingBox CellTreeWidgetController::boundingBox()
   return SKBoundingBox(double3(0.0,0.0,0.0),double3(0.0,0.0,0.0));
 }
 
-stdx::optional<double> CellTreeWidgetController::unitCellAX()
+std::optional<double> CellTreeWidgetController::unitCellAX()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -777,15 +778,15 @@ stdx::optional<double> CellTreeWidgetController::unitCellAX()
   {
     return *(set.begin());
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 
-stdx::optional<double> CellTreeWidgetController::unitCellAY()
+std::optional<double> CellTreeWidgetController::unitCellAY()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -797,14 +798,14 @@ stdx::optional<double> CellTreeWidgetController::unitCellAY()
   {
     return *(set.begin());
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
-stdx::optional<double> CellTreeWidgetController::unitCellAZ()
+std::optional<double> CellTreeWidgetController::unitCellAZ()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -816,15 +817,15 @@ stdx::optional<double> CellTreeWidgetController::unitCellAZ()
   {
     return *(set.begin());
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 
-stdx::optional<double> CellTreeWidgetController::unitCellBX()
+std::optional<double> CellTreeWidgetController::unitCellBX()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -836,14 +837,14 @@ stdx::optional<double> CellTreeWidgetController::unitCellBX()
   {
     return *(set.begin());
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
-stdx::optional<double> CellTreeWidgetController::unitCellBY()
+std::optional<double> CellTreeWidgetController::unitCellBY()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -855,14 +856,14 @@ stdx::optional<double> CellTreeWidgetController::unitCellBY()
   {
     return *(set.begin());
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
-stdx::optional<double> CellTreeWidgetController::unitCellBZ()
+std::optional<double> CellTreeWidgetController::unitCellBZ()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -874,14 +875,14 @@ stdx::optional<double> CellTreeWidgetController::unitCellBZ()
   {
     return *(set.begin());
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
-stdx::optional<double> CellTreeWidgetController::unitCellCX()
+std::optional<double> CellTreeWidgetController::unitCellCX()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -893,14 +894,14 @@ stdx::optional<double> CellTreeWidgetController::unitCellCX()
   {
     return *(set.begin());
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
-stdx::optional<double> CellTreeWidgetController::unitCellCY()
+std::optional<double> CellTreeWidgetController::unitCellCY()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -912,14 +913,14 @@ stdx::optional<double> CellTreeWidgetController::unitCellCY()
   {
     return *(set.begin());
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
-stdx::optional<double> CellTreeWidgetController::unitCellCZ()
+std::optional<double> CellTreeWidgetController::unitCellCZ()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -931,14 +932,14 @@ stdx::optional<double> CellTreeWidgetController::unitCellCZ()
   {
     return *(set.begin());
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
-stdx::optional<double> CellTreeWidgetController::unitCellLengthA()
+std::optional<double> CellTreeWidgetController::unitCellLengthA()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -950,7 +951,7 @@ stdx::optional<double> CellTreeWidgetController::unitCellLengthA()
   {
     return *(set.begin());
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setUnitCellLengthA(double value)
@@ -974,11 +975,11 @@ void CellTreeWidgetController::setUnitCellLengthA(double value)
   }
 }
 
-stdx::optional<double> CellTreeWidgetController::unitCellLengthB()
+std::optional<double> CellTreeWidgetController::unitCellLengthB()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -990,7 +991,7 @@ stdx::optional<double> CellTreeWidgetController::unitCellLengthB()
   {
     return *(set.begin());
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setUnitCellLengthB(double value)
@@ -1014,11 +1015,11 @@ void CellTreeWidgetController::setUnitCellLengthB(double value)
   }
 }
 
-stdx::optional<double> CellTreeWidgetController::unitCellLengthC()
+std::optional<double> CellTreeWidgetController::unitCellLengthC()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1030,7 +1031,7 @@ stdx::optional<double> CellTreeWidgetController::unitCellLengthC()
   {
     return *(set.begin());
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setUnitCellLengthC(double value)
@@ -1054,11 +1055,11 @@ void CellTreeWidgetController::setUnitCellLengthC(double value)
   }
 }
 
-stdx::optional<double> CellTreeWidgetController::unitCellAngleAlpha()
+std::optional<double> CellTreeWidgetController::unitCellAngleAlpha()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1070,7 +1071,7 @@ stdx::optional<double> CellTreeWidgetController::unitCellAngleAlpha()
   {
     return *(set.begin());
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setUnitCellAngleAlpha(double value)
@@ -1094,11 +1095,11 @@ void CellTreeWidgetController::setUnitCellAngleAlpha(double value)
   }
 }
 
-stdx::optional<double> CellTreeWidgetController::unitCellAngleBeta()
+std::optional<double> CellTreeWidgetController::unitCellAngleBeta()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1110,7 +1111,7 @@ stdx::optional<double> CellTreeWidgetController::unitCellAngleBeta()
   {
     return *(set.begin());
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setUnitCellAngleBeta(double value)
@@ -1134,11 +1135,11 @@ void CellTreeWidgetController::setUnitCellAngleBeta(double value)
   }
 }
 
-stdx::optional<double> CellTreeWidgetController::unitCellAngleGamma()
+std::optional<double> CellTreeWidgetController::unitCellAngleGamma()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1150,7 +1151,7 @@ stdx::optional<double> CellTreeWidgetController::unitCellAngleGamma()
   {
     return *(set.begin());
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setUnitCellAngleGamma(double value)
@@ -1175,11 +1176,11 @@ void CellTreeWidgetController::setUnitCellAngleGamma(double value)
 }
 
 
-stdx::optional<double> CellTreeWidgetController::unitCellVolume()
+std::optional<double> CellTreeWidgetController::unitCellVolume()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1192,15 +1193,15 @@ stdx::optional<double> CellTreeWidgetController::unitCellVolume()
     return *(set.begin());
   }
 
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 
-stdx::optional<double> CellTreeWidgetController::unitCellPerpendicularWidthX()
+std::optional<double> CellTreeWidgetController::unitCellPerpendicularWidthX()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1213,14 +1214,14 @@ stdx::optional<double> CellTreeWidgetController::unitCellPerpendicularWidthX()
     return *(set.begin());
   }
 
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
-stdx::optional<double> CellTreeWidgetController::unitCellPerpendicularWidthY()
+std::optional<double> CellTreeWidgetController::unitCellPerpendicularWidthY()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1233,15 +1234,15 @@ stdx::optional<double> CellTreeWidgetController::unitCellPerpendicularWidthY()
     return *(set.begin());
   }
 
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 
-stdx::optional<double> CellTreeWidgetController::unitCellPerpendicularWidthZ()
+std::optional<double> CellTreeWidgetController::unitCellPerpendicularWidthZ()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1254,15 +1255,15 @@ stdx::optional<double> CellTreeWidgetController::unitCellPerpendicularWidthZ()
     return *(set.begin());
   }
 
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 
-stdx::optional<int> CellTreeWidgetController::maximumReplicasX()
+std::optional<int> CellTreeWidgetController::maximumReplicasX()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1275,7 +1276,7 @@ stdx::optional<int> CellTreeWidgetController::maximumReplicasX()
     return *(set.begin());
   }
 
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setMaximumReplicasX(int value)
@@ -1301,11 +1302,11 @@ void CellTreeWidgetController::setMaximumReplicasX(int value)
   }
 }
 
-stdx::optional<int> CellTreeWidgetController::maximumReplicasY()
+std::optional<int> CellTreeWidgetController::maximumReplicasY()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1318,7 +1319,7 @@ stdx::optional<int> CellTreeWidgetController::maximumReplicasY()
     return *(set.begin());
   }
 
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setMaximumReplicasY(int value)
@@ -1344,11 +1345,11 @@ void CellTreeWidgetController::setMaximumReplicasY(int value)
   }
 }
 
-stdx::optional<int> CellTreeWidgetController::maximumReplicasZ()
+std::optional<int> CellTreeWidgetController::maximumReplicasZ()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1361,7 +1362,7 @@ stdx::optional<int> CellTreeWidgetController::maximumReplicasZ()
     return *(set.begin());
   }
 
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setMaximumReplicasZ(int value)
@@ -1387,11 +1388,11 @@ void CellTreeWidgetController::setMaximumReplicasZ(int value)
   }
 }
 
-stdx::optional<int> CellTreeWidgetController::minimumReplicasX()
+std::optional<int> CellTreeWidgetController::minimumReplicasX()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1404,7 +1405,7 @@ stdx::optional<int> CellTreeWidgetController::minimumReplicasX()
     return *(set.begin());
   }
 
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setMinimumReplicasX(int value)
@@ -1430,11 +1431,11 @@ void CellTreeWidgetController::setMinimumReplicasX(int value)
   }
 }
 
-stdx::optional<int> CellTreeWidgetController::minimumReplicasY()
+std::optional<int> CellTreeWidgetController::minimumReplicasY()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1447,7 +1448,7 @@ stdx::optional<int> CellTreeWidgetController::minimumReplicasY()
     return *(set.begin());
   }
 
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setMinimumReplicasY(int value)
@@ -1473,11 +1474,11 @@ void CellTreeWidgetController::setMinimumReplicasY(int value)
   }
 }
 
-stdx::optional<int> CellTreeWidgetController::minimumReplicasZ()
+std::optional<int> CellTreeWidgetController::minimumReplicasZ()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1490,7 +1491,7 @@ stdx::optional<int> CellTreeWidgetController::minimumReplicasZ()
     return *(set.begin());
   }
 
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setMinimumReplicasZ(int value)
@@ -1516,11 +1517,11 @@ void CellTreeWidgetController::setMinimumReplicasZ(int value)
   }
 }
 
-stdx::optional<double>  CellTreeWidgetController::originX()
+std::optional<double>  CellTreeWidgetController::originX()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1533,7 +1534,7 @@ stdx::optional<double>  CellTreeWidgetController::originX()
     return *(set.begin());
   }
 
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setOriginX(double value)
@@ -1556,11 +1557,11 @@ void CellTreeWidgetController::setOriginX(double value)
 }
 
 
-stdx::optional<double>  CellTreeWidgetController::originY()
+std::optional<double>  CellTreeWidgetController::originY()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1573,7 +1574,7 @@ stdx::optional<double>  CellTreeWidgetController::originY()
     return *(set.begin());
   }
 
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setOriginY(double value)
@@ -1596,11 +1597,11 @@ void CellTreeWidgetController::setOriginY(double value)
 }
 
 
-stdx::optional<double>  CellTreeWidgetController::originZ()
+std::optional<double>  CellTreeWidgetController::originZ()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1613,7 +1614,7 @@ stdx::optional<double>  CellTreeWidgetController::originZ()
     return *(set.begin());
   }
 
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setOriginZ(double value)
@@ -1670,7 +1671,7 @@ void CellTreeWidgetController::reloadStructuralMass()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = structuralMass())
+    if (std::optional<double> value = structuralMass())
     {
       whileBlocking(_cellStructuralForm->massDoubleSpinBox)->setValue(*value);
     }
@@ -1685,7 +1686,7 @@ void CellTreeWidgetController::reloadStructuralDensity()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = structuralDensity())
+    if (std::optional<double> value = structuralDensity())
     {
       whileBlocking(_cellStructuralForm->densityDoubleSpinBox)->setValue(*value);
     }
@@ -1700,7 +1701,7 @@ void CellTreeWidgetController::reloadStructuralHeliumVoidFraction()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = structureHeliumVoidFraction())
+    if (std::optional<double> value = structureHeliumVoidFraction())
     {
       whileBlocking(_cellStructuralForm->heliumVoidFractionDoubleSpinBox)->setValue(*value);
     }
@@ -1715,7 +1716,7 @@ void CellTreeWidgetController::reloadStructuralSpecificVolume()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = structureSpecificVolume())
+    if (std::optional<double> value = structureSpecificVolume())
     {
       whileBlocking(_cellStructuralForm->specificVolumeDoubleSpinBox)->setValue(*value);
     }
@@ -1730,7 +1731,7 @@ void CellTreeWidgetController::reloadStructuralAccessiblePoreVolume()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = structureAccessiblePoreVolume())
+    if (std::optional<double> value = structureAccessiblePoreVolume())
     {
       whileBlocking(_cellStructuralForm->accessiblePoreVolumeDoubleSpinBox)->setValue(*value);
     }
@@ -1745,7 +1746,7 @@ void CellTreeWidgetController::reloadFrameworkProbeMoleculePopupBox()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<ProbeMolecule> type=frameworkProbeMolecule())
+    if (std::optional<Structure::ProbeMolecule> type=frameworkProbeMolecule())
     {
       if(int index = _cellStructuralForm->probeMoleculeComboBox->findText("Mult. Val."); index>=0)
       {
@@ -1753,7 +1754,7 @@ void CellTreeWidgetController::reloadFrameworkProbeMoleculePopupBox()
       }
       if(int(*type)<0)
       {
-       whileBlocking(_cellStructuralForm->probeMoleculeComboBox)->setCurrentIndex(int(ProbeMolecule::multiple_values));
+       whileBlocking(_cellStructuralForm->probeMoleculeComboBox)->setCurrentIndex(int(Structure::ProbeMolecule::multiple_values));
       }
       else
       {
@@ -1775,7 +1776,7 @@ void CellTreeWidgetController::reloadStructuralVolumetricSurfaceArea()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = structureVolumetricNitrogenSurfaceArea())
+    if (std::optional<double> value = structureVolumetricNitrogenSurfaceArea())
     {
       whileBlocking(_cellStructuralForm->volumetricSurfaceAreaDoubleSpinBox)->setValue(*value);
     }
@@ -1790,7 +1791,7 @@ void CellTreeWidgetController::reloadStructuralGravimetricSurfaceArea()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = structureGravimetricNitrogenSurfaceArea())
+    if (std::optional<double> value = structureGravimetricNitrogenSurfaceArea())
     {
       whileBlocking(_cellStructuralForm->gravimetricSurfaceAreaDoubleSpinBox)->setValue(*value);
     }
@@ -1805,7 +1806,7 @@ void CellTreeWidgetController::reloadStructuralNumberOfChannelSystems()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<int> value = structureNumberOfChannelSystems())
+    if (std::optional<int> value = structureNumberOfChannelSystems())
     {
       whileBlocking(_cellStructuralForm->numberOfChannelSystemsSpinBox)->setValue(*value);
     }
@@ -1820,7 +1821,7 @@ void CellTreeWidgetController::reloadStructuralNumberOfInaccessiblePockets()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<int> value = structureNumberOfInaccessiblePockets())
+    if (std::optional<int> value = structureNumberOfInaccessiblePockets())
     {
       whileBlocking(_cellStructuralForm->numberOfInaccessiblePocketsSpinBox)->setValue(*value);
     }
@@ -1835,7 +1836,7 @@ void CellTreeWidgetController::reloadStructuralDimensionalityOfPoreSystem()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<int> value = structureDimensionalityOfPoreSystem())
+    if (std::optional<int> value = structureDimensionalityOfPoreSystem())
     {
       whileBlocking(_cellStructuralForm->dimensionalityOfPoreSystemSpinBox)->setValue(*value);
     }
@@ -1850,7 +1851,7 @@ void CellTreeWidgetController::reloadStructuralLargestOverallCavityDiameter()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = structureLargestCavityDiameter())
+    if (std::optional<double> value = structureLargestCavityDiameter())
     {
       whileBlocking(_cellStructuralForm->largestOverallCavityDiameterDoubleSpinBox)->setValue(*value);
     }
@@ -1865,7 +1866,7 @@ void CellTreeWidgetController::reloadStructuralRestrictingPoreDiameter()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = structureRestrictingPoreLimitingDiameter())
+    if (std::optional<double> value = structureRestrictingPoreLimitingDiameter())
     {
       whileBlocking(_cellStructuralForm->restrictingPoreDiameterDoubleSpinBox)->setValue(*value);
     }
@@ -1880,7 +1881,7 @@ void CellTreeWidgetController::reloadStructuralLargestDiamtereAlongAViablePath()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = structureLargestCavityDiameterAlongAviablePath())
+    if (std::optional<double> value = structureLargestCavityDiameterAlongAviablePath())
     {
       whileBlocking(_cellStructuralForm->largestDiameterAlongAViablePathDoubleSpinBox)->setValue(*value);
     }
@@ -1892,11 +1893,11 @@ void CellTreeWidgetController::reloadStructuralLargestDiamtereAlongAViablePath()
 }
 
 
-stdx::optional<double> CellTreeWidgetController::structuralMass()
+std::optional<double> CellTreeWidgetController::structuralMass()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1909,14 +1910,14 @@ stdx::optional<double> CellTreeWidgetController::structuralMass()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
-stdx::optional<double> CellTreeWidgetController::structuralDensity()
+std::optional<double> CellTreeWidgetController::structuralDensity()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1929,14 +1930,14 @@ stdx::optional<double> CellTreeWidgetController::structuralDensity()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
-stdx::optional<double> CellTreeWidgetController::structureHeliumVoidFraction()
+std::optional<double> CellTreeWidgetController::structureHeliumVoidFraction()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1949,15 +1950,15 @@ stdx::optional<double> CellTreeWidgetController::structureHeliumVoidFraction()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 
-stdx::optional<double> CellTreeWidgetController::structureSpecificVolume()
+std::optional<double> CellTreeWidgetController::structureSpecificVolume()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1970,14 +1971,14 @@ stdx::optional<double> CellTreeWidgetController::structureSpecificVolume()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
-stdx::optional<double> CellTreeWidgetController::structureAccessiblePoreVolume()
+std::optional<double> CellTreeWidgetController::structureAccessiblePoreVolume()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1990,16 +1991,16 @@ stdx::optional<double> CellTreeWidgetController::structureAccessiblePoreVolume()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setFrameworkProbeMolecule(int value)
 {
-  if(value>=0 && value<int(ProbeMolecule::multiple_values))
+  if(value>=0 && value<int(Structure::ProbeMolecule::multiple_values))
   {
     for(std::shared_ptr<Structure> structure: _structures)
     {
-      structure->setFrameworkProbeMolecule(ProbeMolecule(value));
+      structure->setFrameworkProbeMolecule(Structure::ProbeMolecule(value));
       structure->recheckRepresentationStyle();
     }
 
@@ -2010,16 +2011,16 @@ void CellTreeWidgetController::setFrameworkProbeMolecule(int value)
   }
 }
 
-stdx::optional<ProbeMolecule> CellTreeWidgetController::frameworkProbeMolecule()
+std::optional<Structure::ProbeMolecule> CellTreeWidgetController::frameworkProbeMolecule()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
-  std::unordered_set<ProbeMolecule, enum_hash> set = std::unordered_set<ProbeMolecule, enum_hash>{};
+  std::unordered_set<Structure::ProbeMolecule, enum_hash> set = std::unordered_set<Structure::ProbeMolecule, enum_hash>{};
   for(std::shared_ptr<Structure> structure: _structures)
   {
-    ProbeMolecule value = structure->frameworkProbeMolecule();
+    Structure::ProbeMolecule value = structure->frameworkProbeMolecule();
     set.insert(value);
   }
 
@@ -2027,14 +2028,14 @@ stdx::optional<ProbeMolecule> CellTreeWidgetController::frameworkProbeMolecule()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
-stdx::optional<double> CellTreeWidgetController::structureVolumetricNitrogenSurfaceArea()
+std::optional<double> CellTreeWidgetController::structureVolumetricNitrogenSurfaceArea()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2047,14 +2048,14 @@ stdx::optional<double> CellTreeWidgetController::structureVolumetricNitrogenSurf
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
-stdx::optional<double> CellTreeWidgetController::structureGravimetricNitrogenSurfaceArea()
+std::optional<double> CellTreeWidgetController::structureGravimetricNitrogenSurfaceArea()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2067,14 +2068,14 @@ stdx::optional<double> CellTreeWidgetController::structureGravimetricNitrogenSur
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
-stdx::optional<int> CellTreeWidgetController::structureNumberOfChannelSystems()
+std::optional<int> CellTreeWidgetController::structureNumberOfChannelSystems()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2087,7 +2088,7 @@ stdx::optional<int> CellTreeWidgetController::structureNumberOfChannelSystems()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setStructureNumberOfChannelSystems(int value)
@@ -2098,11 +2099,11 @@ void CellTreeWidgetController::setStructureNumberOfChannelSystems(int value)
   }
 }
 
-stdx::optional<int> CellTreeWidgetController::structureNumberOfInaccessiblePockets()
+std::optional<int> CellTreeWidgetController::structureNumberOfInaccessiblePockets()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2115,7 +2116,7 @@ stdx::optional<int> CellTreeWidgetController::structureNumberOfInaccessiblePocke
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setStructureNumberOfInaccessiblePockets(int value)
@@ -2126,11 +2127,11 @@ void CellTreeWidgetController::setStructureNumberOfInaccessiblePockets(int value
   }
 }
 
-stdx::optional<int> CellTreeWidgetController::structureDimensionalityOfPoreSystem()
+std::optional<int> CellTreeWidgetController::structureDimensionalityOfPoreSystem()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2143,7 +2144,7 @@ stdx::optional<int> CellTreeWidgetController::structureDimensionalityOfPoreSyste
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setStructureDimensionalityOfPoreSystem(int value)
@@ -2154,11 +2155,11 @@ void CellTreeWidgetController::setStructureDimensionalityOfPoreSystem(int value)
   }
 }
 
-stdx::optional<double> CellTreeWidgetController::structureLargestCavityDiameter()
+std::optional<double> CellTreeWidgetController::structureLargestCavityDiameter()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2171,7 +2172,7 @@ stdx::optional<double> CellTreeWidgetController::structureLargestCavityDiameter(
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setStructureLargestCavityDiameter(double value)
@@ -2182,11 +2183,11 @@ void CellTreeWidgetController::setStructureLargestCavityDiameter(double value)
   }
 }
 
-stdx::optional<double> CellTreeWidgetController::structureRestrictingPoreLimitingDiameter()
+std::optional<double> CellTreeWidgetController::structureRestrictingPoreLimitingDiameter()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2199,7 +2200,7 @@ stdx::optional<double> CellTreeWidgetController::structureRestrictingPoreLimitin
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setStructureRestrictingPoreLimitingDiameter(double value)
@@ -2210,11 +2211,11 @@ void CellTreeWidgetController::setStructureRestrictingPoreLimitingDiameter(doubl
   }
 }
 
-stdx::optional<double> CellTreeWidgetController::structureLargestCavityDiameterAlongAviablePath()
+std::optional<double> CellTreeWidgetController::structureLargestCavityDiameterAlongAviablePath()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2227,7 +2228,7 @@ stdx::optional<double> CellTreeWidgetController::structureLargestCavityDiameterA
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setStructureLargestCavityDiameterAlongAviablePath(double value)
@@ -2265,7 +2266,7 @@ void CellTreeWidgetController::reloadSpaceGroupHallName()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<int> type = symmetrySpaceGroupHallNumber())
+    if (std::optional<int> type = symmetrySpaceGroupHallNumber())
     {
       if(int index = _cellSymmetryForm->spaceGroupHallNamecomboBox->findText("Multiple values"); index>=0)
       {
@@ -2288,7 +2289,7 @@ void CellTreeWidgetController::reloadSpaceGroupITNumber()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<int> type = symmetrySpaceGroupStamdardNumber())
+    if (std::optional<int> type = symmetrySpaceGroupStamdardNumber())
     {
       if(int index = _cellSymmetryForm->spaceGroupITNumberComboBox->findText("Multiple values"); index>=0)
       {
@@ -2311,7 +2312,7 @@ void CellTreeWidgetController::reloadSpaceGroupHolohedry()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<QString> string = symmetryHolohedryString())
+    if (std::optional<QString> string = symmetryHolohedryString())
     {
       whileBlocking(_cellSymmetryForm->holohedryLineEdit)->setText(*string);
     }
@@ -2326,7 +2327,7 @@ void CellTreeWidgetController::reloadSpaceGroupQualifier()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<QString> string = symmetryQualifierString())
+    if (std::optional<QString> string = symmetryQualifierString())
     {
       whileBlocking(_cellSymmetryForm->qualifierLineEdit)->setText(*string);
     }
@@ -2341,7 +2342,7 @@ void CellTreeWidgetController::reloadSpaceGroupPrecision()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<double> value = symmetryPrecision())
+    if (std::optional<double> value = symmetryPrecision())
     {
       whileBlocking(_cellSymmetryForm->precisionDoubleSpinBox)->setValue(*value);
     }
@@ -2356,7 +2357,7 @@ void CellTreeWidgetController::reloadSpaceGroupCenteringType()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<QString> value = symmetryCenteringString())
+    if (std::optional<QString> value = symmetryCenteringString())
     {
       whileBlocking(_cellSymmetryForm->centeringLineEdit)->setText(*value);
     }
@@ -2371,7 +2372,7 @@ void CellTreeWidgetController::reloadSpaceGroupCenteringVectors()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<int> value = symmetrySpaceGroupHallNumber())
+    if (std::optional<int> value = symmetrySpaceGroupHallNumber())
     {
       std::vector<QString> latticeVector =  SKSpaceGroup::latticeTranslationStrings(*value);
       whileBlocking(_cellSymmetryForm->centerintVector1LineEdit)->setText(latticeVector[0]);
@@ -2393,7 +2394,7 @@ void CellTreeWidgetController::reloadSpaceGroupInversion()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<bool> type = symmetryInversion())
+    if (std::optional<bool> type = symmetryInversion())
     {
       whileBlocking(_cellSymmetryForm->inversionLineEdit)->setText(*type ? "yes" : "no");
     }
@@ -2408,7 +2409,7 @@ void CellTreeWidgetController::reloadSpaceGroupInversionCenter()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<QString> value = symmetryInversionCenterString())
+    if (std::optional<QString> value = symmetryInversionCenterString())
     {
       whileBlocking(_cellSymmetryForm->inversionCenterLineEdit)->setText(*value);
     }
@@ -2423,7 +2424,7 @@ void CellTreeWidgetController::reloadSpaceGroupCentroSymmetric()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<bool> type = symmetryCentrosymmetric())
+    if (std::optional<bool> type = symmetryCentrosymmetric())
     {
       whileBlocking(_cellSymmetryForm->centrosymmetricLineEdit)->setText(*type ? "yes" : "no");
     }
@@ -2438,7 +2439,7 @@ void CellTreeWidgetController::reloadSpaceGroupEnantiomorphic()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<bool> type = symmetryEnatiomorphic())
+    if (std::optional<bool> type = symmetryEnatiomorphic())
     {
       whileBlocking(_cellSymmetryForm->enantiomorphicLineEdit)->setText(*type ? "yes" : "no");
     }
@@ -2453,7 +2454,7 @@ void CellTreeWidgetController::reloadSpaceGroupLaueGroup()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<int> type = symmetryPointGroup())
+    if (std::optional<int> type = symmetryPointGroup())
     {
       QString name = SKPointGroup::pointGroupData[*type].LaueString();
       whileBlocking(_cellSymmetryForm->LaueGroupLineEdit)->setText(name);
@@ -2469,7 +2470,7 @@ void CellTreeWidgetController::reloadSpaceGroupPointGroup()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<int> type = symmetryPointGroup())
+    if (std::optional<int> type = symmetryPointGroup())
     {
       QString name = SKPointGroup::pointGroupData[*type].symbol();
       whileBlocking(_cellSymmetryForm->pointGroupLineEdit)->setText(name);
@@ -2485,7 +2486,7 @@ void CellTreeWidgetController::reloadSpaceGroupSchoenfliesSymbol()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<int> type = symmetryPointGroup())
+    if (std::optional<int> type = symmetryPointGroup())
     {
       QString name = SKPointGroup::pointGroupData[*type].schoenflies();
       whileBlocking(_cellSymmetryForm->SchoenfliesLineEdit)->setText(name);
@@ -2501,7 +2502,7 @@ void CellTreeWidgetController::reloadSpaceGroupSymmorphicity()
 {
   if(!_structures.empty())
   {
-    if (stdx::optional<QString> string = symmetrySymmorphicity())
+    if (std::optional<QString> string = symmetrySymmorphicity())
     {
       whileBlocking(_cellSymmetryForm->symmorphicityLineEdit)->setText(*string);
     }
@@ -2512,11 +2513,11 @@ void CellTreeWidgetController::reloadSpaceGroupSymmorphicity()
   }
 }
 
-stdx::optional<int> CellTreeWidgetController::symmetrySpaceGroupHallNumber()
+std::optional<int> CellTreeWidgetController::symmetrySpaceGroupHallNumber()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2529,7 +2530,7 @@ stdx::optional<int> CellTreeWidgetController::symmetrySpaceGroupHallNumber()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setSymmetrySpaceGroupHallNumber(int value)
@@ -2545,11 +2546,11 @@ void CellTreeWidgetController::setSymmetrySpaceGroupHallNumber(int value)
   reloadSymmetryProperties();
 }
 
-stdx::optional<int> CellTreeWidgetController::symmetrySpaceGroupStamdardNumber()
+std::optional<int> CellTreeWidgetController::symmetrySpaceGroupStamdardNumber()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2562,7 +2563,7 @@ stdx::optional<int> CellTreeWidgetController::symmetrySpaceGroupStamdardNumber()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setSymmetrySpaceGroupStandardNumber(int value)
@@ -2579,11 +2580,11 @@ void CellTreeWidgetController::setSymmetrySpaceGroupStandardNumber(int value)
   reloadSymmetryProperties();
 }
 
-stdx::optional<QString> CellTreeWidgetController::symmetryHolohedryString()
+std::optional<QString> CellTreeWidgetController::symmetryHolohedryString()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2597,14 +2598,14 @@ stdx::optional<QString> CellTreeWidgetController::symmetryHolohedryString()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
-stdx::optional<QString> CellTreeWidgetController::symmetryQualifierString()
+std::optional<QString> CellTreeWidgetController::symmetryQualifierString()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2617,14 +2618,14 @@ stdx::optional<QString> CellTreeWidgetController::symmetryQualifierString()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
-stdx::optional<double> CellTreeWidgetController::symmetryPrecision()
+std::optional<double> CellTreeWidgetController::symmetryPrecision()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2637,7 +2638,7 @@ stdx::optional<double> CellTreeWidgetController::symmetryPrecision()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::setSymmetryPrecision(double value)
@@ -2648,11 +2649,11 @@ void CellTreeWidgetController::setSymmetryPrecision(double value)
   }
 }
 
-stdx::optional<QString> CellTreeWidgetController::symmetryCenteringString()
+std::optional<QString> CellTreeWidgetController::symmetryCenteringString()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2665,14 +2666,14 @@ stdx::optional<QString> CellTreeWidgetController::symmetryCenteringString()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
-stdx::optional<bool> CellTreeWidgetController::symmetryInversion()
+std::optional<bool> CellTreeWidgetController::symmetryInversion()
 {
     if(_structures.empty())
     {
-      return stdx::nullopt;
+      return std::nullopt;
     }
     std::unordered_set<bool> set = std::unordered_set<bool>{};
     for(std::shared_ptr<Structure> structure: _structures)
@@ -2685,15 +2686,15 @@ stdx::optional<bool> CellTreeWidgetController::symmetryInversion()
     {
       return *set.begin();
     }
-    return stdx::nullopt;
+    return std::nullopt;
 }
 
 
-stdx::optional<QString> CellTreeWidgetController::symmetryInversionCenterString()
+std::optional<QString> CellTreeWidgetController::symmetryInversionCenterString()
 {
     if(_structures.empty())
     {
-      return stdx::nullopt;
+      return std::nullopt;
     }
     std::set<QString> set = std::set<QString>{};
     for(std::shared_ptr<Structure> structure: _structures)
@@ -2707,14 +2708,14 @@ stdx::optional<QString> CellTreeWidgetController::symmetryInversionCenterString(
     {
       return *set.begin();
     }
-    return stdx::nullopt;
+    return std::nullopt;
 }
 
-stdx::optional<bool> CellTreeWidgetController::symmetryCentrosymmetric()
+std::optional<bool> CellTreeWidgetController::symmetryCentrosymmetric()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<bool> set = std::unordered_set<bool>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2728,14 +2729,14 @@ stdx::optional<bool> CellTreeWidgetController::symmetryCentrosymmetric()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
-stdx::optional<bool> CellTreeWidgetController::symmetryEnatiomorphic()
+std::optional<bool> CellTreeWidgetController::symmetryEnatiomorphic()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<bool> set = std::unordered_set<bool>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2749,15 +2750,15 @@ stdx::optional<bool> CellTreeWidgetController::symmetryEnatiomorphic()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 
-stdx::optional<int> CellTreeWidgetController::symmetryPointGroup()
+std::optional<int> CellTreeWidgetController::symmetryPointGroup()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2770,15 +2771,15 @@ stdx::optional<int> CellTreeWidgetController::symmetryPointGroup()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 
-stdx::optional<QString> CellTreeWidgetController::symmetrySymmorphicity()
+std::optional<QString> CellTreeWidgetController::symmetrySymmorphicity()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -2791,7 +2792,7 @@ stdx::optional<QString> CellTreeWidgetController::symmetrySymmorphicity()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CellTreeWidgetController::computeHeliumVoidFractionPushButton()

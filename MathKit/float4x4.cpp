@@ -28,8 +28,10 @@
  *************************************************************************************************************/
 
 #include "float4x4.h"
-#include <math.h>
 #include "float3x3.h"
+
+#define _USE_MATH_DEFINES
+#include <cmath>
 
 #include <iostream>
 #include <ostream>
@@ -138,7 +140,7 @@ bool float4x4::operator!=(const float4x4& b) const
 }
 
 
-float4x4 float4x4::transpose(void)
+float4x4 const float4x4::transpose(void)
 {
   float4x4 res;
 

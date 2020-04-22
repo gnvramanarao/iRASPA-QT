@@ -27,7 +27,8 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#include <math.h>
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "cappedcylindergeometry.h"
 
 CappedCylinderGeometry::CappedCylinderGeometry(double r, int s)
@@ -52,7 +53,7 @@ CappedCylinderGeometry::CappedCylinderGeometry(double r, int s)
     double cosTheta = cos(delta * double(i));
     double sinTheta = sin(delta * double(i));
 
-    float4 position1 = float4(float(r * cosTheta), 0.0, float(r * sinTheta), 0.0);
+    float4 position1 = float4(float(r * cosTheta), -1.0, float(r * sinTheta), 0.0);
     float4 normal1 = float4(float(cosTheta), 0.0, float(sinTheta), 0.0);
     _vertexes[index] = RKVertex(position1, normal1, float2());
     index += 1;
@@ -66,7 +67,7 @@ CappedCylinderGeometry::CappedCylinderGeometry(double r, int s)
   // first cap
   // ==========================================================================
 
-  float4 position_cap1 = float4(0.0, 0.0, 0.0, 0.0);
+  float4 position_cap1 = float4(0.0, -1.0, 0.0, 0.0);
   float4 normal_cap1 = float4(0.0, -1.0, 0.0, 0.0);
   _vertexes[index] = RKVertex(position_cap1, normal_cap1, float2());
   int ref_cap_1 = index;
@@ -76,7 +77,7 @@ CappedCylinderGeometry::CappedCylinderGeometry(double r, int s)
   {
     double cosTheta = r * cos(delta * double(i));
     double sinTheta = r * sin(delta * double(i));
-    float4 position_cap1 = float4(float(cosTheta), 0.0, float(sinTheta), 0.0);
+    float4 position_cap1 = float4(float(cosTheta), -1.0, float(sinTheta), 0.0);
     float4 normal_cap1 = float4(0.0, -1.0, 0.0, 0.0);
     _vertexes[index] = RKVertex(position_cap1, normal_cap1, float2());
     index += 1;

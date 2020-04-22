@@ -84,7 +84,7 @@ enum class RKImageUnits
 
 enum class RKSelectionStyle
 {
-  WorleyNoise3D = 0, striped = 1, glow = 2, multiple_values = 3
+  None = 0, WorleyNoise3D = 1, striped = 2, glow = 3, multiple_values = 4
 };
 
 enum class RKTextStyle
@@ -112,6 +112,7 @@ enum class RKTextAlignment
 class RKRenderStructure
 {
 public:
+  virtual ~RKRenderStructure() = 0;
   virtual void computeBonds() = 0;
 
   virtual QString displayName() const = 0;
@@ -138,21 +139,22 @@ public:
   virtual double3 renderTextOffset() const = 0;
 
   virtual std::vector<RKInPerInstanceAttributesAtoms> renderSelectedAtoms() const = 0;
-  virtual RKSelectionStyle renderSelectionStyle() const = 0;
-  virtual double renderAtomSelectionIntensity() const = 0;
-  virtual double renderSelectionScaling() const = 0;
-  virtual double renderSelectionFrequency() const = 0;
-  virtual double renderSelectionDensity() const = 0;
-  virtual double renderSelectionStripesDensity() const = 0;
-  virtual double renderSelectionStripesFrequency() const = 0;
-  virtual double renderSelectionWorleyNoise3DFrequency() const = 0;
-  virtual double renderSelectionWorleyNoise3DJitter() const = 0;
+  virtual RKSelectionStyle atomSelectionStyle() const = 0;
+  virtual double atomSelectionIntensity() const = 0;
+  virtual double atomSelectionScaling() const = 0;
+  virtual double atomSelectionFrequency() const = 0;
+  virtual double atomSelectionDensity() const = 0;
+  virtual double atomSelectionStripesDensity() const = 0;
+  virtual double atomSelectionStripesFrequency() const = 0;
+  virtual double atomSelectionWorleyNoise3DFrequency() const = 0;
+  virtual double atomSelectionWorleyNoise3DJitter() const = 0;
 
   virtual double3 CartesianPosition(double3 position, int3 replicaPosition) const = 0;
 
   virtual std::vector<RKInPerInstanceAttributesBonds> renderInternalBonds() const = 0;
   virtual std::vector<RKInPerInstanceAttributesBonds> renderExternalBonds() const = 0;
-  virtual std::vector<RKInPerInstanceAttributesBonds> renderSelectedBonds() const = 0;
+  virtual std::vector<RKInPerInstanceAttributesBonds> renderSelectedInternalBonds() const = 0;
+  virtual std::vector<RKInPerInstanceAttributesBonds> renderSelectedExternalBonds() const = 0;
 
   virtual std::vector<RKInPerInstanceAttributesAtoms> renderUnitCellSpheres() const = 0;
   virtual std::vector<RKInPerInstanceAttributesBonds> renderUnitCellCylinders() const = 0;
@@ -187,6 +189,8 @@ public:
 
   virtual bool hasExternalBonds() const = 0;
 
+  virtual bool isUnity() const = 0;
+
   virtual double atomHue() const = 0;
   virtual double atomSaturation() const = 0;
   virtual double atomValue() const = 0;
@@ -203,8 +207,6 @@ public:
 
   virtual bool atomHDR() const = 0;
   virtual double atomHDRExposure() const = 0;
-  virtual double atomHDRBloomLevel() const = 0;
-
 
   virtual bool bondAmbientOcclusion() const = 0;
   virtual QColor bondAmbientColor() const = 0;
@@ -220,11 +222,18 @@ public:
 
   virtual bool bondHDR() const = 0;
   virtual double bondHDRExposure() const = 0;
-  virtual double bondHDRBloomLevel() const = 0;
 
   virtual double bondHue() const = 0;
   virtual double bondSaturation() const = 0;
   virtual double bondValue() const = 0;
+
+  virtual RKSelectionStyle bondSelectionStyle() const = 0;
+  virtual double bondSelectionStripesDensity() const = 0;
+  virtual double bondSelectionStripesFrequency() const = 0;
+  virtual double bondSelectionWorleyNoise3DFrequency() const = 0;
+  virtual double bondSelectionWorleyNoise3DJitter() const = 0;
+  virtual double bondSelectionIntensity() const = 0;
+  virtual double bondSelectionScaling() const = 0;
 
   // unit cell
   virtual double unitCellScaleFactor() const = 0;
@@ -266,6 +275,108 @@ public:
   virtual double2 frameworkProbeParameters() const = 0;
   virtual void setStructureHeliumVoidFraction(double value) = 0;
   virtual void setStructureNitrogenSurfaceArea(double value) = 0;
+};
+
+class RKRenderPrimitiveSphereObjectsSource
+{
+public:
+  virtual std::vector<RKInPerInstanceAttributesAtoms> renderPrimitiveObjects() const = 0;
+  virtual simd_quatd primitiveOrientation() const = 0;
+  virtual double3x3 primitiveTransformationMatrix() const = 0;
+
+  virtual double primitiveOpacity() const = 0;
+  virtual bool primitiveIsCapped() const = 0;
+  virtual bool primitiveIsFractional() const = 0;
+  virtual int primitiveNumberOfSides() const = 0;
+  virtual double primitiveThickness() const = 0;
+
+  virtual bool primitiveFrontSideHDR() const = 0;
+  virtual double primitiveFrontSideHDRExposure() const = 0;
+  virtual QColor primitiveFrontSideAmbientColor() const = 0;
+  virtual QColor primitiveFrontSideDiffuseColor() const = 0;
+  virtual QColor primitiveFrontSideSpecularColor() const = 0;
+  virtual double primitiveFrontSideDiffuseIntensity() const = 0;
+  virtual double primitiveFrontSideAmbientIntensity() const = 0;
+  virtual double primitiveFrontSideSpecularIntensity() const = 0;
+  virtual double primitiveFrontSideShininess() const = 0;
+
+  virtual bool primitiveBackSideHDR() const = 0;
+  virtual double primitiveBackSideHDRExposure() const = 0;
+  virtual QColor primitiveBackSideAmbientColor() const = 0;
+  virtual QColor primitiveBackSideDiffuseColor() const = 0;
+  virtual QColor primitiveBackSideSpecularColor() const = 0;
+  virtual double primitiveBackSideDiffuseIntensity() const = 0;
+  virtual double primitiveBackSideAmbientIntensity() const = 0;
+  virtual double primitiveBackSideSpecularIntensity() const = 0;
+  virtual double primitiveBackSideShininess() const = 0;
+};
+
+class RKRenderPrimitiveCylinderObjectsSource
+{
+public:
+  virtual std::vector<RKInPerInstanceAttributesAtoms> renderPrimitiveObjects() const = 0;
+  virtual simd_quatd primitiveOrientation() const = 0;
+  virtual double3x3 primitiveTransformationMatrix() const = 0;
+
+  virtual double primitiveOpacity() const = 0;
+  virtual bool primitiveIsCapped() const = 0;
+  virtual bool primitiveIsFractional() const = 0;
+  virtual int primitiveNumberOfSides() const = 0;
+  virtual double primitiveThickness() const = 0;
+
+  virtual bool primitiveFrontSideHDR() const = 0;
+  virtual double primitiveFrontSideHDRExposure() const = 0;
+  virtual QColor primitiveFrontSideAmbientColor() const = 0;
+  virtual QColor primitiveFrontSideDiffuseColor() const = 0;
+  virtual QColor primitiveFrontSideSpecularColor() const = 0;
+  virtual double primitiveFrontSideDiffuseIntensity() const = 0;
+  virtual double primitiveFrontSideAmbientIntensity() const = 0;
+  virtual double primitiveFrontSideSpecularIntensity() const = 0;
+  virtual double primitiveFrontSideShininess() const = 0;
+
+  virtual bool primitiveBackSideHDR() const = 0;
+  virtual double primitiveBackSideHDRExposure() const = 0;
+  virtual QColor primitiveBackSideAmbientColor() const = 0;
+  virtual QColor primitiveBackSideDiffuseColor() const = 0;
+  virtual QColor primitiveBackSideSpecularColor() const = 0;
+  virtual double primitiveBackSideDiffuseIntensity() const = 0;
+  virtual double primitiveBackSideAmbientIntensity() const = 0;
+  virtual double primitiveBackSideSpecularIntensity() const = 0;
+  virtual double primitiveBackSideShininess() const = 0;
+};
+
+class RKRenderPrimitivePolygonalPrimsObjectsSource
+{
+public:
+  virtual std::vector<RKInPerInstanceAttributesAtoms> renderPrimitiveObjects() const = 0;
+  virtual simd_quatd primitiveOrientation() const = 0;
+  virtual double3x3 primitiveTransformationMatrix() const = 0;
+
+  virtual double primitiveOpacity() const = 0;
+  virtual bool primitiveIsCapped() const = 0;
+  virtual bool primitiveIsFractional() const = 0;
+  virtual int primitiveNumberOfSides() const = 0;
+  virtual double primitiveThickness() const = 0;
+
+  virtual bool primitiveFrontSideHDR() const = 0;
+  virtual double primitiveFrontSideHDRExposure() const = 0;
+  virtual QColor primitiveFrontSideAmbientColor() const = 0;
+  virtual QColor primitiveFrontSideDiffuseColor() const = 0;
+  virtual QColor primitiveFrontSideSpecularColor() const = 0;
+  virtual double primitiveFrontSideDiffuseIntensity() const = 0;
+  virtual double primitiveFrontSideAmbientIntensity() const = 0;
+  virtual double primitiveFrontSideSpecularIntensity() const = 0;
+  virtual double primitiveFrontSideShininess() const = 0;
+
+  virtual bool primitiveBackSideHDR() const = 0;
+  virtual double primitiveBackSideHDRExposure() const = 0;
+  virtual QColor primitiveBackSideAmbientColor() const = 0;
+  virtual QColor primitiveBackSideDiffuseColor() const = 0;
+  virtual QColor primitiveBackSideSpecularColor() const = 0;
+  virtual double primitiveBackSideDiffuseIntensity() const = 0;
+  virtual double primitiveBackSideAmbientIntensity() const = 0;
+  virtual double primitiveBackSideSpecularIntensity() const = 0;
+  virtual double primitiveBackSideShininess() const = 0;
 };
 
 class RKRenderDataSource

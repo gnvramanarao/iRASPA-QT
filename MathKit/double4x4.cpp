@@ -28,7 +28,7 @@
  *************************************************************************************************************/
 
 #include "double4x4.h"
-#include <math.h>
+#include <cmath>
 #include "double3x3.h"
 
 #include <iostream>
@@ -99,7 +99,7 @@ bool double4x4::operator!=(const double4x4& b) const
 }
 
 
-double4x4 double4x4::transpose(void)
+double4x4 const double4x4::transpose(void)
 {
   double4x4 res;
 

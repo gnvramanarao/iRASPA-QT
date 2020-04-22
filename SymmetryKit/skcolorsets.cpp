@@ -30,8 +30,8 @@
 #include "skcolorsets.h"
 #include <iostream>
 
-SKColorSets::SKColorSets(): _colorSets{SKColorSet(ColorScheme::jmol), SKColorSet(ColorScheme::rasmol_modern),
-                                       SKColorSet(ColorScheme::rasmol),SKColorSet(ColorScheme::vesta)}
+SKColorSets::SKColorSets(): _colorSets{SKColorSet(SKColorSet::ColorScheme::jmol), SKColorSet(SKColorSet::ColorScheme::rasmol_modern),
+                                       SKColorSet(SKColorSet::ColorScheme::rasmol),SKColorSet(SKColorSet::ColorScheme::vesta)}
 {
 
 }

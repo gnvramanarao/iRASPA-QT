@@ -28,8 +28,9 @@
  *************************************************************************************************************/
 
 #include "cameratreewidgetcontroller.h"
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <iostream>
-#include <math.h>
 #include <QLabel>
 #include <QPixmap>
 #include <mathkit.h>
@@ -248,7 +249,6 @@ CameraTreeWidgetController::CameraTreeWidgetController(QWidget* parent): QTreeWi
 
   _cameraBackgroundForm->radialGradientRoundnessDoubleSlider->setDoubleMinimum(0.0);
   _cameraBackgroundForm->radialGradientRoundnessDoubleSlider->setDoubleMaximum(5.0);
-
 }
 
 void CameraTreeWidgetController::setMainWindow(MainWindow *mainWindow)
@@ -277,7 +277,6 @@ void CameraTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode> pro
       }
     }
   }
-  std::cout << "Set: " <<_project << std::endl;
 }
 
 void CameraTreeWidgetController::expandCameraItem()
@@ -1276,9 +1275,9 @@ void CameraTreeWidgetController::setBackgroundColor()
   }
 }
 
-stdx::optional<QColor> CameraTreeWidgetController::backgroundColor()
+std::optional<QColor> CameraTreeWidgetController::backgroundColor()
 {
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void CameraTreeWidgetController::setLinearGradientFromColor()

@@ -33,7 +33,7 @@
 #include <memory>
 #include <functional>
 #include <QDataStream>
-#include "optional.h"
+#include <optional>
 #include <foundationkit.h>
 #include "skasymmetricatom.h"
 
@@ -78,7 +78,7 @@ public:
     void updateFilteredChildren(std::function<bool(std::shared_ptr<SKAtomTreeNode>)> predicate);
     void updateFilteredChildrenRecursively(std::function<bool(std::shared_ptr<SKAtomTreeNode>)> predicate);
     void setFilteredNodesAsMatching();
-    stdx::optional<int> findChildIndex(std::shared_ptr<SKAtomTreeNode> child);
+    std::optional<int> findChildIndex(std::shared_ptr<SKAtomTreeNode> child);
     int row() const;
     void setParent(std::shared_ptr<SKAtomTreeNode> parent) {_parent = parent;}
     void setGroupItem(bool state) {_isGroup = state;}

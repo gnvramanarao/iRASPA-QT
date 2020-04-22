@@ -94,7 +94,7 @@ Scene::Scene(QUrl url, const SKColorSets& colorSets, ForceFieldSets& forcefieldS
 		{
 			std::shared_ptr<Crystal> crystal = std::make_shared<Crystal>(std::get<0>(frame));
 
-			crystal->setRepresentationStyle(RepresentationStyle::defaultStyle, colorSets);
+            crystal->setRepresentationStyle(Structure::RepresentationStyle::defaultStyle, colorSets);
 			crystal->setAtomForceFieldIdentifier("Default", forcefieldSets);
 			//crystal->recheckRepresentationStyle();
 
@@ -137,7 +137,7 @@ Scene::Scene(QUrl url, const SKColorSets& colorSets, ForceFieldSets& forcefieldS
 }
 
 
-stdx::optional<int> Scene::selectMovieIndex()
+std::optional<int> Scene::selectMovieIndex()
 {
   std::vector<std::shared_ptr<Movie>>::const_iterator itr = std::find(_movies.begin(), _movies.end(), selectedMovie());
   if (itr != _movies.end())
@@ -146,11 +146,11 @@ stdx::optional<int> Scene::selectMovieIndex()
     return row;
   }
 
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 
-stdx::optional<int> Scene::findChildIndex(std::shared_ptr<Movie> movie)
+std::optional<int> Scene::findChildIndex(std::shared_ptr<Movie> movie)
 {
   std::vector<std::shared_ptr<Movie>>::const_iterator itr = std::find(_movies.begin(), _movies.end(), movie);
   if (itr != _movies.end())
@@ -159,7 +159,7 @@ stdx::optional<int> Scene::findChildIndex(std::shared_ptr<Movie> movie)
     return row;
   }
 
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<Scene> &scene)

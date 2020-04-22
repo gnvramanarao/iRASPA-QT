@@ -64,7 +64,7 @@ GLuint OpenGLShader::compileShaderOfType(GLenum shaderType,const GLchar * shader
     std::vector<char> errorLog(maxLength);
     glGetShaderInfoLog(shader, maxLength, &maxLength, errorLog.data());
     std::string log;
-    for (int i = 0; i < errorLog.size(); i++)
+    for (size_t i = 0; i < errorLog.size(); i++)
     {
       log += errorLog[i];
     }

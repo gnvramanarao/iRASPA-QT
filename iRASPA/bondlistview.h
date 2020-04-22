@@ -41,6 +41,9 @@
 #include <iraspakit.h>
 #include "bondlistviewmodel.h"
 #include "iraspamainwindowconsumerprotocol.h"
+#include "bondlistpushbuttonstyleditemdelegate.h"
+#include "bondlistviewcomboboxstyleditemdelegate.h"
+#include "bondlistviewsliderstyleditemdelegate.h"
 
 class BondListView: public QTreeView, public MainWindowConsumer, public Reloadable
 {
@@ -59,6 +62,11 @@ private:
   std::shared_ptr<BondListViewModel> _model;
   std::shared_ptr<ProjectStructure> _structure;
   std::shared_ptr<SKBondSetController> _controller;
+  BondListPushButtonStyledItemDelegate *pushButtonDelegate;
+  BondListViewComboBoxStyledItemDelegate *comboBoxDelegate;
+  BondListViewSliderStyledItemDelegate *sliderDelegate;
 public slots:
   void setBondListModel(const QModelIndex &current, const QModelIndex &previous);
+signals:
+  void rendererReloadData();
 };

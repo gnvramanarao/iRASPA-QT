@@ -33,9 +33,10 @@
 
 class bool3
 {
+  public:
   double b[3];
   struct {bool x, y, z;};
-public:
+
   bool3();
   bool3(bool x, bool y, bool z): x(x), y(y), z(z) {};
 

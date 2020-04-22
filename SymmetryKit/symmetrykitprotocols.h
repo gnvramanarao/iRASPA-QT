@@ -36,4 +36,5 @@
 struct DisplayableProtocol
 {
   virtual QString displayName() const = 0;
+  virtual ~DisplayableProtocol() = 0;
 };

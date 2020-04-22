@@ -30,6 +30,7 @@
 #include "projectstructure.h"
 #include <cfloat>
 #include <QSize>
+#include <array>
 
 ProjectStructure::ProjectStructure(): _camera(std::make_shared<RKCamera>())
 {
@@ -557,17 +558,54 @@ void ProjectStructure::loadBackgroundImage(QString filename)
 
 bool ProjectStructure::showBoundingBox() const
 {
-  return false;
+  return _showBoundingBox;
 }
 
 std::vector<RKInPerInstanceAttributesAtoms> ProjectStructure::renderBoundingBoxSpheres() const
 {
-  return std::vector<RKInPerInstanceAttributesAtoms>();
+  std::vector<RKInPerInstanceAttributesAtoms> data;
+
+  double3 boundingBoxWidths = renderBoundingBox().widths();
+  std::array<double3,8> corners = renderBoundingBox().corners();
+
+  double scale = 0.0025 * std::max({boundingBoxWidths.x,boundingBoxWidths.y,boundingBoxWidths.z});
+  for(double3 corner: corners)
+  {
+    RKInPerInstanceAttributesAtoms sphere = RKInPerInstanceAttributesAtoms(
+                float4(corner.x,corner.y,corner.z,1.0),
+                float4(1.0,1.0,1.0,1.0),
+                float4(1.0,1.0,1.0,1.0),
+                float4(1.0,1.0,1.0,1.0),
+                float4(scale,scale,scale,1.0),
+                0);
+
+    data.push_back(sphere);
+  }
+  return data;
 }
 
 std::vector<RKInPerInstanceAttributesBonds> ProjectStructure::renderBoundingBoxCylinders() const
 {
-  return std::vector<RKInPerInstanceAttributesBonds>();
+  std::vector<RKInPerInstanceAttributesBonds> data;
+
+  double3 boundingBoxWidths = renderBoundingBox().widths();
+  std::array<std::pair<double3,double3>,12> sides = renderBoundingBox().sides();
+
+  double scale = 0.0025 * std::max({boundingBoxWidths.x,boundingBoxWidths.y,boundingBoxWidths.z});
+  for(std::pair<double3,double3> side: sides)
+  {
+    RKInPerInstanceAttributesBonds bondData = RKInPerInstanceAttributesBonds(
+                float4(side.first,1.0),
+                float4(side.second,1.0),
+                float4(1.0,1.0,1.0,1.0),
+                float4(1.0,1.0,1.0,1.0),
+                float4(scale,1.0,scale,1.0),
+                0,
+                0);
+    data.push_back(bondData);
+  }
+
+  return data;
 }
 
 double ProjectStructure::imageDotsPerInchValue()
@@ -595,7 +633,7 @@ QDataStream &operator<<(QDataStream& stream, const std::shared_ptr<ProjectStruct
 
   stream << node->_showBoundingBox;
 
-  stream << node->_backgroundType;
+  stream << static_cast<typename std::underlying_type<RKBackgroundType>::type>(node->_backgroundType);
 
   // save picture in PNG format
   QByteArray imageByteArray;
@@ -616,10 +654,10 @@ QDataStream &operator<<(QDataStream& stream, const std::shared_ptr<ProjectStruct
   stream << node->_renderImagePhysicalSizeInInches;
   stream << node->_renderImageNumberOfPixels;
   stream << node->_aspectRatio;
-  stream << node->_imageDPI;
-  stream << node->_imageUnits;
-  stream << node->_imageDimensions;
-  stream << node->_renderImageQuality;
+  stream << static_cast<typename std::underlying_type<RKImageDPI>::type>(node->_imageDPI);
+  stream << static_cast<typename std::underlying_type<RKImageUnits>::type>(node->_imageUnits);
+  stream << static_cast<typename std::underlying_type<RKImageDimensions>::type>(node->_imageDimensions);
+  stream << static_cast<typename std::underlying_type<RKImageQuality>::type>(node->_renderImageQuality);
   stream << node->_movieFramesPerSecond;
 
   stream << node->_camera;
@@ -638,7 +676,9 @@ QDataStream &operator>>(QDataStream& stream, std::shared_ptr<ProjectStructure>& 
   }
 
   stream >> node->_showBoundingBox;
-  stream >> node->_backgroundType;
+  qint64 backgroundType;
+  stream >> backgroundType;
+  node->_backgroundType = RKBackgroundType(backgroundType);
 
   // read picture in PNG-format
   QByteArray imageByteArray;
@@ -659,10 +699,18 @@ QDataStream &operator>>(QDataStream& stream, std::shared_ptr<ProjectStructure>& 
   stream >> node->_renderImagePhysicalSizeInInches;
   stream >> node->_renderImageNumberOfPixels;
   stream >> node->_aspectRatio;
-  stream >> node->_imageDPI;
-  stream >> node->_imageUnits;
-  stream >> node->_imageDimensions;
-  stream >> node->_renderImageQuality;
+  qint64 imageDPI;
+  stream >> imageDPI;
+  node->_imageDPI = RKImageDPI(imageDPI);
+  qint64 imageUnits;
+  stream >> imageUnits;
+  node->_imageUnits = RKImageUnits(imageUnits);
+  qint64 imageDimensions;
+  stream >> imageDimensions;
+  node->_imageDimensions = RKImageDimensions(imageDimensions);
+  qint64 renderImageQuality;
+  stream >> renderImageQuality;
+  node->_renderImageQuality = RKImageQuality(renderImageQuality);
 
   stream >> node->_movieFramesPerSecond;
 

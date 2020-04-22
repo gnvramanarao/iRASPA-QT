@@ -45,16 +45,124 @@ Structure::Structure(std::shared_ptr<SKAtomTreeController> atomTreeController): 
 
 }
 
+// MARK: Rendering
+// =====================================================================
+
+std::vector<RKInPerInstanceAttributesAtoms> Structure::renderAtoms() const
+{
+  return std::vector<RKInPerInstanceAttributesAtoms>();
+}
+
+std::vector<RKInPerInstanceAttributesBonds> Structure::renderInternalBonds() const
+{
+  return std::vector<RKInPerInstanceAttributesBonds>();
+}
+
+std::vector<RKInPerInstanceAttributesBonds> Structure::renderExternalBonds() const
+{
+  return std::vector<RKInPerInstanceAttributesBonds>();
+}
+
+std::vector<RKInPerInstanceAttributesAtoms> Structure::renderUnitCellSpheres() const
+{
+  return std::vector<RKInPerInstanceAttributesAtoms>();
+}
+
+std::vector<RKInPerInstanceAttributesBonds> Structure::renderUnitCellCylinders() const
+{
+  return std::vector<RKInPerInstanceAttributesBonds>();
+}
+
+// MARK: Rendering selection
+// =====================================================================
+
+std::vector<RKInPerInstanceAttributesAtoms> Structure::renderSelectedAtoms() const
+{
+  return std::vector<RKInPerInstanceAttributesAtoms>();
+}
+
+std::vector<RKInPerInstanceAttributesBonds> Structure::renderSelectedInternalBonds() const
+{
+  return std::vector<RKInPerInstanceAttributesBonds>();
+}
+
+std::vector<RKInPerInstanceAttributesBonds> Structure::renderSelectedExternalBonds() const
+{
+  return std::vector<RKInPerInstanceAttributesBonds>();
+}
+
+
+// MARK: Filtering
+// =====================================================================
+
+std::set<int> Structure::filterCartesianAtomPositions(std::function<bool(double3)> &)
+{
+  return std::set<int>();
+};
+
+std::set<int> Structure::filterCartesianBondPositions(std::function<bool(double3)> &)
+{
+  return std::set<int>();
+};
+
+
+// MARK: Bounding box
+// =====================================================================
+
+SKBoundingBox Structure::boundingBox() const
+{
+  return SKBoundingBox();
+}
+
+SKBoundingBox Structure::transformedBoundingBox() const
+{
+  SKBoundingBox currentBoundingBox = this->_cell->boundingBox();
+
+  double4x4 rotationMatrix = double4x4::AffinityMatrixToTransformationAroundArbitraryPoint(double4x4(_orientation), currentBoundingBox.center());
+  SKBoundingBox transformedBoundingBox = currentBoundingBox.adjustForTransformation(rotationMatrix);
+
+  return transformedBoundingBox;
+}
+
+void Structure::reComputeBoundingBox()
+{
+  SKBoundingBox boundingBox = this->boundingBox();
+
+  // store in the cell datastructure
+  _cell->setBoundingBox(boundingBox);
+}
+
+// MARK: Symmetry
+// =====================================================================
+
+void Structure::expandSymmetry()
+{
+}
+
+// MARK: bond-computations
+// =====================================================================
+
+double Structure::bondLength(std::shared_ptr<SKBond> bond) const
+{
+  Q_UNUSED(bond);
+  return 0.0;
+}
+
+double3 Structure::bondVector(std::shared_ptr<SKBond> bond) const
+{
+  return double3();
+}
+
+std::pair<double3, double3> Structure::computeChangedBondLength(std::shared_ptr<SKBond>, double) const
+{
+  return std::pair<double3, double3>();
+}
+
 bool Structure::colorAtomsWithBondColor() const
 {
   return _atomRepresentationType == RepresentationType::unity && _bondColorMode == RKBondColorMode::uniform;
 }
 
-void Structure::reComputeBoundingBox()
-{
-  SKBoundingBox b = boundingBox();
-  _cell->setBoundingBox(b);
-}
 
 void Structure::setAtomScaleFactor(double size)
 {
@@ -150,6 +258,7 @@ void Structure::setRepresentationStyle(RepresentationStyle style)
 		{
 		case RepresentationStyle::defaultStyle:
 			_drawAtoms = true;
+      _atomAmbientOcclusion = false;
 			_atomScaleFactor = 0.7;
 			_atomHue = 1.0;
 			_atomSaturation = 1.0;
@@ -158,20 +267,18 @@ void Structure::setRepresentationStyle(RepresentationStyle style)
 			_atomSpecularColor = QColor(255, 255, 255, 255);
 			_atomHDR = true;
 			_atomHDRExposure = 1.5;
-			_atomAmbientOcclusion = false;
-			_bondAmbientOcclusion = false;
 			_atomAmbientIntensity = 0.2;
 			_atomDiffuseIntensity = 1.0;
 			_atomSpecularIntensity = 1.0;
 			_atomShininess = 6.0;
-
 			_atomForceFieldIdentifier = QString("Default");
 			_atomColorSchemeIdentifier = QString("Jmol");
-			_atomColorSchemeOrder = ColorSchemeOrder::elementOnly;
+      _atomColorSchemeOrder = SKColorSet::ColorSchemeOrder::elementOnly;
 
 			_drawBonds = true;
+      _bondAmbientOcclusion = false;
 			_bondColorMode = RKBondColorMode::uniform;;
-            _bondScaleFactor = 0.15;
+      _bondScaleFactor = 0.15;
 			_bondAmbientColor = QColor(255, 255, 255, 255);
 			_bondDiffuseColor = QColor(205, 205, 205, 255);
 			_bondSpecularColor = QColor(255, 255, 255, 255);
@@ -181,20 +288,29 @@ void Structure::setRepresentationStyle(RepresentationStyle style)
 			_bondShininess = 4.0;
 			_bondHDR = true;
 			_bondHDRExposure = 1.5;
-			_bondHDRBloomLevel = 1.0;
+      _bondSelectionIntensity = 1.0;
 			_bondHue = 1.0;
 			_bondSaturation = 1.0;
 			_bondValue = 1.0;
-			_bondAmbientOcclusion = false;
 
-			_atomSelectionStyle = RKSelectionStyle::WorleyNoise3D;
-			_selectionScaling = 1.2;
+      _atomSelectionStyle = RKSelectionStyle::striped;
+      _atomSelectionScaling = 1.0;
+      _atomSelectionIntensity = 0.7;
+      _atomSelectionStripesDensity = 0.25;
+      _atomSelectionStripesFrequency = 12.0;
+
+      _bondSelectionStyle = RKSelectionStyle::striped;
+      _bondSelectionScaling = 1.0;
+      _bondSelectionIntensity = 0.7;
+      _bondSelectionStripesDensity = 0.25;
+      _bondSelectionStripesFrequency = 12.0;
 
 			setRepresentationType(RepresentationType::sticks_and_balls);
 
 			break;
 		case RepresentationStyle::fancy:
 			_drawAtoms = true;
+      _atomAmbientOcclusion = true;
 			_atomScaleFactor = 1.0;
 			_atomHue = 1.0;
 			_atomSaturation = 0.5;
@@ -202,51 +318,55 @@ void Structure::setRepresentationStyle(RepresentationStyle style)
 			_atomAmbientColor = QColor(255, 255, 255, 255);
 			_atomSpecularColor = QColor(255, 255, 255, 255);
 			_atomHDR = false;
-			_atomHDRExposure = 1.5;
-			_atomAmbientOcclusion = true;
-			_bondAmbientOcclusion = false;
 			_atomAmbientIntensity = 1.0;
 			_atomDiffuseIntensity = 0.0;
 			_atomSpecularIntensity = 0.2;
-			_atomShininess = 6.0;
+      _atomShininess = 4.0;
 			_atomScaleFactor = 1.0;
-
 			_atomForceFieldIdentifier = QString("Default");
 			_atomColorSchemeIdentifier = QString("Rasmol");
-			_atomColorSchemeOrder = ColorSchemeOrder::elementOnly;
+      _atomColorSchemeOrder = SKColorSet::ColorSchemeOrder::elementOnly;
 
 			_drawBonds = false;
 			_bondAmbientOcclusion = false;
 
-			_atomSelectionStyle = RKSelectionStyle::WorleyNoise3D;
-			_selectionScaling = 1.0;
+      _atomSelectionStyle = RKSelectionStyle::striped;
+      _atomSelectionScaling = 1.0;
+      _atomSelectionIntensity = 0.4;
+      _atomSelectionStripesDensity = 0.25;
+      _atomSelectionStripesFrequency = 12.0;
+
+      _bondSelectionStyle = RKSelectionStyle::striped;
+      _bondSelectionScaling = 1.0;
+      _bondSelectionIntensity = 0.4;
+      _bondSelectionStripesDensity = 0.25;
+      _bondSelectionStripesFrequency = 12.0;
 
 			setRepresentationType(RepresentationType::vdw);
 			break;
 		case RepresentationStyle::licorice:
-			_drawAtoms = true;
-			_atomScaleFactor = 1.0;
+      _drawAtoms = true;
+      _atomAmbientOcclusion = false;
 			_atomHue = 1.0;
 			_atomSaturation = 1.0;
 			_atomValue = 1.0;
 			_atomAmbientColor = QColor(255, 255, 255, 255);
 			_atomSpecularColor = QColor(255, 255, 255, 255);
-			_atomHDR = true;
-			_atomHDRExposure = 1.5;
-			_atomAmbientOcclusion = false;
-			_bondAmbientOcclusion = false;
-			_atomAmbientIntensity = 0.2;
+      _atomAmbientIntensity = 0.1;
 			_atomDiffuseIntensity = 1.0;
 			_atomSpecularIntensity = 1.0;
-			_atomShininess = 6.0;
-
+      _atomShininess = 4.0;
+      _atomHDR = true;
+      _atomHDRExposure = 1.5;
+      _atomScaleFactor = 1.0;
 			_atomForceFieldIdentifier = QString("Default");
 			_atomColorSchemeIdentifier = QString("Jmol");
-			_atomColorSchemeOrder = ColorSchemeOrder::elementOnly;
+      _atomColorSchemeOrder = SKColorSet::ColorSchemeOrder::elementOnly;
 
 			_drawBonds = true;
+      _bondAmbientOcclusion = false;
 			_bondColorMode = RKBondColorMode::split;;
-            _bondScaleFactor = 0.25;
+      _bondScaleFactor = 0.25;
 			_bondAmbientColor = QColor(255, 255, 255, 255);
 			_bondDiffuseColor = QColor(205, 205, 205, 255);
 			_bondSpecularColor = QColor(255, 255, 255, 255);
@@ -256,17 +376,28 @@ void Structure::setRepresentationStyle(RepresentationStyle style)
 			_bondShininess = 4.0;
 			_bondHDR = true;
 			_bondHDRExposure = 1.5;
-			_bondHDRBloomLevel = 1.0;
+      _bondSelectionIntensity = 1.0;
 			_bondHue = 1.0;
 			_bondSaturation = 1.0;
 			_bondValue = 1.0;
 			_bondAmbientOcclusion = false;
 
-			_atomSelectionStyle = RKSelectionStyle::WorleyNoise3D;
-			_selectionScaling = 1.5;
+      _atomSelectionStyle = RKSelectionStyle::striped;
+      _atomSelectionScaling = 1.0;
+      _atomSelectionIntensity = 0.8;
+      _atomSelectionStripesDensity = 0.25;
+      _atomSelectionStripesFrequency = 12.0;
+
+      _bondSelectionStyle = RKSelectionStyle::striped;
+      _bondSelectionScaling = 1.0;
+      _bondSelectionIntensity = 0.8;
+      _bondSelectionStripesDensity = 0.25;
+      _bondSelectionStripesFrequency = 12.0;
 
 			setRepresentationType(RepresentationType::unity);
 			break;
+    case RepresentationStyle::objects:
+      break;
 		case RepresentationStyle::multiple_values:
 			break;
 		default:
@@ -292,7 +423,7 @@ void Structure::setRepresentationStyle(RepresentationStyle style)
 				atom->setDrawRadius(radius);
 				break;
 			case RepresentationType::unity:
-                atom->setDrawRadius(_bondScaleFactor);
+        atom->setDrawRadius(_bondScaleFactor);
 				break;
 			default:
 				break;
@@ -347,7 +478,7 @@ void Structure::recheckRepresentationStyle()
      (_atomRepresentationType == RepresentationType::sticks_and_balls) &&
      (QString::compare(_atomForceFieldIdentifier, "Default", Qt::CaseInsensitive) == 0) &&
      (QString::compare(_atomColorSchemeIdentifier, "Jmol", Qt::CaseInsensitive) == 0) &&
-     (_atomColorSchemeOrder == ColorSchemeOrder::elementOnly) &&
+     (_atomColorSchemeOrder == SKColorSet::ColorSchemeOrder::elementOnly) &&
      (_drawBonds == true) &&
      (_bondColorMode == RKBondColorMode::uniform) &&
      (fabs(_bondScaleFactor - 0.15) < 1e-4) &&
@@ -374,7 +505,7 @@ void Structure::recheckRepresentationStyle()
      (fabs(_bondSaturation - 1.0) < 1e-4) &&
      (fabs(_bondValue - 1.0) < 1e-4)  &&
      (_atomSelectionStyle == RKSelectionStyle::WorleyNoise3D) &&
-     (fabs(_selectionScaling - 1.2) < 1e-4))
+     (fabs(_atomSelectionScaling - 1.2) < 1e-4))
      {
        qDebug() << "FOUND DEFAULT";
        _atomRepresentationStyle = RepresentationStyle::defaultStyle;
@@ -402,9 +533,9 @@ void Structure::recheckRepresentationStyle()
      (_atomRepresentationType == RepresentationType::vdw) &&
      (QString::compare(_atomForceFieldIdentifier, "Default", Qt::CaseInsensitive) == 0) &&
      (QString::compare(_atomColorSchemeIdentifier, "Rasmol", Qt::CaseInsensitive) == 0) &&
-     (_atomColorSchemeOrder == ColorSchemeOrder::elementOnly) &&
+     (_atomColorSchemeOrder == SKColorSet::ColorSchemeOrder::elementOnly) &&
      (_atomSelectionStyle == RKSelectionStyle::WorleyNoise3D) &&
-     (fabs(_selectionScaling - 1.0) < 1e-4))
+     (fabs(_atomSelectionScaling - 1.0) < 1e-4))
      {
        qDebug() << "FOUND FANCY";
        _atomRepresentationStyle = RepresentationStyle::fancy;
@@ -413,7 +544,7 @@ void Structure::recheckRepresentationStyle()
      (_atomRepresentationType == RepresentationType::unity) &&
      (QString::compare(_atomForceFieldIdentifier, "Default", Qt::CaseInsensitive) == 0) &&
      (QString::compare(_atomColorSchemeIdentifier, "Jmol", Qt::CaseInsensitive) == 0) &&
-     (_atomColorSchemeOrder == ColorSchemeOrder::elementOnly) &&
+     (_atomColorSchemeOrder == SKColorSet::ColorSchemeOrder::elementOnly) &&
 		(fabs(_atomScaleFactor - 1.0) < 1e-4) &&
      (_drawBonds == true) &&
      (_bondColorMode == RKBondColorMode::split) &&
@@ -441,7 +572,7 @@ void Structure::recheckRepresentationStyle()
      (fabs(_bondSaturation - 1.0) < 1e-4) &&
      (fabs(_bondValue - 1.0) < 1e-4) &&
      (_atomSelectionStyle == RKSelectionStyle::WorleyNoise3D) &&
-     (fabs(_selectionScaling - 1.5) < 1e-4))
+     (fabs(_atomSelectionScaling - 1.5) < 1e-4))
      {
        qDebug() << "FOUND LICORICE";
        _atomRepresentationStyle = RepresentationStyle::licorice;
@@ -475,13 +606,17 @@ void Structure::setRepresentationType(RepresentationType type)
             radius = PredefinedElements::predefinedElements[atom->elementIdentifier()]._covalentRadius;
             atom->setDrawRadius(radius);
             _atomScaleFactor = 0.7;
+            _bondScaleFactor = 0.15;
             break;
           case RepresentationType::vdw:
             radius = PredefinedElements::predefinedElements[atom->elementIdentifier()]._VDWRadius;
             atom->setDrawRadius(radius);
             _atomScaleFactor = 1.0;
+            _bondScaleFactor = 0.15;
             break;
           case RepresentationType::unity:
+            _atomScaleFactor = 1.0;
+            _bondScaleFactor = 0.25;
             atom->setDrawRadius(_bondScaleFactor);
             break;
           default:
@@ -531,7 +666,7 @@ void Structure::updateForceField(ForceFieldSets &forceFieldSets)
 
     switch(_atomForceFieldOrder)
     {
-    case ForceFieldSchemeOrder::elementOnly:
+    case ForceFieldSet::ForceFieldSchemeOrder::elementOnly:
       for(std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
       {
         if(std::shared_ptr<SKAsymmetricAtom> atom = node->representedObject())
@@ -547,7 +682,7 @@ void Structure::updateForceField(ForceFieldSets &forceFieldSets)
         }
       }
       break;
-    case ForceFieldSchemeOrder::forceFieldFirst:
+    case ForceFieldSet::ForceFieldSchemeOrder::forceFieldFirst:
       for(std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
       {
         if(std::shared_ptr<SKAsymmetricAtom> atom = node->representedObject())
@@ -561,7 +696,7 @@ void Structure::updateForceField(ForceFieldSets &forceFieldSets)
         }
       }
       break;
-    case ForceFieldSchemeOrder::forceFieldOnly:
+    case ForceFieldSet::ForceFieldSchemeOrder::forceFieldOnly:
       for(std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
       {
         if(std::shared_ptr<SKAsymmetricAtom> atom = node->representedObject())
@@ -583,21 +718,22 @@ void Structure::updateForceField(ForceFieldSets &forceFieldSets)
   }
 }
 
-double Structure::renderSelectionFrequency() const
+double Structure::atomSelectionFrequency() const
 {
   switch(_atomSelectionStyle)
-  {
+  {  
   case RKSelectionStyle::WorleyNoise3D:
     return _atomSelectionWorleyNoise3DFrequency;
   case RKSelectionStyle::striped:
       return _atomSelectionStripesFrequency;
+  case RKSelectionStyle::None:
   case RKSelectionStyle::glow:
   case RKSelectionStyle::multiple_values:
      return 0.0;
   }
 }
 
-void Structure::setSelectionFrequency(double value)
+void Structure::setAtomSelectionFrequency(double value)
 {
   switch(_atomSelectionStyle)
   {
@@ -607,13 +743,14 @@ void Structure::setSelectionFrequency(double value)
   case RKSelectionStyle::striped:
     _atomSelectionStripesFrequency = value;
     break;
+  case RKSelectionStyle::None:
   case RKSelectionStyle::glow:
   case RKSelectionStyle::multiple_values:
     break;
   }
 }
 
-double Structure::renderSelectionDensity() const
+double Structure::atomSelectionDensity() const
 {
   switch(_atomSelectionStyle)
   {
@@ -621,12 +758,13 @@ double Structure::renderSelectionDensity() const
     return _atomSelectionWorleyNoise3DJitter;
   case RKSelectionStyle::striped:
     return _atomSelectionStripesDensity;
+  case RKSelectionStyle::None:
   case RKSelectionStyle::glow:
   case RKSelectionStyle::multiple_values:
     return 0.0;
   }
 }
-void Structure::setSelectionDensity(double value)
+void Structure::setAtomSelectionDensity(double value)
 {
   switch(_atomSelectionStyle)
   {
@@ -636,6 +774,7 @@ void Structure::setSelectionDensity(double value)
   case RKSelectionStyle::striped:
     _atomSelectionStripesDensity = value;
     break;
+  case RKSelectionStyle::None:
   case RKSelectionStyle::glow:
   case RKSelectionStyle::multiple_values:
     break;
@@ -645,36 +784,41 @@ void Structure::setSelectionDensity(double value)
 void  Structure::clearSelection()
 {
   _atomsTreeController->selectedTreeNodes().clear();
+  _bondSetController->selectedObjects().clear();
 }
 
-void Structure::setAtomSelection(int atomId)
+void Structure::setAtomSelection(int asymmetricAtomId)
 {
   _atomsTreeController->selectedTreeNodes().clear();
-  addAtomToSelection(atomId);
+  addAtomToSelection(asymmetricAtomId);
+}
+
+void Structure::setBondSelection(int asymmetricBondId)
+{
+  _bondSetController->selectedObjects().clear();
+  addBondToSelection(asymmetricBondId);
 }
 
 void Structure::addAtomToSelection(int atomId)
 {
   std::vector<std::shared_ptr<SKAtomTreeNode>> atomNodes = _atomsTreeController->flattenedLeafNodes();
 
-  std::vector<std::shared_ptr<SKAtomCopy>> atomCopies = _atomsTreeController->atomCopies();
-
-  std::shared_ptr<SKAtomCopy> selectedAtomCopy = atomCopies[atomId / _cell->numberOfReplicas()];
-  std::shared_ptr<SKAtomTreeNode> selectedAtom = atomNodes[selectedAtomCopy->asymmetricIndex()];
+  std::shared_ptr<SKAtomTreeNode> selectedAtom = atomNodes[atomId];
 
   _atomsTreeController->selectedTreeNodes().insert(selectedAtom);
 }
 
+void Structure::addBondToSelection(int asymmetricBondId)
+{
+  _bondSetController->selectedObjects().insert(asymmetricBondId);
+}
 
 
-void Structure::toggleAtomSelection(int atomId)
+void Structure::toggleAtomSelection(int asymmetricAtomId)
 {
   std::vector<std::shared_ptr<SKAtomTreeNode>> atomNodes = _atomsTreeController->flattenedLeafNodes();
 
-  std::vector<std::shared_ptr<SKAtomCopy>> atomCopies = _atomsTreeController->atomCopies();
-
-  std::shared_ptr<SKAtomCopy> selectedAtomCopy = atomCopies[atomId / _cell->numberOfReplicas()];
-  std::shared_ptr<SKAtomTreeNode> selectedAtom = atomNodes[selectedAtomCopy->asymmetricIndex()];
+  std::shared_ptr<SKAtomTreeNode> selectedAtom = atomNodes[asymmetricAtomId];
 
   std::unordered_set<std::shared_ptr<SKAtomTreeNode>>::const_iterator search = _atomsTreeController->selectedTreeNodes().find(selectedAtom);
   if (search != _atomsTreeController->selectedTreeNodes().end())
@@ -687,13 +831,26 @@ void Structure::toggleAtomSelection(int atomId)
   }
 }
 
-void Structure::setAtomSelection(std::vector<int>& atomIds)
+void Structure::toggleBondSelection(int asymmetricBondId)
+{
+  std::set<int>::const_iterator search = _bondSetController->selectedObjects().find(asymmetricBondId);
+  if (search != _bondSetController->selectedObjects().end())
+  {
+    _bondSetController->selectedObjects().erase(*search);
+  }
+  else
+  {
+    _bondSetController->selectedObjects().insert(asymmetricBondId);
+  }
+}
+
+void Structure::setAtomSelection(std::set<int>& atomIds)
 {
   _atomsTreeController->selectedTreeNodes().clear();
   addToAtomSelection(atomIds);
 }
 
-void Structure::addToAtomSelection(std::vector<int>& atomIds)
+void Structure::addToAtomSelection(std::set<int>& atomIds)
 {
   std::vector<std::shared_ptr<SKAtomTreeNode>> atomNodes = _atomsTreeController->flattenedLeafNodes();
 
@@ -701,78 +858,12 @@ void Structure::addToAtomSelection(std::vector<int>& atomIds)
 
   for(int atomId: atomIds)
   {
-    std::shared_ptr<SKAtomCopy> selectedAtomCopy = atomCopies[atomId / _cell->numberOfReplicas()];
-    std::shared_ptr<SKAtomTreeNode> selectedAtom = atomNodes[selectedAtomCopy->asymmetricIndex()];
+    std::shared_ptr<SKAtomTreeNode> selectedAtom = atomNodes[atomId];
 
     _atomsTreeController->selectedTreeNodes().insert(selectedAtom);
   }
 }
 
-std::vector<RKInPerInstanceAttributesAtoms> Structure::renderSelectedAtoms() const
-{
-    int numberOfReplicas = _cell->numberOfReplicas();
-
-    int minimumReplicaX = _cell->minimumReplicaX();
-    int minimumReplicaY = _cell->minimumReplicaY();
-    int minimumReplicaZ = _cell->minimumReplicaZ();
-
-    int maximumReplicaX = _cell->maximumReplicaX();
-    int maximumReplicaY = _cell->maximumReplicaY();
-    int maximumReplicaZ = _cell->maximumReplicaZ();
-
-    std::unordered_set<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->selectedTreeNodes();
-    //std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
-
-    std::cout << "Number of selected atomas: " << asymmetricAtomNodes.size() << std::endl;
-
-    std::vector<RKInPerInstanceAttributesAtoms> atomData = std::vector<RKInPerInstanceAttributesAtoms>();
-
-
-    for(std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
-    {
-       if(std::shared_ptr<SKAsymmetricAtom> atom = node->representedObject())
-       {
-         for(std::shared_ptr<SKAtomCopy> copy : atom->copies())
-         {
-           if(copy->type() == SKAtomCopy::AtomCopyType::copy)
-           {
-             QColor color = atom->color();
-             double w = atom->isVisible() ? 1.0 : -1.0;
-             //std::cout << "here" << std::endl;
-             for(int k1=minimumReplicaX;k1<=maximumReplicaX;k1++)
-             {
-               for(int k2=minimumReplicaY;k2<=maximumReplicaY;k2++)
-               {
-                 for(int k3=minimumReplicaZ;k3<=maximumReplicaZ;k3++)
-                 {
-                   //std::cout << "position: " << copy->position() .x << "," << copy->position().y << ", " << copy->position().z << std::endl;
-
-                   float4 position = float4(_cell->unitCell() * (copy->position() + double3(k1,k2,k3)), w);
-
-                   float4 ambient = float4(color.redF(),color.greenF(),color.blueF(),color.alphaF());
-                   float4 diffuse = float4(color.redF(),color.greenF(),color.blueF(),color.alphaF());
-
-                   float4 specular = float4(1.0,1.0,1.0,1.0);
-                   double radius = atom->drawRadius() * atom->occupancy();
-                   float4 scale = float4(radius,radius,radius,1.0);
-
-                   //if(atom->occupancy()<1.0)
-                   //{
-                   //  diffuse = float4(1.0,1.0,1.0,1.0);
-                   //}
-
-                   RKInPerInstanceAttributesAtoms atom1 = RKInPerInstanceAttributesAtoms(position, ambient, diffuse, specular, scale);
-                   atomData.push_back(atom1);
-                 }
-               }
-             }
-           }
-         }
-       }
-    }
-
-    return atomData;
-}
 
 void Structure::setStructureNitrogenSurfaceArea(double value)
 {
@@ -841,25 +932,25 @@ QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<Structure> &s
   stream << structure->_primitiveBackSideSpecularIntensity;
   stream << structure->_primitiveBackSideShininess;
 
-  stream << structure->_structureProbeMolecule;
+  stream << static_cast<typename std::underlying_type<Structure::ProbeMolecule>::type>(structure->_structureProbeMolecule);
 
   stream << structure->_minimumGridEnergyValue;
 
   stream << structure->_atomsTreeController;
   stream << structure->_drawAtoms;
-  stream << structure->_atomRepresentationType;
-  stream << structure->_atomRepresentationStyle;
+  stream << static_cast<typename std::underlying_type<Structure::RepresentationType>::type>(structure->_atomRepresentationType);
+  stream << static_cast<typename std::underlying_type<Structure::RepresentationStyle>::type>(structure->_atomRepresentationStyle);
   stream << structure->_atomForceFieldIdentifier;
-  stream << structure->_atomForceFieldOrder;
+  stream << static_cast<typename std::underlying_type<ForceFieldSet::ForceFieldSchemeOrder>::type>(structure->_atomForceFieldOrder);
   stream << structure->_atomColorSchemeIdentifier;
-  stream << structure->_atomColorSchemeOrder;
+  stream << static_cast<typename std::underlying_type<SKColorSet::ColorSchemeOrder>::type>(structure->_atomColorSchemeOrder);
 
-  stream << structure->_atomSelectionStyle;
+  stream << static_cast<typename std::underlying_type<RKSelectionStyle>::type>(structure->_atomSelectionStyle);
   stream << structure->_atomSelectionStripesDensity;
   stream << structure->_atomSelectionStripesFrequency;
   stream << structure->_atomSelectionWorleyNoise3DFrequency;
   stream << structure->_atomSelectionWorleyNoise3DJitter;
-  stream << structure->_selectionScaling;
+  stream << structure->_atomSelectionScaling;
   stream << structure->_selectionIntensity;
 
   stream << structure->_atomHue;
@@ -874,7 +965,7 @@ QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<Structure> &s
 
   stream << structure->_atomHDR;
   stream << structure->_atomHDRExposure;
-  stream << structure->_atomHDRBloomLevel;
+  stream << structure->_atomSelectionIntensity;
 
   stream << structure->_atomAmbientColor;
   stream << structure->_atomDiffuseColor;
@@ -884,14 +975,14 @@ QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<Structure> &s
   stream << structure->_atomSpecularIntensity;
   stream << structure->_atomShininess;
 
-  stream << structure->_atomTextType;
+  stream << static_cast<typename std::underlying_type<RKTextType>::type>(structure->_atomTextType);
   stream << structure->_atomTextFont;
   stream << structure->_atomTextScaling;
   stream << structure->_atomTextColor;
   stream << structure->_atomTextGlowColor;
-  stream << structure->_atomTextStyle;
-  stream << structure->_atomTextEffect;
-  stream << structure->_atomTextAlignment;
+  stream << static_cast<typename std::underlying_type<RKTextStyle>::type>(structure->_atomTextStyle);
+  stream << static_cast<typename std::underlying_type<RKTextEffect>::type>(structure->_atomTextEffect);
+  stream << static_cast<typename std::underlying_type<RKTextAlignment>::type>(structure->_atomTextAlignment);
   stream << structure->_atomTextOffset;
 
 
@@ -899,7 +990,7 @@ QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<Structure> &s
 
   stream << structure->_drawBonds;
   stream << structure->_bondScaleFactor;
-  stream << structure->_bondColorMode;
+  stream << static_cast<typename std::underlying_type<RKBondColorMode>::type>(structure->_bondColorMode);
 
   stream << structure->_bondAmbientColor;
   stream << structure->_bondDiffuseColor;
@@ -911,7 +1002,14 @@ QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<Structure> &s
 
   stream << structure->_bondHDR;
   stream << structure->_bondHDRExposure;
-  stream << structure->_bondHDRBloomLevel;
+
+  stream << static_cast<typename std::underlying_type<RKSelectionStyle>::type>(structure->_bondSelectionStyle);
+  stream << structure->_bondSelectionStripesDensity;
+  stream << structure->_bondSelectionStripesFrequency;
+  stream << structure->_bondSelectionWorleyNoise3DFrequency;
+  stream << structure->_bondSelectionWorleyNoise3DJitter;
+  stream << structure->_bondSelectionScaling;
+  stream << structure->_bondSelectionIntensity;
 
   stream << structure->_bondHue;
   stream << structure->_bondSaturation;
@@ -933,7 +1031,7 @@ QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<Structure> &s
   stream << structure->_adsorptionSurfaceSize;
   stream << structure->_adsorptionSurfaceNumberOfTriangles;
 
-  stream << structure->_adsorptionSurfaceProbeMolecule;
+  stream << static_cast<typename std::underlying_type<Structure::ProbeMolecule>::type>(structure->_adsorptionSurfaceProbeMolecule);
 
   stream << structure->_adsorptionSurfaceFrontSideHDR;
   stream << structure->_adsorptionSurfaceFrontSideHDRExposure;
@@ -955,7 +1053,7 @@ QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<Structure> &s
   stream << structure->_adsorptionSurfaceBackSideSpecularIntensity;
   stream << structure->_adsorptionSurfaceBackSideShininess;
 
-  stream << structure->_structureType;
+  stream << static_cast<typename std::underlying_type<Structure::StructureType>::type>(structure->_structureType);
   stream << structure->_structureMaterialType;
   stream << structure->_structureMass;
   stream << structure->_structureDensity;
@@ -986,14 +1084,14 @@ QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<Structure> &s
   stream << uint16_t(structure->_creationDate.month());
   stream << uint32_t(structure->_creationDate.year());
   stream << structure->_creationTemperature;
-  stream << structure->_creationTemperatureScale;
+  stream << static_cast<typename std::underlying_type<Structure::TemperatureScale>::type>(structure->_creationTemperatureScale);
   stream << structure->_creationPressure;
-  stream << structure->_creationPressureScale;
-  stream << structure->_creationMethod;
-  stream << structure->_creationUnitCellRelaxationMethod;
+  stream << static_cast<typename std::underlying_type<Structure::PressureScale>::type>(structure->_creationPressureScale);
+  stream << static_cast<typename std::underlying_type<Structure::CreationMethod>::type>(structure->_creationMethod);
+  stream << static_cast<typename std::underlying_type<Structure::UnitCellRelaxationMethod>::type>(structure->_creationUnitCellRelaxationMethod);
   stream << structure->_creationAtomicPositionsSoftwarePackage;
-  stream << structure->_creationAtomicPositionsIonsRelaxationAlgorithm;
-  stream << structure->_creationAtomicPositionsIonsRelaxationCheck;
+  stream << static_cast<typename std::underlying_type<Structure::IonsRelaxationAlgorithm>::type>(structure->_creationAtomicPositionsIonsRelaxationAlgorithm);
+  stream << static_cast<typename std::underlying_type<Structure::IonsRelaxationCheck>::type>(structure->_creationAtomicPositionsIonsRelaxationCheck);
   stream << structure->_creationAtomicPositionsForcefield;
   stream << structure->_creationAtomicPositionsForcefieldDetails;
   stream << structure->_creationAtomicChargesSoftwarePackage;
@@ -1095,7 +1193,9 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<Structure> &structu
 
   if(versionNumber >= 3)
   {
-    stream >> structure->_structureProbeMolecule;
+    qint64 probeMolecule;
+    stream >> probeMolecule;
+    structure->_structureProbeMolecule = Structure::ProbeMolecule(probeMolecule);
   }
 
 
@@ -1104,19 +1204,29 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<Structure> &structu
   stream >> structure->_atomsTreeController;
   stream >> structure->_drawAtoms;
 
-  stream >> structure->_atomRepresentationType;
-  stream >> structure->_atomRepresentationStyle;
+  qint64 atomRepresentationType;
+  stream >> atomRepresentationType;
+  structure->_atomRepresentationType = Structure::RepresentationType(atomRepresentationType);
+  qint64 atomRepresentationStyle;
+  stream >> atomRepresentationStyle;
+  structure->_atomRepresentationStyle = Structure::RepresentationStyle(atomRepresentationStyle);
   stream >> structure->_atomForceFieldIdentifier;
-  stream >> structure->_atomForceFieldOrder;
+  qint64 atomForceFieldOrder;
+  stream >> atomForceFieldOrder;
+  structure->_atomForceFieldOrder = ForceFieldSet::ForceFieldSchemeOrder(atomForceFieldOrder);
   stream >> structure->_atomColorSchemeIdentifier;
-  stream >> structure->_atomColorSchemeOrder;
+  qint64 atomColorSchemeOrder;
+  stream >> atomColorSchemeOrder;
+  structure->_atomColorSchemeOrder = SKColorSet::ColorSchemeOrder(atomColorSchemeOrder);
 
-  stream >> structure->_atomSelectionStyle;
+  qint64 atomSelectionStyle;
+  stream >> atomSelectionStyle;
+  structure->_atomSelectionStyle = RKSelectionStyle(atomSelectionStyle);
   stream >> structure->_atomSelectionStripesDensity;
   stream >> structure->_atomSelectionStripesFrequency;
   stream >> structure->_atomSelectionWorleyNoise3DFrequency;
   stream >> structure->_atomSelectionWorleyNoise3DJitter;
-  stream >> structure->_selectionScaling;
+  stream >> structure->_atomSelectionScaling;
   stream >> structure->_selectionIntensity;
 
   stream >> structure->_atomHue;
@@ -1131,7 +1241,7 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<Structure> &structu
 
   stream >> structure->_atomHDR;
   stream >> structure->_atomHDRExposure;
-  stream >> structure->_atomHDRBloomLevel;
+  stream >> structure->_atomSelectionIntensity;
 
   stream >> structure->_atomAmbientColor;
   stream >> structure->_atomDiffuseColor;
@@ -1141,21 +1251,31 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<Structure> &structu
   stream >> structure->_atomSpecularIntensity;
   stream >> structure->_atomShininess;
 
-  stream >> structure->_atomTextType;
+  qint64 atomTextType;
+  stream >> atomTextType;
+  structure->_atomTextType = RKTextType(atomTextType);
   stream >> structure->_atomTextFont;
   stream >> structure->_atomTextScaling;
   stream >> structure->_atomTextColor;
   stream >> structure->_atomTextGlowColor;
-  stream >> structure->_atomTextStyle;
-  stream >> structure->_atomTextEffect;
-  stream >> structure->_atomTextAlignment;
+  qint64 atomTextStyle;
+  stream >> atomTextStyle;
+  structure->_atomTextStyle = RKTextStyle(atomTextStyle);
+  qint64 atomTextEffect;
+  stream >> atomTextEffect;
+  structure->_atomTextEffect = RKTextEffect(atomTextEffect);
+  qint64 atomTextAlignment;
+  stream >> atomTextAlignment;
+  structure->_atomTextAlignment = RKTextAlignment(atomTextAlignment);
   stream >> structure->_atomTextOffset;
 
   stream >> structure->_bondSetController;
 
   stream >> structure->_drawBonds;
   stream >> structure->_bondScaleFactor;
-  stream >> structure->_bondColorMode;
+  qint64 bondColorMode;
+  stream >> bondColorMode;
+  structure->_bondColorMode = RKBondColorMode(bondColorMode);
 
   stream >> structure->_bondAmbientColor;
   stream >> structure->_bondDiffuseColor;
@@ -1167,7 +1287,19 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<Structure> &structu
 
   stream >> structure->_bondHDR;
   stream >> structure->_bondHDRExposure;
-  stream >> structure->_bondHDRBloomLevel;
+
+  if(versionNumber >= 5) // introduced in version 5
+  {
+    qint64 bondSelectionStyle;
+    stream >> bondSelectionStyle;
+    structure->_bondSelectionStyle = RKSelectionStyle(bondSelectionStyle);
+    stream >> structure->_bondSelectionStripesDensity;
+    stream >> structure->_bondSelectionStripesFrequency;
+    stream >> structure->_bondSelectionWorleyNoise3DFrequency;
+    stream >> structure->_bondSelectionWorleyNoise3DJitter;
+    stream >> structure->_bondSelectionScaling;
+  }
+  stream >> structure->_bondSelectionIntensity;
 
   stream >> structure->_bondHue;
   stream >> structure->_bondSaturation;
@@ -1188,7 +1320,9 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<Structure> &structu
   stream >> structure->_adsorptionSurfaceSize;
   stream >> structure->_adsorptionSurfaceNumberOfTriangles;
 
-  stream >> structure->_adsorptionSurfaceProbeMolecule;
+  qint64 adsorptionSurfaceProbeMolecule;
+  stream >> adsorptionSurfaceProbeMolecule;
+  structure->_adsorptionSurfaceProbeMolecule = Structure::ProbeMolecule(adsorptionSurfaceProbeMolecule);
 
   stream >> structure->_adsorptionSurfaceFrontSideHDR;
   stream >> structure->_adsorptionSurfaceFrontSideHDRExposure;
@@ -1210,7 +1344,9 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<Structure> &structu
   stream >> structure->_adsorptionSurfaceBackSideSpecularIntensity;
   stream >> structure->_adsorptionSurfaceBackSideShininess;
 
-  stream >> structure->_structureType;
+  qint64 structureType;
+  stream >> structureType;
+  structure->_structureType = Structure::StructureType(structureType);
   stream >> structure->_structureMaterialType;
   stream >> structure->_structureMass;
   stream >> structure->_structureDensity;
@@ -1244,14 +1380,26 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<Structure> &structu
   stream >> year;
   structure->_creationDate = QDate(int(year),int(month),int(day));
   stream >> structure->_creationTemperature;
-  stream >> structure->_creationTemperatureScale;
+  qint64 creationTemperatureScale;
+  stream >> creationTemperatureScale;
+  structure->_creationTemperatureScale = Structure::TemperatureScale(creationTemperatureScale);
   stream >> structure->_creationPressure;
-  stream >> structure->_creationPressureScale;
-  stream >> structure->_creationMethod;
-  stream >> structure->_creationUnitCellRelaxationMethod;
+  qint64 creationPressureScale;
+  stream >> creationPressureScale;
+  structure->_creationPressureScale = Structure::PressureScale(creationPressureScale);
+  qint64 creationMethod;
+  stream >> creationMethod;
+  structure->_creationMethod = Structure::CreationMethod(creationMethod);
+  qint64 creationUnitCellRelaxationMethod;
+  stream >> creationUnitCellRelaxationMethod;
+  structure->_creationUnitCellRelaxationMethod = Structure::UnitCellRelaxationMethod(creationUnitCellRelaxationMethod);
   stream >> structure->_creationAtomicPositionsSoftwarePackage;
-  stream >> structure->_creationAtomicPositionsIonsRelaxationAlgorithm;
-  stream >> structure->_creationAtomicPositionsIonsRelaxationCheck;
+  qint64 creationAtomicPositionsIonsRelaxationAlgorithm;
+  stream >> creationAtomicPositionsIonsRelaxationAlgorithm;
+  structure->_creationAtomicPositionsIonsRelaxationAlgorithm = Structure::IonsRelaxationAlgorithm(creationAtomicPositionsIonsRelaxationAlgorithm);
+  qint64 creationAtomicPositionsIonsRelaxationCheck;
+  stream >> creationAtomicPositionsIonsRelaxationCheck;
+  structure->_creationAtomicPositionsIonsRelaxationCheck = Structure::IonsRelaxationCheck(creationAtomicPositionsIonsRelaxationCheck);
   stream >> structure->_creationAtomicPositionsForcefield;
   stream >> structure->_creationAtomicPositionsForcefieldDetails;
   stream >> structure->_creationAtomicChargesSoftwarePackage;
@@ -1293,6 +1441,16 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<Structure> &structu
   stream >> year;
   structure->_citationPublicationDate = QDate(int(year),int(month),int(day));
   stream >> structure->_citationDatebaseCodes;
+
+  structure->setRepresentationStyle(structure->atomRepresentationStyle());
+
+  if(versionNumber <= 4)
+  {
+    structure->expandSymmetry();
+    structure->computeBonds();
+  }
+
+  structure->reComputeBoundingBox();
 
   return stream;
 }

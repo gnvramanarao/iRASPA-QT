@@ -33,7 +33,7 @@
 #include <QListWidget>
 #include <QObject>
 #include <QListView>
-#include "optional.h"
+#include <optional>
 #include "elementsform.h"
 #include "iraspamainwindowconsumerprotocol.h"
 #include "ui_elementsform.h"
@@ -56,10 +56,10 @@ private:
   int _selectedColorSetIndex = 0;
   int _selectedForceFieldSetIndex = 0;
 
-  void setColorComboBoxIndex(int type);
+  void setColorComboBoxIndex(size_t type);
   void setForceFieldComboBoxIndex(int type);
 
-  stdx::optional<size_t> rowForItem(QObject* item);
+  std::optional<size_t> rowForItem(QObject* item);
   void addNewForceFieldAtomType();
   void removeForceFieldAtomType();
   void selectColorButton();

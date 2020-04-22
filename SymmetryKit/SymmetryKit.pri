@@ -1,9 +1,16 @@
 INCLUDEPATH += $$PWD
 
 SOURCES += \
+    $$PWD/skasymmetricbond.cpp \
     $$PWD/skcell.cpp \
+    $$PWD/skcifwriter.cpp \
     $$PWD/skcolorsets.cpp \
     $$PWD/skcolorset.cpp \
+    $$PWD/skmmcifparser.cpp \
+    $$PWD/skmmcifwriter.cpp \
+    $$PWD/skpdbwriter.cpp \
+    $$PWD/skposcarparser.cpp \
+    $$PWD/skposcarwriter.cpp \
     $$PWD/skspacegroup.cpp \
     $$PWD/skboundingbox.cpp \
     $$PWD/skelement.cpp \
@@ -21,9 +28,21 @@ SOURCES += \
     $$PWD/sksymmetryoperationset.cpp \
     $$PWD/skpointgroup.cpp \
     $$PWD/skonethirdseitzmatrix.cpp \
-    $$PWD/skrotationaloccurancetable.cpp
+    $$PWD/skrotationaloccurancetable.cpp \
+    $$PWD/skxyzparser.cpp \
+    $$PWD/skxyzwriter.cpp \
+    $$PWD/symmetrykitprotocols.cpp
 
 HEADERS += \
+    $$PWD/skasymmetricbond.h \
+    $$PWD/skcifwriter.h \
+    $$PWD/skmmcifparser.h \
+    $$PWD/skmmcifwriter.h \
+    $$PWD/skpdbwriter.h \
+    $$PWD/skposcarparser.h \
+    $$PWD/skposcarwriter.h \
+    $$PWD/skxyzparser.h \
+    $$PWD/skxyzwriter.h \
     $$PWD/symmetrykit.h \
     $$PWD/skcell.h \
     $$PWD/skcolorsets.h \
@@ -47,5 +66,4 @@ HEADERS += \
     $$PWD/skpointgroup.h \
     $$PWD/skonethirdseitzmatrix.h \
     $$PWD/skdefinitions.h \
-    $$PWD/skrotationaloccurancetable.h \
-    $$PWD/optional.h
+    $$PWD/skrotationaloccurancetable.h

@@ -31,10 +31,11 @@
 
 #include <QString>
 #include <QDataStream>
+#include <QUndoStack>
 #include <ostream>
 #include <foundationkit.h>
 
-class Project
+class Project: public QObject
 {
 public:
   Project();
@@ -44,6 +45,7 @@ private:
   qint64 _versionNumber{1};
   QString _displayName = QString("Default");
   bool _isEdited = false;
+  QString _filename;
 
   friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<Project> &);
   friend QDataStream &operator>>(QDataStream &, std::shared_ptr<Project> &);

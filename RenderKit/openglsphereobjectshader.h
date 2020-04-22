@@ -30,51 +30,52 @@
 #pragma once
 
 #include <vector>
-#include <array>
+#include <cstring>
+#include <string>
 #define GL_GLEXT_PROTOTYPES
 #include <QtOpenGL>
 #include <QGLFunctions>
-#include "rkrenderkitprotocols.h"
-#include "rkrenderuniforms.h"
-
 #include "openglshader.h"
-#include "openglatomshader.h"
+#include "rkrenderkitprotocols.h"
 
-class OpenGLPickingShader: public OpenGLShader
+
+class OpenGLSphereObjectShader: public OpenGLShader
 {
 public:
-  OpenGLPickingShader(OpenGLAtomShader &atomShader,OpenGLAtomOrthographicImposterShader &atomOrthographicImposterShader);
-  void loadShader(void) override final;
-  void generateFrameBuffers();
+  OpenGLSphereObjectShader();
+  void loadShader(void) override;
   void deleteBuffers();
   void generateBuffers();
 
-  void paintGL(int width,int height,GLuint structureUniformBuffer);
-  void resizeGL(int w, int h);
-
-  std::array<int,4> pickTexture(int x, int y, int width, int height);
+  void paintGLOpaque(GLuint structureUniformBuffer);
+  void paintGLTransparent(GLuint structureUniformBuffer);
 
   void reloadData();
   void initializeVertexArrayObject();
   void setRenderStructures(std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> structures);
-  GLuint atomPickingProgram() {return _atomPickingProgram;}
+  GLuint program() {return _program;}
 private:
-  GLuint _atomPickingProgram;
+  GLuint _program;
   std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> _renderStructures;
 
-  OpenGLAtomShader& _atomShader;
-  OpenGLAtomOrthographicImposterShader& _atomOrthographicImposterShader;
+  std::vector<std::vector<int>> _numberOfIndices;
+  std::vector<std::vector<int>> _numberOfDrawnAtoms;
 
-  std::vector<std::vector<GLuint>> _atomPickingVertexArrayObject;
+  std::vector<std::vector<GLuint>> _vertexBuffer;
+  std::vector<std::vector<GLuint>> _indexBuffer;
+  std::vector<std::vector<GLuint>> _instancePositionBuffer;
 
-  GLint _atomPickingVertexPositionAttributeLocation;
-  GLint _atomPickingInstancePositionAttributeLocation;
-  GLint _atomPickingScaleAttributeLocation;
+  std::vector<std::vector<GLuint>> _vertexArrayObject;
+  std::vector<std::vector<GLuint>> _ambientColorBuffer;
+  std::vector<std::vector<GLuint>> _diffuseColorBuffer;
+  std::vector<std::vector<GLuint>> _specularColorBuffer;
 
-  GLuint _frameBufferObject;
-  GLuint _texture;
-  GLuint _depthTexture;
+  GLint _ambientOcclusionTextureUniformLocation;
+  GLint _vertexNormalAttributeLocation;
+  GLint _vertexPositionAttributeLocation;
+  GLint _instancePositionAttributeLocation;
 
-  static const std::string _atomVertexShaderSource;
-  static const std::string _atomFragmentShaderSource;
+
+  static const std::string _vertexShaderSource;
+  static const std::string _fragmentShaderSource;
 };

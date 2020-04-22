@@ -63,5 +63,5 @@ private:
   cl_kernel _kernel;
   size_t _workGroupSize;
   static const char* _findMinimumEnergyKernel;
-  static void __stdcall callBack(cl_program progran, void *user_data);
+  static void callBack(cl_program progran, void *user_data);
 };

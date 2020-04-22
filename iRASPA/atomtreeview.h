@@ -42,6 +42,7 @@
 #include <iraspakit.h>
 #include "atomtreeviewmodel.h"
 #include "iraspamainwindowconsumerprotocol.h"
+#include "atomtreeviewpushbuttonstyleditemdelegate.h"
 
 class QAbstractItemViewPrivate;
 class AtomTreeView: public QTreeView, public MainWindowConsumer, public ProjectConsumer, public Reloadable
@@ -65,6 +66,7 @@ private:
   MainWindow* _mainWindow;
   std::shared_ptr<AtomTreeViewModel> _model;
   std::shared_ptr<SKAtomTreeController> _atomTreeController;
+  std::weak_ptr<ProjectTreeNode> _projectTreeNode;
   std::shared_ptr<ProjectStructure> _projectStructure;
   std::vector<std::shared_ptr<Structure>> _structures{};
   void paintDropIndicator(QPainter& painter);
@@ -73,7 +75,16 @@ private:
   void flattenHierachy();
   void makeSuperCell();
   void setSelectedAtoms(const QItemSelection &selected, const QItemSelection &deselected);
+  AtomTreeViewPushButtonStyledItemDelegate *pushButtonDelegate;
   SKAtomTreeNode* getItem(const QModelIndex &index) const;
+  void exportToPDB() const;
+  void exportToMMCIF() const;
+  void exportToCIF() const;
+  void exportToXYZ() const;
+  void exportToPOSCAR() const;
+  void deleteSelection();
+protected:
+  void keyPressEvent(QKeyEvent *event) override final;
 public slots:
   void setAtomTreeModel(const QModelIndex &current, const QModelIndex &previous);
   void ShowContextMenu(const QPoint &pos);

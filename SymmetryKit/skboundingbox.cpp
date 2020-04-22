@@ -31,7 +31,7 @@
 #include <mathkit.h>
 
 
-SKBoundingBox::SKBoundingBox()
+SKBoundingBox::SKBoundingBox(): _minimum(double3(0,0,0)),_maximum(double3(20,20,20))
 {
 
 }
@@ -50,24 +50,46 @@ SKBoundingBox::SKBoundingBox(const double3 center, const double3 width, const do
 
 
 
-double3 SKBoundingBox::widths()
+double3 SKBoundingBox::widths() const
 {
   return double3(_maximum.x-_minimum.x, _maximum.y-_minimum.y, _maximum.z-_minimum.z);
 }
 
-std::array<double3,8> SKBoundingBox::corners()
+std::array<double3,8> const SKBoundingBox::corners() const
 {
    std::array<double3,8> temp = {{
-      double3(_minimum.x, _minimum.y, _minimum.z),
-      double3(_maximum.x, _minimum.y, _minimum.z),
-      double3(_maximum.x, _maximum.y, _minimum.z),
-      double3(_minimum.x, _maximum.y, _minimum.z),
-      double3(_minimum.x, _minimum.y, _maximum.z),
-      double3(_maximum.x, _minimum.y, _maximum.z),
-      double3(_maximum.x, _maximum.y, _maximum.z),
-      double3(_minimum.x, _maximum.y, _maximum.z)
+      double3(_minimum.x, _minimum.y, _minimum.z), // c[0]
+      double3(_maximum.x, _minimum.y, _minimum.z), // c[1]
+      double3(_maximum.x, _maximum.y, _minimum.z), // c[2]
+      double3(_minimum.x, _maximum.y, _minimum.z), // c[3]
+      double3(_minimum.x, _minimum.y, _maximum.z), // c[4]
+      double3(_maximum.x, _minimum.y, _maximum.z), // c[5]
+      double3(_maximum.x, _maximum.y, _maximum.z), // c[6]
+      double3(_minimum.x, _maximum.y, _maximum.z)  // c[7]
    }};
    return temp;
+}
+
+std::array<std::pair<double3, double3>, 12> const SKBoundingBox::sides() const
+{
+  return std::array<std::pair<double3,double3>,12>{
+      // bottom ring
+      std::make_pair<double3,double3>( double3(_minimum.x, _minimum.y, _minimum.z), double3(_maximum.x, _minimum.y, _minimum.z)),
+      std::make_pair<double3,double3>( double3(_maximum.x, _minimum.y, _minimum.z), double3(_maximum.x, _maximum.y, _minimum.z)),
+      std::make_pair<double3,double3>( double3(_maximum.x, _maximum.y, _minimum.z), double3(_minimum.x, _maximum.y, _minimum.z)),
+      std::make_pair<double3,double3>( double3(_minimum.x, _maximum.y, _minimum.z), double3(_minimum.x, _minimum.y, _minimum.z)),
+
+      // top ring
+      std::make_pair<double3,double3>( double3(_minimum.x, _minimum.y, _maximum.z), double3(_maximum.x, _minimum.y, _maximum.z)),
+      std::make_pair<double3,double3>( double3(_maximum.x, _minimum.y, _maximum.z), double3(_maximum.x, _maximum.y, _maximum.z)),
+      std::make_pair<double3,double3>( double3(_maximum.x, _maximum.y, _maximum.z), double3(_minimum.x, _maximum.y, _maximum.z)),
+      std::make_pair<double3,double3>( double3(_minimum.x, _maximum.y, _maximum.z), double3(_minimum.x, _minimum.y, _maximum.z)),
+
+      // sides
+      std::make_pair<double3,double3>( double3(_minimum.x, _minimum.y, _minimum.z), double3(_minimum.x, _minimum.y, _maximum.z)),
+      std::make_pair<double3,double3>( double3(_maximum.x, _minimum.y, _minimum.z), double3(_maximum.x, _minimum.y, _maximum.z)),
+      std::make_pair<double3,double3>( double3(_maximum.x, _maximum.y, _minimum.z), double3(_maximum.x, _maximum.y, _maximum.z)),
+      std::make_pair<double3,double3>( double3(_minimum.x, _maximum.y, _minimum.z), double3(_minimum.x, _maximum.y, _maximum.z))};
 }
 
 double3 SKBoundingBox::center()

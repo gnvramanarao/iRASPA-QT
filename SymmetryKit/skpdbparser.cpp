@@ -33,10 +33,6 @@
 #include "skasymmetricatom.h"
 #include "skelement.h"
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-
-
 
 void SKPDBParser::addFrameToStructure(size_t currentMovie, size_t currentFrame)
 {
@@ -184,7 +180,7 @@ void SKPDBParser::startParsing()
         {
           QStringRef spaceGroupString(&scannedLine, 55, 11);
 
-          if(stdx::optional<int> spaceGroupHallNumber = SKSpaceGroup::HallNumberFromHMString(spaceGroupString.toString()))
+          if(std::optional<int> spaceGroupHallNumber = SKSpaceGroup::HallNumberFromHMString(spaceGroupString.toString()))
           {
             std::get<2>(_frame) = *spaceGroupHallNumber;
           }

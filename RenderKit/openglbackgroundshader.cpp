@@ -89,6 +89,8 @@ void OpenGLBackgroundShader::reload(std::shared_ptr<RKRenderDataSource> source)
   glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+
+
 void OpenGLBackgroundShader::initializeVertexArrayObject()
 {
   glGenVertexArrays(1, &_vertexArray);

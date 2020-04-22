@@ -71,5 +71,5 @@ private:
   size_t _workGroupSize;
   bool _glInteroperability = true;
   static std::string _marchingCubesKernelPart;
-  static void __stdcall callBack(cl_program progran, void *user_data);
+  static void callBack(cl_program progran, void *user_data);
 };

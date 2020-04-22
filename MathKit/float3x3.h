@@ -78,7 +78,7 @@ union float3x3
    float trace(void);
    float3x3 const inverse();
    static float3x3 const inverse(const float3x3& right);
-   float3x3 transpose(void);
+   float3x3 const transpose(void);
    float3x3 inversetranpose(void);
    void solve_lambdas(float3 &res);
    void solve_angles_0( float3 &res, float3 lambdas );

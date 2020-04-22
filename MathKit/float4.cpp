@@ -28,7 +28,9 @@
  *************************************************************************************************************/
 
 #include "float4.h"
-#include <math.h>
+
+#define _USE_MATH_DEFINES
+#include <cmath>
 
 /*
 float4::float4()
@@ -112,3 +114,15 @@ float4 operator*(float value, float4 const &v)
 {
   return float4(value*v.x, value*v.y, value*v.z, value*v.w);
 }
+
+
+float4 operator+(const float4 &v1, const float4 &v2)
+{
+   return float4(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z, v1.w + v2.w);
+}
+
+float4 operator-(const float4 &v1, const float4 &v2)
+{
+   return float4(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z, v1.w - v2.w);
+}
+

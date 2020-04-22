@@ -39,7 +39,7 @@
 
 class OpenGLAtomShader;
 class OpenGLAmbientOcclusionShadowMapShader;
-class OpenGLPickingShader;
+class OpenGLAtomPickingShader;
 
 class OpenGLAtomOrthographicImposterShader: public OpenGLShader
 {
@@ -79,5 +79,5 @@ private:
   static const std::string _fragmentShaderSource;
 
   friend OpenGLAmbientOcclusionShadowMapShader;
-  friend OpenGLPickingShader;
+  friend OpenGLAtomPickingShader;
 };

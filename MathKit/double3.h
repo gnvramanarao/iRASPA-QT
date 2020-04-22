@@ -29,8 +29,9 @@
 
 #pragma once
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <ostream>
-#include <math.h>
 #include <QDataStream>
 
 #include "int3.h"

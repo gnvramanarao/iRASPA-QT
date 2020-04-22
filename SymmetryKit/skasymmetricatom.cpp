@@ -42,7 +42,7 @@ QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<SKAtomCopy> &
 {
   stream << copy->_versionNumber;
   stream << copy->_position;
-  stream << copy->_type;
+  stream << static_cast<typename std::underlying_type<SKAtomCopy::AtomCopyType>::type>(copy->_type);
   stream << copy->_tag;
   stream << copy->_asymmetricIndex;
   return stream;
@@ -58,7 +58,9 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<SKAtomCopy> &copy)
   }
 
   stream >> copy->_position;
-  stream >> copy->_type;
+  qint64 type;
+  stream >> type;
+  copy->_type = SKAtomCopy::AtomCopyType(type);
   stream >> copy->_tag;
   stream >> copy->_asymmetricIndex;
   return stream;
@@ -72,6 +74,7 @@ QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<SKAsymmetricA
   stream << asymmetricAtom->_displayName;
   stream << asymmetricAtom->_position;
   stream << asymmetricAtom->_charge;
+  stream << static_cast<typename std::underlying_type<SKAsymmetricAtom::Hybridization>::type>(asymmetricAtom->_hybridization);
   stream << asymmetricAtom->_uniqueForceFieldName;
   stream << asymmetricAtom->_elementIdentifier;
   stream << asymmetricAtom->_color;
@@ -119,6 +122,12 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<SKAsymmetricAtom> &
   stream >> asymmetricAtom->_displayName;
   stream >> asymmetricAtom->_position;
   stream >> asymmetricAtom->_charge;
+  if(versionNumber >= 2)
+  {
+    qint64 hybridization;
+    stream >> hybridization;
+    asymmetricAtom->_hybridization = SKAsymmetricAtom::Hybridization(hybridization);
+  }
   stream >> asymmetricAtom->_uniqueForceFieldName;
   stream >> asymmetricAtom->_elementIdentifier;
   stream >> asymmetricAtom->_color;

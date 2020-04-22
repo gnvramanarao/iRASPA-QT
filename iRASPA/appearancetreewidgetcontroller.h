@@ -42,7 +42,7 @@
 #include <iraspakit.h>
 #include "iraspamainwindowconsumerprotocol.h"
 #include <simulationkit.h>
-#include "optional.h"
+#include <optional>
 #include "appearanceatomsform.h"
 #include "appearancebondsform.h"
 #include "appearanceunitcellform.h"
@@ -108,61 +108,61 @@ private:
   void reloadAtomShininess();
 
   void setRepresentationType(int value);
-  stdx::optional<RepresentationType> representationType();
+  std::optional<Structure::RepresentationType> representationType();
   void setRepresentationStyle(int value);
-  stdx::optional<RepresentationStyle> representationStyle();
+  std::optional<Structure::RepresentationStyle> representationStyle();
   void setColorSchemeComboBoxIndex(int value);
-  stdx::optional<QString> colorSchemeIdentifier();
+  std::optional<QString> colorSchemeIdentifier();
   void setColorSchemeOrder(int value);
-  stdx::optional<ColorSchemeOrder> colorSchemeOrder();
+  std::optional<SKColorSet::ColorSchemeOrder> colorSchemeOrder();
   void setForcefieldSchemeComboBoxIndex(int value);
-  stdx::optional<QString> forceFieldSchemeIdentifier();
+  std::optional<QString> forceFieldSchemeIdentifier();
   void setForceFieldSchemeOrder(int value);
-  stdx::optional<ForceFieldSchemeOrder> forceFieldSchemeOrder();
+  std::optional<ForceFieldSet::ForceFieldSchemeOrder> forceFieldSchemeOrder();
   void setAtomSelectionStyle(int value);
-  stdx::optional<RKSelectionStyle> atomSelectionStyle();
+  std::optional<RKSelectionStyle> atomSelectionStyle();
   void setAtomSelectionStyleNu(double value);
-  stdx::optional<double> atomSelectionStyleNu();
+  std::optional<double> atomSelectionStyleNu();
   void setAtomSelectionStyleRho(double value);
-  stdx::optional<double> atomSelectionStyleRho();
+  std::optional<double> atomSelectionStyleRho();
   void setAtomSelectionIntensity(double value);
-  stdx::optional<double> atomSelectionIntensity();
+  std::optional<double> atomSelectionIntensity();
   void setAtomSelectionScaling(double value);
-  stdx::optional<double> atomSelectionScaling();
+  std::optional<double> atomSelectionScaling();
   void setAtomDrawAtoms(int state);
-  stdx::optional<bool> atomDrawAtoms();
+  std::optional<bool> atomDrawAtoms();
   void setAtomSizeScalingDoubleSpinBox(double size);
   void setAtomSizeScalingDoubleSliderBegin();
   void setAtomSizeScalingDoubleSliderIntermediate(double size);
   void setAtomSizeScalingDoubleSliderFinal();
-  stdx::optional<double> atomSizeScaling();
+  std::optional<double> atomSizeScaling();
   void setAtomHighDynamicRange(int value);
-  stdx::optional<bool> atomHighDynamicRange();
+  std::optional<bool> atomHighDynamicRange();
   void setAtomHDRExposure(double value);
-  stdx::optional<double> atomHDRExposure();
+  std::optional<double> atomHDRExposure();
   void setAtomHue(double value);
-  stdx::optional<double> atomHue();
+  std::optional<double> atomHue();
   void setAtomSaturation(double value);
-  stdx::optional<double> atomSaturation();
+  std::optional<double> atomSaturation();
   void setAtomValue(double value);
-  stdx::optional<double> atomValue();
+  std::optional<double> atomValue();
   void setAtomAmbientOcclusion(int value);
-  stdx::optional<bool> atomAmbientOcclusion();
+  std::optional<bool> atomAmbientOcclusion();
   void setAtomAmbientLightIntensity(double value);
-  stdx::optional<double> atomAmbientLightIntensity();
+  std::optional<double> atomAmbientLightIntensity();
   void setAtomAmbientLightColor();
 
-  stdx::optional<QColor> atomAmbientLightColor();
+  std::optional<QColor> atomAmbientLightColor();
   void setAtomDiffuseLightIntensity(double value);
-  stdx::optional<double> atomDiffuseLightIntensity();
+  std::optional<double> atomDiffuseLightIntensity();
   void setAtomDiffuseLightColor();
-  stdx::optional<QColor> atomDiffuseLightColor();
+  std::optional<QColor> atomDiffuseLightColor();
   void setAtomSpecularLightIntensity(double value);
-  stdx::optional<double> atomSpecularLightIntensity();
+  std::optional<double> atomSpecularLightIntensity();
   void setAtomSpecularLightColor();
-  stdx::optional<QColor> atomSpecularLightColor();
+  std::optional<QColor> atomSpecularLightColor();
   void setAtomShininess(double value);
-  stdx::optional<double> atomShininessy();
+  std::optional<double> atomShininessy();
 
   // bond properties
 
@@ -181,37 +181,37 @@ private:
   void reloadBondShininess();
 
   void setBondDrawBonds(int state);
-  stdx::optional<bool> bondDrawBonds();
+  std::optional<bool> bondDrawBonds();
   void setBondSizeScaling(double size);
-  stdx::optional<double> bondSizeScaling();
+  std::optional<double> bondSizeScaling();
   void setBondColorMode(int value);
-  stdx::optional<RKBondColorMode> bondColorMode();
+  std::optional<RKBondColorMode> bondColorMode();
   void setBondHighDynamicRange(int value);
-  stdx::optional<bool> bondHighDynamicRange();
+  std::optional<bool> bondHighDynamicRange();
   void setBondHDRExposure(double value);
-  stdx::optional<double> bondHDRExposure();
+  std::optional<double> bondHDRExposure();
   void setBondHue(double value);
-  stdx::optional<double> bondHue();
+  std::optional<double> bondHue();
   void setBondSaturation(double value);
-  stdx::optional<double> bondSaturation();
+  std::optional<double> bondSaturation();
   void setBondValue(double value);
-  stdx::optional<double> bondValue();
+  std::optional<double> bondValue();
   void setBondAmbientOcclusion(int value);
-  stdx::optional<bool> bondAmbientOcclusion();
+  std::optional<bool> bondAmbientOcclusion();
   void setBondAmbientLightIntensity(double value);
-  stdx::optional<double> bondAmbientLightIntensity();
+  std::optional<double> bondAmbientLightIntensity();
   void setBondAmbientLightColor();
-  stdx::optional<QColor> bondAmbientLightColor();
+  std::optional<QColor> bondAmbientLightColor();
   void setBondDiffuseLightIntensity(double value);
-  stdx::optional<double> bondDiffuseLightIntensity();
+  std::optional<double> bondDiffuseLightIntensity();
   void setBondDiffuseLightColor();
-  stdx::optional<QColor> bondDiffuseLightColor();
+  std::optional<QColor> bondDiffuseLightColor();
   void setBondSpecularLightIntensity(double value);
-  stdx::optional<double> bondSpecularLightIntensity();
+  std::optional<double> bondSpecularLightIntensity();
   void setBondSpecularLightColor();
-  stdx::optional<QColor> bondSpecularLightColor();
+  std::optional<QColor> bondSpecularLightColor();
   void setBondShininess(double value);
-  stdx::optional<double> bondShininessy();
+  std::optional<double> bondShininessy();
 
   // unit cell properties
 
@@ -220,13 +220,13 @@ private:
   void reloadUnitCellDiffuseLight();
 
   void setDrawUnitCell(int state);
-  stdx::optional<bool> drawUnitCell();
+  std::optional<bool> drawUnitCell();
   void setUnitCellSizeScaling(double size);
-  stdx::optional<double> unitCellSizeScaling();
+  std::optional<double> unitCellSizeScaling();
   void setUnitCellDiffuseLightIntensity(double value);
-  stdx::optional<double> unitCellDiffuseLightIntensity();
+  std::optional<double> unitCellDiffuseLightIntensity();
   void setUnitCellDiffuseLightColor();
-  stdx::optional<QColor> unitCellDiffuseLightColor();
+  std::optional<QColor> unitCellDiffuseLightColor();
 
   // adsorption surface properties
 
@@ -248,52 +248,52 @@ private:
   void reloadAdsorptionSurfaceOutsideShininess();
 
   void setDrawAdsorptionSurface(int state);
-  stdx::optional<bool> drawAdsorptionSurface();
+  std::optional<bool> drawAdsorptionSurface();
   void setAdsorptionSurfaceProbeMolecule(int value);
-  stdx::optional<ProbeMolecule> adsorptionSurfaceProbeMolecule();
+  std::optional<Structure::ProbeMolecule> adsorptionSurfaceProbeMolecule();
   void setAdsorptionSurfaceIsovalue(double value);
-  stdx::optional<double> adsorptionSurfaceIsovalue();
-  stdx::optional<double> adsorptionSurfaceMinimumValue();
+  std::optional<double> adsorptionSurfaceIsovalue();
+  std::optional<double> adsorptionSurfaceMinimumValue();
   void setAdsorptionSurfaceOpacity(double value);
-  stdx::optional<double> adsorptionSurfaceOpacity();
+  std::optional<double> adsorptionSurfaceOpacity();
 
   void setAdsorptionSurfaceInsideHighDynamicRange(int value);
-  stdx::optional<bool> adsorptionSurfaceInsideHighDynamicRange();
+  std::optional<bool> adsorptionSurfaceInsideHighDynamicRange();
   void setAdsorptionSurfaceInsideHDRExposure(double value);
-  stdx::optional<double> adsorptionSurfaceInsideHDRExposure();
+  std::optional<double> adsorptionSurfaceInsideHDRExposure();
   void setAdsorptionSurfaceInsideAmbientLightIntensity(double value);
-  stdx::optional<double> adsorptionSurfaceInsideAmbientLightIntensity();
+  std::optional<double> adsorptionSurfaceInsideAmbientLightIntensity();
   void setAdsorptionSurfaceInsideAmbientLightColor();
-  stdx::optional<QColor> adsorptionSurfaceInsideAmbientLightColor();
+  std::optional<QColor> adsorptionSurfaceInsideAmbientLightColor();
   void setAdsorptionSurfaceInsideDiffuseLightIntensity(double value);
-  stdx::optional<double> adsorptionSurfaceInsideDiffuseLightIntensity();
+  std::optional<double> adsorptionSurfaceInsideDiffuseLightIntensity();
   void setAdsorptionSurfaceInsideDiffuseLightColor();
-  stdx::optional<QColor> adsorptionSurfaceInsideDiffuseLightColor();
+  std::optional<QColor> adsorptionSurfaceInsideDiffuseLightColor();
   void setAdsorptionSurfaceInsideSpecularLightIntensity(double value);
-  stdx::optional<double> adsorptionSurfaceInsideSpecularLightIntensity();
+  std::optional<double> adsorptionSurfaceInsideSpecularLightIntensity();
   void setAdsorptionSurfaceInsideSpecularLightColor();
-  stdx::optional<QColor> adsorptionSurfaceInsideSpecularLightColor();
+  std::optional<QColor> adsorptionSurfaceInsideSpecularLightColor();
   void setAdsorptionSurfaceInsideShininess(double value);
-  stdx::optional<double> adsorptionSurfaceInsideShininessy();
+  std::optional<double> adsorptionSurfaceInsideShininessy();
 
   void setAdsorptionSurfaceOutsideHighDynamicRange(int value);
-  stdx::optional<bool> adsorptionSurfaceOutsideHighDynamicRange();
+  std::optional<bool> adsorptionSurfaceOutsideHighDynamicRange();
   void setAdsorptionSurfaceOutsideHDRExposure(double value);
-  stdx::optional<double> adsorptionSurfaceOutsideHDRExposure();
+  std::optional<double> adsorptionSurfaceOutsideHDRExposure();
   void setAdsorptionSurfaceOutsideAmbientLightIntensity(double value);
-  stdx::optional<double> adsorptionSurfaceOutsideAmbientLightIntensity();
+  std::optional<double> adsorptionSurfaceOutsideAmbientLightIntensity();
   void setAdsorptionSurfaceOutsideAmbientLightColor();
-  stdx::optional<QColor> adsorptionSurfaceOutsideAmbientLightColor();
+  std::optional<QColor> adsorptionSurfaceOutsideAmbientLightColor();
   void setAdsorptionSurfaceOutsideDiffuseLightIntensity(double value);
-  stdx::optional<double> adsorptionSurfaceOutsideDiffuseLightIntensity();
+  std::optional<double> adsorptionSurfaceOutsideDiffuseLightIntensity();
   void setAdsorptionSurfaceOutsideDiffuseLightColor();
-  stdx::optional<QColor> adsorptionSurfaceOutsideDiffuseLightColor();
+  std::optional<QColor> adsorptionSurfaceOutsideDiffuseLightColor();
   void setAdsorptionSurfaceOutsideSpecularLightIntensity(double value);
-  stdx::optional<double> adsorptionSurfaceOutsideSpecularLightIntensity();
+  std::optional<double> adsorptionSurfaceOutsideSpecularLightIntensity();
   void setAdsorptionSurfaceOutsideSpecularLightColor();
-  stdx::optional<QColor> adsorptionSurfaceOutsideSpecularLightColor();
+  std::optional<QColor> adsorptionSurfaceOutsideSpecularLightColor();
   void setAdsorptionSurfaceOutsideShininess(double value);
-  stdx::optional<double> adsorptionSurfaceOutsideShininessy();
+  std::optional<double> adsorptionSurfaceOutsideShininessy();
 
 private slots:
   void expandAtomsItem();

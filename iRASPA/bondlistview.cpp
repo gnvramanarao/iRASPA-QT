@@ -30,12 +30,11 @@
 #include "bondlistview.h"
 #include "bondlistviewsliderstyleditemdelegate.h"
 
+
 BondListView::BondListView(QWidget* parent): QTreeView(parent ), _model(std::make_shared<BondListViewModel>())
 {
   _structure = std::make_shared<ProjectStructure>();
   this->setModel(_model.get());
-
- // this->setItemDelegateForColumn(5, new BondListViewSliderStyledItemDelegate(this));
 
   this->viewport()->setMouseTracking(true);
 
@@ -48,11 +47,29 @@ BondListView::BondListView(QWidget* parent): QTreeView(parent ), _model(std::mak
   this->setRootIsDecorated(false);
   this->setItemsExpandable(false);
   this->setIndentation(0);
+
+  pushButtonDelegate = new BondListPushButtonStyledItemDelegate(this);
+  this->setItemDelegateForColumn(2, pushButtonDelegate);
+
+  comboBoxDelegate = new BondListViewComboBoxStyledItemDelegate(this);
+  this->setItemDelegateForColumn(5, comboBoxDelegate);
+
+  sliderDelegate = new BondListViewSliderStyledItemDelegate(this);
+  this->setItemDelegateForColumn(7, sliderDelegate);
+
+  this->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked);
 }
 
 void BondListView::reloadSelection()
 {
+  BondListViewModel* pModel = qobject_cast<BondListViewModel*>(model());
+  whileBlocking(selectionModel())->clearSelection();
 
+  for(QModelIndex index : pModel->selectedIndexes())
+  {
+    whileBlocking(selectionModel())->select(index, QItemSelectionModel::Select|QItemSelectionModel::Rows);
+  }
+  viewport()->update();
 }
 
 void BondListView::reloadData()
@@ -62,6 +79,21 @@ void BondListView::reloadData()
     if(_structure)
     {
       _model->setBondSetStructure(_structure->selectedStructure());
+
+      if(_controller && _controller->getNumberOfBands() > 0)
+      {
+        this->header()->setStretchLastSection(false);
+        this->setColumnWidth(0,25);
+        this->setColumnWidth(1,50);
+        //this->resizeColumnToContents(1);
+        //this->resizeColumnToContents(2);
+        this->setColumnWidth(2,100);
+        this->setColumnWidth(3,50);
+        this->setColumnWidth(4,50);
+        this->setColumnWidth(5,60);
+        this->setColumnWidth(6,60);
+        this->setColumnWidth(7,85);  // 20 left for scroller
+      }
     }
   }
 }

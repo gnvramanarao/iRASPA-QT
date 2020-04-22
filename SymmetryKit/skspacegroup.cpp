@@ -37,7 +37,7 @@ SKSpaceGroup::SKSpaceGroup(int HallNumber)
 }
 
 
-stdx::optional<int> SKSpaceGroup::HallNumber(QString string)
+std::optional<int> SKSpaceGroup::HallNumber(QString string)
 {
   QString spaceGroupString = string.simplified().toLower();
 
@@ -80,10 +80,10 @@ stdx::optional<int> SKSpaceGroup::HallNumber(QString string)
       return i;
     }
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
-stdx::optional<int> SKSpaceGroup::HallNumberFromHMString(QString string)
+std::optional<int> SKSpaceGroup::HallNumberFromHMString(QString string)
 {
   QString spaceGroupString = string.simplified().toLower();
 
@@ -127,7 +127,7 @@ stdx::optional<int> SKSpaceGroup::HallNumberFromHMString(QString string)
     }
   }
 
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 

@@ -13,8 +13,8 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E62B9EF0-5200-32BF-AE4B-70180A1A486F}</ProjectGuid>
     <RootNamespace>iraspa</RootNamespace>
-    <Keyword>QtVS_v300</Keyword>
-    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+    <Keyword>QtVS_v302</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformMinVersion>10.0.18362.0</WindowsTargetPlatformMinVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -26,7 +26,6 @@
     <ConfigurationType>Application</ConfigurationType>
     <IntermediateDirectory>release\</IntermediateDirectory>
     <PrimaryOutput>iraspa</PrimaryOutput>
-    <QtInstall>msvc2017_64</QtInstall>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <PlatformToolset>v142</PlatformToolset>
@@ -36,7 +35,6 @@
     <ConfigurationType>Application</ConfigurationType>
     <IntermediateDirectory>debug\</IntermediateDirectory>
     <PrimaryOutput>iraspa</PrimaryOutput>
-    <QtInstall>msvc2017_64</QtInstall>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <PropertyGroup Condition="'$(QtMsBuild)'=='' or !Exists('$(QtMsBuild)\qt.targets')">
@@ -45,15 +43,6 @@
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
     <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
   </Target>
-  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
-    <Import Project="$(QtMsBuild)\qt.props" />
-  </ImportGroup>
-  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <QtModules>core;opengl;network;gui;widgets;qml;positioning;printsupport;webchannel;quick;webenginewidgets</QtModules>
-  </PropertyGroup>
-  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <QtModules>core;opengl;network;gui;widgets;qml;positioning;printsupport;webchannel;quick;webenginewidgets</QtModules>
-  </PropertyGroup>
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
@@ -62,6 +51,20 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
+    <Import Project="$(QtMsBuild)\qt_defaults.props" />
+  </ImportGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <QtInstall>msvc2017_64</QtInstall>
+    <QtModules>core;opengl;network;gui;widgets;qml;positioning;printsupport;webchannel;quick;webengine;webenginewidgets</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <QtInstall>msvc2017_64</QtInstall>
+    <QtModules>core;opengl;network;gui;widgets;qml;positioning;printsupport;webchannel;quick;webengine;webenginewidgets</QtModules>
+  </PropertyGroup>
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
+    <Import Project="$(QtMsBuild)\qt.props" />
+  </ImportGroup>
   <PropertyGroup>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">release\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">release\</IntDir>
@@ -97,7 +100,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>C:\vcpkg\installed\x64-windows-static\lib\python27.lib;C:\vcpkg\installed\x64-windows-static\lib\lzma.lib;C:\vcpkg\installed\x64-windows-static\lib\zlib.lib;C:\vcpkg\installed\x64-windows-static\lib\OpenCL.lib;kernel32.lib;cfgmgr32.lib;user32.lib;ole32.lib;advapi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(QTDIR)\lib;C:\openssl\lib;C:\Utils\my_sql\mysql-5.6.11-winx64\lib;C:\Utils\postgresql\pgsql\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\openssl\lib;C:\Utils\my_sql\mysql-5.6.11-winx64\lib;C:\Utils\postgresql\pgsql\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -120,13 +123,23 @@
     <QtMoc>
       <CompilerFlavor>msvc</CompilerFlavor>
       <Include>./$(Configuration)/moc_predefs.h</Include>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
       <DynamicSource>output</DynamicSource>
+      <QtMocDir>$(Configuration)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
     </QtMoc>
     <QtRcc>
       <InitFuncName>iraspa-resources</InitFuncName>
       <Compression>default</Compression>
+      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
+      <QtRccDir>$(Configuration)</QtRccDir>
+      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
     </QtRcc>
-    <QtUic />
+    <QtUic>
+      <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
+      <QtUicDir>$(ProjectDir)</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
+    </QtUic>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -150,7 +163,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>C:\vcpkg\installed\x64-windows-static\lib\python27.lib;C:\vcpkg\installed\x64-windows-static\lib\lzma.lib;C:\vcpkg\installed\x64-windows-static\lib\zlib.lib;C:\vcpkg\installed\x64-windows-static\lib\OpenCL.lib;kernel32.lib;cfgmgr32.lib;user32.lib;ole32.lib;advapi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(QTDIR)\lib;C:\openssl\lib;C:\Utils\my_sql\mysql-5.6.11-winx64\lib;C:\Utils\postgresql\pgsql\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\openssl\lib;C:\Utils\my_sql\mysql-5.6.11-winx64\lib;C:\Utils\postgresql\pgsql\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -172,13 +185,23 @@
     <QtMoc>
       <CompilerFlavor>msvc</CompilerFlavor>
       <Include>./$(Configuration)/moc_predefs.h</Include>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
       <DynamicSource>output</DynamicSource>
+      <QtMocDir>$(Configuration)</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
     </QtMoc>
     <QtRcc>
       <InitFuncName>iraspa-resources</InitFuncName>
       <Compression>default</Compression>
+      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
+      <QtRccDir>$(Configuration)</QtRccDir>
+      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
     </QtRcc>
-    <QtUic />
+    <QtUic>
+      <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
+      <QtUicDir>$(ProjectDir)</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
+    </QtUic>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="iRASPA\aboutdialog.cpp" />
@@ -190,7 +213,10 @@
     <ClCompile Include="iRASPA\appearanceunitcellform.cpp" />
     <ClCompile Include="iRASPA\atomtreeview.cpp" />
     <ClCompile Include="iRASPA\atomtreeviewmodel.cpp" />
+    <ClCompile Include="iRASPA\atomtreeviewpushbuttonstyleditemdelegate.cpp" />
+    <ClCompile Include="iRASPA\bondlistpushbuttonstyleditemdelegate.cpp" />
     <ClCompile Include="iRASPA\bondlistview.cpp" />
+    <ClCompile Include="iRASPA\bondlistviewcomboboxstyleditemdelegate.cpp" />
     <ClCompile Include="iRASPA\bondlistviewmodel.cpp" />
     <ClCompile Include="iRASPA\bondlistviewsliderstyleditemdelegate.cpp" />
     <ClCompile Include="MathKit\bool3.cpp" />
@@ -200,7 +226,12 @@
     <ClCompile Include="iRASPA\camerapicturesform.cpp" />
     <ClCompile Include="iRASPA\cameraselectionform.cpp" />
     <ClCompile Include="iRASPA\cameratreewidgetcontroller.cpp" />
+    <ClCompile Include="RenderKit\cappedcylinderdoublebondgeometry.cpp" />
     <ClCompile Include="RenderKit\cappedcylindergeometry.cpp" />
+    <ClCompile Include="RenderKit\cappedcylinderpartialdoublebondgeometry.cpp" />
+    <ClCompile Include="RenderKit\cappedcylindersinglebondgeometry.cpp" />
+    <ClCompile Include="RenderKit\cappedcylindertriplebondgeometry.cpp" />
+    <ClCompile Include="RenderKit\cappednsidedprismgeometry.cpp" />
     <ClCompile Include="iRASPA\cellcellform.cpp" />
     <ClCompile Include="iRASPA\cellstructuralform.cpp" />
     <ClCompile Include="iRASPA\cellsymmetryform.cpp" />
@@ -212,6 +243,8 @@
     <ClCompile Include="iRASPA\customdoublespinbox.cpp" />
     <ClCompile Include="iRASPA\customintspinbox.cpp" />
     <ClCompile Include="RenderKit\cylindergeometry.cpp" />
+    <ClCompile Include="iRASPAKit\cylinderprimitive.cpp" />
+    <ClCompile Include="iRASPA\deleteselectioncommand.cpp" />
     <ClCompile Include="iRASPA\detailtabviewcontroller.cpp" />
     <ClCompile Include="iRASPAKit\documentdata.cpp" />
     <ClCompile Include="MathKit\double2.cpp" />
@@ -222,6 +255,7 @@
     <ClCompile Include="MathKit\drand48.cpp" />
     <ClCompile Include="iRASPA\elementlistwidgetcontroller.cpp" />
     <ClCompile Include="iRASPA\elementsform.cpp" />
+    <ClCompile Include="iRASPAKit\ellipsoidprimitive.cpp" />
     <ClCompile Include="iRASPA\fixedaspectratiolayoutitem.cpp" />
     <ClCompile Include="MathKit\float2.cpp" />
     <ClCompile Include="MathKit\float3.cpp" />
@@ -258,11 +292,13 @@
     <ClCompile Include="iRASPAKit\molecularcrystal.cpp" />
     <ClCompile Include="iRASPAKit\molecule.cpp" />
     <ClCompile Include="iRASPAKit\movie.cpp" />
+    <ClCompile Include="RenderKit\nsidedprismgeometry.cpp" />
     <ClCompile Include="MathKit\nsrect.cpp" />
     <ClCompile Include="MathKit\nssize.cpp" />
     <ClCompile Include="RenderKit\openglambientocclusionshadowmapshader.cpp" />
     <ClCompile Include="RenderKit\openglatomorthographicimpostershader.cpp" />
     <ClCompile Include="RenderKit\openglatomperspectiveimpostershader.cpp" />
+    <ClCompile Include="RenderKit\openglatompickingshader.cpp" />
     <ClCompile Include="RenderKit\openglatomselectionglowshader.cpp" />
     <ClCompile Include="RenderKit\openglatomselectionstripesorthographicimpostershader.cpp" />
     <ClCompile Include="RenderKit\openglatomselectionstripesperspectiveimpostershader.cpp" />
@@ -273,13 +309,26 @@
     <ClCompile Include="RenderKit\openglatomshader.cpp" />
     <ClCompile Include="RenderKit\openglbackgroundshader.cpp" />
     <ClCompile Include="RenderKit\openglblurshader.cpp" />
+    <ClCompile Include="RenderKit\openglboundingboxcylindershader.cpp" />
+    <ClCompile Include="RenderKit\openglboundingboxsphereshader.cpp" />
+    <ClCompile Include="RenderKit\openglcylinderobjectshader.cpp" />
     <ClCompile Include="RenderKit\openglenergysurface.cpp" />
+    <ClCompile Include="RenderKit\openglexternalbondpickingshader.cpp" />
+    <ClCompile Include="RenderKit\openglexternalbondselectionglowshader.cpp" />
+    <ClCompile Include="RenderKit\openglexternalbondselectionstripesshader.cpp" />
+    <ClCompile Include="RenderKit\openglexternalbondselectionworleynoise3dshader.cpp" />
     <ClCompile Include="RenderKit\openglexternalbondshader.cpp" />
+    <ClCompile Include="RenderKit\openglinternalbondpickingshader.cpp" />
+    <ClCompile Include="RenderKit\openglinternalbondselectionglowshader.cpp" />
+    <ClCompile Include="RenderKit\openglinternalbondselectionstripesshader.cpp" />
+    <ClCompile Include="RenderKit\openglinternalbondselectionworleynoise3dshader.cpp" />
     <ClCompile Include="RenderKit\openglinternalbondshader.cpp" />
-    <ClCompile Include="RenderKit\openglpickingshader.cpp" />
+    <ClCompile Include="RenderKit\openglpolygonalprismobjectshader.cpp" />
     <ClCompile Include="RenderKit\openglshader.cpp" />
+    <ClCompile Include="RenderKit\openglsphereobjectshader.cpp" />
     <ClCompile Include="RenderKit\openglunitcellcylindershader.cpp" />
     <ClCompile Include="RenderKit\openglunitcellsphereshader.cpp" />
+    <ClCompile Include="iRASPAKit\polygonalprismprimitive.cpp" />
     <ClCompile Include="iRASPAKit\project.cpp" />
     <ClCompile Include="iRASPAKit\projectgroup.cpp" />
     <ClCompile Include="iRASPAKit\projectstructure.cpp" />
@@ -297,6 +346,7 @@
     <ClCompile Include="RenderKit\rkcamera.cpp" />
     <ClCompile Include="RenderKit\rkfontatlas.cpp" />
     <ClCompile Include="RenderKit\rklight.cpp" />
+    <ClCompile Include="RenderKit\rkrenderkitprotocols.cpp" />
     <ClCompile Include="RenderKit\rkrenderuniforms.cpp" />
     <ClCompile Include="FoundationKit\scanner.cpp" />
     <ClCompile Include="iRASPAKit\scene.cpp" />
@@ -306,6 +356,7 @@
     <ClCompile Include="iRASPA\selectcolorbutton.cpp" />
     <ClCompile Include="MathKit\simd_quatd.cpp" />
     <ClCompile Include="SymmetryKit\skasymmetricatom.cpp" />
+    <ClCompile Include="SymmetryKit\skasymmetricbond.cpp" />
     <ClCompile Include="SymmetryKit\skatomtreecontroller.cpp" />
     <ClCompile Include="SymmetryKit\skatomtreenode.cpp" />
     <ClCompile Include="SymmetryKit\skbond.cpp" />
@@ -313,9 +364,12 @@
     <ClCompile Include="SymmetryKit\skboundingbox.cpp" />
     <ClCompile Include="SymmetryKit\skcell.cpp" />
     <ClCompile Include="SymmetryKit\skcifparser.cpp" />
+    <ClCompile Include="SymmetryKit\skcifwriter.cpp" />
     <ClCompile Include="SymmetryKit\skcolorset.cpp" />
     <ClCompile Include="SymmetryKit\skcolorsets.cpp" />
     <ClCompile Include="SymmetryKit\skelement.cpp" />
+    <ClCompile Include="SymmetryKit\skmmcifparser.cpp" />
+    <ClCompile Include="SymmetryKit\skmmcifwriter.cpp" />
     <ClCompile Include="SymmetryKit\skonethirdseitzmatrix.cpp" />
     <ClCompile Include="SimulationKit\skopenclenergygridunitcell.cpp" />
     <ClCompile Include="SimulationKit\skopenclfindminmumenergygridunitcell.cpp" />
@@ -323,17 +377,24 @@
     <ClCompile Include="SimulationKit\skopenclvoidfractionunitcell.cpp" />
     <ClCompile Include="SymmetryKit\skparser.cpp" />
     <ClCompile Include="SymmetryKit\skpdbparser.cpp" />
+    <ClCompile Include="SymmetryKit\skpdbwriter.cpp" />
     <ClCompile Include="SymmetryKit\skpointgroup.cpp" />
+    <ClCompile Include="SymmetryKit\skposcarparser.cpp" />
+    <ClCompile Include="SymmetryKit\skposcarwriter.cpp" />
     <ClCompile Include="SymmetryKit\skrotationaloccurancetable.cpp" />
     <ClCompile Include="SymmetryKit\skrotationmatrix.cpp" />
     <ClCompile Include="SymmetryKit\skseitzmatrix.cpp" />
     <ClCompile Include="SymmetryKit\skspacegroup.cpp" />
     <ClCompile Include="SymmetryKit\skspacegroupsetting.cpp" />
     <ClCompile Include="SymmetryKit\sksymmetryoperationset.cpp" />
+    <ClCompile Include="SymmetryKit\skxyzparser.cpp" />
+    <ClCompile Include="SymmetryKit\skxyzwriter.cpp" />
     <ClCompile Include="RenderKit\spheregeometry.cpp" />
     <ClCompile Include="iRASPAKit\structure.cpp" />
+    <ClCompile Include="SymmetryKit\symmetrykitprotocols.cpp" />
     <ClCompile Include="iRASPA\textfield.cpp" />
     <ClCompile Include="RenderKit\trackball.cpp" />
+    <ClCompile Include="RenderKit\uncappedcylindergeometry.cpp" />
     <ClCompile Include="FoundationKit\zip.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -355,7 +416,13 @@
     </QtMoc>
     <QtMoc Include="iRASPA\atomtreeviewmodel.h">
     </QtMoc>
+    <QtMoc Include="iRASPA\atomtreeviewpushbuttonstyleditemdelegate.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\bondlistpushbuttonstyleditemdelegate.h">
+    </QtMoc>
     <QtMoc Include="iRASPA\bondlistview.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\bondlistviewcomboboxstyleditemdelegate.h">
     </QtMoc>
     <QtMoc Include="iRASPA\bondlistviewmodel.h">
     </QtMoc>
@@ -374,7 +441,12 @@
     </QtMoc>
     <QtMoc Include="iRASPA\cameratreewidgetcontroller.h">
     </QtMoc>
+    <ClInclude Include="RenderKit\cappedcylinderdoublebondgeometry.h" />
     <ClInclude Include="RenderKit\cappedcylindergeometry.h" />
+    <ClInclude Include="RenderKit\cappedcylinderpartialdoublebondgeometry.h" />
+    <ClInclude Include="RenderKit\cappedcylindersinglebondgeometry.h" />
+    <ClInclude Include="RenderKit\cappedcylindertriplebondgeometry.h" />
+    <ClInclude Include="RenderKit\cappednsidedprismgeometry.h" />
     <QtMoc Include="iRASPA\cellcellform.h">
     </QtMoc>
     <QtMoc Include="iRASPA\cellstructuralform.h">
@@ -392,6 +464,8 @@
     <QtMoc Include="iRASPA\customintspinbox.h">
     </QtMoc>
     <ClInclude Include="RenderKit\cylindergeometry.h" />
+    <ClInclude Include="iRASPAKit\cylinderprimitive.h" />
+    <ClInclude Include="iRASPA\deleteselectioncommand.h" />
     <QtMoc Include="iRASPA\detailtabviewcontroller.h">
     </QtMoc>
     <ClInclude Include="iRASPAKit\documentdata.h" />
@@ -405,6 +479,7 @@
     </QtMoc>
     <QtMoc Include="iRASPA\elementsform.h">
     </QtMoc>
+    <ClInclude Include="iRASPAKit\ellipsoidprimitive.h" />
     <ClInclude Include="iRASPA\fixedaspectratiolayoutitem.h" />
     <ClInclude Include="FoundationKit\flatten.h" />
     <ClInclude Include="MathKit\float2.h" />
@@ -463,11 +538,13 @@
     <ClInclude Include="iRASPAKit\molecularcrystal.h" />
     <ClInclude Include="iRASPAKit\molecule.h" />
     <ClInclude Include="iRASPAKit\movie.h" />
+    <ClInclude Include="RenderKit\nsidedprismgeometry.h" />
     <ClInclude Include="MathKit\nsrect.h" />
     <ClInclude Include="MathKit\nssize.h" />
     <ClInclude Include="RenderKit\openglambientocclusionshadowmapshader.h" />
     <ClInclude Include="RenderKit\openglatomorthographicimpostershader.h" />
     <ClInclude Include="RenderKit\openglatomperspectiveimpostershader.h" />
+    <ClInclude Include="RenderKit\openglatompickingshader.h" />
     <ClInclude Include="RenderKit\openglatomselectionglowshader.h" />
     <ClInclude Include="RenderKit\openglatomselectionstripesorthographicimpostershader.h" />
     <ClInclude Include="RenderKit\openglatomselectionstripesperspectiveimpostershader.h" />
@@ -478,17 +555,26 @@
     <ClInclude Include="RenderKit\openglatomshader.h" />
     <ClInclude Include="RenderKit\openglbackgroundshader.h" />
     <ClInclude Include="RenderKit\openglblurshader.h" />
+    <ClInclude Include="RenderKit\openglboundingboxcylindershader.h" />
+    <ClInclude Include="RenderKit\openglboundingboxsphereshader.h" />
+    <ClInclude Include="RenderKit\openglcylinderobjectshader.h" />
     <ClInclude Include="RenderKit\openglenergysurface.h" />
+    <ClInclude Include="RenderKit\openglexternalbondpickingshader.h" />
+    <ClInclude Include="RenderKit\openglexternalbondselectionglowshader.h" />
+    <ClInclude Include="RenderKit\openglexternalbondselectionstripesshader.h" />
+    <ClInclude Include="RenderKit\openglexternalbondselectionworleynoise3dshader.h" />
     <ClInclude Include="RenderKit\openglexternalbondshader.h" />
+    <ClInclude Include="RenderKit\openglinternalbondpickingshader.h" />
+    <ClInclude Include="RenderKit\openglinternalbondselectionglowshader.h" />
+    <ClInclude Include="RenderKit\openglinternalbondselectionstripesshader.h" />
+    <ClInclude Include="RenderKit\openglinternalbondselectionworleynoise3dshader.h" />
     <ClInclude Include="RenderKit\openglinternalbondshader.h" />
-    <ClInclude Include="RenderKit\openglpickingshader.h" />
+    <ClInclude Include="RenderKit\openglpolygonalprismobjectshader.h" />
     <ClInclude Include="RenderKit\openglshader.h" />
+    <ClInclude Include="RenderKit\openglsphereobjectshader.h" />
     <ClInclude Include="RenderKit\openglunitcellcylindershader.h" />
     <ClInclude Include="RenderKit\openglunitcellsphereshader.h" />
-    <ClInclude Include="RenderKit\optional.h" />
-    <ClInclude Include="SymmetryKit\optional.h" />
-    <ClInclude Include="iRASPAKit\optional.h" />
-    <ClInclude Include="iRASPA\optional.h" />
+    <ClInclude Include="iRASPAKit\polygonalprismprimitive.h" />
     <ClInclude Include="iRASPAKit\project.h" />
     <ClInclude Include="iRASPAKit\projectgroup.h" />
     <ClInclude Include="iRASPAKit\projectstructure.h" />
@@ -530,6 +616,7 @@
     <ClInclude Include="MathKit\simd_quatd.h" />
     <ClInclude Include="SimulationKit\simulationkit.h" />
     <ClInclude Include="SymmetryKit\skasymmetricatom.h" />
+    <ClInclude Include="SymmetryKit\skasymmetricbond.h" />
     <ClInclude Include="SymmetryKit\skatomtreecontroller.h" />
     <ClInclude Include="SymmetryKit\skatomtreenode.h" />
     <ClInclude Include="SymmetryKit\skbond.h" />
@@ -537,10 +624,13 @@
     <ClInclude Include="SymmetryKit\skboundingbox.h" />
     <ClInclude Include="SymmetryKit\skcell.h" />
     <ClInclude Include="SymmetryKit\skcifparser.h" />
+    <ClInclude Include="SymmetryKit\skcifwriter.h" />
     <ClInclude Include="SymmetryKit\skcolorset.h" />
     <ClInclude Include="SymmetryKit\skcolorsets.h" />
     <ClInclude Include="SymmetryKit\skdefinitions.h" />
     <ClInclude Include="SymmetryKit\skelement.h" />
+    <ClInclude Include="SymmetryKit\skmmcifparser.h" />
+    <ClInclude Include="SymmetryKit\skmmcifwriter.h" />
     <ClInclude Include="SymmetryKit\skonethirdseitzmatrix.h" />
     <ClInclude Include="SimulationKit\skopenclenergygridunitcell.h" />
     <ClInclude Include="SimulationKit\skopenclfindminmumenergygridunitcell.h" />
@@ -548,13 +638,18 @@
     <ClInclude Include="SimulationKit\skopenclvoidfractionunitcell.h" />
     <ClInclude Include="SymmetryKit\skparser.h" />
     <ClInclude Include="SymmetryKit\skpdbparser.h" />
+    <ClInclude Include="SymmetryKit\skpdbwriter.h" />
     <ClInclude Include="SymmetryKit\skpointgroup.h" />
+    <ClInclude Include="SymmetryKit\skposcarparser.h" />
+    <ClInclude Include="SymmetryKit\skposcarwriter.h" />
     <ClInclude Include="SymmetryKit\skrotationaloccurancetable.h" />
     <ClInclude Include="SymmetryKit\skrotationmatrix.h" />
     <ClInclude Include="SymmetryKit\skseitzmatrix.h" />
     <ClInclude Include="SymmetryKit\skspacegroup.h" />
     <ClInclude Include="SymmetryKit\skspacegroupsetting.h" />
     <ClInclude Include="SymmetryKit\sksymmetryoperationset.h" />
+    <ClInclude Include="SymmetryKit\skxyzparser.h" />
+    <ClInclude Include="SymmetryKit\skxyzwriter.h" />
     <ClInclude Include="RenderKit\spheregeometry.h" />
     <ClInclude Include="iRASPAKit\structure.h" />
     <ClInclude Include="SymmetryKit\symmetrykit.h" />
@@ -562,6 +657,7 @@
     <QtMoc Include="iRASPA\textfield.h">
     </QtMoc>
     <ClInclude Include="RenderKit\trackball.h" />
+    <ClInclude Include="RenderKit\uncappedcylindergeometry.h" />
     <ClInclude Include="FoundationKit\zipreader.h" />
     <ClInclude Include="FoundationKit\zipwriter.h" />
   </ItemGroup>
@@ -627,13 +723,17 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="iRASPA\BottomPanelCollapse.png" />
+    <None Include="iRASPA\DoubleBond.png" />
     <None Include="iRASPA\FrameListController.png" />
     <None Include="iRASPA\LeftPanelCollapse.png" />
     <None Include="iRASPA\MovieListController.png" />
     <None Include="iRASPA\NSAddTemplate.png" />
     <None Include="iRASPA\NSRemoveTemplate.png" />
+    <None Include="iRASPA\PartialDoubleBond.png" />
     <None Include="iRASPA\ProjectListController.png" />
     <None Include="iRASPA\RightPanelCollapse.png" />
+    <None Include="iRASPA\SingleBond.png" />
+    <None Include="iRASPA\TripleBond.png" />
     <None Include="iRASPA\collapsed.png" />
     <None Include="iRASPA\expanded.png" />
     <None Include="iRASPA\iRASPA-icon-512x512.png" />

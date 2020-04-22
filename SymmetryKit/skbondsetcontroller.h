@@ -36,6 +36,7 @@
 #include <tuple>
 #include "skbond.h"
 #include "skasymmetricatom.h"
+#include "skasymmetricbond.h"
 #include "skatomtreecontroller.h"
 
 
@@ -43,17 +44,22 @@ class SKBondSetController
 {
 public:
   SKBondSetController(std::shared_ptr<SKAtomTreeController> atomTreeController);
-  const std::unordered_set<std::shared_ptr<SKBond>>& arrangedObjects() const {return _arrangedObjects;}
-  const std::vector<std::shared_ptr<SKBond>>& rearrangedObjects() const {return _rearrangedObjects;}
-  void append(std::shared_ptr<SKBond> bond) {_arrangedObjects.insert(bond);}
-  void sort();
-  void clear() {_rearrangedObjects.clear(); _arrangedObjects.clear();}
+  const std::vector<std::shared_ptr<SKAsymmetricBond>>& arrangedObjects() const {return _arrangedObjects;}
+  void append(std::shared_ptr<SKAsymmetricBond> bond) {_arrangedObjects.push_back(bond);}
+  void clear() {_arrangedObjects.clear();}
+  int getNumberOfBands();
+  std::vector<std::shared_ptr<SKBond>> getBonds();
+  void setBonds(std::vector<std::shared_ptr<SKBond>> &bonds);
+  std::set<int> &selectedObjects() {return _selectedObjects;}
+  void setSelectedObjects(std::set<int> selection) {_selectedObjects = selection;}
+  void addSelectedObjects(std::set<int> selection);
+  void setTags();
 private:
-  qint64 _versionNumber{1};
+  static qint64 _versionNumber;
   std::shared_ptr<SKAtomTreeController> _atomTreecontroller;
 
-  std::unordered_set<std::shared_ptr<SKBond>> _arrangedObjects;
-  std::vector<std::shared_ptr<SKBond>> _rearrangedObjects;
+  std::vector<std::shared_ptr<SKAsymmetricBond>> _arrangedObjects;
+  std::set<int> _selectedObjects;
 
   friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<SKBondSetController> &);
   friend QDataStream &operator>>(QDataStream &stream, std::shared_ptr<SKBondSetController>& controller);

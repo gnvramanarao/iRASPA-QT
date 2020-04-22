@@ -71,7 +71,6 @@ public:
   std::vector<RKInPerInstanceAttributesAtoms> renderMeasurementPoints() const override final;
   std::vector<RKRenderStructure> renderMeasurementStructure() const override final;
 
-  SKBoundingBox renderBoundingBox() const override final;
 
   bool hasSelectedObjects() const override final;
 
@@ -116,6 +115,8 @@ public:
   void setMovieFramesPerSecond(int fps) {_movieFramesPerSecond = fps;}
   double imageDotsPerInchValue();
 
+  void setShowBoundingBox(bool show) {_showBoundingBox = show;}
+  SKBoundingBox renderBoundingBox() const override final;
   bool showBoundingBox() const override final;
   std::vector<RKInPerInstanceAttributesAtoms> renderBoundingBoxSpheres() const override final;
   std::vector<RKInPerInstanceAttributesBonds> renderBoundingBoxCylinders() const override final;
@@ -125,6 +126,7 @@ public:
 private:
   qint64 _versionNumber{2};
 
+  SKBoundingBox _boundingBox = SKBoundingBox();
   bool _showBoundingBox{false};
 
   RKBackgroundType _backgroundType = RKBackgroundType::color;

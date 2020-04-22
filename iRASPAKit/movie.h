@@ -47,7 +47,7 @@ public:
   void setVisibility(bool visibility);
 
   std::shared_ptr<iRASPAStructure> selectedFrame();
-  stdx::optional<int> selectedFrameIndex();
+  std::optional<int> selectedFrameIndex();
   void setSelectedFrameIndex(int frameIndex);
   void setSelectedFrame(std::shared_ptr<iRASPAStructure> selectedFrame) {_selectedFrame = selectedFrame;}
   std::unordered_set<std::shared_ptr<iRASPAStructure>> &selectedFrames() {return _selectedFrames;}

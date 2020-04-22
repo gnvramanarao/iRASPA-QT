@@ -30,8 +30,8 @@
 #include "customdoublespinbox.h"
 #include <iostream>
 #include <QLineEdit>
-//#include <QKeyEvent>
-#include <math.h>
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <iostream>
 
 CustomDoubleSpinBox::CustomDoubleSpinBox(QWidget* parent) : QDoubleSpinBox(parent)
@@ -44,7 +44,6 @@ void CustomDoubleSpinBox::privateEditingFinished()
 {
   if(!isReadOnly())
   {
-    std::cout << "Read text: " <<  _textValue.toStdString() << std::endl;
     bool success = false;
     double value = _textValue.toDouble(&success);
     _state=Text;
@@ -72,7 +71,6 @@ void CustomDoubleSpinBox::setValue(double value)
 
 void CustomDoubleSpinBox::setText(QString text)
 {
-  std::cout << "set text: " << text.toStdString() << std::endl;
   _textValue = text;
   _state = Text;
   setPrefix(text);
@@ -80,7 +78,6 @@ void CustomDoubleSpinBox::setText(QString text)
 
 void CustomDoubleSpinBox::focusInEvent(QFocusEvent *event)
 {
-  std::cout << "focusInEvent" << std::endl;
   if(_state == Text && !isReadOnly())
   {
     setPrefix("");

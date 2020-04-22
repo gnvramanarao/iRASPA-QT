@@ -79,7 +79,7 @@ union double3x3
    double3x3 const inverse();
    static double3x3 const inverse(const double3x3& right);
    static double3x3 transpose(const double3x3& right);
-   double3x3 transpose(void);
+   double3x3 const transpose(void) const;
    double3x3 inversetranpose(void);
    void solve_lambdas(double3 &res);
    void solve_angles_0( double3 &res, double3 lambdas );

@@ -27,7 +27,8 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#include <math.h>
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "spheregeometry.h"
 
 SphereGeometry::SphereGeometry(double r, int s)

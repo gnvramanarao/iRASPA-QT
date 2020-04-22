@@ -29,7 +29,9 @@
 
 #include "projecttreeview.h"
 
-ProjectTreeView::ProjectTreeView(QWidget* parent): QTreeView(parent ), _model(std::make_shared<ProjectTreeViewModel>())
+ProjectTreeView::ProjectTreeView(QWidget* parent): QTreeView(parent ),
+  _model(std::make_shared<ProjectTreeViewModel>()),
+  _undoStack()
 {
   this->setModel(_model.get());
   this->setHeaderHidden(true);
@@ -55,6 +57,37 @@ ProjectTreeView::ProjectTreeView(QWidget* parent): QTreeView(parent ), _model(st
   //QObject::connect(selectionModel(), &QItemSelectionModel::selectionChanged, this, &ProjectTreeView::setSelectedProjects);
 
   _dropIndicatorRect = QRect();
+}
+
+// Use the general undoManager for changes to the project-treeView.
+void ProjectTreeView::focusInEvent( QFocusEvent* )
+{
+  QAction *newUndoAction = this->undoManager().createUndoAction(this, tr("&Undo"));
+  _mainWindow->setUndoAction(newUndoAction);
+
+  QAction *newRedoAction = this->undoManager().createRedoAction(this, tr("&Redo"));
+  _mainWindow->setRedoAction(newRedoAction);
+}
+
+// Use the undoManger of the project for all changes inside a project. Each project has its own undoManager.
+void ProjectTreeView::focusOutEvent( QFocusEvent* )
+{
+  QModelIndex index = this->selectionModel()->currentIndex();
+
+  if(index.isValid())
+  {
+    if(ProjectTreeNode* item = static_cast<ProjectTreeNode*>(index.internalPointer()))
+    {
+       if(std::shared_ptr<iRASPAProject> iraspaProject =  item->representedObject())
+       {
+         QAction *newUndoAction = iraspaProject->undoManager().createUndoAction(this, tr("&Undo"));
+         _mainWindow->setUndoAction(newUndoAction);
+
+         QAction *newRedoAction = iraspaProject->undoManager().createRedoAction(this, tr("&Redo"));
+         _mainWindow->setRedoAction(newRedoAction);
+       }
+    }
+  }
 }
 
 void ProjectTreeView::paintEvent(QPaintEvent *event)
@@ -230,7 +263,8 @@ bool ProjectTreeView::insertRows(int position, int rows, const QModelIndex &pare
 
 void ProjectTreeView::setSelectedProject(const QModelIndex& current, const QModelIndex& previous)
 {
-
+  std::cout.flush();
+  std::cout << "setSelectedProject" << std::endl;
   QModelIndex index = this->selectionModel()->currentIndex();
 
   if(index.isValid())

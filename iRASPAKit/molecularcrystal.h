@@ -39,23 +39,31 @@ public:
 
 	iRASPAStructureType structureType() override final  { return iRASPAStructureType::molecularCrystal; }
 
-	double bondLenght(std::shared_ptr<SKBond> bond) override final;
-
 	std::vector<RKInPerInstanceAttributesAtoms> renderAtoms() const override final;
+  std::vector<RKInPerInstanceAttributesBonds> renderInternalBonds() const override final;
+  std::vector<RKInPerInstanceAttributesAtoms> renderUnitCellSpheres() const override final;
+  std::vector<RKInPerInstanceAttributesBonds> renderUnitCellCylinders() const override final;
+
 	std::vector<RKInPerInstanceAttributesAtoms> renderSelectedAtoms() const override final;
+  std::vector<RKInPerInstanceAttributesBonds> renderSelectedInternalBonds() const override final;
+
+  std::set<int> filterCartesianAtomPositions(std::function<bool(double3)> &) override final;
+  std::set<int> filterCartesianBondPositions(std::function<bool(double3)> &) override final;
+
+  SKBoundingBox boundingBox() const final override;
+
+  void expandSymmetry() final override;
+  void expandSymmetry(std::shared_ptr<SKAsymmetricAtom> asymmetricAtom);
+  void setSpaceGroupHallNumber(int HallNumber) override final;
+
+  double bondLength(std::shared_ptr<SKBond> bond) const override final;
+  double3 bondVector(std::shared_ptr<SKBond> bond) const override final;
+  std::pair<double3, double3> computeChangedBondLength(std::shared_ptr<SKBond> bond, double bondlength) const override final;
+  void computeBonds() final override;
+
 	std::vector<double3> atomPositions() const override final;
 	std::vector<double3> atomUnitCellPositions() const override final;
 	std::vector<double2> potentialParameters() const override final;
-	std::vector<RKInPerInstanceAttributesBonds> renderInternalBonds() const override final;
-	std::vector<RKInPerInstanceAttributesAtoms> renderUnitCellSpheres() const override final;
-	std::vector<RKInPerInstanceAttributesBonds> renderUnitCellCylinders() const override final;
-	SKBoundingBox boundingBox() const final override;
-	SKBoundingBox transformedBoundingBox() const final override;
-	void expandSymmetry() final override;
-	void expandSymmetry(std::shared_ptr<SKAsymmetricAtom> asymmetricAtom);
-	void setTags();
-	void computeBonds() final override;
-	void setSpaceGroupHallNumber(int HallNumber) override final;
 private:
   qint64 _versionNumber{1};
   SKSpaceGroup _spaceGroup = SKSpaceGroup(1);

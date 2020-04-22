@@ -28,7 +28,9 @@
  *************************************************************************************************************/
 
 #include "double4.h"
-#include <math.h>
+
+#define _USE_MATH_DEFINES
+#include <cmath>
 
 /*
 double4::double4()

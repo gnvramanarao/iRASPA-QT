@@ -28,13 +28,17 @@
  *************************************************************************************************************/
 
 #include "skparser.h"
-#define _USE_MATH_DEFINES
-#include <math.h>
 
 SKParser::SKParser(): _a(20.0), _b(20.0), _c(20.0), _alpha(90.0 * M_PI / 180.0), _beta(90.0 * M_PI / 180.0), _gamma(90.0 * M_PI / 180.0)
 {
 
 }
+
+SKParser::~SKParser()
+{
+  // Compulsory virtual destructor definition
+}
+
 
 std::vector<std::vector<std::tuple<std::shared_ptr<SKAtomTreeController>, std::shared_ptr<SKCell>, int>>> SKParser::movies()
 {

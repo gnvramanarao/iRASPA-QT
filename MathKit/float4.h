@@ -29,6 +29,7 @@
 
 #pragma once
 
+#include <QColor>
 #include "double4.h"
 #include "double3.h"
 #include "float3.h"
@@ -42,6 +43,7 @@ union float4
   float4(float x=0,float y=0, float z=0, float w=0):x(x),y(y),z(z),w(w) {}
   float4(double4 a):x(float(a.x)),y(float(a.y)),z(float(a.z)),w(float(a.w)) {}
   float4(double3 a, double b):x(float(a.x)),y(float(a.y)),z(float(a.z)),w(float(b)) {}
+  float4(QColor a, double b):x(float(a.redF())),y(float(a.greenF())),z(float(a.blueF())),w(float(b)) {}
   float4(float3 a, float b):x(a.x),y(a.y),z(a.z),w(b) {}
   inline float & operator [] (int i) { return v[i]; }
   inline const float & operator [] (int i) const { return v[i]; }
@@ -56,4 +58,8 @@ union float4
   friend float4 operator*(double value, float4 const &v);
   friend float4 operator*(const float4 &v, float value);
   friend float4 operator*(float value, float4 const &v);
+
+  friend float4 operator+(const float4 &v1, const float4 &v2);
+  friend float4 operator-(const float4 &v1, const float4 &v2);
+
 };

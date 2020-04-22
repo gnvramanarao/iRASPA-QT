@@ -33,47 +33,138 @@
 #include <QPainter>
 #include <QStylePainter>
 #include <QApplication>
-#include <QComboBox>
-#include <QCheckBox>
+#include <QPushButton>
 #include <QDial>
+#include <QDebug>
+#include <skasymmetricbond.h>
+#include "bondlistview.h"
 
 BondListViewSliderStyledItemDelegate::BondListViewSliderStyledItemDelegate(QWidget *parent) : QStyledItemDelegate(parent)
 {
+  isOneCellInEditMode = false;
 
+  if(BondListView *view = qobject_cast<BondListView *>(parent))
+  {
+     treeView = view;
+     connect(treeView, SIGNAL(entered(QModelIndex)), this, SLOT(cellEntered(QModelIndex)));
+  }
+
+  slider = new QDoubleSlider(Qt::Horizontal, treeView);
+  slider->hide();
+  slider->setDoubleMinimum(0.0);
+  slider->setDoubleMaximum(3.0);
+  slider->setAutoFillBackground(true);
 }
-
 
 void BondListViewSliderStyledItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                          const QModelIndex &index) const
 {
-   //painter->fillRect(option.rect, option.palette.highlight());
-   //painter->fillRect(option.rect, QColor(255,0,255,255));
+  // call super to draw selection
+  QStyledItemDelegate::paint(painter, option, index);
 
-   //QStyle style = QApplication::style();
-    QStyleOptionSlider sliderOption;
-    sliderOption.rect = option.rect;
-    sliderOption.minimum = 0.0;
-    sliderOption.maximum = 3.0;
+  if (isOneCellInEditMode && (currentEditedCellIndex == index)) return;
 
-    //QSlider slider = QSlider(Qt::Horizontal);
-    //slider.setMinimum(0.0);
-    //slider.setMaximum(3.0);
-    //slider.setAutoFillBackground(true);
+  if(SKAsymmetricBond *asymmetricBond = static_cast<SKAsymmetricBond*>(index.internalPointer()))
+  {
+    const QModelIndex bondLengthIndex = index.sibling(index.row(), index.column()-1);
+    double bondLength = treeView->model()->data(bondLengthIndex).toDouble();
 
+    painter->save();
+    QStyleOptionSlider opt;
+    opt.init(slider);
+    opt.orientation = Qt::Horizontal;
+    opt.minimum = slider->minimum();
+    opt.maximum = slider->maximum();
+    opt.rect = option.rect;
+    slider->setDoubleValue(bondLength);
+    opt.sliderPosition = slider->sliderPosition();
+    opt.sliderValue = slider->value();
+    opt.subControls = QStyle::SC_SliderHandle | QStyle::SC_SliderGroove;
 
-    // This line crashes a QMessageBox. CE_ProgressBarContents and CE_ProgressBar lead to a crash.
-    // All other values of QStyle::CE_*** work fine.
-    // drawComplexControl has no problem either.
-    //QApplication::style()->drawControl(QStyle::CE_ProgressBarContents, &progressBarOption, painter);
-    //QApplication::style()->drawComplexControl(QStyle::CC_Slider, &sliderOption, painter);
+    #ifdef Q_OS_MAC
+      painter->translate(option.rect.left(),0);
+    #endif
 
-    QStyleOptionSlider box;
+    slider->style()->drawComplexControl(QStyle::CC_Slider, &opt, painter, slider);
 
-     box.rect = option.rect;
-
-
-  //   QApplication::style()->drawComplexControl(QStyle::CC_Slider, &box, painter, &slider);
-     //QApplication::style()->drawControl(QStyle::CE_, &box, painter, nullptr);
-
-    QStyledItemDelegate::paint(painter, option, index);
+    painter->restore();
+  }
 }
+
+void BondListViewSliderStyledItemDelegate::cellEntered(const QModelIndex &index)
+{
+  if(index.column() == 7)
+  {
+    if(isOneCellInEditMode)
+    {
+      treeView->closePersistentEditor(currentEditedCellIndex);
+    }
+    treeView->openPersistentEditor(index);
+    isOneCellInEditMode = true;
+    currentEditedCellIndex = index;
+  }
+  else
+  {
+    if(isOneCellInEditMode)
+    {
+      isOneCellInEditMode = false;
+      treeView->closePersistentEditor(currentEditedCellIndex);
+    }
+  }
+}
+
+void BondListViewSliderStyledItemDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    editor->setGeometry(option.rect);
+}
+
+QWidget * BondListViewSliderStyledItemDelegate::createEditor(QWidget *parent,
+        const QStyleOptionViewItem &option,
+        const QModelIndex &index) const
+{
+  if(SKAsymmetricBond *asymmetricBond = static_cast<SKAsymmetricBond*>(index.internalPointer()))
+  {
+    const QModelIndex bondLengthIndex = index.sibling(index.row(), index.column()-1);
+    double bondLength = treeView->model()->data(bondLengthIndex).toDouble();
+
+    QDoubleSlider *realSlider = new QDoubleSlider(Qt::Horizontal, parent);
+    realSlider->setDoubleMinimum(0);
+    realSlider->setDoubleMaximum(3.0);
+    realSlider->setDoubleValue(bondLength);
+    realSlider->setAutoFillBackground(false);
+    QSize size = option.rect.size();
+    realSlider->resize(size);
+
+    //connect(realSlider, static_cast<void (QDoubleSlider::*)()>(&QDoubleSlider::sliderReleased), realSlider,
+    //        [this, realSlider, index](){ setModelData(realSlider, treeView->model(), index);});
+
+    connect(realSlider, static_cast<void (QDoubleSlider::*)(double)>(&QDoubleSlider::sliderMoved), realSlider,
+            [this, realSlider, index](double value){ setModelData(realSlider, treeView->model(), index);});
+
+    return realSlider;
+  }
+  return nullptr;
+}
+
+void BondListViewSliderStyledItemDelegate::setSliderValue(double level)
+{
+}
+
+
+void BondListViewSliderStyledItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+{
+  //qDebug() << "setEditorData " << index.row();
+    ////setup the editor - your data are in index.data(Qt::DataRoles) - stored in a QVariant;
+    //QString value = index.model()->data(index,Qt::EditRole).toString();
+    //SubscriberForm *subscriberForm =  static_cast<SubscriberForm*>(editor);
+}
+
+void BondListViewSliderStyledItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
+                                const QModelIndex &index) const
+{
+  if(QDoubleSlider *slider = qobject_cast<QDoubleSlider *>(editor))
+  {
+    model->setData(index, QVariant(slider->doubleValue()), Qt::EditRole);
+  }
+}
+

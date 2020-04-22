@@ -41,11 +41,10 @@
 class iRASPAProject
 {
 public:
-
-  iRASPAProject(): _projectType(ProjectType::none), _fileNameUUID(QUuid::createUuid().toString().mid(1,36).toUpper()), _project(std::make_shared<Project>()), _nodeType(NodeType::leaf), _storageType(StorageType::local), _lazyStatus(LazyStatus::loaded) {}
-  iRASPAProject(std::shared_ptr<Project> project): _projectType(ProjectType::generic), _fileNameUUID(QUuid::createUuid().toString().mid(1,36).toUpper()), _project(project), _nodeType(NodeType::leaf), _storageType(StorageType::local), _lazyStatus(LazyStatus::loaded) {}
-  iRASPAProject(std::shared_ptr<ProjectStructure> project): _projectType(ProjectType::structure), _fileNameUUID(QUuid::createUuid().toString().mid(1,36).toUpper()), _project(project), _nodeType(NodeType::leaf), _storageType(StorageType::local), _lazyStatus(LazyStatus::loaded)  {}
-  iRASPAProject(std::shared_ptr<ProjectGroup> project): _projectType(ProjectType::group), _fileNameUUID(QUuid::createUuid().toString().mid(1,36).toUpper()), _project(project), _nodeType(NodeType::group), _storageType(StorageType::local), _lazyStatus(LazyStatus::loaded) {}
+  iRASPAProject();
+  iRASPAProject(std::shared_ptr<Project> project);
+  iRASPAProject(std::shared_ptr<ProjectStructure> project);
+  iRASPAProject(std::shared_ptr<ProjectGroup> project);
 
   enum class ProjectType: qint64 {none=0, generic=1, group=2, structure=3, VASP=4, RASPA=5, GULP=6, CP2K=7};
   enum class NodeType: qint64 {group=0, leaf=1};
@@ -61,6 +60,7 @@ public:
   inline const std::shared_ptr<Project> project() const {return _project;}
   std::shared_ptr<Project> project() {return _project;}
   ~iRASPAProject() {}
+  QUndoStack& undoManager() {return _undoStack;}
 private:
   qint64 _versionNumber{1};
   ProjectType _projectType;
@@ -70,6 +70,8 @@ private:
   StorageType _storageType;
   LazyStatus _lazyStatus;
   QByteArray _data;
+
+  QUndoStack _undoStack;
 
   friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<iRASPAProject> &);
   friend QDataStream &operator>>(QDataStream &, std::shared_ptr<iRASPAProject> &);

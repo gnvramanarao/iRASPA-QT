@@ -31,7 +31,7 @@
 #include "double4x4.h"
 
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include <cmath>
 
 #define sqr( x ) (( x )*( x ))
 #define SIGN(a,b) ((b)>=0.0?fabs(a):-fabs(a))
@@ -57,7 +57,7 @@ double3x3::double3x3(simd_quatd q)
    double sqz = q.iz*q.iz;
 
    // invs (inverse square length) is only required if quaternion is not already normalised
-   double invs = 1 / (sqx + sqy + sqz + sqw);
+   double invs = 1.0 / (sqx + sqy + sqz + sqw);
    m11 = ( sqx - sqy - sqz + sqw)*invs ; // since sqw + sqx + sqy + sqz =1/invs*invs
    m22 = (-sqx + sqy - sqz + sqw)*invs ;
    m33 = (-sqx - sqy + sqz + sqw)*invs ;
@@ -146,7 +146,7 @@ double3x3 double3x3::transpose(const double3x3& right)
 }
 
 
-double3x3 double3x3::transpose(void)
+double3x3 const double3x3::transpose(void) const
 {
   double3x3 res;
 

@@ -84,7 +84,7 @@ void OpenGLEnergySurface::setRenderStructures(std::vector<std::vector<std::share
 
 void OpenGLEnergySurface::deleteBuffers()
 {
-  for(int i=0;i<_renderStructures.size();i++)
+  for(size_t i=0;i<_renderStructures.size();i++)
   {
     glDeleteVertexArrays(_renderStructures[i].size(), _surfaceVertexArrayObject[i].data());
     glDeleteBuffers(_renderStructures[i].size(), _surfaceVertexBuffer[i].data());
@@ -553,9 +553,9 @@ void main(void)
 
 
   vec3 hsv = rgb2hsv(color.xyz);
-  hsv.x = hsv.x * structureUniforms.changeHueSaturationValue.x;
-  hsv.y = hsv.y * structureUniforms.changeHueSaturationValue.y;
-  hsv.z = hsv.z * structureUniforms.changeHueSaturationValue.z;
+  hsv.x = hsv.x * structureUniforms.atomHue;
+  hsv.y = hsv.y * structureUniforms.atomSaturation;
+  hsv.z = hsv.z * structureUniforms.atomValue;
   vFragColor = vec4(hsv2rgb(hsv) * isosurfaceUniforms.diffuseFrontSide.w,isosurfaceUniforms.diffuseFrontSide.w);
 }
 )foo";

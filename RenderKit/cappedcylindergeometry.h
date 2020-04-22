@@ -36,8 +36,8 @@ class CappedCylinderGeometry
 {
 public:
   CappedCylinderGeometry(double r, int s);
-  std::vector<RKVertex> vertices() {return _vertexes;}
-  std::vector<short> indices() {return _indices;}
+  std::vector<RKVertex> &vertices() {return _vertexes;}
+  std::vector<short> &indices() {return _indices;}
 private:
   int _slices;
   int _numberOfIndices;

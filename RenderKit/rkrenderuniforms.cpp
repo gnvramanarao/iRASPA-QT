@@ -28,6 +28,7 @@
  *************************************************************************************************************/
 
 #include "rkrenderuniforms.h"
+#include "mathkit.h"
 
 RKTransformationUniforms::RKTransformationUniforms(double4x4 projectionMatrix, double4x4 viewMatrix, double bloomLevel, double bloomPulse, int multiSampling)
 {
@@ -55,15 +56,15 @@ RKStructureUniforms::RKStructureUniforms(int sceneIdentifier, int movieIdentifie
 
   double4x4 modelMatrix = double4x4::AffinityMatrixToTransformationAroundArbitraryPointWithTranslation(double4x4(structure->orientation()),centerOfRotation, structure->origin());
 
-  double4 hsv = double4(structure->atomHue(), structure->atomSaturation(), structure->atomValue(), 0.0);
-
   this->sceneIdentifier = int32_t(sceneIdentifier);
   this->MovieIdentifier = int32_t(movieIdentifier);
 
   this->colorAtomsWithBondColor = structure->colorAtomsWithBondColor();
   this->atomScaleFactor = float(structure->atomScaleFactor());
   this->modelMatrix = float4x4(modelMatrix);
-  this->changeHueSaturationValue = float4(hsv);
+  this->atomHue = structure->atomHue();
+  this->atomSaturation = structure->atomSaturation();
+  this->atomValue = structure->atomValue();
 
   this->ambientOcclusion = structure->atomAmbientOcclusion() ? GL_TRUE : GL_FALSE;
   this->ambientOcclusionPatchNumber = int32_t(structure->atomAmbientOcclusionPatchNumber());
@@ -89,12 +90,12 @@ RKStructureUniforms::RKStructureUniforms(int sceneIdentifier, int movieIdentifie
 
   this->atomHDR = structure->atomHDR() ? GL_TRUE : GL_FALSE;
   this->atomHDRExposure = float(structure->atomHDRExposure());
-  this->atomHDRBloomLevel = float(structure->atomHDRBloomLevel());
+  this->atomSelectionIntensity = float(structure->atomSelectionIntensity());
   this->clipAtomsAtUnitCell = structure->clipAtomsAtUnitCell() ? GL_TRUE : GL_FALSE;
 
   this->bondHDR = structure->bondHDR() ? GL_TRUE : GL_FALSE;
   this->bondHDRExposure = float(structure->bondHDRExposure());
-  this->bondHDRBloomLevel = float(structure->bondHDRBloomLevel());
+  this->bondSelectionIntensity = float(structure->bondSelectionIntensity());
   this->clipBondsAtUnitCell = structure->clipBondsAtUnitCell() ? GL_TRUE : GL_FALSE;
 
   this->bondHue = float(structure->bondHue());
@@ -109,6 +110,14 @@ RKStructureUniforms::RKStructureUniforms(int sceneIdentifier, int movieIdentifie
                                                                                structure->bondSpecularColor().blueF(),structure->bondSpecularColor().alphaF());
   this->bondShininess = float(structure->bondShininess());
 
+  this->bondSelectionStripesDensity = float(structure->bondSelectionStripesDensity());
+  this->bondSelectionStripesFrequency = float(structure->bondSelectionStripesFrequency());
+  this->bondSelectionWorleyNoise3DFrequency = float(structure->bondSelectionWorleyNoise3DFrequency());
+  this->bondSelectionWorleyNoise3DJitter = float(structure->bondSelectionWorleyNoise3DJitter());
+  this->bondSelectionIntensity = float(structure->bondSelectionIntensity());
+  this->bondSelectionScaling = float(std::max(1.001,structure->bondSelectionScaling())); // avoid artifacts
+
+
 
   double3x3 unitCell = structure->cell()->unitCell();
   double3x3 box = structure->cell()->box();
@@ -122,16 +131,15 @@ RKStructureUniforms::RKStructureUniforms(int sceneIdentifier, int movieIdentifie
   this->boxMatrix[3][2] = float(shift.z);
 
 
-  this->selectionScaling = float(std::max(1.005,structure->renderSelectionScaling())); // avoid artifacts
-  this->atomSelectionStripesDensity = float(structure->renderSelectionStripesDensity());
-  this->atomSelectionStripesFrequency = float(structure->renderSelectionStripesFrequency());
-  this->atomSelectionWorleyNoise3DFrequency = float(structure->renderSelectionWorleyNoise3DFrequency());
-  this->atomSelectionWorleyNoise3DJitter = float(structure->renderSelectionWorleyNoise3DJitter());
+  this->atomSelectionScaling = float(std::max(1.005,structure->atomSelectionScaling())); // avoid artifacts
+  this->atomSelectionStripesDensity = float(structure->atomSelectionStripesDensity());
+  this->atomSelectionStripesFrequency = float(structure->atomSelectionStripesFrequency());
+  this->atomSelectionWorleyNoise3DFrequency = float(structure->atomSelectionWorleyNoise3DFrequency());
+  this->atomSelectionWorleyNoise3DJitter = float(structure->atomSelectionWorleyNoise3DJitter());
 
   this->atomAnnotationTextColor = float4(structure->renderTextColor().redF(),structure->renderTextColor().greenF(),
                                          structure->renderTextColor().blueF(),structure->renderTextColor().alphaF());
   this->atomAnnotationTextScaling = float(structure->renderTextScaling());
-  this->bondAnnotationTextScaling = 1.0;
   this->atomAnnotationTextDisplacement = float4(float(structure->renderTextOffset().x),
                                                float(structure->renderTextOffset().y),
                                                float(structure->renderTextOffset().z),
@@ -147,6 +155,76 @@ RKStructureUniforms::RKStructureUniforms(int sceneIdentifier, int movieIdentifie
   this->clipPlaneFront = float4(-u_plane0.x, -u_plane0.y, -u_plane0.z, double3::dot(u_plane0,corner2));
   this->clipPlaneTop = float4(-u_plane1.x, -u_plane1.y, -u_plane1.z, double3::dot(u_plane1,corner2));
   this->clipPlaneRight = float4(-u_plane2.x, -u_plane2.y, -u_plane2.z, double3::dot(u_plane2,corner2));
+
+
+  if(RKRenderPrimitiveSphereObjectsSource *source = dynamic_cast<RKRenderPrimitiveSphereObjectsSource*>(structure.get()))
+  {
+    float4x4 primitiveModelMatrix = float4x4(double4x4(source->primitiveOrientation()));
+    float4x4 primitiveNormalMatrix = float4x4(double3x3(source->primitiveOrientation()).inverse().transpose());  // tranpose
+
+    this->transformationMatrix = primitiveModelMatrix * float4x4(source->primitiveTransformationMatrix());
+    this->transformationNormalMatrix = primitiveNormalMatrix * float4x4(source->primitiveTransformationMatrix().inverse().transpose()); // tranpose
+
+    this->primitiveFrontSideHDR = source->primitiveFrontSideHDR();
+    this->primitiveFrontSideHDRExposure = float(source->primitiveFrontSideHDRExposure());
+    this->primitiveAmbientFrontSide = float(source->primitiveFrontSideAmbientIntensity()) * float4(source->primitiveFrontSideAmbientColor(), source->primitiveOpacity());
+    this->primitiveDiffuseFrontSide = float(source->primitiveFrontSideDiffuseIntensity()) * float4(source->primitiveFrontSideDiffuseColor(), source->primitiveOpacity());
+    this->primitiveSpecularFrontSide = float(source->primitiveFrontSideSpecularIntensity()) * float4(source->primitiveFrontSideSpecularColor(), source->primitiveOpacity());
+    this->primitiveShininessFrontSide = float(source->primitiveFrontSideShininess());
+
+    this->primitiveBackSideHDR = source->primitiveBackSideHDR();
+    this->primitiveBackSideHDRExposure = float(source->primitiveBackSideHDRExposure());
+    this->primitiveAmbientBackSide = float(source->primitiveBackSideAmbientIntensity()) * float4(source->primitiveBackSideAmbientColor(), source->primitiveOpacity());
+    this->primitiveDiffuseBackSide = float(source->primitiveBackSideDiffuseIntensity()) * float4(source->primitiveBackSideDiffuseColor(), source->primitiveOpacity());
+    this->primitiveSpecularBackSide = float(source->primitiveBackSideSpecularIntensity()) * float4(source->primitiveBackSideSpecularColor(), source->primitiveOpacity());
+    this->primitiveShininessBackSide = float(source->primitiveBackSideShininess());
+  }
+
+  if(RKRenderPrimitiveCylinderObjectsSource *source = dynamic_cast<RKRenderPrimitiveCylinderObjectsSource*>(structure.get()))
+  {
+    float4x4 primitiveModelMatrix = float4x4(double4x4(source->primitiveOrientation()));
+    float4x4 primitiveNormalMatrix = float4x4(double3x3(source->primitiveOrientation()).inverse().transpose());  // tranpose
+
+    this->transformationMatrix = primitiveModelMatrix * float4x4(source->primitiveTransformationMatrix());
+    this->transformationNormalMatrix = primitiveNormalMatrix * float4x4(source->primitiveTransformationMatrix().inverse().transpose()); // tranpose
+
+    this->primitiveFrontSideHDR = source->primitiveFrontSideHDR();
+    this->primitiveFrontSideHDRExposure = float(source->primitiveFrontSideHDRExposure());
+    this->primitiveAmbientFrontSide = float(source->primitiveFrontSideAmbientIntensity()) * float4(source->primitiveFrontSideAmbientColor(), source->primitiveOpacity());
+    this->primitiveDiffuseFrontSide = float(source->primitiveFrontSideDiffuseIntensity()) * float4(source->primitiveFrontSideDiffuseColor(), source->primitiveOpacity());
+    this->primitiveSpecularFrontSide = float(source->primitiveFrontSideSpecularIntensity()) * float4(source->primitiveFrontSideSpecularColor(), source->primitiveOpacity());
+    this->primitiveShininessFrontSide = float(source->primitiveFrontSideShininess());
+
+    this->primitiveBackSideHDR = source->primitiveBackSideHDR();
+    this->primitiveBackSideHDRExposure = float(source->primitiveBackSideHDRExposure());
+    this->primitiveAmbientBackSide = float(source->primitiveBackSideAmbientIntensity()) * float4(source->primitiveBackSideAmbientColor(), source->primitiveOpacity());
+    this->primitiveDiffuseBackSide = float(source->primitiveBackSideDiffuseIntensity()) * float4(source->primitiveBackSideDiffuseColor(), source->primitiveOpacity());
+    this->primitiveSpecularBackSide = float(source->primitiveBackSideSpecularIntensity()) * float4(source->primitiveBackSideSpecularColor(), source->primitiveOpacity());
+    this->primitiveShininessBackSide = float(source->primitiveBackSideShininess());
+  }
+
+  if(RKRenderPrimitivePolygonalPrimsObjectsSource *source = dynamic_cast<RKRenderPrimitivePolygonalPrimsObjectsSource*>(structure.get()))
+  {
+    float4x4 primitiveModelMatrix = float4x4(double4x4(source->primitiveOrientation()));
+    float4x4 primitiveNormalMatrix = float4x4(double3x3(source->primitiveOrientation()).inverse().transpose());  // tranpose
+
+    this->transformationMatrix = primitiveModelMatrix * float4x4(source->primitiveTransformationMatrix());
+    this->transformationNormalMatrix = primitiveNormalMatrix * float4x4(source->primitiveTransformationMatrix().inverse().transpose()); // tranpose
+
+    this->primitiveFrontSideHDR = source->primitiveFrontSideHDR();
+    this->primitiveFrontSideHDRExposure = float(source->primitiveFrontSideHDRExposure());
+    this->primitiveAmbientFrontSide = float(source->primitiveFrontSideAmbientIntensity()) * float4(source->primitiveFrontSideAmbientColor(), source->primitiveOpacity());
+    this->primitiveDiffuseFrontSide = float(source->primitiveFrontSideDiffuseIntensity()) * float4(source->primitiveFrontSideDiffuseColor(), source->primitiveOpacity());
+    this->primitiveSpecularFrontSide = float(source->primitiveFrontSideSpecularIntensity()) * float4(source->primitiveFrontSideSpecularColor(), source->primitiveOpacity());
+    this->primitiveShininessFrontSide = float(source->primitiveFrontSideShininess());
+
+    this->primitiveBackSideHDR = source->primitiveBackSideHDR();
+    this->primitiveBackSideHDRExposure = float(source->primitiveBackSideHDRExposure());
+    this->primitiveAmbientBackSide = float(source->primitiveBackSideAmbientIntensity()) * float4(source->primitiveBackSideAmbientColor(), source->primitiveOpacity());
+    this->primitiveDiffuseBackSide = float(source->primitiveBackSideDiffuseIntensity()) * float4(source->primitiveBackSideDiffuseColor(), source->primitiveOpacity());
+    this->primitiveSpecularBackSide = float(source->primitiveBackSideSpecularIntensity()) * float4(source->primitiveBackSideSpecularColor(), source->primitiveOpacity());
+    this->primitiveShininessBackSide = float(source->primitiveBackSideShininess());
+  }
 }
 
 RKStructureUniforms::RKStructureUniforms(int sceneIdentifier, int movieIdentifier, std::shared_ptr<RKRenderStructure> structure, double4x4 inverseModelMatrix)
@@ -158,29 +236,20 @@ RKStructureUniforms::RKStructureUniforms(int sceneIdentifier, int movieIdentifie
     double4x4 modelMatrix2 = inverseModelMatrix * double4x4::AffinityMatrixToTransformationAroundArbitraryPointWithTranslation(double4x4(structure->orientation()),centerOfRotation, structure->origin());
     this->modelMatrix = float4x4(modelMatrix2);
 
-    //double4x4 modelMatrix = double4x4::AffinityMatrixToTransformationAroundArbitraryPointWithTranslation(double4x4(structure.orientation()),centerOfRotation, structure.origin());
-
-    std::cout << "Model-matrix: " << modelMatrix.ax << " " << modelMatrix.by << " " << modelMatrix.cz << std::endl;
-
-    double4 hsv = double4(structure->atomHue(), structure->atomSaturation(), structure->atomValue(), 0.0);
-
     this->sceneIdentifier = int32_t(sceneIdentifier);
     this->MovieIdentifier = int32_t(movieIdentifier);
 
     this->colorAtomsWithBondColor = structure->colorAtomsWithBondColor();
     this->atomScaleFactor = float(structure->atomScaleFactor());
     this->modelMatrix = float4x4(modelMatrix);
-    this->changeHueSaturationValue = float4(hsv);
+    this->atomHue = structure->atomHue();
+    this->atomSaturation = structure->atomSaturation();
+    this->atomValue = structure->atomValue();
 
     this->ambientOcclusion = structure->atomAmbientOcclusion() ? GL_TRUE: GL_FALSE;
     this->ambientOcclusionPatchNumber = int32_t(structure->atomAmbientOcclusionPatchNumber());
     this->ambientOcclusionPatchSize = float(structure->atomAmbientOcclusionPatchSize());
     this->ambientOcclusionInverseTextureSize = float(1.0/double(structure->atomAmbientOcclusionTextureSize()));
-
-    std::cout << "ambientOcclusionPatchNumber: " << ambientOcclusionPatchNumber << std::endl;
-    std::cout << "ambientOcclusionPatchSize: " << ambientOcclusionPatchSize << std::endl;
-    std::cout << "ambientOcclusionInverseTextureSize: " << ambientOcclusionInverseTextureSize << std::endl;
-
 
     this->atomAmbient = float(structure->atomAmbientIntensity()) * float4(structure->atomAmbientColor().redF(),structure->atomAmbientColor().greenF(),
                                                                           structure->atomAmbientColor().blueF(),structure->atomAmbientColor().alphaF());
@@ -200,12 +269,11 @@ RKStructureUniforms::RKStructureUniforms(int sceneIdentifier, int movieIdentifie
 
     this->atomHDR = structure->atomHDR() ? GL_TRUE : GL_FALSE;
     this->atomHDRExposure = float(structure->atomHDRExposure());
-    this->atomHDRBloomLevel = float(structure->renderAtomSelectionIntensity());
+    this->atomSelectionIntensity = float(structure->atomSelectionIntensity());
     this->clipAtomsAtUnitCell = structure->clipAtomsAtUnitCell() ? GL_TRUE : GL_FALSE;
 
     this->bondHDR = structure->bondHDR() ? GL_TRUE : GL_FALSE;
     this->bondHDRExposure = float(structure->bondHDRExposure());
-    this->bondHDRBloomLevel = float(structure->bondHDRBloomLevel());
     this->clipBondsAtUnitCell = structure->clipBondsAtUnitCell() ? GL_TRUE : GL_FALSE;
 
     this->bondHue = float(structure->bondHue());
@@ -232,20 +300,28 @@ RKStructureUniforms::RKStructureUniforms(int sceneIdentifier, int movieIdentifie
     this->boxMatrix[3][2] = float(shift.z);
 
 
-    this->selectionScaling = float(std::max(1.001,structure->renderSelectionScaling())); // avoid artifacts
-    this->atomSelectionStripesDensity = float(structure->renderSelectionStripesDensity());
-    this->atomSelectionStripesFrequency = float(structure->renderSelectionStripesFrequency());
-    this->atomSelectionWorleyNoise3DFrequency = float(structure->renderSelectionWorleyNoise3DFrequency());
-    this->atomSelectionWorleyNoise3DJitter = float(structure->renderSelectionWorleyNoise3DJitter());
+    this->atomSelectionStripesDensity = float(structure->atomSelectionStripesDensity());
+    this->atomSelectionStripesFrequency = float(structure->atomSelectionStripesFrequency());
+    this->atomSelectionWorleyNoise3DFrequency = float(structure->atomSelectionWorleyNoise3DFrequency());
+    this->atomSelectionWorleyNoise3DJitter = float(structure->atomSelectionWorleyNoise3DJitter());
+    this->atomSelectionScaling = float(std::max(1.001,structure->atomSelectionScaling())); // avoid artifacts
+    this->atomSelectionIntensity = float(structure->atomSelectionIntensity());
 
     this->atomAnnotationTextColor = float4(structure->renderTextColor().redF(),structure->renderTextColor().greenF(),
                                            structure->renderTextColor().blueF(),structure->renderTextColor().alphaF());
     this->atomAnnotationTextScaling = float(structure->renderTextScaling());
-    this->bondAnnotationTextScaling = 1.0;
     this->atomAnnotationTextDisplacement = float4(float(structure->renderTextOffset().x),
                                                  float(structure->renderTextOffset().y),
                                                  float(structure->renderTextOffset().z),
                                                  0.0);
+
+    this->bondSelectionStripesDensity = float(structure->atomSelectionStripesDensity());
+    this->bondSelectionStripesFrequency = float(structure->atomSelectionStripesFrequency());
+    this->bondSelectionWorleyNoise3DFrequency = float(structure->atomSelectionWorleyNoise3DFrequency());
+    this->bondSelectionWorleyNoise3DJitter = float(structure->atomSelectionWorleyNoise3DJitter());
+    this->bondSelectionScaling = float(std::max(1.001,structure->atomSelectionScaling())); // avoid artifacts
+    this->bondSelectionIntensity = float(structure->bondSelectionIntensity());
+
 
     // clipping planes are in object space
     double3 u_plane0 = double3::normalize(double3::cross(box[0],box[1]));

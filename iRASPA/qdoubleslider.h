@@ -36,6 +36,7 @@ class QDoubleSlider : public QSlider
   Q_OBJECT
 public:
   explicit QDoubleSlider(QWidget *parent = nullptr);
+  QDoubleSlider(Qt::Orientation orientation, QWidget *parent);
 
   double doubleMinimum()
   {
@@ -73,8 +74,6 @@ public:
   double doubleValue();
 
   void setDoubleValue(double x);
-
-
 
 signals:
   void sliderMoved(double value);

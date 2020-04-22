@@ -32,7 +32,8 @@
 #include <QApplication>
 #include <iostream>
 #include <QLineEdit>
-#include <math.h>
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <iostream>
 
 CustomIntSpinBox::CustomIntSpinBox(QWidget* parent) : QSpinBox(parent)
@@ -42,7 +43,6 @@ CustomIntSpinBox::CustomIntSpinBox(QWidget* parent) : QSpinBox(parent)
 
 void CustomIntSpinBox::privateEditingFinished()
 {
-  std::cout << "Read text: " <<  _textValue.toStdString() << std::endl;
   bool success = false;
   int value = _textValue.toInt(&success);
   _state=Text;
@@ -60,7 +60,6 @@ void CustomIntSpinBox::privateEditingFinished()
 
 void CustomIntSpinBox::setText(QString text)
 {
-  std::cout << "set text: " << text.toStdString() << std::endl;
   _textValue = text;
   _state = Text;
   setPrefix(text);
@@ -79,7 +78,6 @@ void CustomIntSpinBox::setValue(int value)
 
 void CustomIntSpinBox::focusInEvent(QFocusEvent *event)
 {
-  std::cout << "focusInEvent" << std::endl;
   if(_state == Text)
   {
     setPrefix("");

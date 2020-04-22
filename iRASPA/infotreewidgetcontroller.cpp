@@ -28,8 +28,9 @@
  *************************************************************************************************************/
 
 #include "infotreewidgetcontroller.h"
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <iostream>
-#include <math.h>
 #include <set>
 #include <QLabel>
 #include <QComboBox>
@@ -393,7 +394,7 @@ void InfoTreeWidgetController::reloadAuthorFirstName()
 {
   if(!_structures.empty())
   {
-    if ( stdx::optional<QString> value = authorFirstName())
+    if ( std::optional<QString> value = authorFirstName())
     {
       whileBlocking(_infoCreatorForm->firstNameLineEdit)->setText(*value);
     }
@@ -408,7 +409,7 @@ void InfoTreeWidgetController::reloadAuthorMiddleName()
 {
   if(!_structures.empty())
   {
-    if ( stdx::optional<QString> value = authorMiddleName())
+    if ( std::optional<QString> value = authorMiddleName())
     {
       whileBlocking(_infoCreatorForm->middleNameLineEdit)->setText(*value);
     }
@@ -423,7 +424,7 @@ void InfoTreeWidgetController::reloadAuthorLastName()
 {
   if(!_structures.empty())
   {
-    if ( stdx::optional<QString> value = authorLastName())
+    if ( std::optional<QString> value = authorLastName())
     {
       whileBlocking(_infoCreatorForm->lastNameLineEdit)->setText(*value);
     }
@@ -438,7 +439,7 @@ void InfoTreeWidgetController::reloadAuthorOrchidID()
 {
   if(!_structures.empty())
   {
-    if ( stdx::optional<QString> value = authorOrchidID())
+    if ( std::optional<QString> value = authorOrchidID())
     {
       whileBlocking(_infoCreatorForm->orchidLineEdit)->setText(*value);
     }
@@ -453,7 +454,7 @@ void InfoTreeWidgetController::reloadAuthorResearcherID()
 {
   if(!_structures.empty())
   {
-    if ( stdx::optional<QString> value = authorResearcherID())
+    if ( std::optional<QString> value = authorResearcherID())
     {
       whileBlocking(_infoCreatorForm->researcherIDLineEdit)->setText(*value);
     }
@@ -468,7 +469,7 @@ void InfoTreeWidgetController::reloadAuthorAffiliationUniversityName()
 {
   if(!_structures.empty())
   {
-    if ( stdx::optional<QString> value = authorAffiliationUniversityName())
+    if ( std::optional<QString> value = authorAffiliationUniversityName())
     {
       whileBlocking(_infoCreatorForm->universityNameLineEdit)->setText(*value);
     }
@@ -483,7 +484,7 @@ void InfoTreeWidgetController::reloadAuthorAffiliationFacultyName()
 {
   if(!_structures.empty())
   {
-    if ( stdx::optional<QString> value = authorAffiliationFacultyName())
+    if ( std::optional<QString> value = authorAffiliationFacultyName())
     {
       whileBlocking(_infoCreatorForm->facultyNameLineEdit)->setText(*value);
     }
@@ -498,7 +499,7 @@ void InfoTreeWidgetController::reloadAuthorAffiliationInstituteName()
 {
   if(!_structures.empty())
   {
-    if ( stdx::optional<QString> value = authorAffiliationInstituteName())
+    if ( std::optional<QString> value = authorAffiliationInstituteName())
     {
       whileBlocking(_infoCreatorForm->instituteNameLineEdit)->setText(*value);
     }
@@ -513,7 +514,7 @@ void InfoTreeWidgetController::reloadAuthorAffiliationCityName()
 {
   if(!_structures.empty())
   {
-    if ( stdx::optional<QString> value = authorAffiliationCityName())
+    if ( std::optional<QString> value = authorAffiliationCityName())
     {
       whileBlocking(_infoCreatorForm->cityNameLineEdit)->setText(*value);
     }
@@ -532,11 +533,11 @@ void InfoTreeWidgetController::reloadAuthorAffiliationCountryName()
   }
 }
 
- stdx::optional<QString> InfoTreeWidgetController::authorFirstName()
+ std::optional<QString> InfoTreeWidgetController::authorFirstName()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -549,7 +550,7 @@ void InfoTreeWidgetController::reloadAuthorAffiliationCountryName()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setAuthorFirstName(QString name)
@@ -560,11 +561,11 @@ void InfoTreeWidgetController::setAuthorFirstName(QString name)
   }
 }
 
- stdx::optional<QString> InfoTreeWidgetController::authorMiddleName()
+ std::optional<QString> InfoTreeWidgetController::authorMiddleName()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -577,7 +578,7 @@ void InfoTreeWidgetController::setAuthorFirstName(QString name)
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setAuthorMiddleName(QString name)
@@ -588,11 +589,11 @@ void InfoTreeWidgetController::setAuthorMiddleName(QString name)
   }
 }
 
- stdx::optional<QString> InfoTreeWidgetController::authorLastName()
+ std::optional<QString> InfoTreeWidgetController::authorLastName()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -605,7 +606,7 @@ void InfoTreeWidgetController::setAuthorMiddleName(QString name)
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setAuthorLastName(QString name)
@@ -616,11 +617,11 @@ void InfoTreeWidgetController::setAuthorLastName(QString name)
   }
 }
 
- stdx::optional<QString> InfoTreeWidgetController::authorOrchidID()
+ std::optional<QString> InfoTreeWidgetController::authorOrchidID()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -633,7 +634,7 @@ void InfoTreeWidgetController::setAuthorLastName(QString name)
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setAuthorOrchidID(QString name)
@@ -644,11 +645,11 @@ void InfoTreeWidgetController::setAuthorOrchidID(QString name)
   }
 }
 
- stdx::optional<QString> InfoTreeWidgetController::authorResearcherID()
+ std::optional<QString> InfoTreeWidgetController::authorResearcherID()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -661,7 +662,7 @@ void InfoTreeWidgetController::setAuthorOrchidID(QString name)
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setAuthorResearcherID(QString name)
@@ -672,11 +673,11 @@ void InfoTreeWidgetController::setAuthorResearcherID(QString name)
   }
 }
 
- stdx::optional<QString> InfoTreeWidgetController::authorAffiliationUniversityName()
+ std::optional<QString> InfoTreeWidgetController::authorAffiliationUniversityName()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -689,7 +690,7 @@ void InfoTreeWidgetController::setAuthorResearcherID(QString name)
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setAuthorAffiliationUniversityName(QString name)
@@ -700,11 +701,11 @@ void InfoTreeWidgetController::setAuthorAffiliationUniversityName(QString name)
   }
 }
 
- stdx::optional<QString> InfoTreeWidgetController::authorAffiliationFacultyName()
+ std::optional<QString> InfoTreeWidgetController::authorAffiliationFacultyName()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -717,7 +718,7 @@ void InfoTreeWidgetController::setAuthorAffiliationUniversityName(QString name)
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setAuthorAffiliationFacultyName(QString name)
@@ -728,11 +729,11 @@ void InfoTreeWidgetController::setAuthorAffiliationFacultyName(QString name)
   }
 }
 
- stdx::optional<QString> InfoTreeWidgetController::authorAffiliationInstituteName()
+ std::optional<QString> InfoTreeWidgetController::authorAffiliationInstituteName()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -745,7 +746,7 @@ void InfoTreeWidgetController::setAuthorAffiliationFacultyName(QString name)
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setAuthorAffiliationInstituteName(QString name)
@@ -756,11 +757,11 @@ void InfoTreeWidgetController::setAuthorAffiliationInstituteName(QString name)
   }
 }
 
- stdx::optional<QString> InfoTreeWidgetController::authorAffiliationCityName()
+ std::optional<QString> InfoTreeWidgetController::authorAffiliationCityName()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -773,7 +774,7 @@ void InfoTreeWidgetController::setAuthorAffiliationInstituteName(QString name)
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setAuthorAffiliationCityName(QString name)
@@ -791,7 +792,7 @@ void InfoTreeWidgetController::reloadCreationDate()
 {
   if(!_structures.empty())
   {
-    if ( stdx::optional<QDate> value = creationDate())
+    if ( std::optional<QDate> value = creationDate())
     {
       whileBlocking(_infoCreationForm->creationDateEdit)->setDate(*value);
     }
@@ -806,7 +807,7 @@ void InfoTreeWidgetController::reloadCreationTemperature()
 {
   if(!_structures.empty())
   {
-    if ( stdx::optional<QString> value = creationTemperature())
+    if ( std::optional<QString> value = creationTemperature())
     {
        whileBlocking(_infoCreationForm->temperatureLineEdit)->setText(*value);
     }
@@ -822,7 +823,7 @@ void InfoTreeWidgetController::reloadCreationPressure()
 {
   if(!_structures.empty())
   {
-    if ( stdx::optional<QString> value = creationPressure())
+    if ( std::optional<QString> value = creationPressure())
     {
        whileBlocking(_infoCreationForm->pressureLineEdit)->setText(*value);
     }
@@ -929,9 +930,9 @@ void InfoTreeWidgetController::reloadCreationAtomicChargesForceFieldDetails()
   }
 }
 
-stdx::optional<QDate> InfoTreeWidgetController::creationDate()
+std::optional<QDate> InfoTreeWidgetController::creationDate()
 {
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCreationDate(QDate date)
@@ -939,11 +940,11 @@ void InfoTreeWidgetController::setCreationDate(QDate date)
 
 }
 
- stdx::optional<QString> InfoTreeWidgetController::creationTemperature()
+ std::optional<QString> InfoTreeWidgetController::creationTemperature()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -956,7 +957,7 @@ void InfoTreeWidgetController::setCreationDate(QDate date)
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCreationTemperature(QString name)
@@ -967,11 +968,11 @@ void InfoTreeWidgetController::setCreationTemperature(QString name)
   }
 }
 
- stdx::optional<QString> InfoTreeWidgetController::creationPressure()
+ std::optional<QString> InfoTreeWidgetController::creationPressure()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -984,7 +985,7 @@ void InfoTreeWidgetController::setCreationTemperature(QString name)
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCreationPressure(QString name)
@@ -992,9 +993,9 @@ void InfoTreeWidgetController::setCreationPressure(QString name)
 
 }
 
- stdx::optional<QString> InfoTreeWidgetController::creationMethod()
+ std::optional<QString> InfoTreeWidgetController::creationMethod()
 {
- return stdx::nullopt;
+ return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCreationMethod(QString name)
@@ -1002,9 +1003,9 @@ void InfoTreeWidgetController::setCreationMethod(QString name)
 
 }
 
- stdx::optional<QString> InfoTreeWidgetController::creationRelaxUnitCell()
+ std::optional<QString> InfoTreeWidgetController::creationRelaxUnitCell()
 {
- return stdx::nullopt;
+ return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCreationRelaxUnitCell(QString name)
@@ -1012,9 +1013,9 @@ void InfoTreeWidgetController::setCreationRelaxUnitCell(QString name)
 
 }
 
- stdx::optional<QString> InfoTreeWidgetController::creationAtomicPositionsSoftwarePackage()
+ std::optional<QString> InfoTreeWidgetController::creationAtomicPositionsSoftwarePackage()
 {
- return stdx::nullopt;
+ return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCreationAtomicPositionsSoftwarePackage(QString name)
@@ -1022,9 +1023,9 @@ void InfoTreeWidgetController::setCreationAtomicPositionsSoftwarePackage(QString
 
 }
 
- stdx::optional<QString> InfoTreeWidgetController::creationAtomicPositionsAlgorithm()
+ std::optional<QString> InfoTreeWidgetController::creationAtomicPositionsAlgorithm()
 {
- return stdx::nullopt;
+ return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCreationAtomicPositionsAlgorithm(QString name)
@@ -1032,9 +1033,9 @@ void InfoTreeWidgetController::setCreationAtomicPositionsAlgorithm(QString name)
 
 }
 
- stdx::optional<QString> InfoTreeWidgetController::creationAtomicPositionsEigenvalues()
+ std::optional<QString> InfoTreeWidgetController::creationAtomicPositionsEigenvalues()
 {
- return stdx::nullopt;
+ return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCreationAtomicPositionsEigenvalues(QString name)
@@ -1042,9 +1043,9 @@ void InfoTreeWidgetController::setCreationAtomicPositionsEigenvalues(QString nam
 
 }
 
- stdx::optional<QString> InfoTreeWidgetController::creationAtomicPositionsForceField()
+ std::optional<QString> InfoTreeWidgetController::creationAtomicPositionsForceField()
 {
- return stdx::nullopt;
+ return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCreationAtomicPositionsForceField(QString name)
@@ -1052,9 +1053,9 @@ void InfoTreeWidgetController::setCreationAtomicPositionsForceField(QString name
 
 }
 
- stdx::optional<QString> InfoTreeWidgetController::creationAtomicPositionsForceFieldDetails()
+ std::optional<QString> InfoTreeWidgetController::creationAtomicPositionsForceFieldDetails()
 {
- return stdx::nullopt;
+ return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCreationAtomicPositionsForceFieldDetails(QString name)
@@ -1062,9 +1063,9 @@ void InfoTreeWidgetController::setCreationAtomicPositionsForceFieldDetails(QStri
 
 }
 
- stdx::optional<QString> InfoTreeWidgetController::creationAtomicChargesSoftwarePackage()
+ std::optional<QString> InfoTreeWidgetController::creationAtomicChargesSoftwarePackage()
 {
- return stdx::nullopt;
+ return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCreationAtomicChargesSoftwarePackage(QString name)
@@ -1072,9 +1073,9 @@ void InfoTreeWidgetController::setCreationAtomicChargesSoftwarePackage(QString n
 
 }
 
- stdx::optional<QString> InfoTreeWidgetController::creationAtomicChargesAlgorithm()
+ std::optional<QString> InfoTreeWidgetController::creationAtomicChargesAlgorithm()
 {
- return stdx::nullopt;
+ return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCreationAtomicChargesAlgorithm(QString name)
@@ -1082,9 +1083,9 @@ void InfoTreeWidgetController::setCreationAtomicChargesAlgorithm(QString name)
 
 }
 
- stdx::optional<QString> InfoTreeWidgetController::creationAtomicChargesEigenvalues()
+ std::optional<QString> InfoTreeWidgetController::creationAtomicChargesEigenvalues()
 {
- return stdx::nullopt;
+ return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCreationAtomicChargesEigenvalues(QString name)
@@ -1092,9 +1093,9 @@ void InfoTreeWidgetController::setCreationAtomicChargesEigenvalues(QString name)
 
 }
 
- stdx::optional<QString> InfoTreeWidgetController::creationAtomicChargesForceField()
+ std::optional<QString> InfoTreeWidgetController::creationAtomicChargesForceField()
 {
- return stdx::nullopt;
+ return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCreationAtomicChargesForceField(QString name)
@@ -1102,9 +1103,9 @@ void InfoTreeWidgetController::setCreationAtomicChargesForceField(QString name)
 
 }
 
- stdx::optional<QString> InfoTreeWidgetController::creationAtomicChargesForceFieldDetails()
+ std::optional<QString> InfoTreeWidgetController::creationAtomicChargesForceFieldDetails()
 {
- return stdx::nullopt;
+ return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCreationAtomicChargesForceFieldDetails(QString name)
@@ -1119,7 +1120,7 @@ void InfoTreeWidgetController::reloadChemicalFormulaMoiety()
 {
   if(!_structures.empty())
   {
-    if ( stdx::optional<QString> value = chemicalFormulaMoiety())
+    if ( std::optional<QString> value = chemicalFormulaMoiety())
     {
       whileBlocking(_infoChemicalForm->moietyLineEdit)->setText(*value);
     }
@@ -1134,7 +1135,7 @@ void InfoTreeWidgetController::reloadChemicalFormulaSum()
 {
   if(!_structures.empty())
   {
-    if ( stdx::optional<QString> value = chemicalFormulaSum())
+    if ( std::optional<QString> value = chemicalFormulaSum())
     {
       whileBlocking(_infoChemicalForm->sumLineEdit)->setText(*value);
     }
@@ -1149,7 +1150,7 @@ void InfoTreeWidgetController::reloadChemicalNameSystematic()
 {
   if(!_structures.empty())
   {
-    if ( stdx::optional<QString> value = chemicalNameSystematic())
+    if ( std::optional<QString> value = chemicalNameSystematic())
     {
       whileBlocking(_infoChemicalForm->sytematicLineEdit)->setText(*value);
     }
@@ -1160,11 +1161,11 @@ void InfoTreeWidgetController::reloadChemicalNameSystematic()
   }
 }
 
- stdx::optional<QString> InfoTreeWidgetController::chemicalFormulaMoiety()
+ std::optional<QString> InfoTreeWidgetController::chemicalFormulaMoiety()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1177,7 +1178,7 @@ void InfoTreeWidgetController::reloadChemicalNameSystematic()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setChemicalFormulaMoiety(QString name)
@@ -1188,11 +1189,11 @@ void InfoTreeWidgetController::setChemicalFormulaMoiety(QString name)
   }
 }
 
- stdx::optional<QString> InfoTreeWidgetController::chemicalFormulaSum()
+ std::optional<QString> InfoTreeWidgetController::chemicalFormulaSum()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1205,7 +1206,7 @@ void InfoTreeWidgetController::setChemicalFormulaMoiety(QString name)
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setChemicalFormulaSum(QString name)
@@ -1216,11 +1217,11 @@ void InfoTreeWidgetController::setChemicalFormulaSum(QString name)
   }
 }
 
- stdx::optional<QString> InfoTreeWidgetController::chemicalNameSystematic()
+ std::optional<QString> InfoTreeWidgetController::chemicalNameSystematic()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1233,7 +1234,7 @@ void InfoTreeWidgetController::setChemicalFormulaSum(QString name)
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setChemicalNameSystematic(QString name)
@@ -1252,7 +1253,7 @@ void InfoTreeWidgetController::reloadCitationArticleTitle()
 {
   if(!_structures.empty())
   {
-    if ( stdx::optional<QString> value = citationArticleTitle())
+    if ( std::optional<QString> value = citationArticleTitle())
     {
       whileBlocking(_infoCitationForm->articleTitleTextEdit)->setText(*value);
     }
@@ -1267,7 +1268,7 @@ void InfoTreeWidgetController::reloadCitationArticleAuthors()
 {
   if(!_structures.empty())
   {
-    if ( stdx::optional<QString> value = citationArticleAuthors())
+    if ( std::optional<QString> value = citationArticleAuthors())
     {
       whileBlocking(_infoCitationForm->articleAuthorsTextEdit)->setText(*value);
     }
@@ -1282,7 +1283,7 @@ void InfoTreeWidgetController::reloadCitationJournalVolume()
 {
   if(!_structures.empty())
   {
-    if ( stdx::optional<QString> value = citationJournalVolume())
+    if ( std::optional<QString> value = citationJournalVolume())
     {
       whileBlocking(_infoCitationForm->journalVolumeLineEdit)->setText(*value);
     }
@@ -1297,7 +1298,7 @@ void InfoTreeWidgetController::reloadCitationJournalNumber()
 {
   if(!_structures.empty())
   {
-    if ( stdx::optional<QString> value = citationJournalNumber())
+    if ( std::optional<QString> value = citationJournalNumber())
     {
       whileBlocking(_infoCitationForm->journalNumberLineEdit)->setText(*value);
     }
@@ -1312,7 +1313,7 @@ void InfoTreeWidgetController::reloadCitationPublicationDate()
 {
   if(!_structures.empty())
   {
-    if ( stdx::optional<QDate> value = citationPublicationDate())
+    if ( std::optional<QDate> value = citationPublicationDate())
     {
       whileBlocking(_infoCitationForm->publicationDateEdit)->setDate(*value);
     }
@@ -1327,7 +1328,7 @@ void InfoTreeWidgetController::reloadCitationPublicationDOI()
 {
   if(!_structures.empty())
   {
-    if ( stdx::optional<QString> value = citationDOI())
+    if ( std::optional<QString> value = citationDOI())
     {
       whileBlocking(_infoCitationForm->publicationDOILineEdit)->setText(*value);
     }
@@ -1342,7 +1343,7 @@ void InfoTreeWidgetController::reloadCitationPublicationDatabaseCodes()
 {
   if(!_structures.empty())
   {
-    if ( stdx::optional<QString> value = citationDatabaseCodes())
+    if ( std::optional<QString> value = citationDatabaseCodes())
     {
       whileBlocking(_infoCitationForm->publicationDatabaseCodeLineEdit)->setText(*value);
     }
@@ -1353,11 +1354,11 @@ void InfoTreeWidgetController::reloadCitationPublicationDatabaseCodes()
   }
 }
 
- stdx::optional<QString> InfoTreeWidgetController::citationArticleTitle()
+ std::optional<QString> InfoTreeWidgetController::citationArticleTitle()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1370,7 +1371,7 @@ void InfoTreeWidgetController::reloadCitationPublicationDatabaseCodes()
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCitationArticleTitle(QString name)
@@ -1381,11 +1382,11 @@ void InfoTreeWidgetController::setCitationArticleTitle(QString name)
   }
 }
 
- stdx::optional<QString> InfoTreeWidgetController::citationJournalTitle()
+ std::optional<QString> InfoTreeWidgetController::citationJournalTitle()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1398,7 +1399,7 @@ void InfoTreeWidgetController::setCitationArticleTitle(QString name)
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCitationJournalTitle(QString name)
@@ -1409,11 +1410,11 @@ void InfoTreeWidgetController::setCitationJournalTitle(QString name)
   }
 }
 
- stdx::optional<QString> InfoTreeWidgetController::citationArticleAuthors()
+ std::optional<QString> InfoTreeWidgetController::citationArticleAuthors()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1426,7 +1427,7 @@ void InfoTreeWidgetController::setCitationJournalTitle(QString name)
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCitationArticleAuthors(QString name)
@@ -1437,11 +1438,11 @@ void InfoTreeWidgetController::setCitationArticleAuthors(QString name)
   }
 }
 
- stdx::optional<QString> InfoTreeWidgetController::InfoTreeWidgetController::citationJournalVolume()
+ std::optional<QString> InfoTreeWidgetController::InfoTreeWidgetController::citationJournalVolume()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1454,7 +1455,7 @@ void InfoTreeWidgetController::setCitationArticleAuthors(QString name)
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCitationJournalVolume(QString name)
@@ -1465,11 +1466,11 @@ void InfoTreeWidgetController::setCitationJournalVolume(QString name)
   }
 }
 
- stdx::optional<QString> InfoTreeWidgetController::citationJournalNumber()
+ std::optional<QString> InfoTreeWidgetController::citationJournalNumber()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1482,7 +1483,7 @@ void InfoTreeWidgetController::setCitationJournalVolume(QString name)
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCitationJournalNumber(QString name)
@@ -1493,11 +1494,11 @@ void InfoTreeWidgetController::setCitationJournalNumber(QString name)
   }
 }
 
- stdx::optional<QDate> InfoTreeWidgetController::citationPublicationDate()
+ std::optional<QDate> InfoTreeWidgetController::citationPublicationDate()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
    }
   std::set<QDate> set = std::set<QDate>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1510,7 +1511,7 @@ void InfoTreeWidgetController::setCitationJournalNumber(QString name)
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCitationPublicationDate(QDate date)
@@ -1521,11 +1522,11 @@ void InfoTreeWidgetController::setCitationPublicationDate(QDate date)
   }
 }
 
- stdx::optional<QString> InfoTreeWidgetController::citationDOI()
+ std::optional<QString> InfoTreeWidgetController::citationDOI()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1538,7 +1539,7 @@ void InfoTreeWidgetController::setCitationPublicationDate(QDate date)
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCitationDOI(QString name)
@@ -1549,11 +1550,11 @@ void InfoTreeWidgetController::setCitationDOI(QString name)
   }
 }
 
- stdx::optional<QString> InfoTreeWidgetController::citationDatabaseCodes()
+ std::optional<QString> InfoTreeWidgetController::citationDatabaseCodes()
 {
   if(_structures.empty())
   {
-    return stdx::nullopt;
+    return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
   for(std::shared_ptr<Structure> structure: _structures)
@@ -1566,7 +1567,7 @@ void InfoTreeWidgetController::setCitationDOI(QString name)
   {
     return *set.begin();
   }
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 void InfoTreeWidgetController::setCitationDatabaseCodes(QString name)

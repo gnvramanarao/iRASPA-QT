@@ -29,14 +29,15 @@
 
 #pragma once
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <QString>
 #include <string>
 #include <vector>
 #include <map>
 #include <tuple>
 #include <cwctype>
-#include <math.h>
-#include "optional.h"
+#include <optional>
 #include <foundationkit.h>
 #include "skparser.h"
 #include "skasymmetricatom.h"

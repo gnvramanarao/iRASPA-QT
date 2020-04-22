@@ -31,7 +31,7 @@
 
 #include <unordered_set>
 #include <vector>
-#include "optional.h"
+#include <optional>
 #include <foundationkit.h>
 #include "skelement.h"
 #include "skatomtreenode.h"
@@ -64,11 +64,13 @@ public:
     void deleteSelection();
 
     std::vector<std::shared_ptr<SKAtomTreeNode>> flattenedLeafNodes() const;
+    std::vector<std::shared_ptr<SKAsymmetricAtom>> flattenedObjects() const;
     std::vector<std::shared_ptr<SKAtomCopy>> allAtomCopies() const;
     std::vector<std::shared_ptr<SKAtomCopy>> atomCopies() const;
 
-
     std::unordered_set<std::shared_ptr<SKAtomTreeNode>>& selectedTreeNodes() {return _selectedTreeNodes;}
+    void setSelectedTreeNodes(std::unordered_set<std::shared_ptr<SKAtomTreeNode>> selectedNodes) {_selectedTreeNodes = selectedNodes;}
+    void setTags();
 private:
     qint64 _versionNumber{1};
     std::shared_ptr<SKAtomTreeNode> _hiddenRootNode;

@@ -33,17 +33,54 @@
 #include <lzma.h>
 #include <QtDebug>
 
-//#ifdef _WIN32
-//#undef HAVE_UNISTD_H
-//#endif
-//#include <zlib.h>
 
+iRASPAProject::iRASPAProject(): _projectType(ProjectType::none),
+  _fileNameUUID(QUuid::createUuid().toString().mid(1,36).toUpper()),
+  _project(std::make_shared<Project>()),
+  _nodeType(NodeType::leaf),
+  _storageType(StorageType::local),
+  _lazyStatus(LazyStatus::loaded),
+  _undoStack()
+{
+
+}
+
+iRASPAProject::iRASPAProject(std::shared_ptr<Project> project):
+  _projectType(ProjectType::generic),
+  _fileNameUUID(QUuid::createUuid().toString().mid(1,36).toUpper()),
+  _project(project), _nodeType(NodeType::leaf),
+  _storageType(StorageType::local),
+  _lazyStatus(LazyStatus::loaded),
+  _undoStack()
+{
+
+}
+
+iRASPAProject::iRASPAProject(std::shared_ptr<ProjectStructure> project):
+  _projectType(ProjectType::structure),
+  _fileNameUUID(QUuid::createUuid().toString().mid(1,36).toUpper()),
+  _project(project), _nodeType(NodeType::leaf),
+  _storageType(StorageType::local),
+  _lazyStatus(LazyStatus::loaded),
+  _undoStack()
+{
+
+}
+
+iRASPAProject::iRASPAProject(std::shared_ptr<ProjectGroup> project):
+  _projectType(ProjectType::group),
+  _fileNameUUID(QUuid::createUuid().toString().mid(1,36).toUpper()),
+  _project(project), _nodeType(NodeType::group),
+  _storageType(StorageType::local),
+  _lazyStatus(LazyStatus::loaded),
+  _undoStack()
+{
+
+}
 
 void iRASPAProject::readData(ZipReader& reader)
 {
-
   _data = reader.fileData(QString("nl.darkwing.iRASPA_Project_") + _fileNameUUID);
-  qDebug() << _project->displayName() << " _fileNameUUID: " << _fileNameUUID << ", " << _data.size();
 }
 
 
@@ -53,8 +90,6 @@ void iRASPAProject::unwrapIfNeeded()
   {
     QByteArray uncompressedData = ZipReader::xzUncompress(_data);
     QDataStream stream(&uncompressedData, QIODevice::ReadOnly);
-
-    qDebug() << "Project: " << _project.get() << ", " << int(_projectType);
 
     try
     {
@@ -75,7 +110,6 @@ void iRASPAProject::unwrapIfNeeded()
       }
       case ProjectType::structure:
       {
-          qDebug() << "ProjectType::structure";
         std::shared_ptr<ProjectStructure> projectNode = std::make_shared<ProjectStructure>();
         stream >> projectNode;
         _project = projectNode;
@@ -158,11 +192,11 @@ void iRASPAProject::saveData(ZipWriter& writer)
 QDataStream &operator<<(QDataStream& stream, const std::shared_ptr<iRASPAProject>& node)
 {
   stream << node->_versionNumber;
-  stream << node->_projectType;
+  stream << static_cast<typename std::underlying_type<iRASPAProject::ProjectType>::type>(node->_projectType);
   stream << node->_fileNameUUID;
-  stream << node->_nodeType;
-  stream << node->_storageType;
-  stream << iRASPAProject::LazyStatus::lazy;
+  stream << static_cast<typename std::underlying_type<iRASPAProject::NodeType>::type>(node->_nodeType);
+  stream << static_cast<typename std::underlying_type<iRASPAProject::StorageType>::type>(node->_storageType);
+  stream << static_cast<typename std::underlying_type<iRASPAProject::LazyStatus>::type>(iRASPAProject::LazyStatus::lazy);
 
   return stream;
 }
@@ -175,12 +209,20 @@ QDataStream &operator>>(QDataStream& stream, std::shared_ptr<iRASPAProject>& nod
   {
     throw InvalidArchiveVersionException(__FILE__, __LINE__, "iRASPAProject");
   }
-  stream >> node->_projectType;
+  qint64 projectType;
+  stream >> projectType;
+  node->_projectType = iRASPAProject::ProjectType(projectType);
   stream >> node->_fileNameUUID;
 
-  stream >> node->_nodeType;
-  stream >> node->_storageType;
-  stream >> node->_lazyStatus;
+  qint64 nodeType;
+  stream >> nodeType;
+  node->_nodeType = iRASPAProject::NodeType(nodeType);
+  qint64 storageType;
+  stream >> storageType;
+  node->_storageType = iRASPAProject::StorageType(storageType);
+  qint64 lazyStatus;
+  stream >> lazyStatus;
+  node->_lazyStatus = iRASPAProject::LazyStatus(lazyStatus);
 
   return stream;
 }

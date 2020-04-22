@@ -36,7 +36,7 @@ QString iRASPAStructure::displayName() const
 
 QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<iRASPAStructure> &iraspa_structure)
 {
-  stream << iraspa_structure->_rawValue;
+  stream << static_cast<typename std::underlying_type<iRASPAStructureType>::type>(iraspa_structure->_rawValue);
   switch(iraspa_structure->_rawValue)
   {
   case iRASPAStructureType::none:
@@ -64,6 +64,24 @@ QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<iRASPAStructu
     stream << std::dynamic_pointer_cast<Protein>(iraspa_structure->_structure);
     stream << iraspa_structure->_structure;
     break;
+  case iRASPAStructureType::proteinCrystalSolvent:
+    break;
+  case iRASPAStructureType::crystalSolvent:
+    break;
+  case iRASPAStructureType::molecularCrystalSolvent:
+    break;
+  case iRASPAStructureType::ellipsoidPrimitive:
+    stream << std::dynamic_pointer_cast<EllipsoidPrimitive>(iraspa_structure->_structure);
+    stream << iraspa_structure->_structure;
+    break;
+  case iRASPAStructureType::cylinderPrimitive:
+    stream << std::dynamic_pointer_cast<CylinderPrimitive>(iraspa_structure->_structure);
+    stream << iraspa_structure->_structure;
+    break;
+  case iRASPAStructureType::polygonalPrismPrimitive:
+    stream << std::dynamic_pointer_cast<PolygonalPrismPrimitive>(iraspa_structure->_structure);
+    stream << iraspa_structure->_structure;
+    break;
   }
 
   return stream;
@@ -71,7 +89,9 @@ QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<iRASPAStructu
 
 QDataStream &operator>>(QDataStream &stream, std::shared_ptr<iRASPAStructure> &iraspa_structure)
 {
-  stream >> iraspa_structure->_rawValue;
+  qint64 type;
+  stream >> type;
+  iraspa_structure->_rawValue = iRASPAStructureType(type);
 
   switch(iraspa_structure->_rawValue)
   {
@@ -122,6 +142,36 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<iRASPAStructure> &i
       std::shared_ptr<Protein> protein = std::make_shared<Protein>();
       stream >> protein;
       iraspa_structure->_structure = protein;
+      stream >> iraspa_structure->_structure;
+      break;
+    }
+    case iRASPAStructureType::proteinCrystalSolvent:
+      break;
+    case iRASPAStructureType::crystalSolvent:
+      break;
+    case iRASPAStructureType::molecularCrystalSolvent:
+      break;
+    case iRASPAStructureType::ellipsoidPrimitive:
+    {
+      std::shared_ptr<EllipsoidPrimitive> primitive = std::make_shared<EllipsoidPrimitive>();
+      stream >> primitive;
+      iraspa_structure->_structure = primitive;
+      stream >> iraspa_structure->_structure;
+      break;
+    }
+    case iRASPAStructureType::cylinderPrimitive:
+    {
+      std::shared_ptr<CylinderPrimitive> primitive = std::make_shared<CylinderPrimitive>();
+      stream >> primitive;
+      iraspa_structure->_structure = primitive;
+      stream >> iraspa_structure->_structure;
+      break;
+    }
+    case iRASPAStructureType::polygonalPrismPrimitive:
+    {
+      std::shared_ptr<PolygonalPrismPrimitive> primitive = std::make_shared<PolygonalPrismPrimitive>();
+      stream >> primitive;
+      iraspa_structure->_structure = primitive;
       stream >> iraspa_structure->_structure;
       break;
     }

@@ -2,6 +2,10 @@ INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
 SOURCES += \
+    $$PWD/atomtreeviewpushbuttonstyleditemdelegate.cpp \
+    $$PWD/bondlistpushbuttonstyleditemdelegate.cpp \
+    $$PWD/bondlistviewcomboboxstyleditemdelegate.cpp \
+    $$PWD/deleteselectioncommand.cpp \
     $$PWD/main.cpp \
     $$PWD/mainwindow.cpp \
     $$PWD/projecttreeview.cpp \
@@ -59,6 +63,10 @@ SOURCES += \
     $$PWD/projecttreeviewmodel.cpp
 
 HEADERS += \
+    $$PWD/atomtreeviewpushbuttonstyleditemdelegate.h \
+    $$PWD/bondlistpushbuttonstyleditemdelegate.h \
+    $$PWD/bondlistviewcomboboxstyleditemdelegate.h \
+    $$PWD/deleteselectioncommand.h \
     $$PWD/mainwindow.h \
     $$PWD/projecttreeview.h \
     $$PWD/renderstackedwidget.h \
@@ -114,8 +122,7 @@ HEADERS += \
     $$PWD/pythonviewcontroller.h \
     $$PWD/helpbrowser.h \
     $$PWD/helpwidget.h \
-    $$PWD/projecttreeviewmodel.h \
-    $$PWD/optional.h
+    $$PWD/projecttreeviewmodel.h
 
 FORMS += \
     $$PWD/mainwindow.ui \

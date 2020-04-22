@@ -32,6 +32,13 @@
 #include <set>
 #include <map>
 #include <unordered_map>
+#include <type_traits>
+#include <qdebug.h>
+#include <algorithm>
+#include <map>
+#include <unordered_set>
+
+qint64 SKBondSetController::_versionNumber = 2;
 
 SKBondSetController::SKBondSetController(std::shared_ptr<SKAtomTreeController> atomTreeController):_atomTreecontroller(atomTreeController)
 {
@@ -41,120 +48,201 @@ SKBondSetController::SKBondSetController(std::shared_ptr<SKAtomTreeController> a
 
 struct SKAysmmetricBondCompare
 {
-   bool operator () (const std::shared_ptr<SKBond> & s1, const std::shared_ptr<SKBond>& s2) const
+   bool operator () (const std::shared_ptr<SKAsymmetricBond> & s1, const std::shared_ptr<SKAsymmetricBond>& s2) const
    {
-      if(s1->atom1()->parent()->elementIdentifier() == s2->atom1()->parent()->elementIdentifier())
+      if(s1->atom1()->elementIdentifier() == s2->atom1()->elementIdentifier())
       {
-        if(s1->atom2()->parent()->elementIdentifier() == s2->atom2()->parent()->elementIdentifier())
+        if(s1->atom2()->elementIdentifier() == s2->atom2()->elementIdentifier())
         {
-          if(s1->atom1()->parent()->tag() == s2->atom1()->parent()->tag())
+          if(s1->atom1()->tag() == s2->atom1()->tag())
           {
-            return (s1->atom2()->parent()->tag() < s2->atom2()->parent()->tag());
+            return (s1->atom2()->tag() < s2->atom2()->tag());
           }
           else
           {
-             return (s1->atom1()->parent()->tag() < s2->atom1()->parent()->tag());
+             return (s1->atom1()->tag() < s2->atom1()->tag());
           }
         }
         else
         {
-          return (s1->atom2()->parent()->elementIdentifier() > s2->atom2()->parent()->elementIdentifier());
+          return (s1->atom2()->elementIdentifier() > s2->atom2()->elementIdentifier());
         }
       }
       else
       {
-        return (s1->atom1()->parent()->elementIdentifier() > s2->atom1()->parent()->elementIdentifier());
+        return (s1->atom1()->elementIdentifier() > s2->atom1()->elementIdentifier());
       }
     }
 } ;
 
-struct KeyHash {
- std::size_t operator()(const std::shared_ptr<SKAsymmetricBond>& k) const
- {
-     size_t first = std::hash<std::shared_ptr<SKAsymmetricAtom>>{}(k->atom1());
-     size_t second = std::hash<std::shared_ptr<SKAsymmetricAtom>>{}(k->atom2());
-     size_t lhs = std::min(first,second);
-     size_t rhs = std::max(first,second);
-     return lhs ^ rhs + 0x9e3779b9 + (lhs << 6) + (lhs >> 2);
- }
-};
-
-struct KeyEqual {
- bool operator()(const std::shared_ptr<SKAsymmetricBond>& lhs, const std::shared_ptr<SKAsymmetricBond>& rhs) const
- {
-     return lhs->atom1().get() == rhs->atom1().get() && lhs->atom2().get() == rhs->atom2().get();
- }
-};
-
-void SKBondSetController::sort()
+std::vector<std::shared_ptr<SKBond>> SKBondSetController::getBonds()
 {
-  //std::unordered_map<std::shared_ptr<SKAsymmetricBond>, std::shared_ptr<SKBond>, KeyHash, KeyEqual > map{};
-  std::set<std::shared_ptr<SKBond>, SKAysmmetricBondCompare > map{};
+  std::vector<std::shared_ptr<SKBond>> bonds;
 
-  for (const std::shared_ptr<SKBond>& bond : _arrangedObjects)
+  int count = getNumberOfBands();
+  bonds.reserve(count);
+
+  for(std::shared_ptr<SKAsymmetricBond> asymmetricBond: _arrangedObjects)
   {
-    if(bond->atom1()->type() == SKAtomCopy::AtomCopyType::copy && bond->atom2()->type() == SKAtomCopy::AtomCopyType::copy)
+    std::vector<std::shared_ptr<SKBond>> copies =  asymmetricBond->copies();
+    bonds.insert( bonds.end(), copies.begin(), copies.end() );
+  }
+
+  return bonds;
+}
+
+int SKBondSetController::getNumberOfBands()
+{
+  int count = 0;
+  for(std::shared_ptr<SKAsymmetricBond> asymmetricBond: _arrangedObjects)
+  {
+     count += asymmetricBond->copies().size();
+  }
+  return count;
+}
+
+void SKBondSetController::setBonds(std::vector<std::shared_ptr<SKBond>> &bonds)
+{
+  this->_arrangedObjects.clear();
+
+  std::unordered_set<std::shared_ptr<SKAsymmetricBond>, SKAsymmetricBond::KeyHash, SKAsymmetricBond::KeyEqual> asymmetricBonds;
+
+  std::transform(bonds.begin(),bonds.end(),std::inserter(asymmetricBonds, asymmetricBonds.begin()),[](std::shared_ptr<SKBond> b) -> std::shared_ptr<SKAsymmetricBond>
+          {return std::make_shared<SKAsymmetricBond>(SKAsymmetricBond(b->atom1()->parent(), b->atom2()->parent()));});
+
+
+  // partition the bonds
+  for(std::shared_ptr<SKBond> &bond: bonds)
+  {
+    std::shared_ptr<SKAsymmetricBond> asymmetricBond = std::make_shared<SKAsymmetricBond>(SKAsymmetricBond(bond->atom1()->parent(), bond->atom2()->parent()));
+
+    std::unordered_set<std::shared_ptr<SKAsymmetricBond>, SKAsymmetricBond::KeyHash, SKAsymmetricBond::KeyEqual>::iterator it = asymmetricBonds.find(asymmetricBond);
+    if (it != asymmetricBonds.end())
     {
-       //std::cout << "parent: " << bond->atom1()->parent() << ", " << bond->atom2()->parent() << std::endl;
-       //std::shared_ptr<SKAsymmetricBond> asymmetricBond = std::make_shared<SKAsymmetricBond>(bond->atom1()->parent(), bond->atom2()->parent());
-       //map.insert({asymmetricBond,bond});
-       map.insert(bond);
+      it->get()->copies().push_back(bond);
     }
   }
 
-  _rearrangedObjects.clear();
-  //for(const auto& [key, value] : map)
-  for(auto & key : map)
+  _arrangedObjects.clear();
+  std::copy(asymmetricBonds.begin(), asymmetricBonds.end(),std::back_inserter(_arrangedObjects));
+  std::sort(_arrangedObjects.begin(), _arrangedObjects.end(), SKAysmmetricBondCompare());
+}
+
+void SKBondSetController::addSelectedObjects(std::set<int> selection)
+{
+ _selectedObjects.insert(selection.begin(), selection.end());
+}
+
+
+void SKBondSetController::setTags()
+{
+  int asymmetricBondIndex = 0;
+  for(std::shared_ptr<SKAsymmetricBond> asymmetricBond: _arrangedObjects)
   {
-     //std::cout << "put in set: " << key->atom1()->tag() << ", " << key->atom2()->tag() << std::endl;
-     _rearrangedObjects.push_back(key);
+    asymmetricBond->setAsymmetricIndex(asymmetricBondIndex);
+    asymmetricBondIndex++;
   }
 }
 
 QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<SKBondSetController> &controller)
 {
   stream << controller->_versionNumber;
-  stream << static_cast<qint64>(controller->_arrangedObjects.size());
-  for(const std::shared_ptr<SKBond>& bond : controller->_arrangedObjects)
-  {
-    stream << bond->atom1()->tag();
-    stream << bond->atom2()->tag();
-    stream << bond->boundaryType();
-  }
+  stream << controller->_arrangedObjects;
+
   return stream;
 }
 
 QDataStream &operator>>(QDataStream &stream, std::shared_ptr<SKBondSetController>& controller)
 {
-  qint64 versionNumber;
+  qint32 versionNumber;
   stream >> versionNumber;
+
+  qDebug() << "versionNumber" << versionNumber;
   if(versionNumber > controller->_versionNumber)
   {
     throw InvalidArchiveVersionException(__FILE__, __LINE__, "SKBondSetController");
   }
 
+  std::vector<std::shared_ptr<SKAsymmetricAtom>> asymmetricAtoms = controller->_atomTreecontroller->flattenedObjects();
   std::vector<std::shared_ptr<SKAtomCopy>> atomCopies = controller->_atomTreecontroller->allAtomCopies();
-  qint64 index=0;
-  for(std::shared_ptr<SKAtomCopy> atom: atomCopies)
+
+  if(versionNumber==0)
   {
-    atom->setTag(index);
-    index++;
+    qint32 versionNumber2;
+    stream >> versionNumber2;
+
+    qDebug() << "versionNumber2" << versionNumber2;
+
+    if(versionNumber2 > 1)
+    {
+      stream >> controller->_arrangedObjects;
+
+      // fill in the atoms from the tags
+      for(std::shared_ptr<SKAsymmetricBond> &bond: controller->_arrangedObjects)
+      {
+        int atom1Tag = bond->getTag1();
+        int atom2Tag = bond->getTag2();
+        bond->setAtom1(asymmetricAtoms[atom1Tag]);
+        bond->setAtom2(asymmetricAtoms[atom2Tag]);
+
+        for(std::shared_ptr<SKBond> &bond: bond->copies())
+        {
+          int tag1 = bond->getTag1();
+          int tag2 = bond->getTag2();
+          bond->setAtoms(atomCopies[tag1],atomCopies[tag2]);
+        }
+      }
+    }
+    else
+    {
+      qint64 index=0;
+      for(std::shared_ptr<SKAtomCopy> atom: atomCopies)
+      {
+        atom->setTag(index);
+        index++;
+      }
+
+      qint64 vecSize;
+      std::vector<std::shared_ptr<SKBond>> bonds;
+      stream >> vecSize;
+      qDebug() << "size: " << vecSize;
+      qint64 atomtag1;
+      qint64 atomtag2;
+      qint64 type;
+      while(vecSize--)
+      {
+        stream >> atomtag1;
+        stream >> atomtag2;
+        qDebug() << "atomtags" << atomtag1 << ", " << atomtag2;
+        stream >> type;
+        std::shared_ptr<SKBond> bond = std::make_shared<SKBond>(atomCopies[atomtag1],atomCopies[atomtag2], SKBond::BoundaryType(type));
+        bonds.push_back(bond);
+      }
+      controller->setBonds(bonds);
+    }
+  }
+  else
+  {
+    stream >> controller->_arrangedObjects;
+
+    // fill in the atoms from the tags
+    for(std::shared_ptr<SKAsymmetricBond> &bond: controller->_arrangedObjects)
+    {
+      int atom1Tag = bond->getTag1();
+      int atom2Tag = bond->getTag2();
+      bond->setAtom1(asymmetricAtoms[atom1Tag]);
+      bond->setAtom2(asymmetricAtoms[atom2Tag]);
+
+      for(std::shared_ptr<SKBond> &bond: bond->copies())
+      {
+        int tag1 = bond->getTag1();
+        int tag2 = bond->getTag2();
+        bond->setAtoms(atomCopies[tag1],atomCopies[tag2]);
+      }
+    }
   }
 
-  qint64 vecSize;
-  controller->_arrangedObjects.clear();
-  stream >> vecSize;
-  qint64 atomtag1;
-  qint64 atomtag2;
-  SKBond::BoundaryType type;
-  while(vecSize--)
-  {
-    stream >> atomtag1;
-    stream >> atomtag2;
-    stream >> type;
-    std::shared_ptr<SKBond> bond = std::make_shared<SKBond>(atomCopies[atomtag1],atomCopies[atomtag2], type);
-    controller->_arrangedObjects.insert(bond);
-  }
-  controller->sort();
   return stream;
 }
+
+

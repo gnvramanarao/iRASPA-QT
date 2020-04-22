@@ -48,7 +48,7 @@ void OpenGLAtomSelectionStripesOrthographicImposterShader::setRenderStructures(s
 
 void OpenGLAtomSelectionStripesOrthographicImposterShader::deleteBuffers()
 {
-  for(int i=0;i<_renderStructures.size();i++)
+  for(size_t i=0;i<_renderStructures.size();i++)
   {
     glDeleteBuffers(_renderStructures[i].size(), _vertexBuffer[i].data());
     glDeleteBuffers(_renderStructures[i].size(), _indexBuffer[i].data());
@@ -74,7 +74,7 @@ void OpenGLAtomSelectionStripesOrthographicImposterShader::generateBuffers()
     _vertexArrayObject[i].resize(_renderStructures[i].size());
   }
 
-  for(int i=0;i<_renderStructures.size();i++)
+  for(size_t i=0;i<_renderStructures.size();i++)
   {
     glGenBuffers(_renderStructures[i].size(), _vertexBuffer[i].data());
     glGenBuffers(_renderStructures[i].size(), _indexBuffer[i].data());
@@ -95,11 +95,11 @@ void OpenGLAtomSelectionStripesOrthographicImposterShader::paintGL(GLuint struct
   check_gl_error();
 
   int index = 0;
-  for(int i=0;i<_renderStructures.size();i++)
+  for(size_t i=0;i<_renderStructures.size();i++)
   {
-    for(int j=0;j<_renderStructures[i].size();j++)
+    for(size_t j=0;j<_renderStructures[i].size();j++)
     {
-      if(_renderStructures[i][j]->renderSelectionStyle() == RKSelectionStyle::striped && _renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible() && _numberOfIndices[i][j]>0 && _atomSelectionShader._numberOfDrawnAtoms[i][j]>0)
+      if(_renderStructures[i][j]->atomSelectionStyle() == RKSelectionStyle::striped && _renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible() && _numberOfIndices[i][j]>0 && _atomSelectionShader._numberOfDrawnAtoms[i][j]>0)
       {
         glBindBufferRange(GL_UNIFORM_BUFFER, 1, structureUniformBuffer, GLintptr(index * sizeof(RKStructureUniforms)), GLsizeiptr(sizeof(RKStructureUniforms)));
         glBindVertexArray(_vertexArrayObject[i][j]);
@@ -252,7 +252,7 @@ in vec4 instanceScale;
 
 void main(void)
 {
-  vec4 scale = structureUniforms.selectionScaling * structureUniforms.atomScaleFactor * instanceScale;
+  vec4 scale = structureUniforms.atomSelectionScaling * structureUniforms.atomScaleFactor * instanceScale;
 
   vs_out.N = vec3(0,0,1);
 
@@ -269,7 +269,7 @@ void main(void)
   vs_out.texcoords = vertexPosition.xy;
   vs_out.sphere_radius = scale;
   vec4 pos2 = frameUniforms.viewMatrix * structureUniforms.modelMatrix * instancePosition;
-  pos2.xy += 1.5*scale.xy * vec2(vertexPosition.x,vertexPosition.y);
+  pos2.xy += scale.xy * vec2(vertexPosition.x,vertexPosition.y);
 
   vs_out.frag_pos = pos2.xyz;
 
@@ -329,25 +329,22 @@ out vec4 vFragColor;
 
 void main(void)
 {
-  vec3 rij = -fs_in.frag_center;
-  vec3 vij = fs_in.frag_pos;
+  float x = fs_in.texcoords.x;
+  float y = fs_in.texcoords.y;
+  float zz = 1.0 - x*x - y*y;
 
-  float A = dot(vij, vij);
-  float B = dot(rij, vij);
-  float C = dot(rij, rij) - fs_in.sphere_radius.z * fs_in.sphere_radius.z;
-  float argument = B * B - A * C;
-  if (argument < 0.0) discard;
+  if (zz <= 0.0)
+    discard;
 
-  float t = - C / (B - sqrt(argument));
-  vec3 hit = t * vij;
+  float z = sqrt(zz);
+  vec4 pos = fs_in.eye_position;
+  pos.z += fs_in.sphere_radius.z*z;
+  pos = frameUniforms.projectionMatrix *   pos;
 
-  vec4 screen_pos = frameUniforms.projectionMatrix * vec4(hit, 1.0);
-  gl_FragDepth = 0.5*(screen_pos.z / screen_pos.w)+0.5;
-
+  gl_FragDepth = 0.5*(pos.z / pos.w)+0.5;
 
   // Normalize the incoming N, L and V vectors
-  vec3 N = normalize(hit - fs_in.frag_center);
-  //vec3 N = vec3(x,y,z);
+  vec3 N = vec3(x,y,z);
   vec3 L = normalize(fs_in.L);
 
   // Compute the diffuse and specular components for each fragment
@@ -369,10 +366,10 @@ void main(void)
   }
 
   vec3 hsv = rgb2hsv(color.xyz);
-  hsv.x = hsv.x * structureUniforms.changeHueSaturationValue.x;
-  hsv.y = hsv.y * structureUniforms.changeHueSaturationValue.y;
-  hsv.z = hsv.z * structureUniforms.changeHueSaturationValue.z;
-  float bloomLevel = frameUniforms.bloomLevel * structureUniforms.atomHDRBloomLevel;
+  hsv.x = hsv.x * structureUniforms.atomHue;
+  hsv.y = hsv.y * structureUniforms.atomSaturation;
+  hsv.z = hsv.z * structureUniforms.atomValue;
+  float bloomLevel = frameUniforms.bloomLevel * structureUniforms.atomSelectionIntensity;
   vFragColor = vec4(hsv2rgb(hsv)*bloomLevel,bloomLevel);
 }
 )foo";

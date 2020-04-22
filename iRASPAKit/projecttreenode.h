@@ -93,7 +93,7 @@ private:
 
     std::vector<std::shared_ptr<ProjectTreeNode>> _childNodes{};
     std::vector<std::shared_ptr<ProjectTreeNode>> _filteredAndSortedNodes{};
-    stdx::optional<int> findChildIndex(std::shared_ptr<ProjectTreeNode> child);
+    std::optional<int> findChildIndex(std::shared_ptr<ProjectTreeNode> child);
 
     bool _matchesFilter = true;
     bool _selected = true;

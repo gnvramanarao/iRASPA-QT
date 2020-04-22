@@ -59,7 +59,7 @@ int ProjectTreeNode::row() const
 }
 
 
-stdx::optional<int> ProjectTreeNode::findChildIndex(std::shared_ptr<ProjectTreeNode> child)
+std::optional<int> ProjectTreeNode::findChildIndex(std::shared_ptr<ProjectTreeNode> child)
 {
   if (std::shared_ptr<ProjectTreeNode> lockedParent = _parent.lock())
   {
@@ -70,7 +70,7 @@ stdx::optional<int> ProjectTreeNode::findChildIndex(std::shared_ptr<ProjectTreeN
     }
   }
 
-  return stdx::nullopt;
+  return std::nullopt;
 }
 
 bool ProjectTreeNode::removeChild(int row)
@@ -97,7 +97,7 @@ const IndexPath ProjectTreeNode::indexPath()
   if (std::shared_ptr<ProjectTreeNode> lockedParent =  _parent.lock())
   {
     IndexPath indexpath = lockedParent->indexPath();
-    stdx::optional<int> index = lockedParent->findChildIndex(shared_from_this());
+    std::optional<int> index = lockedParent->findChildIndex(shared_from_this());
 
     assert(index);
     if (indexpath.count() > 0)

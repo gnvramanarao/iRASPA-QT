@@ -33,6 +33,7 @@
 #include <vector>
 #include <unordered_set>
 #include <mathkit.h>
+#include <type_traits>
 #include <foundationkit.h>
 #include "skbond.h"
 
@@ -96,6 +97,11 @@ public:
     enum class SKAsymmetricAtomType: qint64
     {
       container = 0, asymmetric = 1
+    };
+
+    enum class Hybridization: qint64
+    {
+      untyped = 0, sp_linear = 1, sp2_trigonal = 2, sp3_tetrahedral = 3, square_planar = 4, trigonal_bipyramidal = 5, square_pyramidal = 6, octahedral = 7
     };
 
     qint64 asymmetricIndex() {return _asymmetricIndex;}
@@ -169,7 +175,7 @@ public:
     std::vector<std::shared_ptr<SKAtomCopy>>& copies()  {return _copies;}
     void setCopies(std::vector<std::shared_ptr<SKAtomCopy>> copies) {_copies = copies;}
 private:
-    qint64 _versionNumber{1};
+    qint64 _versionNumber{2};
     qint64 _asymmetricIndex;
     QString _displayName = QString("Default");
     double3 _position = double3(0,0,0);
@@ -184,6 +190,7 @@ private:
 
     qint64 _tag = 0;
     SKAsymmetricAtomType _symmetryType = SKAsymmetricAtomType::asymmetric;
+    Hybridization _hybridization = Hybridization::untyped;
 
     // atom properties (bonds are visible depending on whether the atoms of the bonds are visible)
     bool3 _isFixed = bool3(false, false, false);
@@ -216,8 +223,6 @@ private:
 
     friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<SKAsymmetricAtom> &);
     friend QDataStream &operator>>(QDataStream &, std::shared_ptr<SKAsymmetricAtom> &);
-
-    friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<SKAsymmetricBond> &);
-    friend QDataStream &operator>>(QDataStream &, std::shared_ptr<SKAsymmetricBond> &);
 };
+
 

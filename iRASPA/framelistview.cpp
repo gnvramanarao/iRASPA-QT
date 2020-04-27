@@ -108,7 +108,7 @@ void FrameListView::currentFrameChanged(const QModelIndex &current)
   {
     int frameIndex = current.row();
     _sceneList->setSelectedFrameIndices(frameIndex);
-    emit setAtomTreeController(structure->structure()->atomsTreeController());
+    emit setTreeControllers(structure->structure()->atomsTreeController(), structure->structure()->bondSetController());
     emit setCellTreeController(std::vector<std::shared_ptr<Structure>>{structure->structure()});
     emit updateRenderer();
   }

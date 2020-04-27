@@ -35,16 +35,23 @@
 #include "iraspakit.h"
 #include "symmetrykit.h"
 #include "mathkit.h"
+#include "mainwindow.h"
+#include "atomtreeviewmodel.h"
+#include "bondlistviewmodel.h"
+#include "renderstackedwidget.h"
 
-class DeleteSelectionCommand : public QUndoCommand
+class RenderViewDeleteSelectionCommand : public QUndoCommand
 {
 public:
-  enum { Id = 1234 };
-  DeleteSelectionCommand(std::shared_ptr<Structure> structure, std::vector<std::shared_ptr<SKAtomTreeNode>> atoms, std::vector<IndexPath> indexPaths,
+  RenderViewDeleteSelectionCommand(std::shared_ptr<AtomTreeViewModel> atomTreeModel, std::shared_ptr<BondListViewModel> bondTreeModel,
+                         MainWindow *main_window, std::shared_ptr<Structure> structure, std::vector<std::shared_ptr<SKAtomTreeNode>> atoms, std::vector<IndexPath> indexPaths,
                          std::vector<std::shared_ptr<SKAsymmetricBond>> bonds, std::set<int> bondSelection, QUndoCommand *parent = nullptr);
   void undo() override final;
   void redo() override final;
 private:
+  std::weak_ptr<AtomTreeViewModel> _atomTreeModel;
+  std::weak_ptr<BondListViewModel> _bondTreeModel;
+  MainWindow *_main_window;
   std::shared_ptr<Structure> _structure;
   std::vector<std::shared_ptr<SKAtomTreeNode>> _atoms;
   std::vector<IndexPath> _indexPaths;

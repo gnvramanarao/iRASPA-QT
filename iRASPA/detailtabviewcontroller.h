@@ -63,6 +63,6 @@ private:
 public slots:
   void reloadTab(int tab);
   void rendererWidgetResized();
-  void setAtomTreeController(std::shared_ptr<SKAtomTreeController> treeController);
+  void setTreeControllers(std::shared_ptr<SKAtomTreeController> atomController, std::shared_ptr<SKBondSetController> bondController);
   void setBondSetController(std::shared_ptr<ProjectStructure> structure);
 };

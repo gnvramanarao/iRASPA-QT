@@ -212,11 +212,13 @@
     <ClCompile Include="iRASPA\appearancetreewidgetcontroller.cpp" />
     <ClCompile Include="iRASPA\appearanceunitcellform.cpp" />
     <ClCompile Include="iRASPA\atomtreeview.cpp" />
+    <ClCompile Include="iRASPA\atomtreeviewdeleteselectioncommand.cpp" />
     <ClCompile Include="iRASPA\atomtreeviewmodel.cpp" />
     <ClCompile Include="iRASPA\atomtreeviewpushbuttonstyleditemdelegate.cpp" />
     <ClCompile Include="iRASPA\bondlistpushbuttonstyleditemdelegate.cpp" />
     <ClCompile Include="iRASPA\bondlistview.cpp" />
     <ClCompile Include="iRASPA\bondlistviewcomboboxstyleditemdelegate.cpp" />
+    <ClCompile Include="iRASPA\bondlistviewdeleteselectioncommand.cpp" />
     <ClCompile Include="iRASPA\bondlistviewmodel.cpp" />
     <ClCompile Include="iRASPA\bondlistviewsliderstyleditemdelegate.cpp" />
     <ClCompile Include="MathKit\bool3.cpp" />
@@ -244,7 +246,6 @@
     <ClCompile Include="iRASPA\customintspinbox.cpp" />
     <ClCompile Include="RenderKit\cylindergeometry.cpp" />
     <ClCompile Include="iRASPAKit\cylinderprimitive.cpp" />
-    <ClCompile Include="iRASPA\deleteselectioncommand.cpp" />
     <ClCompile Include="iRASPA\detailtabviewcontroller.cpp" />
     <ClCompile Include="iRASPAKit\documentdata.cpp" />
     <ClCompile Include="MathKit\double2.cpp" />
@@ -343,6 +344,7 @@
     <ClCompile Include="iRASPA\qtsegmentcontrol.cpp" />
     <ClCompile Include="RenderKit\quadgeometry.cpp" />
     <ClCompile Include="iRASPA\renderstackedwidget.cpp" />
+    <ClCompile Include="iRASPA\renderviewdeleteselectioncommand.cpp" />
     <ClCompile Include="RenderKit\rkcamera.cpp" />
     <ClCompile Include="RenderKit\rkfontatlas.cpp" />
     <ClCompile Include="RenderKit\rklight.cpp" />
@@ -414,6 +416,7 @@
     <ClInclude Include="FoundationKit\aspectratiosingleitemlayout.h" />
     <QtMoc Include="iRASPA\atomtreeview.h">
     </QtMoc>
+    <ClInclude Include="iRASPA\atomtreeviewdeleteselectioncommand.h" />
     <QtMoc Include="iRASPA\atomtreeviewmodel.h">
     </QtMoc>
     <QtMoc Include="iRASPA\atomtreeviewpushbuttonstyleditemdelegate.h">
@@ -424,6 +427,7 @@
     </QtMoc>
     <QtMoc Include="iRASPA\bondlistviewcomboboxstyleditemdelegate.h">
     </QtMoc>
+    <ClInclude Include="iRASPA\bondlistviewdeleteselectioncommand.h" />
     <QtMoc Include="iRASPA\bondlistviewmodel.h">
     </QtMoc>
     <QtMoc Include="iRASPA\bondlistviewsliderstyleditemdelegate.h">
@@ -465,7 +469,6 @@
     </QtMoc>
     <ClInclude Include="RenderKit\cylindergeometry.h" />
     <ClInclude Include="iRASPAKit\cylinderprimitive.h" />
-    <ClInclude Include="iRASPA\deleteselectioncommand.h" />
     <QtMoc Include="iRASPA\detailtabviewcontroller.h">
     </QtMoc>
     <ClInclude Include="iRASPAKit\documentdata.h" />
@@ -597,6 +600,7 @@
     <ClInclude Include="RenderKit\renderkit.h" />
     <QtMoc Include="iRASPA\renderstackedwidget.h">
     </QtMoc>
+    <ClInclude Include="iRASPA\renderviewdeleteselectioncommand.h" />
     <ClInclude Include="RenderKit\rkcamera.h" />
     <ClInclude Include="RenderKit\rkfontatlas.h" />
     <ClInclude Include="RenderKit\rklight.h" />

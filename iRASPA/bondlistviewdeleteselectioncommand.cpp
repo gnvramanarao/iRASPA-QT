@@ -27,45 +27,51 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#pragma once
+#include "bondlistviewdeleteselectioncommand.h"
+#include <QDebug>
+#include <algorithm>
 
-#include <QObject>
-#include <QMainWindow>
-#include <QTreeView>
-#include <QModelIndex>
-#ifdef _WIN32
-  #include <optional>
-#else
-  #include <experimental/optional>
-#endif
-#include <iraspakit.h>
-#include "scenetreeviewmodel.h"
-#include "iraspamainwindowconsumerprotocol.h"
-
-class SceneTreeView: public QTreeView, public MainWindowConsumer, public Reloadable
+BondListViewDeleteSelectionCommand::BondListViewDeleteSelectionCommand(std::shared_ptr<BondListViewModel> bondTreeModel,
+                                               MainWindow *main_window, std::shared_ptr<Structure> structure,
+                                               std::vector<std::shared_ptr<SKAsymmetricBond>> bonds, std::set<int> bondSelection, QUndoCommand *parent):
+  _bondTreeModel(bondTreeModel),
+  _main_window(main_window),
+  _structure(structure),
+  _bonds(bonds),
+  _bondSelection(bondSelection)
 {
-  Q_OBJECT
+  Q_UNUSED(parent);
 
-public:
-  SceneTreeView(QWidget* parent = nullptr);
-  QModelIndex selectedIndex(void);
-  QSize sizeHint() const override final;
-  void setRootNode(std::shared_ptr<SceneList> sceneList);
-  SceneTreeViewModel* sceneTreeModel() {return _model.get();}
-  void setMainWindow(MainWindow* mainWindow) final override {_mainWindow = mainWindow;}
-  void reloadSelection() override final;
-  void reloadData() override final;
-private:
-  MainWindow* _mainWindow;
-  std::shared_ptr<SceneTreeViewModel> _model;
-  std::shared_ptr<SceneList> _sceneList;
-  QString nameOfItem(const QModelIndex &current);
-public slots:
-  void currentMovieChanged(const QModelIndex &current);
-  void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override final;
-signals:
-  void setSelectedMovie(std::shared_ptr<Movie> selectedMovie);
-  void setCellTreeController(std::vector<std::shared_ptr<Structure>> structures);
-  void setAppearanceTreeController(std::vector<std::shared_ptr<Structure>> structures);
-  void setTreeControllers(std::shared_ptr<SKAtomTreeController> atomController, std::shared_ptr<SKBondSetController> bondController);
-};
+  setText(QString("Delete selection"));
+}
+
+void BondListViewDeleteSelectionCommand::redo()
+{
+  qDebug() << "Redoing";
+  qDebug() << "Deleting bonds: " << _bonds.size();
+
+  if(std::shared_ptr<BondListViewModel> bondListModel = _bondTreeModel.lock())
+  {
+    bondListModel->deleteSelection(_structure, _bondSelection);
+  }
+
+  if(_main_window)
+  {
+    _main_window->reloadDetailViews();
+  }
+}
+
+void BondListViewDeleteSelectionCommand::undo()
+{
+  qDebug() << "Undoing";
+
+  if(std::shared_ptr<BondListViewModel> bondListModel = _bondTreeModel.lock())
+  {
+    bondListModel->insertSelection(_structure, _bonds, _bondSelection);
+  }
+
+  if(_main_window)
+  {
+    _main_window->reloadDetailViews();
+  }
+}

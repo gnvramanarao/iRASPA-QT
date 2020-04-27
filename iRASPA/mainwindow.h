@@ -38,6 +38,8 @@
 #include <iraspakit.h>
 #include <symmetrykit.h>
 #include "helpwidget.h"
+#include "atomtreeviewmodel.h"
+#include "bondlistviewmodel.h"
 
 namespace Ui {
 class MainWindow;
@@ -62,9 +64,12 @@ public:
   ~MainWindow();
   void setUndoAction(QAction *newUndoAction);
   void setRedoAction(QAction *newRedoAction);
+  void reloadDetailViews();
 private:
   Ui::MainWindow *ui;
   DocumentData _documentData{};
+  std::shared_ptr<AtomTreeViewModel> _atomModel;
+  std::shared_ptr<BondListViewModel> _bondModel;
   SKColorSets _colorSets{};
   ForceFieldSets _forceFieldSets{};
   int projectInsertionIndex();

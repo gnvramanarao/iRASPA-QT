@@ -248,11 +248,33 @@ bool BondListViewModel::setData(const QModelIndex &index, const QVariant &value,
 QModelIndexList BondListViewModel::selectedIndexes()
 {
   QModelIndexList list = QModelIndexList();
-  for(int localRow : _bondSetController->selectedObjects())
+  for(int localRow : _bondSetController->selectionIndexSet())
   {
     std::shared_ptr<SKAsymmetricBond> node = _bondSetController->arrangedObjects()[localRow];
     QModelIndex index = createIndex(localRow,0,node.get());
     list.push_back(index);
   }
   return list;
+}
+
+void BondListViewModel::deleteSelection(std::shared_ptr<Structure> structure, std::set<int> indexSet)
+{
+  this->beginResetModel();
+
+  structure->bondSetController()->deleteBonds(indexSet);
+  structure->bondSetController()->selectionIndexSet().clear();
+  structure->bondSetController()->setTags();
+
+  this->endResetModel();
+}
+
+void BondListViewModel::insertSelection(std::shared_ptr<Structure> structure, std::vector<std::shared_ptr<SKAsymmetricBond>> bonds, std::set<int> indexSet)
+{
+  this->beginResetModel();
+
+  structure->bondSetController()->insertBonds(bonds, indexSet);
+  structure->bondSetController()->selectionIndexSet().insert(indexSet.begin(), indexSet.end());
+  structure->bondSetController()->setTags();
+
+  this->endResetModel();
 }

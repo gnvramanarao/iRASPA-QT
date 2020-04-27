@@ -27,12 +27,17 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#include "deleteselectioncommand.h"
+#include "atomtreeviewdeleteselectioncommand.h"
 #include <QDebug>
+#include <algorithm>
 
-DeleteSelectionCommand::DeleteSelectionCommand(std::shared_ptr<Structure> structure,
+AtomTreeViewDeleteSelectionCommand::AtomTreeViewDeleteSelectionCommand(std::shared_ptr<AtomTreeViewModel> atomTreeModel, std::shared_ptr<BondListViewModel> bondTreeModel,
+                                               MainWindow *main_window, std::shared_ptr<Structure> structure,
                                                std::vector<std::shared_ptr<SKAtomTreeNode>> atoms, std::vector<IndexPath> indexPaths,
                                                std::vector<std::shared_ptr<SKAsymmetricBond>> bonds, std::set<int> bondSelection, QUndoCommand *parent):
+  _atomTreeModel(atomTreeModel),
+  _bondTreeModel(bondTreeModel),
+  _main_window(main_window),
   _structure(structure),
   _atoms(atoms),
   _indexPaths(indexPaths),
@@ -44,12 +49,44 @@ DeleteSelectionCommand::DeleteSelectionCommand(std::shared_ptr<Structure> struct
   setText(QString("Delete selection"));
 }
 
-void DeleteSelectionCommand::redo()
+void AtomTreeViewDeleteSelectionCommand::redo()
 {
   qDebug() << "Redoing";
+  qDebug() << "Deleting bonds: " << _bonds.size();
+  qDebug() << "Deleting atoms: " << _atoms.size();
+
+  if(std::shared_ptr<BondListViewModel> bondListModel = _bondTreeModel.lock())
+  {
+    bondListModel->deleteSelection(_structure, _bondSelection);
+  }
+
+  if(std::shared_ptr<AtomTreeViewModel> atomTreeModel = _atomTreeModel.lock())
+  {
+    atomTreeModel->deleteSelection(_structure, _atoms);
+  }
+
+  if(_main_window)
+  {
+    _main_window->reloadDetailViews();
+  }
 }
 
-void DeleteSelectionCommand::undo()
+void AtomTreeViewDeleteSelectionCommand::undo()
 {
-   qDebug() << "Undoing";
+  qDebug() << "Undoing";
+
+  if(std::shared_ptr<AtomTreeViewModel> atomTreeModel = _atomTreeModel.lock())
+  {
+    atomTreeModel->insertSelection(_structure, _atoms, _indexPaths);
+  }
+
+  if(std::shared_ptr<BondListViewModel> bondListModel = _bondTreeModel.lock())
+  {
+    bondListModel->insertSelection(_structure, _bonds, _bondSelection);
+  }
+
+  if(_main_window)
+  {
+    _main_window->reloadDetailViews();
+  }
 }

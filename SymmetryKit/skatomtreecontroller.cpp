@@ -31,6 +31,7 @@
 
 #include <stack>
 #include <algorithm>
+#include <QDebug>
 
 SKAtomTreeController::SKAtomTreeController()
 {
@@ -55,6 +56,13 @@ void SKAtomTreeController::insertNodeInParent(std::shared_ptr<SKAtomTreeNode> no
     node->_parent = parent;
     _hiddenRootNode->updateFilteredChildren(this->_filterPredicate);
   }
+}
+
+void SKAtomTreeController::insertNodeAtIndexPath(std::shared_ptr<SKAtomTreeNode> node, IndexPath path)
+{
+  int index = path.lastIndex();
+  std::shared_ptr<SKAtomTreeNode> parent = _hiddenRootNode->descendantNodeAtIndexPath(path.removingLastIndex());
+  node->insertInParent(parent, index);
 }
 
 void SKAtomTreeController::removeNode(std::shared_ptr<SKAtomTreeNode> node)
@@ -248,6 +256,11 @@ void SKAtomTreeController::setTags()
       asymmetricAtomIndex++;
     }
   }
+}
+
+std::vector<std::shared_ptr<SKAtomTreeNode>> SKAtomTreeController::selectedAtomTreeNodes()
+{
+  return std::vector<std::shared_ptr<SKAtomTreeNode>>(_selectedTreeNodes.begin(),_selectedTreeNodes.end());
 }
 
 

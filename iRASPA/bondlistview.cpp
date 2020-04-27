@@ -29,12 +29,16 @@
 
 #include "bondlistview.h"
 #include "bondlistviewsliderstyleditemdelegate.h"
+#include "bondlistviewdeleteselectioncommand.h"
 
 
-BondListView::BondListView(QWidget* parent): QTreeView(parent ), _model(std::make_shared<BondListViewModel>())
+BondListView::BondListView(QWidget* parent): QTreeView(parent ), _bondModel(std::make_shared<BondListViewModel>())
 {
+  this->setModel(_bondModel.get());
+
+  QObject::connect(model(),&QAbstractItemModel::modelReset, this, &BondListView::reloadSelection);
+
   _structure = std::make_shared<ProjectStructure>();
-  this->setModel(_model.get());
 
   this->viewport()->setMouseTracking(true);
 
@@ -58,6 +62,40 @@ BondListView::BondListView(QWidget* parent): QTreeView(parent ), _model(std::mak
   this->setItemDelegateForColumn(7, sliderDelegate);
 
   this->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked);
+
+  QObject::connect(selectionModel(), &QItemSelectionModel::selectionChanged, this, &BondListView::setSelectedBonds);
+}
+
+void BondListView::setAtomModel(std::shared_ptr<AtomTreeViewModel> atomModel)
+{
+  _atomModel = atomModel;
+
+}
+
+void BondListView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
+{
+  _projectTreeNode = projectTreeNode;
+
+
+  //_projectStructure = nullptr;
+
+  if (projectTreeNode)
+  {
+    std::shared_ptr<iRASPAProject> iraspaProject = projectTreeNode->representedObject();
+    if(iraspaProject)
+    {
+      if(std::shared_ptr<Project> project = iraspaProject->project())
+      {
+        if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
+        {
+           std::cout << "setProject : " << projectTreeNode->displayName().toStdString() << std::endl;
+          //_projectStructure = projectStructure;
+          _structures = projectStructure->flattenedStructures();
+        }
+      }
+    }
+  }
+
 }
 
 void BondListView::reloadSelection()
@@ -74,11 +112,11 @@ void BondListView::reloadSelection()
 
 void BondListView::reloadData()
 {
-  if(_model->bondSetController() != _controller)
+  if(_bondModel->bondSetController() != _controller)
   {
     if(_structure)
     {
-      _model->setBondSetStructure(_structure->selectedStructure());
+      _bondModel->setBondSetStructure(_structure->selectedStructure());
 
       if(_controller && _controller->getNumberOfBands() > 0)
       {
@@ -116,7 +154,7 @@ void BondListView::setBondListModel(const QModelIndex &current, const QModelInde
 
   if(iRASPAStructure* structure = dynamic_cast<iRASPAStructure*>(item))
   {
-    _model->setBondSetStructure(structure->structure());
+    _bondModel->setBondSetStructure(structure->structure());
   }
 
 }
@@ -125,6 +163,84 @@ void BondListView::setBondListModel(const QModelIndex &current, const QModelInde
 QSize BondListView::sizeHint() const
 {
   return QSize(500, 800);
+}
+
+void BondListView::keyPressEvent(QKeyEvent *event)
+{
+  if( event->type() == QEvent::KeyPress )
+  {
+    QKeyEvent * keyEvent = dynamic_cast<QKeyEvent*>(event);
+    if( keyEvent->key() == Qt::Key_Delete )
+    {
+      deleteSelection();
+    }
+  }
+  QTreeView::keyPressEvent(event);
+}
+
+void BondListView::deleteSelection()
+{
+  qDebug() << "deleteSelection";
+  if(std::shared_ptr<ProjectTreeNode> projectTreeNode = _projectTreeNode.lock())
+  {
+    if(projectTreeNode->isEditable())
+    {
+      if(std::shared_ptr<iRASPAProject> iRASPAProject = projectTreeNode->representedObject())
+      {
+        if(std::shared_ptr<Project> project = iRASPAProject->project())
+        {
+          if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
+          {
+            std::shared_ptr<Structure> structure = _structures.front();
+
+            std::vector<std::shared_ptr<SKAsymmetricBond>> bonds = structure->bondSetController()->selectedObjects();
+            std::set<int> bondSelection = structure->bondSetController()->selectionIndexSet();
+            BondListViewDeleteSelectionCommand *deleteSelectionCommand = new BondListViewDeleteSelectionCommand(_bondModel, _mainWindow, structure, bonds, bondSelection);
+            iRASPAProject->undoManager().push(deleteSelectionCommand);
+          }
+        }
+      }
+    }
+  }
+}
+
+
+SKAsymmetricBond* BondListView::getItem(const QModelIndex &index) const
+{
+  if (index.isValid())
+  {
+     SKAsymmetricBond *item = static_cast<SKAsymmetricBond*>(index.internalPointer());
+     if (item)
+     {
+       return item;
+     }
+  }
+  return nullptr;
+}
+void BondListView::setSelectedBonds(const QItemSelection &selected, const QItemSelection &deselected)
+{
+  for(QModelIndex index : deselected.indexes())
+  {
+    SKAsymmetricBond *item = getItem(index);
+    std::shared_ptr<SKAsymmetricBond> asymmetricBond = item->shared_from_this();
+
+
+    _controller->selectionIndexSet().erase(asymmetricBond->asymmetricIndex());
+  }
+
+  for(QModelIndex index : selected.indexes())
+  {
+    SKAsymmetricBond *item = getItem(index);
+    std::shared_ptr<SKAsymmetricBond> asymmetricBond = item->shared_from_this();
+
+    _controller->selectionIndexSet().insert(asymmetricBond->asymmetricIndex());
+  }
+
+  // Force bonds to selected (bonds that are automatically selected due to their atoms being selected).
+  _controller->correctBondSelectionDueToAtomSelection();
+  this->reloadSelection();
+
+  emit rendererReloadData();
 }
 
 

@@ -27,6 +27,8 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
+#pragma once
+
 #include <QObject>
 #include <QMainWindow>
 #include <QAbstractItemModel>
@@ -62,6 +64,9 @@ public:
   bool setData(const QModelIndex &index, const QVariant &value, int role) override final;
 
   QModelIndexList selectedIndexes();
+
+  void deleteSelection(std::shared_ptr<Structure> structure, std::set<int> indexSet);
+  void insertSelection(std::shared_ptr<Structure> structure, std::vector<std::shared_ptr<SKAsymmetricBond>> bonds, std::set<int> indexSet);
 private:
   std::shared_ptr<SKBondSetController> _bondSetController;
   std::shared_ptr<Structure> _structure;

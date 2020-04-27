@@ -203,7 +203,7 @@ void SceneTreeView::currentMovieChanged(const QModelIndex &current)
 
       emit setSelectedMovie(movie->shared_from_this());
       emit setCellTreeController(movie->structures());
-      emit setAtomTreeController(movie->selectedFrame()->structure()->atomsTreeController());
+      emit setTreeControllers(movie->selectedFrame()->structure()->atomsTreeController(), movie->selectedFrame()->structure()->bondSetController());
     }
   }
 }

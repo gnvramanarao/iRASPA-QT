@@ -37,6 +37,9 @@
 #include <QRubberBand>
 #include <iraspaproject.h>
 #include <iraspamainwindowconsumerprotocol.h>
+#include "atomtreeviewmodel.h"
+#include "bondlistviewmodel.h"
+#include "symmetrykit.h"
 
 class RenderStackedWidget : public QStackedWidget, public ProjectConsumer, public MainWindowConsumer
 {
@@ -44,12 +47,16 @@ class RenderStackedWidget : public QStackedWidget, public ProjectConsumer, publi
 
 public:
   RenderStackedWidget(QWidget* parent = nullptr );
-  void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode) override final;
+  void setProject(std::shared_ptr<ProjectTreeNode> _projectTreeNode) override final;
   void setMainWindow(MainWindow *mainWindow) override final {_mainWindow = mainWindow;}
+  void setAtomModel(std::shared_ptr<AtomTreeViewModel> atomModel);
+  void setBondModel(std::shared_ptr<BondListViewModel> bondModel);
 private:
   MainWindow *_mainWindow;
-  std::weak_ptr<ProjectTreeNode> projectTreeNode;
-  std::weak_ptr<ProjectStructure> project;
+  std::shared_ptr<AtomTreeViewModel> _atomModel;
+  std::shared_ptr<BondListViewModel> _bondModel;
+  std::weak_ptr<ProjectTreeNode> _projectTreeNode;
+  std::weak_ptr<ProjectStructure> _project;
   std::weak_ptr<RKCamera> _camera;
   std::vector<std::vector<std::shared_ptr<Structure>>> _structures;
   QRubberBand* _rubberBand;
@@ -61,6 +68,7 @@ private:
   void exportToCIF() const;
   void exportToXYZ() const;
   void exportToPOSCAR() const;
+  void deleteSelection();
 protected:
   bool eventFilter(QObject *obj, QEvent *event) override final;
 public slots:

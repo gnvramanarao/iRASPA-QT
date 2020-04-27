@@ -68,5 +68,5 @@ private slots:
 signals:
   void updateRenderer();
   void setCellTreeController(std::vector<std::shared_ptr<Structure>> structures);
-  void setAtomTreeController(std::shared_ptr<SKAtomTreeController> treeController);
+  void setTreeControllers(std::shared_ptr<SKAtomTreeController> atomController, std::shared_ptr<SKBondSetController> bondController);
 };

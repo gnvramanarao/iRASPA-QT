@@ -171,3 +171,14 @@ bool IndexPath::operator=( const IndexPath& otherObject ) const
   }
   return true;
 }
+
+QDebug operator<<(QDebug debug, const IndexPath &c)
+{
+  QDebugStateSaver saver(debug);
+  debug.nospace() << '(' << c._path.size() << ") , " << c._path;
+  for(int i: c._path)
+  {
+    qDebug() << "value: " << i;
+  }
+  return debug;
+}

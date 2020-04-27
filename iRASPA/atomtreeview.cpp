@@ -31,12 +31,15 @@
 #include <QPainter>
 #include <QtCore>
 #include <QItemSelection>
-#include "deleteselectioncommand.h"
+#include "atomtreeviewdeleteselectioncommand.h"
 
-AtomTreeView::AtomTreeView(QWidget* parent): QTreeView(parent ), _model(std::make_shared<AtomTreeViewModel>())
+AtomTreeView::AtomTreeView(QWidget* parent): QTreeView(parent ), _atomModel(std::make_shared<AtomTreeViewModel>())
 {
+  this->setModel(_atomModel.get());
+
+  QObject::connect(model(),&QAbstractItemModel::modelReset, this, &AtomTreeView::reloadSelection);
+
   _atomTreeController = std::make_shared<SKAtomTreeController>();
-  this->setModel(_model.get());
 
   this->viewport()->setMouseTracking(true);
 
@@ -60,13 +63,27 @@ AtomTreeView::AtomTreeView(QWidget* parent): QTreeView(parent ), _model(std::mak
   this->setContextMenuPolicy(Qt::CustomContextMenu);
   QObject::connect(this, &QWidget::customContextMenuRequested, this, &AtomTreeView::ShowContextMenu);
 
-  QObject::connect(selectionModel(), &QItemSelectionModel::selectionChanged, this, &AtomTreeView::setSelectedAtoms);
-
-
   _dropIndicatorRect = QRect();
 
   pushButtonDelegate = new AtomTreeViewPushButtonStyledItemDelegate(this);
   this->setItemDelegateForColumn(1, pushButtonDelegate);
+
+  QObject::connect(selectionModel(), &QItemSelectionModel::selectionChanged, this, &AtomTreeView::setSelectedAtoms);
+}
+
+void AtomTreeView::setBondModel(std::shared_ptr<BondListViewModel> bondModel)
+{
+  _bondModel = bondModel;
+}
+
+void AtomTreeView::setAtomController(std::shared_ptr<SKAtomTreeController> atomController)
+{
+  _atomTreeController = atomController;
+}
+
+void AtomTreeView::setBondController(std::shared_ptr<SKBondSetController> bondController)
+{
+  _bondController = bondController;
 }
 
 void AtomTreeView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
@@ -126,6 +143,17 @@ void AtomTreeView::setSelectedAtoms(const QItemSelection &selected, const QItemS
     SKAtomTreeNode *node = getItem(index);
     std::shared_ptr<SKAtomTreeNode> atom = node->shared_from_this();
     _atomTreeController->selectedTreeNodes().erase(atom);
+
+    // remove bonds that are connected to this atom from the selection
+    int bondIndex=0;
+    for(std::shared_ptr<SKAsymmetricBond> bond : _bondController->arrangedObjects())
+    {
+      if(bond->atom1() == atom->representedObject() || bond->atom2() == atom->representedObject())
+      {
+        _bondController->selectionIndexSet().erase(bondIndex);
+      }
+      bondIndex++;
+    }
   }
 
   for(QModelIndex index : selected.indexes())
@@ -134,6 +162,8 @@ void AtomTreeView::setSelectedAtoms(const QItemSelection &selected, const QItemS
     std::shared_ptr<SKAtomTreeNode> atom = node->shared_from_this();
     _atomTreeController->selectedTreeNodes().insert(atom);
   }
+
+  _bondController->correctBondSelectionDueToAtomSelection();
 
   emit rendererReloadData();
 }
@@ -259,8 +289,13 @@ QAbstractItemView::DropIndicatorPosition AtomTreeView::position(QPoint pos, QRec
 
 void AtomTreeView::reloadSelection()
 {
+
   AtomTreeViewModel* pModel = qobject_cast<AtomTreeViewModel*>(model());
+  qDebug() << "reloadSelection" << pModel->selectedIndexes().size();
+
   whileBlocking(selectionModel())->clearSelection();
+
+  qDebug() << "reloadSelection" << pModel->selectedIndexes().size();
 
   for(QModelIndex index : pModel->selectedIndexes())
   {
@@ -271,9 +306,9 @@ void AtomTreeView::reloadSelection()
 
 void AtomTreeView::reloadData()
 {
-  if(_model->atomTreeController() != _atomTreeController)
+  if(_atomModel->atomTreeController() != _atomTreeController)
   {
-    _model->setAtomTreeController(_atomTreeController);
+    _atomModel->setAtomTreeController(_atomTreeController);
 
     if(_atomTreeController->rootNodes().size() > 0)
     {
@@ -290,20 +325,13 @@ void AtomTreeView::reloadData()
 }
 
 
-
-void AtomTreeView::setRootNode(std::shared_ptr<SKAtomTreeController> treeController)
-{
-  _atomTreeController = treeController;
-}
-
-
 void AtomTreeView::setAtomTreeModel(const QModelIndex &current, const QModelIndex &previous)
 {
   DisplayableProtocol *item = static_cast<DisplayableProtocol*>(current.internalPointer());
 
   if(iRASPAStructure* structure = dynamic_cast<iRASPAStructure*>(item))
   {
-    _model->setAtomTreeController(structure->structure()->atomsTreeController());
+    _atomModel->setAtomTreeController(structure->structure()->atomsTreeController());
   }
 }
 
@@ -347,11 +375,17 @@ void AtomTreeView::deleteSelection()
           if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
           {
             std::shared_ptr<Structure> structure = _structures.front();
-            std::vector<std::shared_ptr<SKAtomTreeNode>> atoms = std::vector<std::shared_ptr<SKAtomTreeNode>>();
-            std::vector<IndexPath> atomSelection = std::vector<IndexPath>();
-            std::vector<std::shared_ptr<SKAsymmetricBond>> bonds = std::vector<std::shared_ptr<SKAsymmetricBond>>();
-            std::set<int> bondSelection = std::set<int>();
-            DeleteSelectionCommand *deleteSelectionCommand = new DeleteSelectionCommand(structure,atoms,atomSelection,bonds,bondSelection);
+
+            std::vector<std::shared_ptr<SKAtomTreeNode>> atoms = structure->atomsTreeController()->selectedAtomTreeNodes();
+            sort(atoms.begin(), atoms.end(), [](std::shared_ptr<SKAtomTreeNode> node1, std::shared_ptr<SKAtomTreeNode> node2) -> bool {
+                 return node1->indexPath() > node2->indexPath();});
+            std::vector<IndexPath> atomSelection;
+            std::transform(atoms.begin(),atoms.end(),std::back_inserter(atomSelection),[](std::shared_ptr<SKAtomTreeNode> node) -> IndexPath
+                      {return node->indexPath();});
+
+            std::vector<std::shared_ptr<SKAsymmetricBond>> bonds = structure->bondSetController()->selectedObjects();
+            std::set<int> bondSelection = structure->bondSetController()->selectionIndexSet();
+            AtomTreeViewDeleteSelectionCommand *deleteSelectionCommand = new AtomTreeViewDeleteSelectionCommand(_atomModel, _bondModel, _mainWindow, structure, atoms, atomSelection, bonds, bondSelection);
             iRASPAProject->undoManager().push(deleteSelectionCommand);
           }
         }

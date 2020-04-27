@@ -50,16 +50,20 @@ public:
   int getNumberOfBands();
   std::vector<std::shared_ptr<SKBond>> getBonds();
   void setBonds(std::vector<std::shared_ptr<SKBond>> &bonds);
-  std::set<int> &selectedObjects() {return _selectedObjects;}
-  void setSelectedObjects(std::set<int> selection) {_selectedObjects = selection;}
+  void insertBonds(std::vector<std::shared_ptr<SKAsymmetricBond> > bonds, std::set<int> indexSet);
+  void deleteBonds(std::set<int> indexSet);
+  std::set<int> &selectionIndexSet() {return _selectedIndexSet;}
+  std::vector<std::shared_ptr<SKAsymmetricBond>> selectedObjects();
+  void setSelectedObjects(std::set<int> selection) {_selectedIndexSet = selection;}
   void addSelectedObjects(std::set<int> selection);
   void setTags();
+  void correctBondSelectionDueToAtomSelection();
 private:
   static qint64 _versionNumber;
   std::shared_ptr<SKAtomTreeController> _atomTreecontroller;
 
   std::vector<std::shared_ptr<SKAsymmetricBond>> _arrangedObjects;
-  std::set<int> _selectedObjects;
+  std::set<int> _selectedIndexSet;
 
   friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<SKBondSetController> &);
   friend QDataStream &operator>>(QDataStream &stream, std::shared_ptr<SKBondSetController>& controller);

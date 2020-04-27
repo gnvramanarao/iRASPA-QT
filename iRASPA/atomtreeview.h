@@ -34,13 +34,10 @@
 #include <QTreeView>
 #include <QModelIndex>
 #include <QAbstractItemView>
-#ifdef _WIN32
-  #include <optional>
-#else
-  #include <experimental/optional>
-#endif
+#include <optional>
 #include <iraspakit.h>
 #include "atomtreeviewmodel.h"
+#include "bondlistviewmodel.h"
 #include "iraspamainwindowconsumerprotocol.h"
 #include "atomtreeviewpushbuttonstyleditemdelegate.h"
 
@@ -54,18 +51,23 @@ public:
   QSize sizeHint() const override final;
   void setMainWindow(MainWindow* mainWindow) override final {_mainWindow = mainWindow;}
   void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode) override final;
-  void setRootNode(std::shared_ptr<SKAtomTreeController> treeController);
-  AtomTreeViewModel* atomTreeModel() {return _model.get();}
+  void setAtomController(std::shared_ptr<SKAtomTreeController> atomController);
+  void setBondController(std::shared_ptr<SKBondSetController> bondController);
+  AtomTreeViewModel* atomTreeModel() {return _atomModel.get();}
   void reloadData() override final;
   virtual void dropEvent(QDropEvent * event) final override;
   void paintEvent(QPaintEvent *event) override final;
   void startDrag(Qt::DropActions supportedActions) override final;
   void dragMoveEvent(QDragMoveEvent *event) override final;
+  void setBondModel(std::shared_ptr<BondListViewModel> bondModel);
+  std::shared_ptr<AtomTreeViewModel> atomModel() {return _atomModel;}
 private:
   QRect _dropIndicatorRect;
   MainWindow* _mainWindow;
-  std::shared_ptr<AtomTreeViewModel> _model;
+  std::shared_ptr<AtomTreeViewModel> _atomModel;
+  std::shared_ptr<BondListViewModel> _bondModel;
   std::shared_ptr<SKAtomTreeController> _atomTreeController;
+  std::shared_ptr<SKBondSetController> _bondController;
   std::weak_ptr<ProjectTreeNode> _projectTreeNode;
   std::shared_ptr<ProjectStructure> _projectStructure;
   std::vector<std::shared_ptr<Structure>> _structures{};

@@ -34,6 +34,7 @@
 #include <QtDebug>
 #include <iraspakit.h>
 #include "fixedaspectratiolayoutitem.h"
+#include "renderviewdeleteselectioncommand.h"
 
 RenderStackedWidget::RenderStackedWidget(QWidget* parent ): QStackedWidget(parent ),
     _rubberBand(new QRubberBand(QRubberBand::Rectangle, this))
@@ -45,18 +46,65 @@ RenderStackedWidget::RenderStackedWidget(QWidget* parent ): QStackedWidget(paren
   QObject::connect(this, &QWidget::customContextMenuRequested, this, &RenderStackedWidget::ShowContextMenu);
 }
 
+void RenderStackedWidget::setAtomModel(std::shared_ptr<AtomTreeViewModel> atomModel)
+{
+  _atomModel = atomModel;
+}
+
+void RenderStackedWidget::setBondModel(std::shared_ptr<BondListViewModel> bondModel)
+{
+  _bondModel = bondModel;
+}
+
 
 void RenderStackedWidget::resizeEvent(QResizeEvent *event)
 {
   QSize size = event->size();
   double ratio = double(size.width())/double(size.height());
-  if(std::shared_ptr<ProjectStructure> project = this->project.lock())
+  if(std::shared_ptr<ProjectStructure> project = this->_project.lock())
   {
     project->setImageAspectRatio(ratio);
   }
   emit rendererWidgetResized();
 }
 
+void RenderStackedWidget::deleteSelection()
+{
+  qDebug() << "RenderStackedWidget delete";
+
+
+  if(std::shared_ptr<ProjectTreeNode> projectTreeNode = _projectTreeNode.lock())
+  {
+    if(projectTreeNode->isEditable())
+    {
+      if(std::shared_ptr<iRASPAProject> iRASPAProject = projectTreeNode->representedObject())
+      {
+        iRASPAProject->undoManager().beginMacro("delete selection");
+        if(std::shared_ptr<Project> project = iRASPAProject->project())
+        {
+          if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
+          {
+            for (std::shared_ptr<Structure> structure : projectStructure->flattenedStructures())
+            {
+              std::vector<std::shared_ptr<SKAtomTreeNode>> atoms = structure->atomsTreeController()->selectedAtomTreeNodes();
+              sort(atoms.begin(), atoms.end(), [](std::shared_ptr<SKAtomTreeNode> node1, std::shared_ptr<SKAtomTreeNode> node2) -> bool {
+                   return node1->indexPath() > node2->indexPath();});
+              std::vector<IndexPath> atomSelection;
+              std::transform(atoms.begin(),atoms.end(),std::back_inserter(atomSelection),[](std::shared_ptr<SKAtomTreeNode> node) -> IndexPath
+                        {return node->indexPath();});
+
+              std::vector<std::shared_ptr<SKAsymmetricBond>> bonds = structure->bondSetController()->selectedObjects();
+              std::set<int> bondSelection = structure->bondSetController()->selectionIndexSet();
+              RenderViewDeleteSelectionCommand *deleteSelectionCommand = new RenderViewDeleteSelectionCommand(_atomModel, _bondModel, _mainWindow, structure, atoms, atomSelection, bonds, bondSelection);
+              iRASPAProject->undoManager().push(deleteSelectionCommand);
+            }
+          }
+        }
+        iRASPAProject->undoManager().endMacro();
+      }
+    }
+  }
+}
 
 
 bool RenderStackedWidget::eventFilter(QObject *obj, QEvent *event)
@@ -66,6 +114,15 @@ bool RenderStackedWidget::eventFilter(QObject *obj, QEvent *event)
   {
     emit updateCameraModelViewMatrix();
     emit updateCameraEulerAngles();
+  }
+
+  if( event->type() == QEvent::KeyPress )
+  {
+    QKeyEvent * keyEvent = dynamic_cast<QKeyEvent*>(event);
+    if( keyEvent->key() == Qt::Key_Delete )
+    {
+      deleteSelection();
+    }
   }
 
   Qt::KeyboardModifiers keyMod = QApplication::keyboardModifiers();
@@ -283,7 +340,7 @@ bool RenderStackedWidget::eventFilter(QObject *obj, QEvent *event)
     }
   }
 
-  return false;
+  return QStackedWidget::eventFilter(obj, event);
 }
 
 void RenderStackedWidget::selectAsymetricAtomsInRectangle(QRect rect, bool extend)
@@ -325,6 +382,8 @@ void RenderStackedWidget::selectAsymetricAtomsInRectangle(QRect rect, bool exten
 
         qDebug() << "indexSetSelectedBonds: " << indexSetSelectedBonds.size();
 
+
+
         if(extend)
         {
           _structures[i][j]->addToAtomSelection(indexSetSelectedAtoms);
@@ -346,9 +405,9 @@ void RenderStackedWidget::selectAsymetricAtomsInRectangle(QRect rect, bool exten
 
 void RenderStackedWidget::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 {
-  this->projectTreeNode = projectTreeNode;
+  this->_projectTreeNode = projectTreeNode;
 
-  this->project.reset();
+  this->_project.reset();
   if (projectTreeNode)
   {
     if(std::shared_ptr<iRASPAProject> iraspaProject = projectTreeNode->representedObject())
@@ -362,7 +421,7 @@ void RenderStackedWidget::setProject(std::shared_ptr<ProjectTreeNode> projectTre
 		      projectStructure->setImageAspectRatio(ratio);
 		      emit rendererWidgetResized();
 
-          this->project = projectStructure;
+          this->_project = projectStructure;
           this->_camera = projectStructure->camera();
           _structures = projectStructure->structures();
 
@@ -375,7 +434,7 @@ void RenderStackedWidget::setProject(std::shared_ptr<ProjectTreeNode> projectTre
 
 void RenderStackedWidget::ShowContextMenu(const QPoint &pos)
 {
-  if(std::shared_ptr<ProjectStructure> project = this->project.lock())
+  if(std::shared_ptr<ProjectStructure> project = this->_project.lock())
   {
     QMenu contextMenu(tr("Context menu"), this);
 
@@ -500,7 +559,7 @@ void RenderStackedWidget::reloadBackgroundImage()
 
 void RenderStackedWidget::resetCameraDistance()
 {
-  if(std::shared_ptr<ProjectStructure> project = this->project.lock())
+  if(std::shared_ptr<ProjectStructure> project = this->_project.lock())
   {
      project->camera()->resetCameraDistance();
      emit updateCameraModelViewMatrix();
@@ -509,7 +568,7 @@ void RenderStackedWidget::resetCameraDistance()
 
 void RenderStackedWidget::resetCameraToZ()
 {
-  if(std::shared_ptr<ProjectStructure> project = this->project.lock())
+  if(std::shared_ptr<ProjectStructure> project = this->_project.lock())
   {
     project->camera()->setBoundingBox(project->renderBoundingBox());
     project->camera()->setResetDirectionType( ResetDirectionType::plus_Z);
@@ -521,7 +580,7 @@ void RenderStackedWidget::resetCameraToZ()
 
 void RenderStackedWidget::resetCameraToY()
 {
-  if(std::shared_ptr<ProjectStructure> project = this->project.lock())
+  if(std::shared_ptr<ProjectStructure> project = this->_project.lock())
   {
     project->camera()->setBoundingBox(project->renderBoundingBox());
     project->camera()->setResetDirectionType( ResetDirectionType::plus_Y);
@@ -533,7 +592,7 @@ void RenderStackedWidget::resetCameraToY()
 
 void RenderStackedWidget::resetCameraToX()
 {
-  if(std::shared_ptr<ProjectStructure> project = this->project.lock())
+  if(std::shared_ptr<ProjectStructure> project = this->_project.lock())
   {
     project->camera()->setBoundingBox(project->renderBoundingBox());
     project->camera()->setResetDirectionType( ResetDirectionType::plus_X);
@@ -545,7 +604,7 @@ void RenderStackedWidget::resetCameraToX()
 
 void RenderStackedWidget::setCameraToOrthographic()
 {
-  if(std::shared_ptr<ProjectStructure> project = this->project.lock())
+  if(std::shared_ptr<ProjectStructure> project = this->_project.lock())
   {
     project->camera()->setCameraToOrthographic();
     emit updateCameraProjection();
@@ -554,7 +613,7 @@ void RenderStackedWidget::setCameraToOrthographic()
 
 void RenderStackedWidget::setCameraToPerspective()
 {
-  if(std::shared_ptr<ProjectStructure> project = this->project.lock())
+  if(std::shared_ptr<ProjectStructure> project = this->_project.lock())
   {
     project->camera()->setCameraToPerspective();
     emit updateCameraProjection();
@@ -563,7 +622,7 @@ void RenderStackedWidget::setCameraToPerspective()
 
 void RenderStackedWidget::showBoundingBox(bool checked)
 {
-  if(std::shared_ptr<ProjectStructure> project = this->project.lock())
+  if(std::shared_ptr<ProjectStructure> project = this->_project.lock())
   {
     project->setShowBoundingBox(checked);
     emit reloadData();
@@ -655,7 +714,7 @@ void RenderStackedWidget::computeNitrogenSurfaceArea(std::vector<std::shared_ptr
 
 void RenderStackedWidget::exportToPDB() const
 {
-  if(std::shared_ptr<ProjectStructure> project = this->project.lock())
+  if(std::shared_ptr<ProjectStructure> project = this->_project.lock())
   {
     //project->camera()->setCameraToPerspective();
     //emit updateCameraProjection();
@@ -664,7 +723,7 @@ void RenderStackedWidget::exportToPDB() const
 
 void RenderStackedWidget::exportToMMCIF() const
 {
-  if(std::shared_ptr<ProjectStructure> project = this->project.lock())
+  if(std::shared_ptr<ProjectStructure> project = this->_project.lock())
   {
     //project->camera()->setCameraToPerspective();
     //emit updateCameraProjection();
@@ -673,7 +732,7 @@ void RenderStackedWidget::exportToMMCIF() const
 
 void RenderStackedWidget::exportToCIF() const
 {
-  if(std::shared_ptr<ProjectStructure> project = this->project.lock())
+  if(std::shared_ptr<ProjectStructure> project = this->_project.lock())
   {
     //project->camera()->setCameraToPerspective();
     //emit updateCameraProjection();
@@ -682,7 +741,7 @@ void RenderStackedWidget::exportToCIF() const
 
 void RenderStackedWidget::exportToXYZ() const
 {
-  if(std::shared_ptr<ProjectStructure> project = this->project.lock())
+  if(std::shared_ptr<ProjectStructure> project = this->_project.lock())
   {
     //project->camera()->setCameraToPerspective();
     //emit updateCameraProjection();
@@ -691,7 +750,7 @@ void RenderStackedWidget::exportToXYZ() const
 
 void RenderStackedWidget::exportToPOSCAR() const
 {
-  if(std::shared_ptr<ProjectStructure> project = this->project.lock())
+  if(std::shared_ptr<ProjectStructure> project = this->_project.lock())
   {
     //project->camera()->setCameraToPerspective();
     //emit updateCameraProjection();

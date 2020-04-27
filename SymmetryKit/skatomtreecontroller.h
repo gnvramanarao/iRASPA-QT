@@ -52,6 +52,7 @@ public:
 
     std::shared_ptr<SKAtomTreeNode> hiddenRootNode() {return _hiddenRootNode;}
     void insertNodeInParent(std::shared_ptr<SKAtomTreeNode> node, std::weak_ptr<SKAtomTreeNode> parent, int index);
+    void insertNodeAtIndexPath(std::shared_ptr<SKAtomTreeNode> node, IndexPath path);
     void removeNode(std::shared_ptr<SKAtomTreeNode> node);
     //std::shared_ptr<SKAtomTreeNode> parentItem(std::shared_ptr<SKAtomTreeNode> node);
     bool isRootNode(std::shared_ptr<SKAtomTreeNode> node);
@@ -71,6 +72,8 @@ public:
     std::unordered_set<std::shared_ptr<SKAtomTreeNode>>& selectedTreeNodes() {return _selectedTreeNodes;}
     void setSelectedTreeNodes(std::unordered_set<std::shared_ptr<SKAtomTreeNode>> selectedNodes) {_selectedTreeNodes = selectedNodes;}
     void setTags();
+
+    std::vector<std::shared_ptr<SKAtomTreeNode>> selectedAtomTreeNodes();
 private:
     qint64 _versionNumber{1};
     std::shared_ptr<SKAtomTreeNode> _hiddenRootNode;

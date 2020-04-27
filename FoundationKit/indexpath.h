@@ -29,6 +29,7 @@
 
 #pragma once
 
+#include <QDebug>
 #include <vector>
 
 
@@ -39,7 +40,7 @@ public:
     IndexPath(const int index);
     int& operator[] (const int index);
     const int& operator[] (const int index) const;
-    inline int lastIndex() {if (!_path.empty()) return _path.back(); return -1;}
+    inline int lastIndex() {if (!_path.empty()) return _path.back(); return 0;}
     const IndexPath operator+(const IndexPath& rhs);
     void increaseValueAtLastIndex();
     void decreaseValueAtLastIndex();
@@ -52,5 +53,6 @@ public:
     bool operator=( const IndexPath& otherObject ) const;
 private:
     std::vector<int> _path;
+    friend QDebug operator<<(QDebug debug, const IndexPath &c);
 };
 

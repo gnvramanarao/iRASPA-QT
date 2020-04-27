@@ -36,7 +36,7 @@
 #include "skasymmetricatom.h"
 
 
-class SKAsymmetricBond
+class SKAsymmetricBond: public std::enable_shared_from_this<SKAsymmetricBond>
 {
 public:
   enum class SKBondType: qint64
@@ -76,6 +76,7 @@ public:
   void setAtom1(std::shared_ptr<SKAsymmetricAtom> a) {_atom1 = a;}
   void setAtom2(std::shared_ptr<SKAsymmetricAtom> a) {_atom2 = a;}
   void setAsymmetricIndex(int index) {_asymmetricIndex = index;}
+  int asymmetricIndex() {return _asymmetricIndex;}
 private:
 
   std::weak_ptr<SKAsymmetricAtom> _atom1;

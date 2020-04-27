@@ -784,18 +784,21 @@ void Structure::setAtomSelectionDensity(double value)
 void  Structure::clearSelection()
 {
   _atomsTreeController->selectedTreeNodes().clear();
-  _bondSetController->selectedObjects().clear();
+  _bondSetController->selectionIndexSet().clear();
 }
+
 
 void Structure::setAtomSelection(int asymmetricAtomId)
 {
   _atomsTreeController->selectedTreeNodes().clear();
   addAtomToSelection(asymmetricAtomId);
+
+  _bondSetController->correctBondSelectionDueToAtomSelection();
 }
 
 void Structure::setBondSelection(int asymmetricBondId)
 {
-  _bondSetController->selectedObjects().clear();
+  _bondSetController->selectionIndexSet().clear();
   addBondToSelection(asymmetricBondId);
 }
 
@@ -806,13 +809,14 @@ void Structure::addAtomToSelection(int atomId)
   std::shared_ptr<SKAtomTreeNode> selectedAtom = atomNodes[atomId];
 
   _atomsTreeController->selectedTreeNodes().insert(selectedAtom);
+
+  _bondSetController->correctBondSelectionDueToAtomSelection();
 }
 
 void Structure::addBondToSelection(int asymmetricBondId)
 {
-  _bondSetController->selectedObjects().insert(asymmetricBondId);
+  _bondSetController->selectionIndexSet().insert(asymmetricBondId);
 }
-
 
 void Structure::toggleAtomSelection(int asymmetricAtomId)
 {
@@ -824,25 +828,42 @@ void Structure::toggleAtomSelection(int asymmetricAtomId)
   if (search != _atomsTreeController->selectedTreeNodes().end())
   {
     _atomsTreeController->selectedTreeNodes().erase(*search);
+
+    // remove bonds that are connected to this atom from the selection
+    std::vector<std::shared_ptr<SKAtomTreeNode>> atomNodes = atomsTreeController()->flattenedLeafNodes();
+    std::shared_ptr<SKAtomTreeNode> selectedAtom = atomNodes[asymmetricAtomId];
+    std::shared_ptr<SKAsymmetricAtom> atom = selectedAtom->representedObject();
+    int bondIndex=0;
+    for(std::shared_ptr<SKAsymmetricBond> bond : bondSetController()->arrangedObjects())
+    {
+      if(atom == bond->atom1() || atom == bond->atom2())
+      {
+        bondSetController()->selectionIndexSet().erase(bondIndex);
+      }
+      bondIndex++;
+    }
   }
   else
   {
     _atomsTreeController->selectedTreeNodes().insert(selectedAtom);
   }
+
+  _bondSetController->correctBondSelectionDueToAtomSelection();
 }
 
 void Structure::toggleBondSelection(int asymmetricBondId)
 {
-  std::set<int>::const_iterator search = _bondSetController->selectedObjects().find(asymmetricBondId);
-  if (search != _bondSetController->selectedObjects().end())
+  std::set<int>::const_iterator search = _bondSetController->selectionIndexSet().find(asymmetricBondId);
+  if (search != _bondSetController->selectionIndexSet().end())
   {
-    _bondSetController->selectedObjects().erase(*search);
+    _bondSetController->selectionIndexSet().erase(*search);
   }
   else
   {
-    _bondSetController->selectedObjects().insert(asymmetricBondId);
+    _bondSetController->selectionIndexSet().insert(asymmetricBondId);
   }
 }
+
 
 void Structure::setAtomSelection(std::set<int>& atomIds)
 {
@@ -862,6 +883,8 @@ void Structure::addToAtomSelection(std::set<int>& atomIds)
 
     _atomsTreeController->selectedTreeNodes().insert(selectedAtom);
   }
+
+  _bondSetController->correctBondSelectionDueToAtomSelection();
 }
 
 
@@ -1451,6 +1474,9 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<Structure> &structu
   }
 
   structure->reComputeBoundingBox();
+
+  structure->atomsTreeController()->setTags();
+  structure->bondSetController()->setTags();
 
   return stream;
 }

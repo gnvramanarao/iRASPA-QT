@@ -128,9 +128,30 @@ void SKBondSetController::setBonds(std::vector<std::shared_ptr<SKBond>> &bonds)
   std::sort(_arrangedObjects.begin(), _arrangedObjects.end(), SKAysmmetricBondCompare());
 }
 
+void SKBondSetController::insertBonds(std::vector<std::shared_ptr<SKAsymmetricBond>> bonds, std::set<int> indexSet)
+{
+  int bondIndex=0;
+  for(int index: indexSet)
+  {
+    _arrangedObjects.insert(_arrangedObjects.begin() + index, bonds[bondIndex]);
+    bondIndex++;
+  }
+}
+
+void SKBondSetController::deleteBonds(std::set<int> indexSet)
+{
+  std::vector<int> reversedIndexSet;
+  std::reverse_copy(indexSet.begin(), indexSet.end(), std::back_inserter(reversedIndexSet));
+
+  for (int index : reversedIndexSet)
+  {
+    _arrangedObjects.erase(_arrangedObjects.begin() + index);
+  }
+}
+
 void SKBondSetController::addSelectedObjects(std::set<int> selection)
 {
- _selectedObjects.insert(selection.begin(), selection.end());
+ _selectedIndexSet.insert(selection.begin(), selection.end());
 }
 
 
@@ -141,6 +162,37 @@ void SKBondSetController::setTags()
   {
     asymmetricBond->setAsymmetricIndex(asymmetricBondIndex);
     asymmetricBondIndex++;
+  }
+}
+
+std::vector<std::shared_ptr<SKAsymmetricBond>> SKBondSetController::selectedObjects()
+{
+  std::vector<std::shared_ptr<SKAsymmetricBond>> objects;
+  for(int index: _selectedIndexSet)
+  {
+    objects.push_back(_arrangedObjects[index]);
+  }
+  return objects;
+}
+
+void SKBondSetController::correctBondSelectionDueToAtomSelection()
+{
+  std::unordered_set<std::shared_ptr<SKAtomTreeNode>> selectedTreeAtoms = _atomTreecontroller->selectedTreeNodes();
+  std::set<std::shared_ptr<SKAsymmetricAtom>> selectedAtoms;
+  std::transform(selectedTreeAtoms.begin(),selectedTreeAtoms.end(),std::inserter(selectedAtoms, selectedAtoms.begin()),[](std::shared_ptr<SKAtomTreeNode> node) -> std::shared_ptr<SKAsymmetricAtom>
+                        {return node->representedObject();});
+
+  int bondIndex=0;
+  for(std::shared_ptr<SKAsymmetricBond> bond : _arrangedObjects)
+  {
+    // if one the atoms of the bond is selected then so must be the bond
+    const bool Atom1isSelected = selectedAtoms.find(bond->atom1()) != selectedAtoms.end();
+    const bool Atom2isSelected = selectedAtoms.find(bond->atom2()) != selectedAtoms.end();
+    if(Atom1isSelected || Atom2isSelected)
+    {
+      _selectedIndexSet.insert(bondIndex);
+    }
+    bondIndex++;
   }
 }
 

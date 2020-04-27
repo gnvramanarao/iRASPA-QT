@@ -30,6 +30,7 @@
 #include "skatomtreenode.h"
 #include <assert.h>
 #include <vector>
+#include <QtDebug>
 
 SKAtomTreeNode::~SKAtomTreeNode()
 {
@@ -87,8 +88,11 @@ std::shared_ptr<SKAtomTreeNode> SKAtomTreeNode::descendantNodeAtIndexPath(IndexP
 
 bool SKAtomTreeNode::insertChild(int row, std::shared_ptr<SKAtomTreeNode> child)
 {
+  qDebug() << "Error insertion at: " << row << ", size: " << _childNodes.size();
   if (row < 0 || row > _childNodes.size())
+  {
     return false;
+  }
 
   child->_parent = shared_from_this();
   _childNodes.insert(_childNodes.begin() + row, child);
@@ -127,6 +131,7 @@ void SKAtomTreeNode::removeFromParent()
     {
       lockedParent->_childNodes.erase(lockedParent->_childNodes.begin() + *index);
     }
+    _parent.reset();
   }
 }
 
@@ -238,6 +243,7 @@ std::vector<std::shared_ptr<SKAtomTreeNode>> SKAtomTreeNode::descendantLeafNodes
   std::vector<std::shared_ptr<SKAtomTreeNode>> descendants{};
   for(std::shared_ptr<SKAtomTreeNode> child : this->_childNodes)
   {
+    assert(child);
     if(child->isLeaf())
     {
       descendants.push_back(child);

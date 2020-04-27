@@ -171,6 +171,8 @@ std::vector<RKInPerInstanceAttributesAtoms> Molecule::renderSelectedAtoms() cons
     asymmetricAtomIndex++;
   }
 
+  qDebug() << "NUMBER OF SELCTED ATOMS: " << atomData.size();
+
   return atomData;
 }
 
@@ -180,7 +182,7 @@ std::vector<RKInPerInstanceAttributesBonds> Molecule::renderSelectedInternalBond
 
   const std::vector<std::shared_ptr<SKAsymmetricBond>> asymmetricBonds = _bondSetController->arrangedObjects();
 
-  for(int asymmetricBondIndex: _bondSetController->selectedObjects())
+  for(int asymmetricBondIndex: _bondSetController->selectionIndexSet())
   {
     std::shared_ptr<SKAsymmetricBond> asymmetricBond = _bondSetController->arrangedObjects()[asymmetricBondIndex];
     bool isVisible = asymmetricBond->isVisible() && asymmetricBond->atom1()->isVisible()  && asymmetricBond->atom2()->isVisible();

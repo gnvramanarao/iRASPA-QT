@@ -77,6 +77,9 @@ public:
   bool insertRows(int position, int rows, const QModelIndex &parent) override final;
   bool moveRows(const QModelIndex &sourceParent, int sourceRow, int count, const QModelIndex &destinationParent, int destinationChild) override final;
   bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override final;
+
+  void deleteSelection(std::shared_ptr<Structure> structure, std::vector<std::shared_ptr<SKAtomTreeNode>> atoms);
+  void insertSelection(std::shared_ptr<Structure> structure, std::vector<std::shared_ptr<SKAtomTreeNode>> atoms, std::vector<IndexPath> indexPaths);
 private:
   std::shared_ptr<SKAtomTreeController> _atomTreeController;
 signals:

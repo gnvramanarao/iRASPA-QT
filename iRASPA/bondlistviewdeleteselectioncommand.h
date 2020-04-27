@@ -29,43 +29,28 @@
 
 #pragma once
 
-#include <QObject>
-#include <QMainWindow>
-#include <QTreeView>
-#include <QModelIndex>
-#ifdef _WIN32
-  #include <optional>
-#else
-  #include <experimental/optional>
-#endif
-#include <iraspakit.h>
-#include "scenetreeviewmodel.h"
-#include "iraspamainwindowconsumerprotocol.h"
+#include <QUndoCommand>
+#include <set>
+#include <vector>
+#include "iraspakit.h"
+#include "symmetrykit.h"
+#include "mathkit.h"
+#include "mainwindow.h"
+#include "atomtreeviewmodel.h"
+#include "bondlistviewmodel.h"
+#include "renderstackedwidget.h"
 
-class SceneTreeView: public QTreeView, public MainWindowConsumer, public Reloadable
+class BondListViewDeleteSelectionCommand : public QUndoCommand
 {
-  Q_OBJECT
-
 public:
-  SceneTreeView(QWidget* parent = nullptr);
-  QModelIndex selectedIndex(void);
-  QSize sizeHint() const override final;
-  void setRootNode(std::shared_ptr<SceneList> sceneList);
-  SceneTreeViewModel* sceneTreeModel() {return _model.get();}
-  void setMainWindow(MainWindow* mainWindow) final override {_mainWindow = mainWindow;}
-  void reloadSelection() override final;
-  void reloadData() override final;
+  BondListViewDeleteSelectionCommand(std::shared_ptr<BondListViewModel> bondTreeModel, MainWindow *main_window, std::shared_ptr<Structure> structure,
+                         std::vector<std::shared_ptr<SKAsymmetricBond>> bonds, std::set<int> bondSelection, QUndoCommand *parent = nullptr);
+  void undo() override final;
+  void redo() override final;
 private:
-  MainWindow* _mainWindow;
-  std::shared_ptr<SceneTreeViewModel> _model;
-  std::shared_ptr<SceneList> _sceneList;
-  QString nameOfItem(const QModelIndex &current);
-public slots:
-  void currentMovieChanged(const QModelIndex &current);
-  void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override final;
-signals:
-  void setSelectedMovie(std::shared_ptr<Movie> selectedMovie);
-  void setCellTreeController(std::vector<std::shared_ptr<Structure>> structures);
-  void setAppearanceTreeController(std::vector<std::shared_ptr<Structure>> structures);
-  void setTreeControllers(std::shared_ptr<SKAtomTreeController> atomController, std::shared_ptr<SKBondSetController> bondController);
+  std::weak_ptr<BondListViewModel> _bondTreeModel;
+  MainWindow *_main_window;
+  std::shared_ptr<Structure> _structure;
+  std::vector<std::shared_ptr<SKAsymmetricBond>> _bonds;
+  std::set<int> _bondSelection;
 };

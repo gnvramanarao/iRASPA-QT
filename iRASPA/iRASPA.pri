@@ -1,11 +1,12 @@
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
+include(undocommands.pri)
+
 SOURCES += \
     $$PWD/atomtreeviewpushbuttonstyleditemdelegate.cpp \
     $$PWD/bondlistpushbuttonstyleditemdelegate.cpp \
     $$PWD/bondlistviewcomboboxstyleditemdelegate.cpp \
-    $$PWD/deleteselectioncommand.cpp \
     $$PWD/main.cpp \
     $$PWD/mainwindow.cpp \
     $$PWD/projecttreeview.cpp \
@@ -66,7 +67,6 @@ HEADERS += \
     $$PWD/atomtreeviewpushbuttonstyleditemdelegate.h \
     $$PWD/bondlistpushbuttonstyleditemdelegate.h \
     $$PWD/bondlistviewcomboboxstyleditemdelegate.h \
-    $$PWD/deleteselectioncommand.h \
     $$PWD/mainwindow.h \
     $$PWD/projecttreeview.h \
     $$PWD/renderstackedwidget.h \

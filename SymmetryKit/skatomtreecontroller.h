@@ -55,7 +55,8 @@ public:
     void insertNodeAtIndexPath(std::shared_ptr<SKAtomTreeNode> node, IndexPath path);
     void removeNode(std::shared_ptr<SKAtomTreeNode> node);
     //std::shared_ptr<SKAtomTreeNode> parentItem(std::shared_ptr<SKAtomTreeNode> node);
-    bool isRootNode(std::shared_ptr<SKAtomTreeNode> node);
+    //bool isRootNode(std::shared_ptr<SKAtomTreeNode> node);
+    bool isRootNode(SKAtomTreeNode *node);
     bool nodeIsChildOfItem(std::shared_ptr<SKAtomTreeNode> node, std::shared_ptr<SKAtomTreeNode> item);
     bool isDescendantOfNode(std::shared_ptr<SKAtomTreeNode> item, std::shared_ptr<SKAtomTreeNode> parentNode);
     int filteredChildIndexOfItem(std::shared_ptr<SKAtomTreeNode> parentItem, int index);

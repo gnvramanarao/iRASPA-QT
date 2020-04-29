@@ -34,11 +34,7 @@
 #include <QAbstractItemModel>
 #include <QTreeView>
 #include <QModelIndex>
-#ifdef _WIN32
-  #include <optional>
-#else
-  #include <experimental/optional>
-#endif
+#include <optional>
 #include <iraspakit.h>
 
 class BondListViewModel: public QAbstractItemModel

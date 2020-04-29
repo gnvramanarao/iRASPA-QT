@@ -34,11 +34,7 @@
 #include <QTreeView>
 #include <QModelIndex>
 #include "projecttreeviewmodel.h"
-#ifdef _WIN32
-  #include <optional>
-#else
-  #include <experimental/optional>
-#endif
+#include <optional>
 #include <iraspakit.h>
 #include "iraspamainwindowconsumerprotocol.h"
 

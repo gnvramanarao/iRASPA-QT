@@ -29,11 +29,7 @@
 
 #include "scenelist.h"
 #include <iostream>
-#ifdef _WIN32
-  #include <optional>
-#else
-  #include <experimental/optional>
-#endif
+#include <optional>
 #include <algorithm>
 
 SceneList::SceneList()

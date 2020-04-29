@@ -77,52 +77,33 @@ QModelIndex AtomTreeViewModel::index(int row, int column, const QModelIndex &par
   if(!hasIndex(row, column, parent))
      return QModelIndex();
 
-  if(_atomTreeController->rootNodes().empty())
-    return QModelIndex();
-
-  SKAtomTreeNode *parentItem;
-
-  if (!parent.isValid())
-    parentItem = _atomTreeController->hiddenRootNode().get();
-  else
-    parentItem = static_cast<SKAtomTreeNode*>(parent.internalPointer());
-
-  std::shared_ptr<SKAtomTreeNode> childItem = parentItem->getChildNode(row);
-  if (childItem)
-    return createIndex(row, column, childItem.get());
-  else
-    return QModelIndex();
+  SKAtomTreeNode *parentNode = nodeForIndex(parent);
+  SKAtomTreeNode *childNode = parentNode->childNodes()[row].get();
+  return createIndex(row, column, childNode);
 }
 
-QModelIndex AtomTreeViewModel::parent(const QModelIndex &index) const
+QModelIndex AtomTreeViewModel::parent(const QModelIndex &child) const
 {
-  if (!index.isValid())
+  SKAtomTreeNode *childNode = nodeForIndex(child);
+  SKAtomTreeNode *parentNode = childNode->parent().get();
+
+  if (_atomTreeController->isRootNode(parentNode))
     return QModelIndex();
 
-  SKAtomTreeNode *childItem = static_cast<SKAtomTreeNode*>(index.internalPointer());
-  SKAtomTreeNode *parentItem = childItem->parent().get();
-
-  if (parentItem == _atomTreeController->hiddenRootNode().get())
-    return QModelIndex();
-
-  return createIndex(parentItem->row(), 0, parentItem);
+  int row = rowForNode(parentNode);
+  int column = 0;
+  return createIndex(row, column, parentNode);
 }
 
 int AtomTreeViewModel::columnCount(const QModelIndex &parent) const
 {
+  Q_UNUSED(parent);
   return 7;
 }
 
-
 int AtomTreeViewModel::rowCount(const QModelIndex &parent) const
 {
-  SKAtomTreeNode *parentItem;
-
-  if (!parent.isValid())
-    parentItem = _atomTreeController->hiddenRootNode().get();
-  else
-    parentItem = static_cast<SKAtomTreeNode*>(parent.internalPointer());
-
+  SKAtomTreeNode *parentItem = nodeForIndex(parent);
   return parentItem->childCount();
 }
 
@@ -130,6 +111,7 @@ QVariant AtomTreeViewModel::data(const QModelIndex &index, int role) const
 {
   if (!index.isValid())
     return QVariant();
+
   SKAtomTreeNode *item = static_cast<SKAtomTreeNode*>(index.internalPointer());
   if(std::shared_ptr<SKAsymmetricAtom> atom = item->representedObject())
   {
@@ -249,6 +231,10 @@ bool AtomTreeViewModel::setData(const QModelIndex &index, const QVariant &value,
     }
   }
 
+  QModelIndex topLeft = index;
+  QModelIndex bottomRight = index;
+  emit dataChanged(topLeft,bottomRight);
+
   return false;
 }
 
@@ -262,6 +248,28 @@ Qt::DropActions AtomTreeViewModel::supportedDragActions() const
    return Qt::CopyAction | Qt::MoveAction;
 }
 
+void AtomTreeViewModel::insertNode(SKAtomTreeNode *parentNode, int pos, std::shared_ptr<SKAtomTreeNode> node)
+{
+  const QModelIndex parent = indexForNode(parentNode);
+  int firstRow = pos;
+  int lastRow = pos;
+
+  beginInsertRows(parent, firstRow, lastRow);
+  parentNode->insertChild(pos, node);
+  endInsertRows();
+}
+
+void AtomTreeViewModel::removeNode(SKAtomTreeNode *node)
+{
+  SKAtomTreeNode *parentNode = node->parent().get();
+  const QModelIndex parent = indexForNode(parentNode);
+  int pos = rowForNode(node);
+  int firstRow = pos;
+  int lastRow = pos;
+  beginRemoveRows(parent, firstRow, lastRow);
+  node->removeFromParent();
+  endRemoveRows();
+}
 
 bool AtomTreeViewModel::removeRows(int position, int rows, const QModelIndex &parent)
 {
@@ -386,7 +394,7 @@ bool AtomTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction actio
   QByteArray ddata = data->data(mimeType);
   QDataStream stream(&ddata, QIODevice::ReadOnly);
 
-  SKAtomTreeNode *parentNode = getItem(parent);
+  SKAtomTreeNode *parentNode = nodeForIndex(parent);
 
   qint64 senderPid;
   stream >> senderPid;
@@ -455,6 +463,8 @@ bool AtomTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction actio
     this->blockSignals(oldState);
   }
 
+  _atomTreeController->setTags();
+
   emit layoutChanged();
 
   return true;
@@ -494,3 +504,30 @@ void AtomTreeViewModel::insertSelection(std::shared_ptr<Structure> structure, st
   structure->atomsTreeController()->setTags();
   this->endResetModel();
 }
+
+// Helper functions
+QModelIndex AtomTreeViewModel::indexForNode(SKAtomTreeNode *node) const
+{
+  if(_atomTreeController->isRootNode(node))
+  {
+    return QModelIndex();
+  }
+  int row = rowForNode(node);
+  int column = 0;
+  return createIndex(row, column, node);
+}
+
+SKAtomTreeNode *AtomTreeViewModel::nodeForIndex(const QModelIndex &index) const
+{
+  if(index.isValid())
+  {
+    return static_cast<SKAtomTreeNode *>(index.internalPointer());
+  }
+  return _atomTreeController->hiddenRootNode().get();
+}
+
+int AtomTreeViewModel::rowForNode(SKAtomTreeNode *node) const
+{
+  return node->row();
+}
+

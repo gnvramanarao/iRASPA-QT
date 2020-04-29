@@ -41,6 +41,11 @@ SKAtomTreeController::~SKAtomTreeController()
 {
 }
 
+bool SKAtomTreeController::isRootNode(SKAtomTreeNode *node)
+{
+  return node == _hiddenRootNode.get();
+}
+
 void SKAtomTreeController::insertNodeInParent(std::shared_ptr<SKAtomTreeNode> node, std::weak_ptr<SKAtomTreeNode> parent, int index)
 {
   if (std::shared_ptr<SKAtomTreeNode> lockedParent = parent.lock())

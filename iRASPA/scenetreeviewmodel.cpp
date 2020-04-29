@@ -28,11 +28,7 @@
  *************************************************************************************************************/
 
 #include "scenetreeviewmodel.h"
-#ifdef _WIN32
-  #include <optional>
-#else
-  #include <experimental/optional>
-#endif
+#include <optional>
 
 SceneTreeViewModel::SceneTreeViewModel(): _sceneList(std::make_shared<SceneList>())
 {

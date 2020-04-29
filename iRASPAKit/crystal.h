@@ -37,14 +37,11 @@
 class Crystal: public Structure
 {
 public:
-public:
   Crystal() {}
   Crystal(std::shared_ptr<SKAtomTreeController> atomTreeController): Structure(atomTreeController){}
   ~Crystal() {}
 
   iRASPAStructureType structureType() override final { return iRASPAStructureType::crystal; }
-
-
 
   std::vector<RKInPerInstanceAttributesAtoms> renderAtoms() const override final;
   std::vector<RKInPerInstanceAttributesBonds> renderInternalBonds() const override final;

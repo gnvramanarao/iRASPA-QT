@@ -28,7 +28,6 @@
  *************************************************************************************************************/
 
 #include "skbondsetcontroller.h"
-#include "skasymmetricatom.h"
 #include <set>
 #include <map>
 #include <unordered_map>

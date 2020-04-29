@@ -33,11 +33,7 @@
 #include <QMainWindow>
 #include <QListView>
 #include <QModelIndex>
-#ifdef _WIN32
-  #include <optional>
-#else
-  #include <experimental/optional>
-#endif
+#include <optional>
 #include <iraspakit.h>
 #include "iraspamainwindowconsumerprotocol.h"
 #include "framelistviewmodel.h"

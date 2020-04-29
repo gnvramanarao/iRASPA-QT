@@ -27,28 +27,28 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#include "openglpolygonalprismobjectshader.h"
+#include "openglcrystalellipseobjectshader.h"
 #include <QDebug>
 #include <iostream>
 #include "glgeterror.h"
-#include "nsidedprismgeometry.h"
-#include "cappednsidedprismgeometry.h"
+#include "spheregeometry.h"
 
-OpenGLPolygonalPrismObjectShader::OpenGLPolygonalPrismObjectShader()
+OpenGLCrystalEllipseObjectShader::OpenGLCrystalEllipseObjectShader()
 {
 }
 
 
-void OpenGLPolygonalPrismObjectShader::setRenderStructures(std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> structures)
+void OpenGLCrystalEllipseObjectShader::setRenderStructures(std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> structures)
 {
   deleteBuffers();
   _renderStructures = structures;
   generateBuffers();
 }
 
-void OpenGLPolygonalPrismObjectShader::paintGLOpaque(GLuint structureUniformBuffer)
+void OpenGLCrystalEllipseObjectShader::paintGLOpaque(GLuint structureUniformBuffer)
 {
-  glDisable(GL_CULL_FACE);
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
 
   glUseProgram(_program);
   check_gl_error();
@@ -58,7 +58,7 @@ void OpenGLPolygonalPrismObjectShader::paintGLOpaque(GLuint structureUniformBuff
   {
     for(size_t j=0;j<_renderStructures[i].size();j++)
     {
-      if (RKRenderPrimitivePolygonalPrimsObjectsSource* object = dynamic_cast<RKRenderPrimitivePolygonalPrimsObjectsSource*>(_renderStructures[i][j].get()))
+      if (RKRenderCrystalPrimitiveEllipsoidObjectsSource* object = dynamic_cast<RKRenderCrystalPrimitiveEllipsoidObjectsSource*>(_renderStructures[i][j].get()))
       {
         if(object->primitiveOpacity()>0.99999 && _renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible() && _numberOfIndices[i][j]>0 && _numberOfDrawnAtoms[i][j]>0)
         {
@@ -67,7 +67,7 @@ void OpenGLPolygonalPrismObjectShader::paintGLOpaque(GLuint structureUniformBuff
           glBindVertexArray(_vertexArrayObject[i][j]);
           check_gl_error();
 
-          glDrawElementsInstanced(GL_TRIANGLES, _numberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr,_numberOfDrawnAtoms[i][j]);
+          glDrawElementsInstanced(GL_TRIANGLE_STRIP, _numberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr,_numberOfDrawnAtoms[i][j]);
           check_gl_error();
           glBindVertexArray(0);
         }
@@ -79,9 +79,10 @@ void OpenGLPolygonalPrismObjectShader::paintGLOpaque(GLuint structureUniformBuff
 }
 
 
-void OpenGLPolygonalPrismObjectShader::paintGLTransparent(GLuint structureUniformBuffer)
+void OpenGLCrystalEllipseObjectShader::paintGLTransparent(GLuint structureUniformBuffer)
 {
-  glDisable(GL_CULL_FACE);
+  //glEnable(GL_CULL_FACE);
+  //glCullFace(GL_BACK);
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -95,7 +96,7 @@ void OpenGLPolygonalPrismObjectShader::paintGLTransparent(GLuint structureUnifor
   {
     for(size_t j=0;j<_renderStructures[i].size();j++)
     {
-      if (RKRenderPrimitivePolygonalPrimsObjectsSource* object = dynamic_cast<RKRenderPrimitivePolygonalPrimsObjectsSource*>(_renderStructures[i][j].get()))
+      if (RKRenderCrystalPrimitiveEllipsoidObjectsSource* object = dynamic_cast<RKRenderCrystalPrimitiveEllipsoidObjectsSource*>(_renderStructures[i][j].get()))
       {
         if(object->primitiveOpacity()<=0.99999 && _renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible() && _numberOfIndices[i][j]>0 && _numberOfDrawnAtoms[i][j]>0)
         {
@@ -104,7 +105,7 @@ void OpenGLPolygonalPrismObjectShader::paintGLTransparent(GLuint structureUnifor
           glBindVertexArray(_vertexArrayObject[i][j]);
           check_gl_error();
 
-          glDrawElementsInstanced(GL_TRIANGLES, _numberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr,_numberOfDrawnAtoms[i][j]);
+          glDrawElementsInstanced(GL_TRIANGLE_STRIP, _numberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr,_numberOfDrawnAtoms[i][j]);
           check_gl_error();
           glBindVertexArray(0);
         }
@@ -119,7 +120,7 @@ void OpenGLPolygonalPrismObjectShader::paintGLTransparent(GLuint structureUnifor
 }
 
 
-void OpenGLPolygonalPrismObjectShader::deleteBuffers()
+void OpenGLCrystalEllipseObjectShader::deleteBuffers()
 {
   for(size_t i=0;i<_renderStructures.size();i++)
   {
@@ -135,7 +136,7 @@ void OpenGLPolygonalPrismObjectShader::deleteBuffers()
   }
 }
 
-void OpenGLPolygonalPrismObjectShader::generateBuffers()
+void OpenGLCrystalEllipseObjectShader::generateBuffers()
 {
   _numberOfDrawnAtoms.resize(_renderStructures.size());
   _numberOfIndices.resize(_renderStructures.size());
@@ -178,84 +179,49 @@ void OpenGLPolygonalPrismObjectShader::generateBuffers()
   }
 }
 
-void OpenGLPolygonalPrismObjectShader::reloadData()
+void OpenGLCrystalEllipseObjectShader::reloadData()
 {
   initializeVertexArrayObject();
 }
 
-void OpenGLPolygonalPrismObjectShader::initializeVertexArrayObject()
+void OpenGLCrystalEllipseObjectShader::initializeVertexArrayObject()
 {
+  SphereGeometry sphere = SphereGeometry(1.0,41);
 
   for(size_t i=0;i<_renderStructures.size();i++)
   {
     for(size_t j=0;j<_renderStructures[i].size();j++)
     {
-      if (RKRenderPrimitivePolygonalPrimsObjectsSource* object = dynamic_cast<RKRenderPrimitivePolygonalPrimsObjectsSource*>(_renderStructures[i][j].get()))
+      if (RKRenderCrystalPrimitiveEllipsoidObjectsSource* object = dynamic_cast<RKRenderCrystalPrimitiveEllipsoidObjectsSource*>(_renderStructures[i][j].get()))
       {
         glBindVertexArray(_vertexArrayObject[i][j]);
         check_gl_error();
 
-        if(object->primitiveIsCapped())
-        {
-          int numberOfSides = object->primitiveNumberOfSides();
-          CappedNSidedPrismGeometry sphere = CappedNSidedPrismGeometry(1.0,numberOfSides);
-
-          _numberOfIndices[i][j] = sphere.indices().size();
-
-          glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer[i][j]);
-          check_gl_error();
-
-          if(sphere.vertices().size()>0)
-          {
-            glBufferData(GL_ARRAY_BUFFER, sphere.vertices().size() * sizeof(RKVertex), sphere.vertices().data(), GL_DYNAMIC_DRAW);
-          }
-          check_gl_error();
-
-          glVertexAttribPointer(_vertexPositionAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), (GLvoid *)offsetof(RKVertex,position));
-          check_gl_error();
-          glVertexAttribPointer(_vertexNormalAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), (GLvoid *)offsetof(RKVertex,normal));
-          check_gl_error();
-
-          glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer[i][j]);
-          check_gl_error();
-          if(sphere.indices().size()>0)
-          {
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sphere.indices().size() * sizeof(GLshort), sphere.indices().data(), GL_DYNAMIC_DRAW);
-          }
-           check_gl_error();
-        }
-        else
-        {
-          int numberOfSides = object->primitiveNumberOfSides();
-          NSidedPrismGeometry sphere = NSidedPrismGeometry(1.0,numberOfSides);
-
-          _numberOfIndices[i][j] = sphere.indices().size();
-
-          glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer[i][j]);
-          check_gl_error();
-
-          if(sphere.vertices().size()>0)
-          {
-            glBufferData(GL_ARRAY_BUFFER, sphere.vertices().size() * sizeof(RKVertex), sphere.vertices().data(), GL_DYNAMIC_DRAW);
-          }
-          check_gl_error();
-
-          glVertexAttribPointer(_vertexPositionAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), (GLvoid *)offsetof(RKVertex,position));
-          check_gl_error();
-          glVertexAttribPointer(_vertexNormalAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), (GLvoid *)offsetof(RKVertex,normal));
-          check_gl_error();
-
-          glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer[i][j]);
-          check_gl_error();
-          if(sphere.indices().size()>0)
-          {
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sphere.indices().size() * sizeof(GLshort), sphere.indices().data(), GL_DYNAMIC_DRAW);
-          }
-           check_gl_error();
-        }
-
-        std::vector<RKInPerInstanceAttributesAtoms> atomData = object->renderPrimitivePolygonalPrismObjects();
+        std::vector<RKInPerInstanceAttributesAtoms> atomData = object->renderCrystalPrimitiveEllipsoidObjects();
         _numberOfDrawnAtoms[i][j] = atomData.size();
+        _numberOfIndices[i][j] = sphere.indices().size();
+
+        glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer[i][j]);
+        check_gl_error();
+
+        if(sphere.vertices().size()>0)
+        {
+          glBufferData(GL_ARRAY_BUFFER, sphere.vertices().size() * sizeof(RKVertex), sphere.vertices().data(), GL_DYNAMIC_DRAW);
+        }
+        check_gl_error();
+
+        glVertexAttribPointer(_vertexPositionAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), (GLvoid *)offsetof(RKVertex,position));
+        check_gl_error();
+        glVertexAttribPointer(_vertexNormalAttributeLocation, 4, GL_FLOAT, GL_FALSE, sizeof(RKVertex), (GLvoid *)offsetof(RKVertex,normal));
+        check_gl_error();
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBuffer[i][j]);
+        check_gl_error();
+        if(sphere.indices().size()>0)
+        {
+          glBufferData(GL_ELEMENT_ARRAY_BUFFER, sphere.indices().size() * sizeof(GLshort), sphere.indices().data(), GL_DYNAMIC_DRAW);
+        }
+        check_gl_error();
 
         glBindBuffer(GL_ARRAY_BUFFER, _instancePositionBuffer[i][j]);
         check_gl_error();
@@ -282,13 +248,13 @@ void OpenGLPolygonalPrismObjectShader::initializeVertexArrayObject()
   }
 }
 
-void OpenGLPolygonalPrismObjectShader::loadShader(void)
+void OpenGLCrystalEllipseObjectShader::loadShader(void)
 {
   GLuint vertexShader;
   GLuint fragmentShader;
 
-  vertexShader=compileShaderOfType(GL_VERTEX_SHADER,OpenGLPolygonalPrismObjectShader::_vertexShaderSource.c_str());
-  fragmentShader=compileShaderOfType(GL_FRAGMENT_SHADER,OpenGLPolygonalPrismObjectShader::_fragmentShaderSource.c_str());
+  vertexShader=compileShaderOfType(GL_VERTEX_SHADER, OpenGLCrystalEllipseObjectShader::_vertexShaderSource.c_str());
+  fragmentShader=compileShaderOfType(GL_FRAGMENT_SHADER, OpenGLCrystalEllipseObjectShader::_fragmentShaderSource.c_str());
 
   if (0 != vertexShader && 0 != fragmentShader)
   {
@@ -320,7 +286,7 @@ void OpenGLPolygonalPrismObjectShader::loadShader(void)
   }
 }
 
-const std::string OpenGLPolygonalPrismObjectShader::_vertexShaderSource  =
+const std::string OpenGLCrystalEllipseObjectShader::_vertexShaderSource  =
 OpenGLVersionStringLiteral +
 OpenGLFrameUniformBlockStringLiteral +
 OpenGLStructureUniformBlockStringLiteral +
@@ -330,6 +296,8 @@ in vec4 vertexPosition;
 in vec4 vertexNormal;
 
 in vec4 instancePosition;
+in vec4 instanceScale;
+
 
 // Inputs from vertex shader
 out VS_OUT
@@ -364,7 +332,7 @@ void main(void)
 )foo");
 
 
-const std::string OpenGLPolygonalPrismObjectShader::_fragmentShaderSource =
+const std::string OpenGLCrystalEllipseObjectShader::_fragmentShaderSource =
 OpenGLVersionStringLiteral +
 OpenGLFrameUniformBlockStringLiteral +
 OpenGLStructureUniformBlockStringLiteral +

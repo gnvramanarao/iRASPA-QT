@@ -2,6 +2,7 @@ INCLUDEPATH += $$PWD
 
 SOURCES += \
     $$PWD/skasymmetricbond.cpp \
+    $$PWD/skatomcopy.cpp \
     $$PWD/skcell.cpp \
     $$PWD/skcifwriter.cpp \
     $$PWD/skcolorsets.cpp \
@@ -35,6 +36,7 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/skasymmetricbond.h \
+    $$PWD/skatomcopy.h \
     $$PWD/skcifwriter.h \
     $$PWD/skmmcifparser.h \
     $$PWD/skmmcifwriter.h \

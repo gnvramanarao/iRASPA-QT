@@ -195,7 +195,7 @@ void OpenGLCylinderObjectShader::initializeVertexArrayObject()
         glBindVertexArray(_vertexArrayObject[i][j]);
         check_gl_error();
 
-        std::vector<RKInPerInstanceAttributesAtoms> atomData = object->renderPrimitiveObjects();
+        std::vector<RKInPerInstanceAttributesAtoms> atomData = object->renderPrimitiveCylinderObjects();
         _numberOfDrawnAtoms[i][j] = atomData.size();
 
         int numberOfSides  = object->primitiveNumberOfSides();

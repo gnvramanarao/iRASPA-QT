@@ -37,7 +37,8 @@ class PolygonalPrismPrimitive: public Structure, public RKRenderPrimitivePolygon
 {
 public:
   PolygonalPrismPrimitive();
-  std::vector<RKInPerInstanceAttributesAtoms> renderPrimitiveObjects() const override;
+
+  std::vector<RKInPerInstanceAttributesAtoms> renderPrimitivePolygonalPrismObjects() const override;
 
   simd_quatd primitiveOrientation() const override {return _primitiveOrientation;}
   double3x3 primitiveTransformationMatrix() const override  {return _primitiveTransformationMatrix;}

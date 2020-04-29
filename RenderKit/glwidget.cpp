@@ -80,7 +80,10 @@ GLWidget::GLWidget(QWidget* parent ): QOpenGLWidget(parent),
     _externalBondPickingShader(_atomPickingShader),
     _boundingBoxCylinderShader(),
     _boundingBoxSphereShader(),
-    _sphereObjectShader(),
+    _crystalEllipseObjectShader(),
+    _crystalCylinderObjectShader(),
+    _crystalPolygonalPrismObjectShader(),
+    _ellipseObjectShader(),
     _cylinderObjectShader(),
     _polygonalPrismObjectShader()
 {
@@ -227,7 +230,10 @@ void GLWidget::initializeGL()
   _externalBondPickingShader.initializeOpenGLFunctions();
   _boundingBoxCylinderShader.initializeOpenGLFunctions();
   _boundingBoxSphereShader.initializeOpenGLFunctions();
-  _sphereObjectShader.initializeOpenGLFunctions();
+  _crystalEllipseObjectShader.initializeOpenGLFunctions();
+  _crystalCylinderObjectShader.initializeOpenGLFunctions();
+  _crystalPolygonalPrismObjectShader.initializeOpenGLFunctions();
+  _ellipseObjectShader.initializeOpenGLFunctions();
   _cylinderObjectShader.initializeOpenGLFunctions();
   _polygonalPrismObjectShader.initializeOpenGLFunctions();
 
@@ -620,7 +626,10 @@ void GLWidget::initializeGL()
   _externalBondPickingShader.loadShader();
   _boundingBoxCylinderShader.loadShader();
   _boundingBoxSphereShader.loadShader();
-  _sphereObjectShader.loadShader();
+  _crystalEllipseObjectShader.loadShader();
+  _crystalCylinderObjectShader.loadShader();
+  _crystalPolygonalPrismObjectShader.loadShader();
+  _ellipseObjectShader.loadShader();
   _cylinderObjectShader.loadShader();
   _polygonalPrismObjectShader.loadShader();
 
@@ -651,7 +660,10 @@ void GLWidget::initializeGL()
   _externalBondPickingShader.generateBuffers();
   _boundingBoxCylinderShader.generateBuffers();
   _boundingBoxSphereShader.generateBuffers();
-  _sphereObjectShader.generateBuffers();
+  _crystalEllipseObjectShader.generateBuffers();
+  _crystalCylinderObjectShader.generateBuffers();
+  _crystalPolygonalPrismObjectShader.generateBuffers();
+  _ellipseObjectShader.generateBuffers();
   _cylinderObjectShader.generateBuffers();
   _polygonalPrismObjectShader.generateBuffers();
 
@@ -684,7 +696,10 @@ void GLWidget::initializeGL()
   _externalBondPickingShader.initializeVertexArrayObject();
   _boundingBoxCylinderShader.initializeVertexArrayObject();
   _boundingBoxSphereShader.initializeVertexArrayObject();
-  _sphereObjectShader.initializeVertexArrayObject();
+  _crystalEllipseObjectShader.initializeVertexArrayObject();
+  _crystalCylinderObjectShader.initializeVertexArrayObject();
+  _crystalPolygonalPrismObjectShader.initializeVertexArrayObject();
+  _ellipseObjectShader.initializeVertexArrayObject();
   _cylinderObjectShader.initializeVertexArrayObject();
   _polygonalPrismObjectShader.initializeVertexArrayObject();
 
@@ -1061,7 +1076,10 @@ void GLWidget::drawSceneToFramebuffer(GLuint framebuffer)
     _externalBondShader.paintGL(_structureUniformBuffer);
     _unitCellSphereShader.paintGL(_structureUniformBuffer);
     _unitCellCylinderShader.paintGL(_structureUniformBuffer);
-    _sphereObjectShader.paintGLOpaque(_structureUniformBuffer);
+    _crystalEllipseObjectShader.paintGLOpaque(_structureUniformBuffer);
+    _crystalCylinderObjectShader.paintGLOpaque(_structureUniformBuffer);
+    _crystalPolygonalPrismObjectShader.paintGLOpaque(_structureUniformBuffer);
+    _ellipseObjectShader.paintGLOpaque(_structureUniformBuffer);
     _cylinderObjectShader.paintGLOpaque(_structureUniformBuffer);
     _polygonalPrismObjectShader.paintGLOpaque(_structureUniformBuffer);
 
@@ -1087,7 +1105,10 @@ void GLWidget::drawSceneToFramebuffer(GLuint framebuffer)
     _externalBondSelectionWorleyNoise3DShader.paintGL(_structureUniformBuffer);
 
     _energySurfaceShader.paintGLTransparent(_structureUniformBuffer,_isosurfaceUniformBuffer);
-    _sphereObjectShader.paintGLTransparent(_structureUniformBuffer);
+    _crystalEllipseObjectShader.paintGLTransparent(_structureUniformBuffer);
+    _crystalCylinderObjectShader.paintGLTransparent(_structureUniformBuffer);
+    _crystalPolygonalPrismObjectShader.paintGLTransparent(_structureUniformBuffer);
+    _ellipseObjectShader.paintGLTransparent(_structureUniformBuffer);
     _cylinderObjectShader.paintGLTransparent(_structureUniformBuffer);
     _polygonalPrismObjectShader.paintGLTransparent(_structureUniformBuffer);
   }
@@ -1274,10 +1295,12 @@ void GLWidget::initializeTransformUniforms()
   glUniformBlockBinding(_externalBondPickingShader.program(), glGetUniformBlockIndex(_externalBondPickingShader.program(), "FrameUniformBlock"), 0);
   glUniformBlockBinding(_boundingBoxCylinderShader.program(), glGetUniformBlockIndex(_boundingBoxCylinderShader.program(), "FrameUniformBlock"), 0);
   glUniformBlockBinding(_boundingBoxSphereShader.program(), glGetUniformBlockIndex(_boundingBoxSphereShader.program(), "FrameUniformBlock"), 0);
-  glUniformBlockBinding(_sphereObjectShader.program(), glGetUniformBlockIndex(_sphereObjectShader.program(), "FrameUniformBlock"), 0);
+  glUniformBlockBinding(_crystalEllipseObjectShader.program(), glGetUniformBlockIndex(_crystalEllipseObjectShader.program(), "FrameUniformBlock"), 0);
+  glUniformBlockBinding(_crystalCylinderObjectShader.program(), glGetUniformBlockIndex(_crystalCylinderObjectShader.program(), "FrameUniformBlock"), 0);
+  glUniformBlockBinding(_crystalPolygonalPrismObjectShader.program(), glGetUniformBlockIndex(_crystalPolygonalPrismObjectShader.program(), "FrameUniformBlock"), 0);
+  glUniformBlockBinding(_ellipseObjectShader.program(), glGetUniformBlockIndex(_ellipseObjectShader.program(), "FrameUniformBlock"), 0);
   glUniformBlockBinding(_cylinderObjectShader.program(), glGetUniformBlockIndex(_cylinderObjectShader.program(), "FrameUniformBlock"), 0);
   glUniformBlockBinding(_polygonalPrismObjectShader.program(), glGetUniformBlockIndex(_polygonalPrismObjectShader.program(), "FrameUniformBlock"), 0);
-
 
 
   check_gl_error();
@@ -1343,10 +1366,12 @@ void GLWidget::initializeStructureUniforms()
   glUniformBlockBinding(_externalBondSelectionGlowShader.program(), glGetUniformBlockIndex(_externalBondSelectionGlowShader.program(), "StructureUniformBlock"), 1);
   glUniformBlockBinding(_internalBondPickingShader.program(), glGetUniformBlockIndex(_internalBondPickingShader.program(), "StructureUniformBlock"), 1);
   glUniformBlockBinding(_externalBondPickingShader.program(), glGetUniformBlockIndex(_externalBondPickingShader.program(), "StructureUniformBlock"), 1);
-  glUniformBlockBinding(_sphereObjectShader.program(), glGetUniformBlockIndex(_sphereObjectShader.program(), "StructureUniformBlock"), 1);
+  glUniformBlockBinding(_crystalEllipseObjectShader.program(), glGetUniformBlockIndex(_crystalEllipseObjectShader.program(), "StructureUniformBlock"), 1);
+  glUniformBlockBinding(_crystalCylinderObjectShader.program(), glGetUniformBlockIndex(_crystalCylinderObjectShader.program(), "StructureUniformBlock"), 1);
+  glUniformBlockBinding(_crystalPolygonalPrismObjectShader.program(), glGetUniformBlockIndex(_crystalPolygonalPrismObjectShader.program(), "StructureUniformBlock"), 1);
+  glUniformBlockBinding(_ellipseObjectShader.program(), glGetUniformBlockIndex(_ellipseObjectShader.program(), "StructureUniformBlock"), 1);
   glUniformBlockBinding(_cylinderObjectShader.program(), glGetUniformBlockIndex(_cylinderObjectShader.program(), "StructureUniformBlock"), 1);
   glUniformBlockBinding(_polygonalPrismObjectShader.program(), glGetUniformBlockIndex(_polygonalPrismObjectShader.program(), "StructureUniformBlock"), 1);
-
 
   check_gl_error();
   std::vector<RKStructureUniforms> structureUniforms{RKStructureUniforms()};
@@ -1449,10 +1474,12 @@ void GLWidget::initializeLightUniforms()
   glUniformBlockBinding(_externalBondSelectionGlowShader.program(), glGetUniformBlockIndex(_externalBondSelectionGlowShader.program(), "LightsUniformBlock"), 3);
   glUniformBlockBinding(_boundingBoxCylinderShader.program(), glGetUniformBlockIndex(_boundingBoxCylinderShader.program(), "LightsUniformBlock"), 3);
   glUniformBlockBinding(_boundingBoxSphereShader.program(), glGetUniformBlockIndex(_boundingBoxSphereShader.program(), "LightsUniformBlock"), 3);
-  glUniformBlockBinding(_sphereObjectShader.program(), glGetUniformBlockIndex(_sphereObjectShader.program(), "LightsUniformBlock"), 3);
+  glUniformBlockBinding(_crystalEllipseObjectShader.program(), glGetUniformBlockIndex(_crystalEllipseObjectShader.program(), "LightsUniformBlock"), 3);
+  glUniformBlockBinding(_crystalCylinderObjectShader.program(), glGetUniformBlockIndex(_crystalCylinderObjectShader.program(), "LightsUniformBlock"), 3);
+  glUniformBlockBinding(_crystalPolygonalPrismObjectShader.program(), glGetUniformBlockIndex(_crystalPolygonalPrismObjectShader.program(), "LightsUniformBlock"), 3);
+  glUniformBlockBinding(_ellipseObjectShader.program(), glGetUniformBlockIndex(_ellipseObjectShader.program(), "LightsUniformBlock"), 3);
   glUniformBlockBinding(_cylinderObjectShader.program(), glGetUniformBlockIndex(_cylinderObjectShader.program(), "LightsUniformBlock"), 3);
   glUniformBlockBinding(_polygonalPrismObjectShader.program(), glGetUniformBlockIndex(_polygonalPrismObjectShader.program(), "LightsUniformBlock"), 3);
-
 
   std::vector<RKLightsUniforms> lightUniforms{RKLightsUniforms()};
   glBufferData(GL_UNIFORM_BUFFER, sizeof(RKLightsUniforms) * lightUniforms.size(), lightUniforms.data(), GL_DYNAMIC_DRAW);  // FIX
@@ -1522,7 +1549,10 @@ void GLWidget::reloadData()
     _internalBondPickingShader.setRenderStructures(_dataSource->renderStructures());
     _externalBondPickingShader.setRenderStructures(_dataSource->renderStructures());
 
-    _sphereObjectShader.setRenderStructures(_dataSource->renderStructures());
+    _crystalEllipseObjectShader.setRenderStructures(_dataSource->renderStructures());
+    _crystalCylinderObjectShader.setRenderStructures(_dataSource->renderStructures());
+    _crystalPolygonalPrismObjectShader.setRenderStructures(_dataSource->renderStructures());
+    _ellipseObjectShader.setRenderStructures(_dataSource->renderStructures());
     _cylinderObjectShader.setRenderStructures(_dataSource->renderStructures());
     _polygonalPrismObjectShader.setRenderStructures(_dataSource->renderStructures());
 
@@ -1568,7 +1598,10 @@ void GLWidget::reloadData()
   _boundingBoxCylinderShader.reloadData();
   _boundingBoxSphereShader.reloadData();
 
-  _sphereObjectShader.reloadData();
+  _crystalEllipseObjectShader.reloadData();
+  _crystalCylinderObjectShader.reloadData();
+  _crystalPolygonalPrismObjectShader.reloadData();
+  _ellipseObjectShader.reloadData();
   _cylinderObjectShader.reloadData();
   _polygonalPrismObjectShader.reloadData();
 
@@ -1628,9 +1661,14 @@ void GLWidget::reloadRenderData()
   _internalBondPickingShader.reloadData();
   _externalBondPickingShader.reloadData();
 
-  _sphereObjectShader.reloadData();
+  _crystalEllipseObjectShader.reloadData();
+  _crystalCylinderObjectShader.reloadData();
+  _crystalPolygonalPrismObjectShader.reloadData();
+
+  _ellipseObjectShader.reloadData();
   _cylinderObjectShader.reloadData();
   _polygonalPrismObjectShader.reloadData();
+
 
   update();
 }

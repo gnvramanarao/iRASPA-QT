@@ -33,12 +33,12 @@
 #include "structure.h"
 #include "iraspakitprotocols.h"
 
-class CylinderPrimitive: public Structure, public RKRenderPrimitiveCylinderObjectsSource
+class CrystalEllipsoidPrimitive: public Structure, public RKRenderCrystalPrimitiveEllipsoidObjectsSource
 {
 public:
-  CylinderPrimitive();
+  CrystalEllipsoidPrimitive();
 
-  std::vector<RKInPerInstanceAttributesAtoms> renderPrimitiveCylinderObjects() const override;
+  std::vector<RKInPerInstanceAttributesAtoms> renderCrystalPrimitiveEllipsoidObjects() const override;
 
   simd_quatd primitiveOrientation() const override {return _primitiveOrientation;}
   double3x3 primitiveTransformationMatrix() const override  {return _primitiveTransformationMatrix;}
@@ -69,7 +69,7 @@ public:
   double primitiveBackSideShininess() const override  {return _primitiveBackSideShininess;}
 private:
   qint64 _versionNumber{1};
-  friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<CylinderPrimitive> &);
-  friend QDataStream &operator>>(QDataStream &, std::shared_ptr<CylinderPrimitive> &);
+  friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<CrystalEllipsoidPrimitive> &);
+  friend QDataStream &operator>>(QDataStream &, std::shared_ptr<CrystalEllipsoidPrimitive> &);
 };
 

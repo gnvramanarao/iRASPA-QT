@@ -157,54 +157,9 @@ RKStructureUniforms::RKStructureUniforms(int sceneIdentifier, int movieIdentifie
   this->clipPlaneRight = float4(-u_plane2.x, -u_plane2.y, -u_plane2.z, double3::dot(u_plane2,corner2));
 
 
-  if(RKRenderPrimitiveSphereObjectsSource *source = dynamic_cast<RKRenderPrimitiveSphereObjectsSource*>(structure.get()))
+  if(RKRenderPrimitiveObjectsSource *source = dynamic_cast<RKRenderPrimitiveObjectsSource*>(structure.get()))
   {
-    float4x4 primitiveModelMatrix = float4x4(double4x4(source->primitiveOrientation()));
-    float4x4 primitiveNormalMatrix = float4x4(double3x3(source->primitiveOrientation()).inverse().transpose());  // tranpose
-
-    this->transformationMatrix = primitiveModelMatrix * float4x4(source->primitiveTransformationMatrix());
-    this->transformationNormalMatrix = primitiveNormalMatrix * float4x4(source->primitiveTransformationMatrix().inverse().transpose()); // tranpose
-
-    this->primitiveFrontSideHDR = source->primitiveFrontSideHDR();
-    this->primitiveFrontSideHDRExposure = float(source->primitiveFrontSideHDRExposure());
-    this->primitiveAmbientFrontSide = float(source->primitiveFrontSideAmbientIntensity()) * float4(source->primitiveFrontSideAmbientColor(), source->primitiveOpacity());
-    this->primitiveDiffuseFrontSide = float(source->primitiveFrontSideDiffuseIntensity()) * float4(source->primitiveFrontSideDiffuseColor(), source->primitiveOpacity());
-    this->primitiveSpecularFrontSide = float(source->primitiveFrontSideSpecularIntensity()) * float4(source->primitiveFrontSideSpecularColor(), source->primitiveOpacity());
-    this->primitiveShininessFrontSide = float(source->primitiveFrontSideShininess());
-
-    this->primitiveBackSideHDR = source->primitiveBackSideHDR();
-    this->primitiveBackSideHDRExposure = float(source->primitiveBackSideHDRExposure());
-    this->primitiveAmbientBackSide = float(source->primitiveBackSideAmbientIntensity()) * float4(source->primitiveBackSideAmbientColor(), source->primitiveOpacity());
-    this->primitiveDiffuseBackSide = float(source->primitiveBackSideDiffuseIntensity()) * float4(source->primitiveBackSideDiffuseColor(), source->primitiveOpacity());
-    this->primitiveSpecularBackSide = float(source->primitiveBackSideSpecularIntensity()) * float4(source->primitiveBackSideSpecularColor(), source->primitiveOpacity());
-    this->primitiveShininessBackSide = float(source->primitiveBackSideShininess());
-  }
-
-  if(RKRenderPrimitiveCylinderObjectsSource *source = dynamic_cast<RKRenderPrimitiveCylinderObjectsSource*>(structure.get()))
-  {
-    float4x4 primitiveModelMatrix = float4x4(double4x4(source->primitiveOrientation()));
-    float4x4 primitiveNormalMatrix = float4x4(double3x3(source->primitiveOrientation()).inverse().transpose());  // tranpose
-
-    this->transformationMatrix = primitiveModelMatrix * float4x4(source->primitiveTransformationMatrix());
-    this->transformationNormalMatrix = primitiveNormalMatrix * float4x4(source->primitiveTransformationMatrix().inverse().transpose()); // tranpose
-
-    this->primitiveFrontSideHDR = source->primitiveFrontSideHDR();
-    this->primitiveFrontSideHDRExposure = float(source->primitiveFrontSideHDRExposure());
-    this->primitiveAmbientFrontSide = float(source->primitiveFrontSideAmbientIntensity()) * float4(source->primitiveFrontSideAmbientColor(), source->primitiveOpacity());
-    this->primitiveDiffuseFrontSide = float(source->primitiveFrontSideDiffuseIntensity()) * float4(source->primitiveFrontSideDiffuseColor(), source->primitiveOpacity());
-    this->primitiveSpecularFrontSide = float(source->primitiveFrontSideSpecularIntensity()) * float4(source->primitiveFrontSideSpecularColor(), source->primitiveOpacity());
-    this->primitiveShininessFrontSide = float(source->primitiveFrontSideShininess());
-
-    this->primitiveBackSideHDR = source->primitiveBackSideHDR();
-    this->primitiveBackSideHDRExposure = float(source->primitiveBackSideHDRExposure());
-    this->primitiveAmbientBackSide = float(source->primitiveBackSideAmbientIntensity()) * float4(source->primitiveBackSideAmbientColor(), source->primitiveOpacity());
-    this->primitiveDiffuseBackSide = float(source->primitiveBackSideDiffuseIntensity()) * float4(source->primitiveBackSideDiffuseColor(), source->primitiveOpacity());
-    this->primitiveSpecularBackSide = float(source->primitiveBackSideSpecularIntensity()) * float4(source->primitiveBackSideSpecularColor(), source->primitiveOpacity());
-    this->primitiveShininessBackSide = float(source->primitiveBackSideShininess());
-  }
-
-  if(RKRenderPrimitivePolygonalPrimsObjectsSource *source = dynamic_cast<RKRenderPrimitivePolygonalPrimsObjectsSource*>(structure.get()))
-  {
+    qDebug() << "YEAAAHHHH";
     float4x4 primitiveModelMatrix = float4x4(double4x4(source->primitiveOrientation()));
     float4x4 primitiveNormalMatrix = float4x4(double3x3(source->primitiveOrientation()).inverse().transpose());  // tranpose
 

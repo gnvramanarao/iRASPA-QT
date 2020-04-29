@@ -34,9 +34,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 macx{
   #QMAKE_CXXFLAGS += -Wl,--stack,4194304
-  INCLUDEPATH += /System/Library/Frameworks/Python.framework/Versions/Current/include/python2.7
+  INCLUDEPATH += /System/Library/Frameworks/Python.framework/Versions/Current/include/python2.7 /usr/local/include/freetype2/
   QMAKE_LFLAGS += -framework OpenCL -framework Python
-  LIBS += -llzma -lz
+  LIBS += /usr/local/lib/libfreetype.a -llzma -lz
 }
 
 win32{

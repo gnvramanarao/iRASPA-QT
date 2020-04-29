@@ -36,58 +36,7 @@
 #include <type_traits>
 #include <foundationkit.h>
 #include "skbond.h"
-
-class SKAsymmetricAtom;
-
-class SKAtomCopy
-{
-public:
-    SKAtomCopy(): _position(), _tag(0), _type(AtomCopyType::copy), _parent() {}
-    SKAtomCopy(std::shared_ptr<SKAsymmetricAtom> asymmetricParentAtom, double3 position): _position(position), _tag(0), _type(AtomCopyType::copy), _parent(asymmetricParentAtom) {}
-    enum class AtomCopyType: qint64
-    {
-      copy = 2, duplicate = 3
-    };
-    const std::shared_ptr<SKAsymmetricAtom> parent() const {return this->_parent.lock();}
-    double3 position() {return _position;}
-    AtomCopyType type() {return _type;}
-    void setType(AtomCopyType type) {_type = type;}
-    qint64 tag() {return _tag;}
-    void setTag(qint64 tag) {_tag = tag;}
-    qint64 asymmetricIndex() {return _asymmetricIndex;}
-    void setAsymmetricIndex(qint64 value) {_asymmetricIndex = value;}
-private:
-    qint64 _versionNumber{1};
-    struct Hash
-    {
-      template <typename T> std::size_t operator() (T* const &p) const
-      {
-        return std::hash<T>()(*p);
-      }
-    };
-    struct Compare
-    {
-      template <typename T> size_t operator() (T* const &a, T* const &b) const
-      {
-        return *a == *b;
-      }
-    };
-    double3 _position;
-    std::unordered_set<SKBond*, SKAtomCopy::Hash, SKAtomCopy::Compare> _bonds;
-    qint64 _tag;
-    AtomCopyType _type;
-    std::weak_ptr<SKAsymmetricAtom> _parent;
-    qint64 _asymmetricIndex;
-
-    friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<SKAtomCopy> &);
-    friend QDataStream &operator>>(QDataStream &, std::shared_ptr<SKAtomCopy> &);
-
-    friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<SKAsymmetricAtom> &);
-    friend QDataStream &operator>>(QDataStream &, std::shared_ptr<SKAsymmetricAtom> &);
-
-    friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<SKBond> &);
-    friend QDataStream &operator>>(QDataStream &, std::shared_ptr<SKBond> &);
-};
+#include "skatomcopy.h"
 
 class SKAsymmetricAtom
 {
@@ -219,7 +168,6 @@ private:
 
     // the crystallographic copies of the atom
     std::vector<std::shared_ptr<SKAtomCopy>> _copies;
-
 
     friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<SKAsymmetricAtom> &);
     friend QDataStream &operator>>(QDataStream &, std::shared_ptr<SKAsymmetricAtom> &);

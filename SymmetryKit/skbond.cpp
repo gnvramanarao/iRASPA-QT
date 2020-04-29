@@ -29,7 +29,7 @@
 
 #include "skbond.h"
 #include "skasymmetricatom.h"
-
+#include "skatomcopy.h"
 
 SKBond::SKBond()
 {

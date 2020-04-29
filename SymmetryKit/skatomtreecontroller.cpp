@@ -28,7 +28,6 @@
  *************************************************************************************************************/
 
 #include "skatomtreecontroller.h"
-
 #include <stack>
 #include <algorithm>
 #include <QDebug>

@@ -39,10 +39,10 @@
 #include "rkrenderkitprotocols.h"
 
 
-class OpenGLSphereObjectShader: public OpenGLShader
+class OpenGLCrystalPolygonalPrismObjectShader: public OpenGLShader
 {
 public:
-  OpenGLSphereObjectShader();
+  OpenGLCrystalPolygonalPrismObjectShader();
   void loadShader(void) override;
   void deleteBuffers();
   void generateBuffers();
@@ -75,7 +75,7 @@ private:
   GLint _vertexPositionAttributeLocation;
   GLint _instancePositionAttributeLocation;
 
-
   static const std::string _vertexShaderSource;
   static const std::string _fragmentShaderSource;
 };
+

@@ -1170,6 +1170,8 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<Structure> &structu
     throw InvalidArchiveVersionException(__FILE__, __LINE__, "Structure");
   }
 
+  qDebug() << "READING STRUCTURE";
+
   stream >> structure->_displayName;
   stream >> structure->_isVisible;
 

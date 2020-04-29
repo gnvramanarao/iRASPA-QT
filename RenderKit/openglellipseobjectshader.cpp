@@ -27,25 +27,25 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#include "openglsphereobjectshader.h"
+#include "openglellipseobjectshader.h"
 #include <QDebug>
 #include <iostream>
 #include "glgeterror.h"
 #include "spheregeometry.h"
 
-OpenGLSphereObjectShader::OpenGLSphereObjectShader()
+OpenGLEllipseObjectShader::OpenGLEllipseObjectShader()
 {
 }
 
 
-void OpenGLSphereObjectShader::setRenderStructures(std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> structures)
+void OpenGLEllipseObjectShader::setRenderStructures(std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> structures)
 {
   deleteBuffers();
   _renderStructures = structures;
   generateBuffers();
 }
 
-void OpenGLSphereObjectShader::paintGLOpaque(GLuint structureUniformBuffer)
+void OpenGLEllipseObjectShader::paintGLOpaque(GLuint structureUniformBuffer)
 {
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
@@ -58,7 +58,7 @@ void OpenGLSphereObjectShader::paintGLOpaque(GLuint structureUniformBuffer)
   {
     for(size_t j=0;j<_renderStructures[i].size();j++)
     {
-      if (RKRenderPrimitiveSphereObjectsSource* object = dynamic_cast<RKRenderPrimitiveSphereObjectsSource*>(_renderStructures[i][j].get()))
+      if (RKRenderPrimitiveEllipsoidObjectsSource* object = dynamic_cast<RKRenderPrimitiveEllipsoidObjectsSource*>(_renderStructures[i][j].get()))
       {
         if(object->primitiveOpacity()>0.99999 && _renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible() && _numberOfIndices[i][j]>0 && _numberOfDrawnAtoms[i][j]>0)
         {
@@ -79,7 +79,7 @@ void OpenGLSphereObjectShader::paintGLOpaque(GLuint structureUniformBuffer)
 }
 
 
-void OpenGLSphereObjectShader::paintGLTransparent(GLuint structureUniformBuffer)
+void OpenGLEllipseObjectShader::paintGLTransparent(GLuint structureUniformBuffer)
 {
   //glEnable(GL_CULL_FACE);
   //glCullFace(GL_BACK);
@@ -96,7 +96,7 @@ void OpenGLSphereObjectShader::paintGLTransparent(GLuint structureUniformBuffer)
   {
     for(size_t j=0;j<_renderStructures[i].size();j++)
     {
-      if (RKRenderPrimitiveSphereObjectsSource* object = dynamic_cast<RKRenderPrimitiveSphereObjectsSource*>(_renderStructures[i][j].get()))
+      if (RKRenderPrimitiveEllipsoidObjectsSource* object = dynamic_cast<RKRenderPrimitiveEllipsoidObjectsSource*>(_renderStructures[i][j].get()))
       {
         if(object->primitiveOpacity()<=0.99999 && _renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible() && _numberOfIndices[i][j]>0 && _numberOfDrawnAtoms[i][j]>0)
         {
@@ -120,7 +120,7 @@ void OpenGLSphereObjectShader::paintGLTransparent(GLuint structureUniformBuffer)
 }
 
 
-void OpenGLSphereObjectShader::deleteBuffers()
+void OpenGLEllipseObjectShader::deleteBuffers()
 {
   for(size_t i=0;i<_renderStructures.size();i++)
   {
@@ -136,7 +136,7 @@ void OpenGLSphereObjectShader::deleteBuffers()
   }
 }
 
-void OpenGLSphereObjectShader::generateBuffers()
+void OpenGLEllipseObjectShader::generateBuffers()
 {
   _numberOfDrawnAtoms.resize(_renderStructures.size());
   _numberOfIndices.resize(_renderStructures.size());
@@ -179,12 +179,12 @@ void OpenGLSphereObjectShader::generateBuffers()
   }
 }
 
-void OpenGLSphereObjectShader::reloadData()
+void OpenGLEllipseObjectShader::reloadData()
 {
   initializeVertexArrayObject();
 }
 
-void OpenGLSphereObjectShader::initializeVertexArrayObject()
+void OpenGLEllipseObjectShader::initializeVertexArrayObject()
 {
   SphereGeometry sphere = SphereGeometry(1.0,41);
 
@@ -192,12 +192,12 @@ void OpenGLSphereObjectShader::initializeVertexArrayObject()
   {
     for(size_t j=0;j<_renderStructures[i].size();j++)
     {
-      if (RKRenderPrimitiveSphereObjectsSource* object = dynamic_cast<RKRenderPrimitiveSphereObjectsSource*>(_renderStructures[i][j].get()))
+      if (RKRenderPrimitiveEllipsoidObjectsSource* object = dynamic_cast<RKRenderPrimitiveEllipsoidObjectsSource*>(_renderStructures[i][j].get()))
       {
         glBindVertexArray(_vertexArrayObject[i][j]);
         check_gl_error();
 
-        std::vector<RKInPerInstanceAttributesAtoms> atomData = object->renderPrimitiveObjects();
+        std::vector<RKInPerInstanceAttributesAtoms> atomData = object->renderPrimitiveEllipsoidObjects();
         _numberOfDrawnAtoms[i][j] = atomData.size();
         _numberOfIndices[i][j] = sphere.indices().size();
 
@@ -248,13 +248,13 @@ void OpenGLSphereObjectShader::initializeVertexArrayObject()
   }
 }
 
-void OpenGLSphereObjectShader::loadShader(void)
+void OpenGLEllipseObjectShader::loadShader(void)
 {
   GLuint vertexShader;
   GLuint fragmentShader;
 
-  vertexShader=compileShaderOfType(GL_VERTEX_SHADER,OpenGLSphereObjectShader::_vertexShaderSource.c_str());
-  fragmentShader=compileShaderOfType(GL_FRAGMENT_SHADER,OpenGLSphereObjectShader::_fragmentShaderSource.c_str());
+  vertexShader=compileShaderOfType(GL_VERTEX_SHADER,OpenGLEllipseObjectShader::_vertexShaderSource.c_str());
+  fragmentShader=compileShaderOfType(GL_FRAGMENT_SHADER,OpenGLEllipseObjectShader::_fragmentShaderSource.c_str());
 
   if (0 != vertexShader && 0 != fragmentShader)
   {
@@ -286,7 +286,7 @@ void OpenGLSphereObjectShader::loadShader(void)
   }
 }
 
-const std::string OpenGLSphereObjectShader::_vertexShaderSource  =
+const std::string OpenGLEllipseObjectShader::_vertexShaderSource  =
 OpenGLVersionStringLiteral +
 OpenGLFrameUniformBlockStringLiteral +
 OpenGLStructureUniformBlockStringLiteral +
@@ -332,7 +332,7 @@ void main(void)
 )foo");
 
 
-const std::string OpenGLSphereObjectShader::_fragmentShaderSource =
+const std::string OpenGLEllipseObjectShader::_fragmentShaderSource =
 OpenGLVersionStringLiteral +
 OpenGLFrameUniformBlockStringLiteral +
 OpenGLStructureUniformBlockStringLiteral +

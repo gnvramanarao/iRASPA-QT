@@ -33,11 +33,12 @@
 #include "structure.h"
 #include "iraspakitprotocols.h"
 
-class EllipsoidPrimitive: public Structure, public RKRenderPrimitiveSphereObjectsSource
+class EllipsoidPrimitive: public Structure, public RKRenderPrimitiveEllipsoidObjectsSource
 {
 public:
   EllipsoidPrimitive();
-  std::vector<RKInPerInstanceAttributesAtoms> renderPrimitiveObjects() const override;
+
+  std::vector<RKInPerInstanceAttributesAtoms> renderPrimitiveEllipsoidObjects() const override;
 
   simd_quatd primitiveOrientation() const override {return _primitiveOrientation;}
   double3x3 primitiveTransformationMatrix() const override  {return _primitiveTransformationMatrix;}

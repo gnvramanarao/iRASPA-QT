@@ -29,39 +29,53 @@
 
 #pragma once
 
-#include <QObject>
-#include <QMainWindow>
-#include <QTreeView>
-#include <QModelIndex>
-#include <optional>
-#include <iraspakit.h>
-#include "scenetreeviewmodel.h"
-#include "iraspamainwindowconsumerprotocol.h"
+#include <vector>
+#include <cstring>
+#include <string>
+#define GL_GLEXT_PROTOTYPES
+#include <QtOpenGL>
+#include <QGLFunctions>
+#include "openglshader.h"
+#include "rkrenderkitprotocols.h"
 
-class SceneTreeView: public QTreeView, public MainWindowConsumer, public Reloadable
+
+class OpenGLCrystalEllipseObjectShader: public OpenGLShader
 {
-  Q_OBJECT
-
 public:
-  SceneTreeView(QWidget* parent = nullptr);
-  QModelIndex selectedIndex(void);
-  QSize sizeHint() const override final;
-  void setRootNode(std::shared_ptr<SceneList> sceneList);
-  SceneTreeViewModel* sceneTreeModel() {return _model.get();}
-  void setMainWindow(MainWindow* mainWindow) final override {_mainWindow = mainWindow;}
-  void reloadSelection() override final;
-  void reloadData() override final;
+  OpenGLCrystalEllipseObjectShader();
+  void loadShader(void) override;
+  void deleteBuffers();
+  void generateBuffers();
+
+  void paintGLOpaque(GLuint structureUniformBuffer);
+  void paintGLTransparent(GLuint structureUniformBuffer);
+
+  void reloadData();
+  void initializeVertexArrayObject();
+  void setRenderStructures(std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> structures);
+  GLuint program() {return _program;}
 private:
-  MainWindow* _mainWindow;
-  std::shared_ptr<SceneTreeViewModel> _model;
-  std::shared_ptr<SceneList> _sceneList;
-  QString nameOfItem(const QModelIndex &current);
-public slots:
-  void currentMovieChanged(const QModelIndex &current);
-  void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override final;
-signals:
-  void setSelectedMovie(std::shared_ptr<Movie> selectedMovie);
-  void setCellTreeController(std::vector<std::shared_ptr<Structure>> structures);
-  void setAppearanceTreeController(std::vector<std::shared_ptr<Structure>> structures);
-  void setTreeControllers(std::shared_ptr<SKAtomTreeController> atomController, std::shared_ptr<SKBondSetController> bondController);
+  GLuint _program;
+  std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> _renderStructures;
+
+  std::vector<std::vector<int>> _numberOfIndices;
+  std::vector<std::vector<int>> _numberOfDrawnAtoms;
+
+  std::vector<std::vector<GLuint>> _vertexBuffer;
+  std::vector<std::vector<GLuint>> _indexBuffer;
+  std::vector<std::vector<GLuint>> _instancePositionBuffer;
+
+  std::vector<std::vector<GLuint>> _vertexArrayObject;
+  std::vector<std::vector<GLuint>> _ambientColorBuffer;
+  std::vector<std::vector<GLuint>> _diffuseColorBuffer;
+  std::vector<std::vector<GLuint>> _specularColorBuffer;
+
+  GLint _ambientOcclusionTextureUniformLocation;
+  GLint _vertexNormalAttributeLocation;
+  GLint _vertexPositionAttributeLocation;
+  GLint _instancePositionAttributeLocation;
+
+
+  static const std::string _vertexShaderSource;
+  static const std::string _fragmentShaderSource;
 };

@@ -277,10 +277,9 @@ public:
   virtual void setStructureNitrogenSurfaceArea(double value) = 0;
 };
 
-class RKRenderPrimitiveSphereObjectsSource
+class RKRenderPrimitiveObjectsSource
 {
 public:
-  virtual std::vector<RKInPerInstanceAttributesAtoms> renderPrimitiveObjects() const = 0;
   virtual simd_quatd primitiveOrientation() const = 0;
   virtual double3x3 primitiveTransformationMatrix() const = 0;
 
@@ -311,72 +310,40 @@ public:
   virtual double primitiveBackSideShininess() const = 0;
 };
 
-class RKRenderPrimitiveCylinderObjectsSource
+class RKRenderCrystalPrimitiveEllipsoidObjectsSource: public RKRenderPrimitiveObjectsSource
 {
 public:
-  virtual std::vector<RKInPerInstanceAttributesAtoms> renderPrimitiveObjects() const = 0;
-  virtual simd_quatd primitiveOrientation() const = 0;
-  virtual double3x3 primitiveTransformationMatrix() const = 0;
-
-  virtual double primitiveOpacity() const = 0;
-  virtual bool primitiveIsCapped() const = 0;
-  virtual bool primitiveIsFractional() const = 0;
-  virtual int primitiveNumberOfSides() const = 0;
-  virtual double primitiveThickness() const = 0;
-
-  virtual bool primitiveFrontSideHDR() const = 0;
-  virtual double primitiveFrontSideHDRExposure() const = 0;
-  virtual QColor primitiveFrontSideAmbientColor() const = 0;
-  virtual QColor primitiveFrontSideDiffuseColor() const = 0;
-  virtual QColor primitiveFrontSideSpecularColor() const = 0;
-  virtual double primitiveFrontSideDiffuseIntensity() const = 0;
-  virtual double primitiveFrontSideAmbientIntensity() const = 0;
-  virtual double primitiveFrontSideSpecularIntensity() const = 0;
-  virtual double primitiveFrontSideShininess() const = 0;
-
-  virtual bool primitiveBackSideHDR() const = 0;
-  virtual double primitiveBackSideHDRExposure() const = 0;
-  virtual QColor primitiveBackSideAmbientColor() const = 0;
-  virtual QColor primitiveBackSideDiffuseColor() const = 0;
-  virtual QColor primitiveBackSideSpecularColor() const = 0;
-  virtual double primitiveBackSideDiffuseIntensity() const = 0;
-  virtual double primitiveBackSideAmbientIntensity() const = 0;
-  virtual double primitiveBackSideSpecularIntensity() const = 0;
-  virtual double primitiveBackSideShininess() const = 0;
+  virtual std::vector<RKInPerInstanceAttributesAtoms> renderCrystalPrimitiveEllipsoidObjects() const = 0;
 };
 
-class RKRenderPrimitivePolygonalPrimsObjectsSource
+class RKRenderCrystalPrimitiveCylinderObjectsSource: public RKRenderPrimitiveObjectsSource
 {
 public:
-  virtual std::vector<RKInPerInstanceAttributesAtoms> renderPrimitiveObjects() const = 0;
-  virtual simd_quatd primitiveOrientation() const = 0;
-  virtual double3x3 primitiveTransformationMatrix() const = 0;
+  virtual std::vector<RKInPerInstanceAttributesAtoms> renderCrystalPrimitiveCylinderObjects() const = 0;
+};
 
-  virtual double primitiveOpacity() const = 0;
-  virtual bool primitiveIsCapped() const = 0;
-  virtual bool primitiveIsFractional() const = 0;
-  virtual int primitiveNumberOfSides() const = 0;
-  virtual double primitiveThickness() const = 0;
+class RKRenderCrystalPrimitivePolygonalPrimsObjectsSource: public RKRenderPrimitiveObjectsSource
+{
+public:
+  virtual std::vector<RKInPerInstanceAttributesAtoms> renderCrystalPrimitivePolygonalPrismObjects() const = 0;
+};
 
-  virtual bool primitiveFrontSideHDR() const = 0;
-  virtual double primitiveFrontSideHDRExposure() const = 0;
-  virtual QColor primitiveFrontSideAmbientColor() const = 0;
-  virtual QColor primitiveFrontSideDiffuseColor() const = 0;
-  virtual QColor primitiveFrontSideSpecularColor() const = 0;
-  virtual double primitiveFrontSideDiffuseIntensity() const = 0;
-  virtual double primitiveFrontSideAmbientIntensity() const = 0;
-  virtual double primitiveFrontSideSpecularIntensity() const = 0;
-  virtual double primitiveFrontSideShininess() const = 0;
+class RKRenderPrimitiveEllipsoidObjectsSource: public RKRenderPrimitiveObjectsSource
+{
+public:
+  virtual std::vector<RKInPerInstanceAttributesAtoms> renderPrimitiveEllipsoidObjects() const = 0;
+};
 
-  virtual bool primitiveBackSideHDR() const = 0;
-  virtual double primitiveBackSideHDRExposure() const = 0;
-  virtual QColor primitiveBackSideAmbientColor() const = 0;
-  virtual QColor primitiveBackSideDiffuseColor() const = 0;
-  virtual QColor primitiveBackSideSpecularColor() const = 0;
-  virtual double primitiveBackSideDiffuseIntensity() const = 0;
-  virtual double primitiveBackSideAmbientIntensity() const = 0;
-  virtual double primitiveBackSideSpecularIntensity() const = 0;
-  virtual double primitiveBackSideShininess() const = 0;
+class RKRenderPrimitiveCylinderObjectsSource: public RKRenderPrimitiveObjectsSource
+{
+public:
+  virtual std::vector<RKInPerInstanceAttributesAtoms> renderPrimitiveCylinderObjects() const = 0;
+};
+
+class RKRenderPrimitivePolygonalPrimsObjectsSource: public RKRenderPrimitiveObjectsSource
+{
+public:
+  virtual std::vector<RKInPerInstanceAttributesAtoms> renderPrimitivePolygonalPrismObjects() const = 0;
 };
 
 class RKRenderDataSource

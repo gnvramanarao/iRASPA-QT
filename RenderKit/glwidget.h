@@ -74,7 +74,10 @@
 #include "openglexternalbondpickingshader.h"
 #include "openglboundingboxcylindershader.h"
 #include "openglboundingboxsphereshader.h"
-#include "openglsphereobjectshader.h"
+#include "openglcrystalellipseobjectshader.h"
+#include "openglcrystalcylinderobjectshader.h"
+#include "openglcrystalpolygonalprismobjectshader.h"
+#include "openglellipseobjectshader.h"
 #include "openglcylinderobjectshader.h"
 #include "openglpolygonalprismobjectshader.h"
 
@@ -194,7 +197,10 @@ private:
   OpenGLExternalBondPickingShader _externalBondPickingShader;
   OpenGLBoundingBoxCylinderShader _boundingBoxCylinderShader;
   OpenGLBoundingBoxSphereShader _boundingBoxSphereShader;
-  OpenGLSphereObjectShader _sphereObjectShader;
+  OpenGLCrystalEllipseObjectShader _crystalEllipseObjectShader;
+  OpenGLCrystalCylinderObjectShader _crystalCylinderObjectShader;
+  OpenGLCrystalPolygonalPrismObjectShader _crystalPolygonalPrismObjectShader;
+  OpenGLEllipseObjectShader _ellipseObjectShader;
   OpenGLCylinderObjectShader _cylinderObjectShader;
   OpenGLPolygonalPrismObjectShader _polygonalPrismObjectShader;
 

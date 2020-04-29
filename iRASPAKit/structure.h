@@ -40,11 +40,12 @@
 #include <renderkit.h>
 #include "iraspakitprotocols.h"
 
-enum class iRASPAStructureType : qint64 
+enum class iRASPAStructureType : qint64
 { 
   none = 0, structure = 1, crystal = 2, molecularCrystal = 3, molecule = 4, protein = 5, proteinCrystal = 6,
   proteinCrystalSolvent = 7, crystalSolvent = 8, molecularCrystalSolvent = 9,
-  ellipsoidPrimitive = 10, cylinderPrimitive = 11, polygonalPrismPrimitive = 12
+  crystalEllipsoidPrimitive = 10, crystalCylinderPrimitive = 11, crystalPolygonalPrismPrimitive = 12,
+  ellipsoidPrimitive = 13, cylinderPrimitive = 14, polygonalPrismPrimitive = 15
 };
 
 
@@ -151,7 +152,7 @@ public:
   SKBoundingBox transformedBoundingBox() const final override;
   void reComputeBoundingBox() final override;
 
-  void expandSymmetry();
+  void expandSymmetry() override;
 
   virtual double bondLength(std::shared_ptr<SKBond> bond) const;
   virtual double3 bondVector(std::shared_ptr<SKBond> bond) const;
@@ -160,8 +161,6 @@ public:
   bool clipAtomsAtUnitCell() const override {return false;}
   bool clipBondsAtUnitCell() const override {return false;}
   bool colorAtomsWithBondColor() const override;
-
-
 
   std::vector<RKInPerInstanceAttributesText> renderTextData() const override {return std::vector<RKInPerInstanceAttributesText>();}
   RKTextType renderTextType() const override {return RKTextType::identifier;}
@@ -203,7 +202,7 @@ public:
   double atomSelectionDensity() const override;
   void setAtomSelectionDensity(double value);
 
-  double3 CartesianPosition(double3 position, int3 replicaPosition) const override {return double();}
+  double3 CartesianPosition(double3 position, int3 replicaPosition) const override {Q_UNUSED(position); Q_UNUSED(replicaPosition); return double(); }
 
 
 

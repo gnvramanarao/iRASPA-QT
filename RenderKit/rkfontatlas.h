@@ -29,8 +29,39 @@
 
 #pragma once
 
+#include <iostream>
+#include <QtOpenGL>
+
+// FreeType headers
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
+struct FontCharacter
+    {
+        float advanceX;
+        float advanceY;
+
+        float bitmapWidth;
+        float bitmapHeight;
+
+        float bitmapLeft;
+        float bitmapTop;
+
+        float uvOffsetX;
+        float uvOffsetY;
+    };
+
+
 class RKFontAtlas
 {
 public:
     RKFontAtlas();
+private:
+  GLuint texture;
+  GLuint textureUniform;
+
+  int width;
+  int height;
+
+  FontCharacter characters[128];
 };

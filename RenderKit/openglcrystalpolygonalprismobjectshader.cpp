@@ -27,26 +27,26 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#include "openglpolygonalprismobjectshader.h"
+#include "openglcrystalpolygonalprismobjectshader.h"
 #include <QDebug>
 #include <iostream>
 #include "glgeterror.h"
 #include "nsidedprismgeometry.h"
 #include "cappednsidedprismgeometry.h"
 
-OpenGLPolygonalPrismObjectShader::OpenGLPolygonalPrismObjectShader()
+OpenGLCrystalPolygonalPrismObjectShader::OpenGLCrystalPolygonalPrismObjectShader()
 {
 }
 
 
-void OpenGLPolygonalPrismObjectShader::setRenderStructures(std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> structures)
+void OpenGLCrystalPolygonalPrismObjectShader::setRenderStructures(std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> structures)
 {
   deleteBuffers();
   _renderStructures = structures;
   generateBuffers();
 }
 
-void OpenGLPolygonalPrismObjectShader::paintGLOpaque(GLuint structureUniformBuffer)
+void OpenGLCrystalPolygonalPrismObjectShader::paintGLOpaque(GLuint structureUniformBuffer)
 {
   glDisable(GL_CULL_FACE);
 
@@ -58,7 +58,7 @@ void OpenGLPolygonalPrismObjectShader::paintGLOpaque(GLuint structureUniformBuff
   {
     for(size_t j=0;j<_renderStructures[i].size();j++)
     {
-      if (RKRenderPrimitivePolygonalPrimsObjectsSource* object = dynamic_cast<RKRenderPrimitivePolygonalPrimsObjectsSource*>(_renderStructures[i][j].get()))
+      if (RKRenderCrystalPrimitivePolygonalPrimsObjectsSource* object = dynamic_cast<RKRenderCrystalPrimitivePolygonalPrimsObjectsSource*>(_renderStructures[i][j].get()))
       {
         if(object->primitiveOpacity()>0.99999 && _renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible() && _numberOfIndices[i][j]>0 && _numberOfDrawnAtoms[i][j]>0)
         {
@@ -79,7 +79,7 @@ void OpenGLPolygonalPrismObjectShader::paintGLOpaque(GLuint structureUniformBuff
 }
 
 
-void OpenGLPolygonalPrismObjectShader::paintGLTransparent(GLuint structureUniformBuffer)
+void OpenGLCrystalPolygonalPrismObjectShader::paintGLTransparent(GLuint structureUniformBuffer)
 {
   glDisable(GL_CULL_FACE);
 
@@ -95,7 +95,7 @@ void OpenGLPolygonalPrismObjectShader::paintGLTransparent(GLuint structureUnifor
   {
     for(size_t j=0;j<_renderStructures[i].size();j++)
     {
-      if (RKRenderPrimitivePolygonalPrimsObjectsSource* object = dynamic_cast<RKRenderPrimitivePolygonalPrimsObjectsSource*>(_renderStructures[i][j].get()))
+      if (RKRenderCrystalPrimitivePolygonalPrimsObjectsSource* object = dynamic_cast<RKRenderCrystalPrimitivePolygonalPrimsObjectsSource*>(_renderStructures[i][j].get()))
       {
         if(object->primitiveOpacity()<=0.99999 && _renderStructures[i][j]->drawAtoms() && _renderStructures[i][j]->isVisible() && _numberOfIndices[i][j]>0 && _numberOfDrawnAtoms[i][j]>0)
         {
@@ -119,7 +119,7 @@ void OpenGLPolygonalPrismObjectShader::paintGLTransparent(GLuint structureUnifor
 }
 
 
-void OpenGLPolygonalPrismObjectShader::deleteBuffers()
+void OpenGLCrystalPolygonalPrismObjectShader::deleteBuffers()
 {
   for(size_t i=0;i<_renderStructures.size();i++)
   {
@@ -135,7 +135,7 @@ void OpenGLPolygonalPrismObjectShader::deleteBuffers()
   }
 }
 
-void OpenGLPolygonalPrismObjectShader::generateBuffers()
+void OpenGLCrystalPolygonalPrismObjectShader::generateBuffers()
 {
   _numberOfDrawnAtoms.resize(_renderStructures.size());
   _numberOfIndices.resize(_renderStructures.size());
@@ -178,19 +178,19 @@ void OpenGLPolygonalPrismObjectShader::generateBuffers()
   }
 }
 
-void OpenGLPolygonalPrismObjectShader::reloadData()
+void OpenGLCrystalPolygonalPrismObjectShader::reloadData()
 {
   initializeVertexArrayObject();
 }
 
-void OpenGLPolygonalPrismObjectShader::initializeVertexArrayObject()
+void OpenGLCrystalPolygonalPrismObjectShader::initializeVertexArrayObject()
 {
 
   for(size_t i=0;i<_renderStructures.size();i++)
   {
     for(size_t j=0;j<_renderStructures[i].size();j++)
     {
-      if (RKRenderPrimitivePolygonalPrimsObjectsSource* object = dynamic_cast<RKRenderPrimitivePolygonalPrimsObjectsSource*>(_renderStructures[i][j].get()))
+      if (RKRenderCrystalPrimitivePolygonalPrimsObjectsSource* object = dynamic_cast<RKRenderCrystalPrimitivePolygonalPrimsObjectsSource*>(_renderStructures[i][j].get()))
       {
         glBindVertexArray(_vertexArrayObject[i][j]);
         check_gl_error();
@@ -254,7 +254,7 @@ void OpenGLPolygonalPrismObjectShader::initializeVertexArrayObject()
            check_gl_error();
         }
 
-        std::vector<RKInPerInstanceAttributesAtoms> atomData = object->renderPrimitivePolygonalPrismObjects();
+        std::vector<RKInPerInstanceAttributesAtoms> atomData = object->renderCrystalPrimitivePolygonalPrismObjects();
         _numberOfDrawnAtoms[i][j] = atomData.size();
 
         glBindBuffer(GL_ARRAY_BUFFER, _instancePositionBuffer[i][j]);
@@ -282,13 +282,13 @@ void OpenGLPolygonalPrismObjectShader::initializeVertexArrayObject()
   }
 }
 
-void OpenGLPolygonalPrismObjectShader::loadShader(void)
+void OpenGLCrystalPolygonalPrismObjectShader::loadShader(void)
 {
   GLuint vertexShader;
   GLuint fragmentShader;
 
-  vertexShader=compileShaderOfType(GL_VERTEX_SHADER,OpenGLPolygonalPrismObjectShader::_vertexShaderSource.c_str());
-  fragmentShader=compileShaderOfType(GL_FRAGMENT_SHADER,OpenGLPolygonalPrismObjectShader::_fragmentShaderSource.c_str());
+  vertexShader=compileShaderOfType(GL_VERTEX_SHADER, OpenGLCrystalPolygonalPrismObjectShader::_vertexShaderSource.c_str());
+  fragmentShader=compileShaderOfType(GL_FRAGMENT_SHADER, OpenGLCrystalPolygonalPrismObjectShader::_fragmentShaderSource.c_str());
 
   if (0 != vertexShader && 0 != fragmentShader)
   {
@@ -320,7 +320,7 @@ void OpenGLPolygonalPrismObjectShader::loadShader(void)
   }
 }
 
-const std::string OpenGLPolygonalPrismObjectShader::_vertexShaderSource  =
+const std::string OpenGLCrystalPolygonalPrismObjectShader::_vertexShaderSource  =
 OpenGLVersionStringLiteral +
 OpenGLFrameUniformBlockStringLiteral +
 OpenGLStructureUniformBlockStringLiteral +
@@ -364,7 +364,7 @@ void main(void)
 )foo");
 
 
-const std::string OpenGLPolygonalPrismObjectShader::_fragmentShaderSource =
+const std::string OpenGLCrystalPolygonalPrismObjectShader::_fragmentShaderSource =
 OpenGLVersionStringLiteral +
 OpenGLFrameUniformBlockStringLiteral +
 OpenGLStructureUniformBlockStringLiteral +

@@ -1,6 +1,9 @@
 INCLUDEPATH += $$PWD
 
 SOURCES += \
+    $$PWD/crystalcylinderprimitive.cpp \
+    $$PWD/crystalellipsoidprimitive.cpp \
+    $$PWD/crystalpolygonalprismprimitive.cpp \
     $$PWD/cylinderprimitive.cpp \
     $$PWD/ellipsoidprimitive.cpp \
     $$PWD/iraspastructure.cpp \
@@ -13,6 +16,9 @@ SOURCES += \
     $$PWD/protein.cpp
 
 HEADERS += \
+    $$PWD/crystalcylinderprimitive.h \
+    $$PWD/crystalellipsoidprimitive.h \
+    $$PWD/crystalpolygonalprismprimitive.h \
     $$PWD/cylinderprimitive.h \
     $$PWD/ellipsoidprimitive.h \
     $$PWD/iraspastructure.h \

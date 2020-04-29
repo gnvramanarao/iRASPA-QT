@@ -70,6 +70,18 @@ QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<iRASPAStructu
     break;
   case iRASPAStructureType::molecularCrystalSolvent:
     break;
+  case iRASPAStructureType::crystalEllipsoidPrimitive:
+    stream << std::dynamic_pointer_cast<CrystalEllipsoidPrimitive>(iraspa_structure->_structure);
+    stream << iraspa_structure->_structure;
+    break;
+  case iRASPAStructureType::crystalCylinderPrimitive:
+    stream << std::dynamic_pointer_cast<CrystalCylinderPrimitive>(iraspa_structure->_structure);
+    stream << iraspa_structure->_structure;
+    break;
+  case iRASPAStructureType::crystalPolygonalPrismPrimitive:
+    stream << std::dynamic_pointer_cast<CrystalPolygonalPrismPrimitive>(iraspa_structure->_structure);
+    stream << iraspa_structure->_structure;
+    break;
   case iRASPAStructureType::ellipsoidPrimitive:
     stream << std::dynamic_pointer_cast<EllipsoidPrimitive>(iraspa_structure->_structure);
     stream << iraspa_structure->_structure;
@@ -151,6 +163,30 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<iRASPAStructure> &i
       break;
     case iRASPAStructureType::molecularCrystalSolvent:
       break;
+    case iRASPAStructureType::crystalEllipsoidPrimitive:
+    {
+      std::shared_ptr<CrystalEllipsoidPrimitive> primitive = std::make_shared<CrystalEllipsoidPrimitive>();
+      stream >> primitive;
+      iraspa_structure->_structure = primitive;
+      stream >> iraspa_structure->_structure;
+      break;
+    }
+    case iRASPAStructureType::crystalCylinderPrimitive:
+    {
+      std::shared_ptr<CrystalCylinderPrimitive> primitive = std::make_shared<CrystalCylinderPrimitive>();
+      stream >> primitive;
+      iraspa_structure->_structure = primitive;
+      stream >> iraspa_structure->_structure;
+      break;
+    }
+    case iRASPAStructureType::crystalPolygonalPrismPrimitive:
+    {
+      std::shared_ptr<CrystalPolygonalPrismPrimitive> primitive = std::make_shared<CrystalPolygonalPrismPrimitive>();
+      stream >> primitive;
+      iraspa_structure->_structure = primitive;
+      stream >> iraspa_structure->_structure;
+      break;
+    }
     case iRASPAStructureType::ellipsoidPrimitive:
     {
       std::shared_ptr<EllipsoidPrimitive> primitive = std::make_shared<EllipsoidPrimitive>();

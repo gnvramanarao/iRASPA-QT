@@ -41,6 +41,9 @@
 #include "ellipsoidprimitive.h"
 #include "cylinderprimitive.h"
 #include "polygonalprismprimitive.h"
+#include "crystalellipsoidprimitive.h"
+#include "crystalcylinderprimitive.h"
+#include "crystalpolygonalprismprimitive.h"
 
 
 class iRASPAStructure: public std::enable_shared_from_this<iRASPAStructure>, public DisplayableProtocol

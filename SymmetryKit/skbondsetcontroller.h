@@ -36,6 +36,7 @@
 #include <tuple>
 #include "skbond.h"
 #include "skasymmetricatom.h"
+#include "skatomcopy.h"
 #include "skasymmetricbond.h"
 #include "skatomtreecontroller.h"
 

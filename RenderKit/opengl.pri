@@ -6,7 +6,11 @@ SOURCES += \
     $$PWD/openglatomshader.cpp \
     $$PWD/openglboundingboxcylindershader.cpp \
     $$PWD/openglboundingboxsphereshader.cpp \
+    $$PWD/openglcrystalcylinderobjectshader.cpp \
+    $$PWD/openglcrystalellipseobjectshader.cpp \
+    $$PWD/openglcrystalpolygonalprismobjectshader.cpp \
     $$PWD/openglcylinderobjectshader.cpp \
+    $$PWD/openglellipseobjectshader.cpp \
     $$PWD/openglexternalbondpickingshader.cpp \
     $$PWD/openglexternalbondselectionglowshader.cpp \
     $$PWD/openglexternalbondselectionstripesshader.cpp \
@@ -18,7 +22,6 @@ SOURCES += \
     $$PWD/openglpolygonalprismobjectshader.cpp \
     $$PWD/openglshader.cpp \
     $$PWD/openglinternalbondshader.cpp \
-    $$PWD/openglsphereobjectshader.cpp \
     $$PWD/openglunitcellsphereshader.cpp \
     $$PWD/openglunitcellcylindershader.cpp \
     $$PWD/openglatomorthographicimpostershader.cpp \
@@ -44,7 +47,11 @@ HEADERS += \
     $$PWD/glgeterror.h \
     $$PWD/openglboundingboxcylindershader.h \
     $$PWD/openglboundingboxsphereshader.h \
+    $$PWD/openglcrystalcylinderobjectshader.h \
+    $$PWD/openglcrystalellipseobjectshader.h \
+    $$PWD/openglcrystalpolygonalprismobjectshader.h \
     $$PWD/openglcylinderobjectshader.h \
+    $$PWD/openglellipseobjectshader.h \
     $$PWD/openglexternalbondpickingshader.h \
     $$PWD/openglexternalbondselectionglowshader.h \
     $$PWD/openglexternalbondselectionstripesshader.h \
@@ -56,7 +63,6 @@ HEADERS += \
     $$PWD/openglpolygonalprismobjectshader.h \
     $$PWD/openglshader.h \
     $$PWD/openglinternalbondshader.h \
-    $$PWD/openglsphereobjectshader.h \
     $$PWD/openglunitcellsphereshader.h \
     $$PWD/openglunitcellcylindershader.h \
     $$PWD/openglatomorthographicimpostershader.h \

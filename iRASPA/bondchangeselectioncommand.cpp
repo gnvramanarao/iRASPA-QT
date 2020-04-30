@@ -27,41 +27,51 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#pragma once
+#include "bondchangeselectioncommand.h"
+#include <QDebug>
+#include <algorithm>
 
-#include <QObject>
-#include <QMainWindow>
-#include <QTreeView>
-#include <QModelIndex>
-#include <optional>
-#include <iraspakit.h>
-#include "scenetreeviewmodel.h"
-#include "iraspamainwindowconsumerprotocol.h"
-
-class SceneTreeView: public QTreeView, public MainWindowConsumer, public Reloadable
+BondChangeSelectionCommand::BondChangeSelectionCommand(std::weak_ptr<SKBondSetController> bondListController,
+                                     MainWindow *main_window, std::shared_ptr<Structure> structure,
+                                     std::set<int> bondSelection, std::set<int> previousBondSelection, QUndoCommand *parent):
+  _bondListController(bondListController),
+  _main_window(main_window),
+  _structure(structure),
+  _bondSelection(bondSelection),
+  _previousBondSelection(previousBondSelection)
 {
-  Q_OBJECT
+  Q_UNUSED(parent);
 
-public:
-  SceneTreeView(QWidget* parent = nullptr);
-  QModelIndex selectedIndex(void);
-  QSize sizeHint() const override final;
-  void setRootNode(std::shared_ptr<SceneList> sceneList);
-  SceneTreeViewModel* sceneTreeModel() {return _model.get();}
-  void setMainWindow(MainWindow* mainWindow) final override {_mainWindow = mainWindow;}
-  void reloadSelection() override final;
-  void reloadData() override final;
-private:
-  MainWindow* _mainWindow;
-  std::shared_ptr<SceneTreeViewModel> _model;
-  std::shared_ptr<SceneList> _sceneList;
-  QString nameOfItem(const QModelIndex &current);
-public slots:
-  void currentMovieChanged(const QModelIndex &current);
-  void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override final;
-signals:
-  void setSelectedMovie(std::shared_ptr<Movie> selectedMovie);
-  void setCellTreeController(std::vector<std::shared_ptr<Structure>> structures);
-  void setAppearanceTreeController(std::vector<std::shared_ptr<Structure>> structures);
-  void setSelectedFrame(std::shared_ptr<iRASPAStructure> structure);
-};
+  setText(QString("Change bond selection"));
+}
+
+void BondChangeSelectionCommand::redo()
+{
+  qDebug() << "Redoing BondTreeViewChangeSelectionCommand";
+
+  if(std::shared_ptr<SKBondSetController> bondListController = _bondListController.lock())
+  {
+    bondListController->setSelectedObjects(_bondSelection);
+  }
+
+  if(_main_window)
+  {
+    _main_window->reloadSelectionDetailViews();
+  }
+}
+
+void BondChangeSelectionCommand::undo()
+{
+  qDebug() << "Undoing BondTreeViewChangeSelectionCommand";
+
+  if(std::shared_ptr<SKBondSetController> bondListController = _bondListController.lock())
+  {
+    bondListController->setSelectedObjects(_previousBondSelection);
+  }
+
+  if(_main_window)
+  {
+    _main_window->reloadSelectionDetailViews();
+  }
+}
+

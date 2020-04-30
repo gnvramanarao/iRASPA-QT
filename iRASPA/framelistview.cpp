@@ -46,6 +46,7 @@ FrameListView::FrameListView(QWidget* parent): QListView(parent ), _model(std::m
 
 void FrameListView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 {
+  _projectTreeNode = projectTreeNode;
   if (projectTreeNode)
   {
     if(std::shared_ptr<iRASPAProject> iraspaProject = projectTreeNode->representedObject())
@@ -104,12 +105,31 @@ void FrameListView::currentFrameChanged(const QModelIndex &current)
 {
   DisplayableProtocol *item = static_cast<DisplayableProtocol*>(current.internalPointer());
 
-  if(iRASPAStructure* structure = dynamic_cast<iRASPAStructure*>(item))
+  if(iRASPAStructure* iraspa_structure = dynamic_cast<iRASPAStructure*>(item))
   {
+    std::shared_ptr<iRASPAStructure> iraspaStructure = iraspa_structure->shared_from_this();
+    std::shared_ptr<Structure> structure = iraspaStructure->structure();
+
     int frameIndex = current.row();
     _sceneList->setSelectedFrameIndices(frameIndex);
-    emit setTreeControllers(structure->structure()->atomsTreeController(), structure->structure()->bondSetController());
-    emit setCellTreeController(std::vector<std::shared_ptr<Structure>>{structure->structure()});
+    emit setSelectedFrame(iraspaStructure);
+    emit setCellTreeController(std::vector<std::shared_ptr<Structure>>{structure});
+
+    /*
+    if (_projectTreeNode)
+    {
+      if(std::shared_ptr<iRASPAProject> iraspaProject = _projectTreeNode->representedObject())
+      {
+        if(std::shared_ptr<Project> project = iraspaProject->project())
+        {
+          if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
+          {
+            emit setSelectedRenderFrames(projectStructure->renderStructures());
+          }
+        }
+      }
+    }*/
+
     emit updateRenderer();
   }
 }

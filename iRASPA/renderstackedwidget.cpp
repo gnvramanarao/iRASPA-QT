@@ -380,7 +380,8 @@ void RenderStackedWidget::selectAsymetricAtomsInRectangle(QRect rect, bool exten
         std::set<int> indexSetSelectedAtoms = _structures[i][j]->filterCartesianAtomPositions(closure);
         std::set<int> indexSetSelectedBonds = _structures[i][j]->filterCartesianBondPositions(closure);
 
-        qDebug() << "indexSetSelectedBonds: " << indexSetSelectedBonds.size();
+        qDebug() << i << j << "indexSetSelectedAtoms: " << indexSetSelectedAtoms.size();
+        qDebug() << i << j << "indexSetSelectedBonds: " << indexSetSelectedBonds.size();
 
 
 
@@ -406,8 +407,8 @@ void RenderStackedWidget::selectAsymetricAtomsInRectangle(QRect rect, bool exten
 void RenderStackedWidget::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 {
   this->_projectTreeNode = projectTreeNode;
-
   this->_project.reset();
+
   if (projectTreeNode)
   {
     if(std::shared_ptr<iRASPAProject> iraspaProject = projectTreeNode->representedObject())
@@ -424,8 +425,6 @@ void RenderStackedWidget::setProject(std::shared_ptr<ProjectTreeNode> projectTre
           this->_project = projectStructure;
           this->_camera = projectStructure->camera();
           _structures = projectStructure->structures();
-
-
         }
       }
     }
@@ -522,6 +521,20 @@ void RenderStackedWidget::reloadRenderData()
 
 void RenderStackedWidget::reloadData()
 {
+  if (std::shared_ptr<ProjectTreeNode> projectTreeNode = _projectTreeNode.lock())
+  {
+    if(std::shared_ptr<iRASPAProject> iraspaProject = projectTreeNode->representedObject())
+    {
+      if(std::shared_ptr<Project> project = iraspaProject->project())
+      {
+        if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
+        {
+          _structures = projectStructure->structures();
+        }
+      }
+    }
+  }
+
   if (RKRenderViewController* widget = dynamic_cast<RKRenderViewController*>(currentWidget()))
   {
     widget->reloadData();
@@ -542,7 +555,7 @@ void RenderStackedWidget::reloadSelectionData()
 {
   if (RKRenderViewController* widget = dynamic_cast<RKRenderViewController*>(currentWidget()))
   {
-    widget->reloadSelectionData();
+    widget->reloadData();
   }
   update();
 }

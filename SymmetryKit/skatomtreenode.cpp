@@ -36,8 +36,6 @@ SKAtomTreeNode::~SKAtomTreeNode()
 {
 }
 
-
-
 const IndexPath SKAtomTreeNode::indexPath()
 {
   if (std::shared_ptr<SKAtomTreeNode> lockedParent = _parent.lock())
@@ -88,9 +86,9 @@ std::shared_ptr<SKAtomTreeNode> SKAtomTreeNode::descendantNodeAtIndexPath(IndexP
 
 bool SKAtomTreeNode::insertChild(int row, std::shared_ptr<SKAtomTreeNode> child)
 {
-  qDebug() << "Error insertion at: " << row << ", size: " << _childNodes.size();
   if (row < 0 || row > _childNodes.size())
   {
+    qDebug() << "Error insertion at: " << row << ", size: " << _childNodes.size();
     return false;
   }
 

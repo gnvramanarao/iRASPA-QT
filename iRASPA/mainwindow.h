@@ -65,6 +65,7 @@ public:
   void setUndoAction(QAction *newUndoAction);
   void setRedoAction(QAction *newRedoAction);
   void reloadDetailViews();
+  void reloadSelectionDetailViews();
 private:
   Ui::MainWindow *ui;
   DocumentData _documentData{};

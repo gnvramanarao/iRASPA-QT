@@ -164,7 +164,7 @@ Qt::ItemFlags AtomTreeViewModel::flags(const QModelIndex &index) const
   if ( index.column() == 0 )
   {
     flags |= Qt::ItemIsUserCheckable;
-    flags != Qt::ItemIsTristate;
+    flags |= Qt::ItemIsTristate;
     flags |= Qt::ItemIsEditable;
   }
 

@@ -115,15 +115,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 
 
   QObject::connect(ui->sceneTreeView, &SceneTreeView::setSelectedMovie, ui->frameListView, &FrameListView::setRootNode);
-  QObject::connect(ui->sceneTreeView, &SceneTreeView::setTreeControllers, ui->detailTabViewController, &DetailTabViewController::setTreeControllers);
+
 
   QObject::connect(ui->sceneTreeView, &SceneTreeView::setCellTreeController, ui->appearanceTreeWidget, &AppearanceTreeWidgetController::setStructures);
   QObject::connect(ui->sceneTreeView, &SceneTreeView::setCellTreeController, ui->cellTreeWidget, &CellTreeWidgetController::setStructures);
+  QObject::connect(ui->sceneTreeView, &SceneTreeView::setSelectedFrame, ui->atomTreeView, &AtomTreeView::setSelectedFrame);
+  QObject::connect(ui->sceneTreeView, &SceneTreeView::setSelectedFrame, ui->bondListView, &BondListView::setSelectedFrame);
 
   QObject::connect(ui->frameListView, &FrameListView::setCellTreeController, ui->cellTreeWidget, &CellTreeWidgetController::setStructures);
 
   //QObject::connect(ui->frameListView, &FrameListView::setAtomTreeController, ui->atomTreeView, &AtomTreeView::setRootNode);
-  QObject::connect(ui->frameListView, &FrameListView::setTreeControllers, ui->detailTabViewController, &DetailTabViewController::setTreeControllers);
+  QObject::connect(ui->frameListView, &FrameListView::setSelectedFrame, ui->atomTreeView, &AtomTreeView::setSelectedFrame);
+  QObject::connect(ui->frameListView, &FrameListView::setSelectedFrame, ui->bondListView, &BondListView::setSelectedFrame);
 
   QObject::connect(ui->atomTreeView->atomTreeModel(), &AtomTreeViewModel::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
   QObject::connect(ui->atomTreeView, &AtomTreeView::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
@@ -169,13 +172,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 
 
   readLibraryOfStructures();
-
-  std::cout.flush();
-  std::cout << "Done init" << std::endl;
 }
 
 void MainWindow::reloadDetailViews()
 {
+  ui->stackedRenderers->reloadData();
+}
+
+void MainWindow::reloadSelectionDetailViews()
+{
+  ui->atomTreeView->reloadSelection();
+  ui->bondListView->reloadSelection();
   ui->stackedRenderers->reloadData();
 }
 
@@ -214,14 +221,6 @@ void MainWindow::createMenus()
      helpWindow->resize(1200,800);
      helpWindow->show();
   });
-
-  //    editMenu->addAction(redoAction);
-  //    editMenu->addSeparator();
-  //    editMenu->addAction(deleteAction);
-  //    connect(editMenu, &QMenu::aboutToShow,
-  //            this, &MainWindow::itemMenuAboutToShow);
-  //    connect(editMenu, &QMenu::aboutToHide,
-  //            this, &MainWindow::itemMenuAboutToHide);
 }
 
 void MainWindow::setUndoAction(QAction *newUndoAction)
@@ -262,8 +261,12 @@ void MainWindow::setProject(std::shared_ptr<ProjectTreeNode> project)
           ui->elementListWidget->setStructures(projectStructure->flattenedStructures());
           ui->cellTreeWidget->setStructures(projectStructure->flattenedStructures());
           //ui->atomTreeView->setRootNode(projectStructure->getAtomTreeModel());
-          ui->detailTabViewController->setTreeControllers(projectStructure->getAtomTreeModel(), projectStructure->getBondListModel());
-          ui->detailTabViewController->setBondSetController(projectStructure);
+
+          //ui->detailTabViewController->setTreeControllers(projectStructure->getAtomTreeModel(), projectStructure->getBondListModel());
+          //ui->detailTabViewController->setBondSetController(projectStructure);
+
+          //std::shared_ptr<Structure> structure = projectStructure->selectedStructure();
+          //ui->atomTreeView->setRootNode()
 
           ui->cameraTreeWidget->reloadData();
         }

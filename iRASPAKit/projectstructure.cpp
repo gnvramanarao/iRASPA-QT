@@ -198,7 +198,7 @@ std::shared_ptr<SKBondSetController> ProjectStructure::getBondListModel()
   return iraspaStructure->structure()->bondSetController();
 }
 
-std::shared_ptr<Structure> ProjectStructure::selectedStructure()
+std::shared_ptr<iRASPAStructure> ProjectStructure::selectedFrame()
 {
   if(_sceneList->scenes().empty())
   {
@@ -228,7 +228,7 @@ std::shared_ptr<Structure> ProjectStructure::selectedStructure()
   {
     return nullptr;
   }
-  return iraspaStructure->structure();
+  return iraspaStructure;
 }
 
 

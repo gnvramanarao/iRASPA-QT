@@ -47,18 +47,21 @@ void OpenGLBoundingBoxCylinderShader::setRenderDataSource(std::shared_ptr<RKRend
 
 void OpenGLBoundingBoxCylinderShader::paintGL()
 {
-  if(std::shared_ptr<RKRenderDataSource> dataSource = _dataSource; dataSource->showBoundingBox())
+  if(std::shared_ptr<RKRenderDataSource> dataSource = _dataSource)
   {
-    glUseProgram(_program);
-    check_gl_error();
+    if(dataSource->showBoundingBox())
+    {
+      glUseProgram(_program);
+      check_gl_error();
 
-    glBindVertexArray(_vertexArrayObject);
-    check_gl_error();
+      glBindVertexArray(_vertexArrayObject);
+      check_gl_error();
 
-    glDrawElementsInstanced(GL_TRIANGLE_STRIP, _numberOfIndices, GL_UNSIGNED_SHORT, nullptr,(GLsizei)_numberOfUnitCellCylinders);
-    check_gl_error();
-    glBindVertexArray(0);
-    glUseProgram(0);
+      glDrawElementsInstanced(GL_TRIANGLE_STRIP, _numberOfIndices, GL_UNSIGNED_SHORT, nullptr,(GLsizei)_numberOfUnitCellCylinders);
+      check_gl_error();
+      glBindVertexArray(0);
+      glUseProgram(0);
+    }
   }
 
 }

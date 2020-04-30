@@ -53,6 +53,7 @@ public:
   void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode) override final;
 private:
   MainWindow* _mainWindow;
+  std::shared_ptr<ProjectTreeNode> _projectTreeNode;
   std::shared_ptr<FrameListViewModel> _model;
   std::shared_ptr<Movie> _movie;
   std::shared_ptr<SceneList> _sceneList;
@@ -64,5 +65,6 @@ private slots:
 signals:
   void updateRenderer();
   void setCellTreeController(std::vector<std::shared_ptr<Structure>> structures);
-  void setTreeControllers(std::shared_ptr<SKAtomTreeController> atomController, std::shared_ptr<SKBondSetController> bondController);
+  void setSelectedRenderFrames(std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> structures);
+  void setSelectedFrame(std::shared_ptr<iRASPAStructure> structure);
 };

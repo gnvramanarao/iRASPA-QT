@@ -53,7 +53,7 @@ public:
   std::shared_ptr<Structure> getCellTreeModel();
   std::shared_ptr<SKAtomTreeController> getAtomTreeModel();
   std::shared_ptr<SKBondSetController> getBondListModel();
-  std::shared_ptr<Structure> selectedStructure();
+  std::shared_ptr<iRASPAStructure> selectedFrame();
 
   std::vector<std::shared_ptr<Structure>> flattenedStructures() const;
   std::vector<std::vector<std::shared_ptr<Structure>>> structures() const;

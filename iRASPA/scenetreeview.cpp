@@ -133,57 +133,6 @@ void SceneTreeView::selectionChanged(const QItemSelection &selected, const QItem
    emit setAppearanceTreeController(structures);
 }
 
-/*
-void SceneTreeView::synchronizeSelection(const QItemSelection &selected, const QItemSelection &deselected)
-{
-  std::cout << "Selection changed!! total selected items: " << this->selectedIndexes().size() <<  std::endl;
-
-  DisplayableProtocol *item = static_cast<DisplayableProtocol*>(this->selectionModel()->currentIndex().internalPointer());
-
-  if(Movie* movie = dynamic_cast<Movie*>(item))
-  {
-    QModelIndex parentItem = this->selectionModel()->currentIndex().parent();
-    DisplayableProtocol *item = static_cast<DisplayableProtocol*>(parentItem.internalPointer());
-
-    if(Scene* scene = dynamic_cast<Scene*>(item))
-    {
-      //_sceneList->setSelectedScene(scene->shared_from_this());
-      //scene->setSelectedMovie(movie->shared_from_this());
-
-      // std::cout << "current changed to: " << movie->displayName().toStdString() << std::endl;
-    }
-  }
-
-  for (int i = 0; i < selected.indexes().size(); i++)
-  {
-      QModelIndex index = selected.indexes()[i];
-      if(index.isValid())
-      {
-        std::cout << "selected rows: " << index.row() << " name: " <<  this->nameOfItem(index).toStdString() << std::endl;
-      }
-      else
-      {
-        std::cout << "selected Invalid index" << std::endl;
-      }
-  }
-  for (int i = 0; i < deselected.indexes().size(); i++)
-  {
-    QModelIndex index = deselected.indexes()[i];
-    if(index.isValid())
-    {
-      std::cout << "deselected rows: " << index.row() << " name: " <<  this->nameOfItem(index).toStdString() << std::endl;
-    }
-    else
-    {
-      std::cout << "deselected Invalid index" << std::endl;
-    }
-  }
-
-  std::cout << std::endl << std::endl;
-
-
-}
-*/
 
 void SceneTreeView::currentMovieChanged(const QModelIndex &current)
 {
@@ -203,7 +152,8 @@ void SceneTreeView::currentMovieChanged(const QModelIndex &current)
 
       emit setSelectedMovie(movie->shared_from_this());
       emit setCellTreeController(movie->structures());
-      emit setTreeControllers(movie->selectedFrame()->structure()->atomsTreeController(), movie->selectedFrame()->structure()->bondSetController());
+
+      emit setSelectedFrame(movie->selectedFrame());
     }
   }
 }

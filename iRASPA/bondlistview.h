@@ -51,6 +51,7 @@ public:
   BondListView(QWidget* parent = nullptr);
   QSize sizeHint() const override final;
   void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode) override final;
+  void setSelectedFrame(std::shared_ptr<iRASPAStructure> iraspastructure);
   void setMainWindow(MainWindow* mainWindow) override final {_mainWindow = mainWindow;}
   void setRootNode(std::shared_ptr<ProjectStructure> structure);
   BondListViewModel* bondListModel() {return _bondModel.get();}
@@ -62,10 +63,10 @@ private:
   MainWindow* _mainWindow;
   std::shared_ptr<BondListViewModel> _bondModel;
   std::shared_ptr<AtomTreeViewModel> _atomModel;
-  std::shared_ptr<ProjectStructure> _structure;
-  std::shared_ptr<SKBondSetController> _controller;
+  std::weak_ptr<iRASPAStructure> _iraspaStructure;
   std::weak_ptr<ProjectTreeNode> _projectTreeNode;
-  std::vector<std::shared_ptr<Structure>> _structures{};
+  std::weak_ptr<iRASPAProject> _iRASPAProject;
+
   BondListPushButtonStyledItemDelegate *pushButtonDelegate;
   BondListViewComboBoxStyledItemDelegate *comboBoxDelegate;
   BondListViewSliderStyledItemDelegate *sliderDelegate;

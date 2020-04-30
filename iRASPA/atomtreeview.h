@@ -51,6 +51,9 @@ public:
   QSize sizeHint() const override final;
   void setMainWindow(MainWindow* mainWindow) override final {_mainWindow = mainWindow;}
   void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode) override final;
+  void setSelectedFrame(std::shared_ptr<iRASPAStructure> structure);
+
+  void setRootNode(std::shared_ptr<ProjectStructure> _iraspaStructure);
   void setAtomController(std::shared_ptr<SKAtomTreeController> atomController);
   void setBondController(std::shared_ptr<SKBondSetController> bondController);
   AtomTreeViewModel* atomTreeModel() {return _atomModel.get();}
@@ -66,11 +69,9 @@ private:
   MainWindow* _mainWindow;
   std::shared_ptr<AtomTreeViewModel> _atomModel;
   std::shared_ptr<BondListViewModel> _bondModel;
-  std::shared_ptr<SKAtomTreeController> _atomTreeController;
-  std::shared_ptr<SKBondSetController> _bondController;
+  std::weak_ptr<iRASPAStructure> _iraspaStructure;
   std::weak_ptr<ProjectTreeNode> _projectTreeNode;
-  std::shared_ptr<ProjectStructure> _projectStructure;
-  std::vector<std::shared_ptr<Structure>> _structures{};
+  std::shared_ptr<iRASPAProject> _iRASPAProject;
   void paintDropIndicator(QPainter& painter);
   QAbstractItemView::DropIndicatorPosition position(QPoint pos, QRect rect, QModelIndex index);
   void addAtomGroup(QModelIndex index);

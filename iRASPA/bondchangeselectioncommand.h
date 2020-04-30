@@ -29,44 +29,30 @@
 
 #pragma once
 
-#include <QObject>
-#include <QMainWindow>
-#include <QAbstractItemModel>
-#include <QTreeView>
-#include <QModelIndex>
-#include <optional>
-#include <iraspakit.h>
+#include <QUndoCommand>
+#include <set>
+#include <vector>
+#include "iraspakit.h"
+#include "symmetrykit.h"
+#include "mathkit.h"
+#include "mainwindow.h"
+#include "skatomtreecontroller.h"
+#include "skbondsetcontroller.h"
+#include "renderstackedwidget.h"
 
-class BondListViewModel: public QAbstractItemModel
+class BondChangeSelectionCommand : public QUndoCommand
 {
-  Q_OBJECT
-
 public:
-  BondListViewModel();
-
-  void setBondSetController(std::shared_ptr<SKBondSetController> controller);
-  void setStructure(std::shared_ptr<Structure> structure);
-  std::shared_ptr<SKBondSetController> bondSetController() {return _bondSetController;}
-
-  //QT
-  QModelIndex index(int row, int column, const QModelIndex &parent) const override final;
-  QModelIndex parent(const QModelIndex &index) const override final;
-  int rowCount(const QModelIndex &parent = QModelIndex()) const override final;
-  int columnCount(const QModelIndex &parent = QModelIndex()) const override final;
-  QVariant data(const QModelIndex &index, int role) const override final;
-  Qt::ItemFlags flags(const QModelIndex &index) const override final;
-
-  QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override final;
-  bool setData(const QModelIndex &index, const QVariant &value, int role) override final;
-
-  QModelIndexList selectedIndexes();
-
-  void deleteSelection(std::shared_ptr<Structure> structure, std::set<int> indexSet);
-  void insertSelection(std::shared_ptr<Structure> structure, std::vector<std::shared_ptr<SKAsymmetricBond>> bonds, std::set<int> indexSet);
+  BondChangeSelectionCommand(std::weak_ptr<SKBondSetController> bondListController,
+                         MainWindow *main_window, std::shared_ptr<Structure> structure,
+                         std::set<int> bondSelection, std::set<int> previousBondSelection,
+                         QUndoCommand *parent = nullptr);
+  void undo() override final;
+  void redo() override final;
 private:
-  std::shared_ptr<SKBondSetController> _bondSetController;
+  std::weak_ptr<SKBondSetController> _bondListController;
+  MainWindow *_main_window;
   std::shared_ptr<Structure> _structure;
-signals:
-    void reloadRenderDataRenderer();
-    void rendererReloadData();
+  std::set<int> _bondSelection;
+  std::set<int> _previousBondSelection;
 };

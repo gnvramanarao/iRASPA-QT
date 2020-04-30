@@ -52,7 +52,6 @@ QModelIndex BondListViewModel::parent(const QModelIndex &index) const
   return QModelIndex();
 }
 
-/*
 void BondListViewModel::setBondSetController(std::shared_ptr<SKBondSetController> controller)
 {
   if(_bondSetController != controller)
@@ -61,9 +60,9 @@ void BondListViewModel::setBondSetController(std::shared_ptr<SKBondSetController
     _bondSetController = controller;
     endResetModel();
   }
-}*/
+}
 
-void BondListViewModel::setBondSetStructure(std::shared_ptr<Structure> structure)
+void BondListViewModel::setStructure(std::shared_ptr<Structure> structure)
 {
   _structure = structure;
   if(_structure)

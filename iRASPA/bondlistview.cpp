@@ -65,17 +65,11 @@ BondListView::BondListView(QWidget* parent): QTreeView(parent ), _bondModel(std:
   QObject::connect(selectionModel(), &QItemSelectionModel::selectionChanged, this, &BondListView::setSelectedBonds);
 }
 
-void BondListView::setAtomModel(std::shared_ptr<AtomTreeViewModel> atomModel)
-{
- // _atomModel = atomModel;
-
-}
-
 void BondListView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 {
   _projectTreeNode = projectTreeNode;
   _iRASPAProject.reset();
-  _iraspaStructure.reset();
+  _iRASPAStructure.reset();
 
   if (projectTreeNode)
   {
@@ -86,7 +80,7 @@ void BondListView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
       {
         if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
         {
-          _iraspaStructure = projectStructure->selectedFrame();
+          _iRASPAStructure = projectStructure->selectedFrame();
         }
       }
     }
@@ -98,12 +92,12 @@ void BondListView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 
 void BondListView::setSelectedFrame(std::shared_ptr<iRASPAStructure> iraspastructure)
 {
-  _iraspaStructure = iraspastructure;
+  _iRASPAStructure = iraspastructure;
 
   if(BondListViewModel* bondModel = qobject_cast<BondListViewModel*>(model()))
   {
 
-    if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iraspaStructure.lock())
+    if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iRASPAStructure.lock())
     {
       std::shared_ptr<Structure> structure = iraspaStructure->structure();
       std::shared_ptr<SKBondSetController> bondSetControler = structure->bondSetController();
@@ -126,7 +120,7 @@ void BondListView::reloadSelection()
 
 void BondListView::reloadData()
 {
-  if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iraspaStructure.lock())
+  if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iRASPAStructure.lock())
   {
     std::shared_ptr<Structure> structure = iraspaStructure->structure();
     std::shared_ptr<SKBondSetController> bondSetController = structure->bondSetController();
@@ -153,11 +147,11 @@ void BondListView::reloadData()
 }
 
 
-
+/*
 void BondListView::setRootNode(std::shared_ptr<ProjectStructure> structure)
 {
 
-}
+}*/
 
 
 void BondListView::setBondListModel(const QModelIndex &current, const QModelIndex &previous)
@@ -197,7 +191,7 @@ void BondListView::deleteSelection()
   {
     if(projectTreeNode->isEditable())
     {
-      if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iraspaStructure.lock())
+      if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iRASPAStructure.lock())
       {
         std::shared_ptr<Structure> structure = iraspaStructure->structure();
         if(std::shared_ptr<iRASPAProject> project = _iRASPAProject.lock())
@@ -227,7 +221,7 @@ SKAsymmetricBond* BondListView::getItem(const QModelIndex &index) const
 }
 void BondListView::setSelectedBonds(const QItemSelection &selected, const QItemSelection &deselected)
 {
-  if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iraspaStructure.lock())
+  if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iRASPAStructure.lock())
   {
     std::shared_ptr<Structure> structure = iraspaStructure->structure();
     std::set<int> previousBondSelection = structure->bondSetController()->selectionIndexSet();

@@ -38,7 +38,7 @@
 #include "scenetreeviewmodel.h"
 #include "iraspamainwindowconsumerprotocol.h"
 
-class SceneTreeView: public QTreeView, public MainWindowConsumer, public Reloadable
+class SceneTreeView: public QTreeView, public MainWindowConsumer, public ProjectConsumer, public Reloadable
 {
   Q_OBJECT
 
@@ -49,6 +49,7 @@ public:
   void setRootNode(std::shared_ptr<SceneList> sceneList);
   SceneTreeViewModel* sceneTreeModel() {return _model.get();}
   void setMainWindow(MainWindow* mainWindow) final override {_mainWindow = mainWindow;}
+  void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode) override final;
   void reloadSelection() override final;
   void reloadData() override final;
 private:

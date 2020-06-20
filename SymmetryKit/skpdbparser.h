@@ -44,18 +44,21 @@
 #include "skatomtreenode.h"
 #include "skatomtreecontroller.h"
 #include "skspacegroup.h"
+#include "skstructure.h"
 
 class SKPDBParser: public SKParser
 {
 public:
-  SKPDBParser(QString fileContent, bool onlyAsymmetricUnitCell, CharacterSet charactersToBeSkipped): SKParser(), _scanner(fileContent, charactersToBeSkipped), _onlyAsymmetricUnitCell(onlyAsymmetricUnitCell) {}
+  SKPDBParser(QString fileContent, bool onlyAsymmetricUnitCell, bool asMolecule, CharacterSet charactersToBeSkipped);
   void startParsing() override final;
 private:
   Scanner _scanner;
   bool _onlyAsymmetricUnitCell;
+  bool _asMolecule;
   QString::const_iterator _previousScanLocation;
 
-  std::tuple<std::shared_ptr<SKAtomTreeController>, std::shared_ptr<SKCell>,int> _frame = std::make_tuple(std::make_shared<SKAtomTreeController>(), std::make_shared<SKCell>(), 1);
+  std::shared_ptr<SKStructure> _frame;
+  std::optional<SKCell> _cell;
 
   void addFrameToStructure(size_t currentMovie, size_t currentFrame);
 };

@@ -35,6 +35,12 @@ Molecule::Molecule()
 
 }
 
+Molecule::Molecule(std::shared_ptr<SKStructure> structure): Structure(structure)
+{
+  expandSymmetry();
+  _atomsTreeController->setTags();
+}
+
 // MARK: Rendering
 // =====================================================================
 
@@ -451,7 +457,7 @@ void Molecule::computeBonds()
   for (size_t i = 0;i < copies.size();i++)
   {
     copies[i]->setType(SKAtomCopy::AtomCopyType::copy);
-    double3 posA = _cell->unitCell() * copies[i]->position();
+    double3 posA = copies[i]->position();
     int elementIdentifierA = copies[i]->parent()->elementIdentifier();
     double covalentRadiusA = PredefinedElements::predefinedElements[elementIdentifierA]._covalentRadius;
     for (size_t j = i + 1;j < copies.size();j++)
@@ -459,11 +465,12 @@ void Molecule::computeBonds()
       if ((copies[i]->parent()->occupancy() == 1.0 && copies[j]->parent()->occupancy() == 1.0) ||
         (copies[i]->parent()->occupancy() < 1.0 && copies[j]->parent()->occupancy() < 1.0))
       {
-        double3 posB = _cell->unitCell() * copies[j]->position();
+        double3 posB = copies[j]->position();
         int elementIdentifierB = copies[j]->parent()->elementIdentifier();
         double covalentRadiusB = PredefinedElements::predefinedElements[elementIdentifierB]._covalentRadius;
 
         double length = (posA - posB).length();
+
         if (length < covalentRadiusA + covalentRadiusB + 0.56)
         {
           if (length < 0.1)

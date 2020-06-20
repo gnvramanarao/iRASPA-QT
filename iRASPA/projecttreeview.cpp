@@ -38,7 +38,7 @@ ProjectTreeView::ProjectTreeView(QWidget* parent): QTreeView(parent ),
   this->setStyleSheet("background-color:rgb(240, 240, 240);");
 
   this->setSelectionBehavior (QAbstractItemView::SelectRows);
-  this->setSelectionMode(QAbstractItemView::SingleSelection);
+  this->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
   setDragEnabled(true);
   setAcceptDrops(true);
@@ -53,8 +53,9 @@ ProjectTreeView::ProjectTreeView(QWidget* parent): QTreeView(parent ),
   this->setContextMenuPolicy(Qt::CustomContextMenu);
   QObject::connect(this, &QWidget::customContextMenuRequested, this, &ProjectTreeView::ShowContextMenu);
 
-  ProjectTreeViewModel* pModel = qobject_cast<ProjectTreeViewModel*>(model());
-  //QObject::connect(selectionModel(), &QItemSelectionModel::selectionChanged, this, &ProjectTreeView::setSelectedProjects);
+
+  QObject::connect(selectionModel(),&QItemSelectionModel::currentRowChanged,this,&ProjectTreeView::setSelectedProject);
+  QObject::connect(selectionModel(), &QItemSelectionModel::selectionChanged, this, &ProjectTreeView::setSelectedProjects);
 
   _dropIndicatorRect = QRect();
 }
@@ -263,18 +264,24 @@ bool ProjectTreeView::insertRows(int position, int rows, const QModelIndex &pare
 
 void ProjectTreeView::setSelectedProject(const QModelIndex& current, const QModelIndex& previous)
 {
-  QModelIndex index = this->selectionModel()->currentIndex();
+  Q_UNUSED(previous);
 
-  if(index.isValid())
+  if(current.isValid())
   {
-    if(ProjectTreeNode* item = static_cast<ProjectTreeNode*>(index.internalPointer()))
+    if(ProjectTreeNode* item = static_cast<ProjectTreeNode*>(current.internalPointer()))
     {
       _projectTreeController->selectedTreeNodes().clear();
+      _projectTreeController->setSelectedTreeNode(item->shared_from_this());
       _projectTreeController->selectedTreeNodes().insert(item->shared_from_this());
       item->representedObject()->unwrapIfNeeded();
       _mainWindow->propagateProject(item->shared_from_this(),_mainWindow);
     }
   }
+}
+
+void ProjectTreeView::setSelectedProjects(const QItemSelection &selected, const QItemSelection &deselected)
+{
+
 }
 
 QSize ProjectTreeView::sizeHint() const

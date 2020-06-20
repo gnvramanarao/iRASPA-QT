@@ -215,16 +215,20 @@ bool SceneTreeViewModel::setData(const QModelIndex &index, const QVariant &value
   {
     if (role == Qt::CheckStateRole)
     {
+      std::shared_ptr<Scene> scene = parentForMovie(movie->shared_from_this());
+      std::vector<std::shared_ptr<Structure>> structures = scene->structures();
       if ((Qt::CheckState)value.toInt() == Qt::Checked)
       {
         //SData::instance().setStatus(index.row(),1);
         movie->setVisibility(true);
+        emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{structures.begin(), structures.end()});
         emit rendererReloadData();
         return true;
       }
       else
       {
         movie->setVisibility(false);
+        emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{structures.begin(), structures.end()});
         emit rendererReloadData();
         return true;
       }

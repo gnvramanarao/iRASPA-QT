@@ -43,6 +43,7 @@ HEADERS += \
     $$PWD/skpdbwriter.h \
     $$PWD/skposcarparser.h \
     $$PWD/skposcarwriter.h \
+    $$PWD/skstructure.h \
     $$PWD/skxyzparser.h \
     $$PWD/skxyzwriter.h \
     $$PWD/symmetrykit.h \

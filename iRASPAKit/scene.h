@@ -48,7 +48,7 @@ class Scene: public std::enable_shared_from_this<Scene>, public DisplayableProto
 {
 public:
   Scene();
-  Scene(const QUrl url, const SKColorSets& colorSets, ForceFieldSets &forcefieldSets, LogReporting *log);
+  Scene(const QUrl url, const SKColorSets& colorSets, ForceFieldSets &forcefieldSets, LogReporting *log, bool asSeparateProject, bool onlyAsymmetricUnit, bool asMolecule);
   const std::vector<std::shared_ptr<Movie>> movies() const {return _movies;}
   std::optional<int> findChildIndex(std::shared_ptr<Movie> movie);
   void setSelectedMovie(std::shared_ptr<Movie> movie) {_selectedMovie = movie;}
@@ -57,7 +57,7 @@ public:
   std::shared_ptr<Movie> selectedMovie();
   QString displayName() const override final;
   std::optional<int> selectMovieIndex();
-
+  std::vector<std::shared_ptr<Structure>> structures() const;
 private:
   qint64 _versionNumber{1};
   QString _displayName = QString("Scene");

@@ -50,20 +50,22 @@ class BondListView: public QTreeView, public MainWindowConsumer, public ProjectC
 public:
   BondListView(QWidget* parent = nullptr);
   QSize sizeHint() const override final;
-  void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode) override final;
-  void setSelectedFrame(std::shared_ptr<iRASPAStructure> iraspastructure);
   void setMainWindow(MainWindow* mainWindow) override final {_mainWindow = mainWindow;}
-  void setRootNode(std::shared_ptr<ProjectStructure> structure);
-  BondListViewModel* bondListModel() {return _bondModel.get();}
+
+  // update the bondListView when a new project is selected in the ProjectTreeView
+  void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode) override final;
+
+  // update the bondListView when (implicitely or explicitly) a new frame is selected in the Scene/Movie-ListView or frameListView
+  void setSelectedFrame(std::shared_ptr<iRASPAStructure> iraspastructure);
+
   void reloadSelection() override final;
   void reloadData() override final;
-  void setAtomModel(std::shared_ptr<AtomTreeViewModel> atomModel);
+
   std::shared_ptr<BondListViewModel> bondModel() {return _bondModel;}
 private:
   MainWindow* _mainWindow;
   std::shared_ptr<BondListViewModel> _bondModel;
-  std::shared_ptr<AtomTreeViewModel> _atomModel;
-  std::weak_ptr<iRASPAStructure> _iraspaStructure;
+  std::weak_ptr<iRASPAStructure> _iRASPAStructure;
   std::weak_ptr<ProjectTreeNode> _projectTreeNode;
   std::weak_ptr<iRASPAProject> _iRASPAProject;
 

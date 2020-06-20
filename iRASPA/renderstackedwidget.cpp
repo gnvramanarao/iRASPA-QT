@@ -30,11 +30,13 @@
 #include "renderstackedwidget.h"
 #include <iostream>
 #include <QMenu>
+#include <QObject>
 #include <QAction>
 #include <QtDebug>
 #include <iraspakit.h>
 #include "fixedaspectratiolayoutitem.h"
 #include "renderviewdeleteselectioncommand.h"
+#include "atomchangeselectioncommand.h"
 
 RenderStackedWidget::RenderStackedWidget(QWidget* parent ): QStackedWidget(parent ),
     _rubberBand(new QRubberBand(QRubberBand::Rectangle, this))
@@ -56,6 +58,33 @@ void RenderStackedWidget::setBondModel(std::shared_ptr<BondListViewModel> bondMo
   _bondModel = bondModel;
 }
 
+void RenderStackedWidget::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
+{
+  this->_projectTreeNode = projectTreeNode;
+  this->_project.reset();
+
+  if (projectTreeNode)
+  {
+    if(std::shared_ptr<iRASPAProject> iraspaProject = projectTreeNode->representedObject())
+    {
+      //QObject::connect(&iraspaProject->undoManager(),&QUndoStack::indexChanged, this, &RenderStackedWidget::reloadData, Qt::UniqueConnection);
+      if(std::shared_ptr<Project> project = iraspaProject->project())
+      {
+        if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
+        {
+          QSize size = frameSize();
+          double ratio = double(size.width()) / double(size.height());
+          projectStructure->setImageAspectRatio(ratio);
+          emit rendererWidgetResized();
+
+          this->_project = projectStructure;
+          this->_camera = projectStructure->camera();
+          _structures = projectStructure->structures();
+        }
+      }
+    }
+  }
+}
 
 void RenderStackedWidget::resizeEvent(QResizeEvent *event)
 {
@@ -66,44 +95,6 @@ void RenderStackedWidget::resizeEvent(QResizeEvent *event)
     project->setImageAspectRatio(ratio);
   }
   emit rendererWidgetResized();
-}
-
-void RenderStackedWidget::deleteSelection()
-{
-  qDebug() << "RenderStackedWidget delete";
-
-
-  if(std::shared_ptr<ProjectTreeNode> projectTreeNode = _projectTreeNode.lock())
-  {
-    if(projectTreeNode->isEditable())
-    {
-      if(std::shared_ptr<iRASPAProject> iRASPAProject = projectTreeNode->representedObject())
-      {
-        iRASPAProject->undoManager().beginMacro("delete selection");
-        if(std::shared_ptr<Project> project = iRASPAProject->project())
-        {
-          if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
-          {
-            for (std::shared_ptr<Structure> structure : projectStructure->flattenedStructures())
-            {
-              std::vector<std::shared_ptr<SKAtomTreeNode>> atoms = structure->atomsTreeController()->selectedAtomTreeNodes();
-              sort(atoms.begin(), atoms.end(), [](std::shared_ptr<SKAtomTreeNode> node1, std::shared_ptr<SKAtomTreeNode> node2) -> bool {
-                   return node1->indexPath() > node2->indexPath();});
-              std::vector<IndexPath> atomSelection;
-              std::transform(atoms.begin(),atoms.end(),std::back_inserter(atomSelection),[](std::shared_ptr<SKAtomTreeNode> node) -> IndexPath
-                        {return node->indexPath();});
-
-              std::vector<std::shared_ptr<SKAsymmetricBond>> bonds = structure->bondSetController()->selectedObjects();
-              std::set<int> bondSelection = structure->bondSetController()->selectionIndexSet();
-              RenderViewDeleteSelectionCommand *deleteSelectionCommand = new RenderViewDeleteSelectionCommand(_atomModel, _bondModel, _mainWindow, structure, atoms, atomSelection, bonds, bondSelection);
-              iRASPAProject->undoManager().push(deleteSelectionCommand);
-            }
-          }
-        }
-        iRASPAProject->undoManager().endMacro();
-      }
-    }
-  }
 }
 
 
@@ -260,37 +251,12 @@ bool RenderStackedWidget::eventFilter(QObject *obj, QEvent *event)
         if (std::shared_ptr<RKCamera> camera = _camera.lock())
         {
           selectAsymetricAtomsInRectangle(rect, false);
-          /*
-          for(size_t i=0; i< _structures.size();i++)
-          {
-            for(size_t j=0; j<_structures[i].size(); j++)
-            {
-             // std::vector<double3> atomPositions = _structures[i][j]->atomPositions();
-             // std::vector<int> atomIds = camera->selectPositionsInRectangle(atomPositions, rect, _structures[i][j]->origin(), QRect(QPoint(0.0,0.0), this->size()));
-             // _structures[i][j]->setAtomSelection(atomIds);
-            }
-          }
-          reloadData();
-          emit updateAtomSelection();*/
         }
         break;
       case Tracking::draggedAddToSelection:
         if (std::shared_ptr<RKCamera> camera = _camera.lock())
         {
           selectAsymetricAtomsInRectangle(rect, true);
-
-          /*
-          for(size_t i=0; i< _structures.size();i++)
-          {
-            for(size_t j=0; j<_structures[i].size(); j++)
-            {
-            //  std::vector<double3> atomPositions = _structures[i][j]->atomPositions();
-            //  std::vector<int> atomIds = camera->selectPositionsInRectangle(atomPositions, rect, _structures[i][j]->origin(), QRect(QPoint(0.0,0.0), this->size()));
-            //  _structures[i][j]->addToAtomSelection(atomIds);
-            }
-          }
-          reloadData();
-          emit updateAtomSelection();*/
         }
         break;
       case Tracking::translateSelection:
@@ -345,91 +311,110 @@ bool RenderStackedWidget::eventFilter(QObject *obj, QEvent *event)
 
 void RenderStackedWidget::selectAsymetricAtomsInRectangle(QRect rect, bool extend)
 {
-  if (std::shared_ptr<RKCamera> camera = _camera.lock())
-  {
-    QRect viewPortBounds = QRect(QPoint(0.0,0.0), this->size());
-    double3 Points0 = camera->myGluUnProject(double3(double(rect.left()), double(viewPortBounds.size().height() - rect.top()), 0.0), viewPortBounds);
-    double3 Points1 = camera->myGluUnProject(double3(double(rect.left()), double(viewPortBounds.size().height() - rect.top()), 1.0), viewPortBounds);
-
-    double3 Points2 = camera->myGluUnProject(double3(double(rect.left()), double(viewPortBounds.size().height() - rect.bottom()), 0.0), viewPortBounds);
-    double3 Points3 = camera->myGluUnProject(double3(double(rect.left()), double(viewPortBounds.size().height() - rect.bottom()), 1.0), viewPortBounds);
-
-    double3 Points4 = camera->myGluUnProject(double3(double(rect.right()), double(viewPortBounds.size().height() - rect.bottom()), 0.0), viewPortBounds);
-    double3 Points5 = camera->myGluUnProject(double3(double(rect.right()), double(viewPortBounds.size().height() - rect.bottom()), 1.0), viewPortBounds);
-
-    double3 Points6 = camera->myGluUnProject(double3(double(rect.right()), double(viewPortBounds.size().height() - rect.top()), 0.0), viewPortBounds);
-    double3 Points7 = camera->myGluUnProject(double3(double(rect.right()), double(viewPortBounds.size().height() - rect.top()), 1.0), viewPortBounds);
-
-    double3 FrustrumPlane0 = double3::cross(Points0 - Points1, Points0 - Points2).normalise();
-    double3 FrustrumPlane1 = double3::cross(Points2 - Points3, Points2 - Points4).normalise();
-    double3 FrustrumPlane2 = double3::cross(Points4 - Points5, Points4 - Points6).normalise();
-    double3 FrustrumPlane3 = double3::cross(Points6 - Points7, Points6 - Points0).normalise();
-
-
-    std::function<bool(double3)> closure = [=](double3 position) -> bool {
-      return (double3::dot(position-Points0,FrustrumPlane0)<0) &&
-             (double3::dot(position-Points2,FrustrumPlane1)<0) &&
-             (double3::dot(position-Points4,FrustrumPlane2)<0) &&
-             (double3::dot(position-Points6,FrustrumPlane3)<0);
-    };
-
-    for(size_t i=0; i< _structures.size();i++)
-    {
-      for(size_t j=0; j<_structures[i].size(); j++)
-      {
-        std::set<int> indexSetSelectedAtoms = _structures[i][j]->filterCartesianAtomPositions(closure);
-        std::set<int> indexSetSelectedBonds = _structures[i][j]->filterCartesianBondPositions(closure);
-
-        qDebug() << i << j << "indexSetSelectedAtoms: " << indexSetSelectedAtoms.size();
-        qDebug() << i << j << "indexSetSelectedBonds: " << indexSetSelectedBonds.size();
-
-
-
-        if(extend)
-        {
-          _structures[i][j]->addToAtomSelection(indexSetSelectedAtoms);
-          _structures[i][j]->bondSetController()->addSelectedObjects(indexSetSelectedBonds);
-        }
-        else
-        {
-          _structures[i][j]->setAtomSelection(indexSetSelectedAtoms);
-          _structures[i][j]->bondSetController()->setSelectedObjects(indexSetSelectedBonds);
-        }
-      }
-    }
-    reloadData();
-    emit updateAtomSelection();
-    emit updateBondSelection();
-  }
-}
-
-
-void RenderStackedWidget::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
-{
-  this->_projectTreeNode = projectTreeNode;
-  this->_project.reset();
-
-  if (projectTreeNode)
+  if (std::shared_ptr<ProjectTreeNode> projectTreeNode = _projectTreeNode.lock())
   {
     if(std::shared_ptr<iRASPAProject> iraspaProject = projectTreeNode->representedObject())
     {
-      if(std::shared_ptr<Project> project = iraspaProject->project())
+      if (std::shared_ptr<RKCamera> camera = _camera.lock())
       {
-        if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
-        {
-		      QSize size = frameSize();
-		      double ratio = double(size.width()) / double(size.height());
-		      projectStructure->setImageAspectRatio(ratio);
-		      emit rendererWidgetResized();
+        QRect viewPortBounds = QRect(QPoint(0.0,0.0), this->size());
+        double3 Points0 = camera->myGluUnProject(double3(double(rect.left()), double(viewPortBounds.size().height() - rect.top()), 0.0), viewPortBounds);
+        double3 Points1 = camera->myGluUnProject(double3(double(rect.left()), double(viewPortBounds.size().height() - rect.top()), 1.0), viewPortBounds);
 
-          this->_project = projectStructure;
-          this->_camera = projectStructure->camera();
-          _structures = projectStructure->structures();
+        double3 Points2 = camera->myGluUnProject(double3(double(rect.left()), double(viewPortBounds.size().height() - rect.bottom()), 0.0), viewPortBounds);
+        double3 Points3 = camera->myGluUnProject(double3(double(rect.left()), double(viewPortBounds.size().height() - rect.bottom()), 1.0), viewPortBounds);
+
+        double3 Points4 = camera->myGluUnProject(double3(double(rect.right()), double(viewPortBounds.size().height() - rect.bottom()), 0.0), viewPortBounds);
+        double3 Points5 = camera->myGluUnProject(double3(double(rect.right()), double(viewPortBounds.size().height() - rect.bottom()), 1.0), viewPortBounds);
+
+        double3 Points6 = camera->myGluUnProject(double3(double(rect.right()), double(viewPortBounds.size().height() - rect.top()), 0.0), viewPortBounds);
+        double3 Points7 = camera->myGluUnProject(double3(double(rect.right()), double(viewPortBounds.size().height() - rect.top()), 1.0), viewPortBounds);
+
+        double3 FrustrumPlane0 = double3::cross(Points0 - Points1, Points0 - Points2).normalise();
+        double3 FrustrumPlane1 = double3::cross(Points2 - Points3, Points2 - Points4).normalise();
+        double3 FrustrumPlane2 = double3::cross(Points4 - Points5, Points4 - Points6).normalise();
+        double3 FrustrumPlane3 = double3::cross(Points6 - Points7, Points6 - Points0).normalise();
+
+
+        std::function<bool(double3)> closure = [=](double3 position) -> bool {
+          return (double3::dot(position-Points0,FrustrumPlane0)<0) &&
+              (double3::dot(position-Points2,FrustrumPlane1)<0) &&
+              (double3::dot(position-Points4,FrustrumPlane2)<0) &&
+              (double3::dot(position-Points6,FrustrumPlane3)<0);
+        };
+        iraspaProject->undoManager().beginMacro("delete selection");
+        for(size_t i=0; i< _structures.size();i++)
+        {
+          for(size_t j=0; j<_structures[i].size(); j++)
+          {
+            std::shared_ptr<SKAtomTreeController> atomTreeController = _structures[i][j]->atomsTreeController();
+            std::shared_ptr<SKBondSetController> bondSetController = _structures[i][j]->bondSetController();
+
+            std::unordered_set<std::shared_ptr<SKAtomTreeNode>> previousAtomSelection = std::unordered_set<std::shared_ptr<SKAtomTreeNode>>(atomTreeController->selectedTreeNodes());
+            std::set<int> previousBondSelection = bondSetController->selectionIndexSet();
+
+            std::set<int> indexSetSelectedAtoms = _structures[i][j]->filterCartesianAtomPositions(closure);
+            std::set<int> indexSetSelectedBonds = _structures[i][j]->filterCartesianBondPositions(closure);
+
+            if(extend)
+            {
+              _structures[i][j]->addToAtomSelection(indexSetSelectedAtoms);
+              _structures[i][j]->bondSetController()->addSelectedObjects(indexSetSelectedBonds);
+            }
+            else
+            {
+              _structures[i][j]->setAtomSelection(indexSetSelectedAtoms);
+              _structures[i][j]->bondSetController()->setSelectedObjects(indexSetSelectedBonds);
+            }
+
+            std::unordered_set<std::shared_ptr<SKAtomTreeNode>> atomSelection = std::unordered_set<std::shared_ptr<SKAtomTreeNode>>(atomTreeController->selectedTreeNodes());
+            std::set<int> bondSelection = bondSetController->selectionIndexSet();
+
+            AtomChangeSelectionCommand *changeSelectionCommand = new AtomChangeSelectionCommand(_mainWindow, _structures[i][j], atomSelection, previousAtomSelection, bondSelection, previousBondSelection);
+            iraspaProject->undoManager().push(changeSelectionCommand);
+          }
         }
+        iraspaProject->undoManager().endMacro();
       }
     }
   }
 }
+
+void RenderStackedWidget::deleteSelection()
+{
+  if(std::shared_ptr<ProjectTreeNode> projectTreeNode = _projectTreeNode.lock())
+  {
+    if(projectTreeNode->isEditable())
+    {
+      if(std::shared_ptr<iRASPAProject> iRASPAProject = projectTreeNode->representedObject())
+      {
+        iRASPAProject->undoManager().beginMacro("delete selection");
+        if(std::shared_ptr<Project> project = iRASPAProject->project())
+        {
+          if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
+          {
+            for (std::shared_ptr<Structure> structure : projectStructure->flattenedStructures())
+            {
+              std::vector<std::shared_ptr<SKAtomTreeNode>> atoms = structure->atomsTreeController()->selectedAtomTreeNodes();
+              sort(atoms.begin(), atoms.end(), [](std::shared_ptr<SKAtomTreeNode> node1, std::shared_ptr<SKAtomTreeNode> node2) -> bool {
+                   return node1->indexPath() > node2->indexPath();});
+              std::vector<IndexPath> atomSelection;
+              std::transform(atoms.begin(),atoms.end(),std::back_inserter(atomSelection),[](std::shared_ptr<SKAtomTreeNode> node) -> IndexPath
+                        {return node->indexPath();});
+
+              std::vector<std::shared_ptr<SKAsymmetricBond>> bonds = structure->bondSetController()->selectedObjects();
+              std::set<int> bondSelection = structure->bondSetController()->selectionIndexSet();
+              RenderViewDeleteSelectionCommand *deleteSelectionCommand = new RenderViewDeleteSelectionCommand(_atomModel, _bondModel, _mainWindow, structure, atoms, atomSelection, bonds, bondSelection);
+              iRASPAProject->undoManager().push(deleteSelectionCommand);
+            }
+          }
+        }
+        iRASPAProject->undoManager().endMacro();
+      }
+    }
+  }
+}
+
 
 void RenderStackedWidget::ShowContextMenu(const QPoint &pos)
 {
@@ -693,9 +678,9 @@ void RenderStackedWidget::redrawWithPictureQuality()
 
 void RenderStackedWidget::invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>> structures)
 {
+  std::cout << "invalidateCachedAmbientOcclusionTexture: " << structures.size() << std::endl;
   if (RKRenderViewController* widget = dynamic_cast<RKRenderViewController*>(currentWidget()))
   {
-    std::cout << "invalidateCachedAmbientOcclusionTexture: " << structures.size() << std::endl;
     widget->invalidateCachedAmbientOcclusionTexture(structures);
   }
 }

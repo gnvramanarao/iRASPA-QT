@@ -34,6 +34,12 @@ Protein::Protein()
 
 }
 
+Protein::Protein(std::shared_ptr<SKStructure> structure): Structure(structure)
+{
+  expandSymmetry();
+  _atomsTreeController->setTags();
+}
+
 // MARK: Rendering
 // =====================================================================
 

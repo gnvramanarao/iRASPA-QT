@@ -106,6 +106,7 @@ void ElementListWidgetController::setMainWindow(MainWindow *mainWindow)
 
 void ElementListWidgetController::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 {
+  _projectStructure = nullptr;
   if (projectTreeNode)
   {
     if(std::shared_ptr<iRASPAProject> iraspaProject = projectTreeNode->representedObject())
@@ -114,14 +115,12 @@ void ElementListWidgetController::setProject(std::shared_ptr<ProjectTreeNode> pr
       {
         if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
         {
-           std::cout << "setProject : " << projectTreeNode->displayName().toStdString() << std::endl;
           _projectStructure = projectStructure;
-          return;
+          _structures = projectStructure->flattenedStructures();
         }
       }
     }
   }
-  _projectStructure = nullptr;
 }
 
 void ElementListWidgetController::reloadData()

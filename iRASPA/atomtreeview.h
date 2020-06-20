@@ -49,20 +49,24 @@ class AtomTreeView: public QTreeView, public MainWindowConsumer, public ProjectC
 public:
   AtomTreeView(QWidget* parent = nullptr);
   QSize sizeHint() const override final;
+
   void setMainWindow(MainWindow* mainWindow) override final {_mainWindow = mainWindow;}
+  void setBondModel(std::shared_ptr<BondListViewModel> bondModel);
+
+  // update the atomTreeView when a new project is selected in the ProjectTreeView
   void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode) override final;
+
+  // update the atomTreeView when (implicitely or explicitly) a new frame is selected in the Scene/Movie-ListView or frameListView
   void setSelectedFrame(std::shared_ptr<iRASPAStructure> structure);
 
-  void setRootNode(std::shared_ptr<ProjectStructure> _iraspaStructure);
-  void setAtomController(std::shared_ptr<SKAtomTreeController> atomController);
-  void setBondController(std::shared_ptr<SKBondSetController> bondController);
-  AtomTreeViewModel* atomTreeModel() {return _atomModel.get();}
   void reloadData() override final;
+  void reloadSelection() override final;
+
   virtual void dropEvent(QDropEvent * event) final override;
   void paintEvent(QPaintEvent *event) override final;
   void startDrag(Qt::DropActions supportedActions) override final;
   void dragMoveEvent(QDragMoveEvent *event) override final;
-  void setBondModel(std::shared_ptr<BondListViewModel> bondModel);
+
   std::shared_ptr<AtomTreeViewModel> atomModel() {return _atomModel;}
 private:
   QRect _dropIndicatorRect;
@@ -91,7 +95,6 @@ protected:
 public slots:
   void setAtomTreeModel(const QModelIndex &current, const QModelIndex &previous);
   void ShowContextMenu(const QPoint &pos);
-  void reloadSelection() override final;
 signals:
   void rendererReloadData();
   void invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>> structures);

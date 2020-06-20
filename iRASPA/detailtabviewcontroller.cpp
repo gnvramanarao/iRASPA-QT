@@ -65,28 +65,3 @@ void DetailTabViewController::reloadTab(int tab)
   }
 }
 
-void DetailTabViewController::setTreeControllers(std::shared_ptr<SKAtomTreeController> atomController, std::shared_ptr<SKBondSetController> bondController)
-{
-  _atomTreeView->setAtomController(atomController);
-  _atomTreeView->setBondController(bondController);
-  foreach(QObject *child, currentWidget()->children())
-  {
-    if (AtomTreeView* widget = dynamic_cast<AtomTreeView*>(child))
-    {
-      _atomTreeView->reloadData();
-    }
-  }
-}
-
-void DetailTabViewController::setBondSetController(std::shared_ptr<ProjectStructure> treeController)
-{
-  _bondListView->setRootNode(treeController);
-
-  foreach(QObject *child, currentWidget()->children())
-  {
-    if (BondListView* widget = dynamic_cast<BondListView*>(child))
-    {
-      _bondListView->reloadData();
-    }
-  }
-}

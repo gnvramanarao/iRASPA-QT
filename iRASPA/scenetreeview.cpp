@@ -53,6 +53,25 @@ SceneTreeView::SceneTreeView(QWidget* parent): QTreeView(parent ), _model(std::m
 
 }
 
+void SceneTreeView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
+{
+  if (projectTreeNode)
+  {
+    if(std::shared_ptr<iRASPAProject> iraspaProject = projectTreeNode->representedObject())
+    {
+      if(std::shared_ptr<Project> project = iraspaProject->project())
+      {
+        if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
+        {
+          _sceneList = projectStructure->getSceneTreeModel();
+          _model->setSceneList(_sceneList);
+          expandAll();
+        }
+      }
+     }
+  }
+}
+
 
 void SceneTreeView::setRootNode(std::shared_ptr<SceneList> sceneList)
 {
@@ -99,11 +118,8 @@ void SceneTreeView::selectionChanged(const QItemSelection &selected, const QItem
 {
    if (selectedIndexes().isEmpty())
    {
-     std::cout << "AVOID EMPTY SELECTION" << std::endl;
      selectionModel()->select(selected, QItemSelectionModel::QItemSelectionModel::Deselect);
      selectionModel()->select(deselected, QItemSelectionModel::QItemSelectionModel::SelectCurrent);
-     //QTreeView::selectionChanged(deselected, selected);
-     //update();
      return;
    }
 

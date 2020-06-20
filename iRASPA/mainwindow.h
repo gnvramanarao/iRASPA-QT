@@ -47,7 +47,7 @@ class MainWindow;
 
 struct ProjectConsumer;
 
-class MainWindow : public QMainWindow, public ProjectConsumer
+class MainWindow : public QMainWindow  //, public ProjectConsumer
 {
   Q_OBJECT
 
@@ -58,7 +58,6 @@ public:
   void propagateLogReporter(LogReporting* logReporting, QObject *widget);
   std::shared_ptr<ProjectTreeController> projectTreeController() {return _documentData.projectTreeController();}
   Ui::MainWindow* mainWindowUI() {return ui;}
-  void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode) override final;
   SKColorSets &colorSets() {return _colorSets;}
   ForceFieldSets &forceFieldSets() {return _forceFieldSets;}
   ~MainWindow();
@@ -75,25 +74,20 @@ private:
   ForceFieldSets _forceFieldSets{};
   int projectInsertionIndex();
 
-	void readLibraryOfStructures();
-  // QMenu *helpMenu;
-   QAction *helpAction;
-  // QAction *aboutAction;
-   //HelpWidget* helpWindow;
-   void acknowledgements();
-   QDir directoryOf(const QString &subdir);
-   void createMenus();
-   QMenu *editMenu = nullptr;
-   QAction *undoAction = nullptr;
-   QAction *redoAction = nullptr;
+  void readLibraryOfStructures();
+  QAction *helpAction;
+  void acknowledgements();
+  QDir directoryOf(const QString &subdir);
+  void createMenus();
+  QMenu *editMenu = nullptr;
+  QAction *undoAction = nullptr;
+  QAction *redoAction = nullptr;
 public slots:
-   void importFile();
-   void openFile();
-   void saveFile();
-   void showAboutDialog();
-   int slideRightPanel(void);
-   int slideDownPanel(void);
-   int slideLeftPanel(void);
-
-
+  void importFile();
+  void openFile();
+  void saveFile();
+  void showAboutDialog();
+  int slideRightPanel(void);
+  int slideDownPanel(void);
+  int slideLeftPanel(void);
 };

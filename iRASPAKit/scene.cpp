@@ -61,71 +61,84 @@ QString Scene::displayName() const
  return _displayName;
 }
 
-Scene::Scene(QUrl url, const SKColorSets& colorSets, ForceFieldSets& forcefieldSets, LogReporting *log)
+Scene::Scene(QUrl url, const SKColorSets& colorSets, ForceFieldSets& forcefieldSets, LogReporting *log, bool asSeparateProject, bool onlyAsymmetricUnit, bool asMolecule)
 {
 	QFile file(url.toLocalFile());
 	QFileInfo info(file);
 	if (file.open(QIODevice::ReadOnly))
 	{
-	QTextStream in(&file);
+    QTextStream in(&file);
 
-	_displayName = info.baseName();
+    _displayName = info.baseName();
 
-	QString fileContent = in.readAll();
+    QString fileContent = in.readAll();
 
-	std::shared_ptr<SKParser> parser;
+    std::shared_ptr<SKParser> parser;
 
-	if (info.suffix() == "cif")
-	{
-		parser = std::make_shared<SKCIFParser>(fileContent, false, CharacterSet::whitespaceAndNewlineCharacterSet());
-	}
-	else if (info.suffix() == "pdb")
-	{
-		parser = std::make_shared<SKPDBParser>(fileContent, false, CharacterSet::whitespaceAndNewlineCharacterSet());
-	}
-	parser->startParsing();
+    if (info.suffix() == "cif")
+    {
+      parser = std::make_shared<SKCIFParser>(fileContent, onlyAsymmetricUnit, asMolecule, CharacterSet::whitespaceAndNewlineCharacterSet());
+    }
+    else if (info.suffix() == "pdb")
+    {
+      parser = std::make_shared<SKPDBParser>(fileContent, onlyAsymmetricUnit, asMolecule, CharacterSet::whitespaceAndNewlineCharacterSet());
+    }
+    parser->startParsing();
 
-	std::vector<std::vector<std::tuple<std::shared_ptr<SKAtomTreeController>, std::shared_ptr<SKCell>, int>>> movies = parser->movies();
+    std::vector<std::vector<std::shared_ptr<SKStructure>>> movies = parser->movies();
 
-	for (std::vector<std::tuple<std::shared_ptr<SKAtomTreeController>, std::shared_ptr<SKCell>, int>> movieFrames : movies)
-	{
-		std::shared_ptr<Movie> movie = std::make_shared<Movie>(info.baseName());
-		for (std::tuple<std::shared_ptr<SKAtomTreeController>, std::shared_ptr<SKCell>, int> frame : movieFrames)
-		{
-			std::shared_ptr<Crystal> crystal = std::make_shared<Crystal>(std::get<0>(frame));
+    for (std::vector<std::shared_ptr<SKStructure>> movieFrames : movies)
+    {
+      std::shared_ptr<Movie> movie = std::make_shared<Movie>(info.baseName());
+      for (std::shared_ptr<SKStructure> frame : movieFrames)
+      {
+        std::shared_ptr<Structure> structure;
 
-            crystal->setRepresentationStyle(Structure::RepresentationStyle::defaultStyle, colorSets);
-			crystal->setAtomForceFieldIdentifier("Default", forcefieldSets);
-			//crystal->recheckRepresentationStyle();
+        switch(frame->kind)
+        {
+        case SKStructure::Kind::crystal:
+          structure = std::make_shared<Crystal>(frame);
+          break;
+        case SKStructure::Kind::molecularCrystal:
+          structure = std::make_shared<MolecularCrystal>(frame);
+          break;
+        case SKStructure::Kind::molecule:
+          structure = std::make_shared<Molecule>(frame);
+          break;
+        case SKStructure::Kind::protein:
+          structure = std::make_shared<Protein>(frame);
+          break;
+        case SKStructure::Kind::proteinCrystal:
+          structure = std::make_shared<ProteinCrystal>(frame);
+          break;
+        default:
+          if (log)
+          {
+            log->logMessage(LogReporting::ErrorLevel::info, "Unknown structure format");
+          }
+          return;
+        }
 
-			crystal->setCell(std::get<1>(frame));
+        structure->setRepresentationStyle(Structure::RepresentationStyle::defaultStyle, colorSets);
+        structure->setAtomForceFieldIdentifier("Default", forcefieldSets);
 
-			crystal->setSpaceGroupHallNumber(std::get<2>(frame));
+        structure->computeBonds();
 
-			/*
-			crystal->expandSymmetry();
-			crystal->setTags();
+        structure->reComputeBoundingBox();
+        structure->recomputeDensityProperties();
 
+        std::shared_ptr<iRASPAStructure> iraspastructure = std::make_shared<iRASPAStructure>(structure);
 
+        if (log)
+        {
+          int numberOfAtoms = structure->atomsTreeController()->flattenedLeafNodes().size();
+          log->logMessage(LogReporting::ErrorLevel::info, "Read " + QString::number(numberOfAtoms) + " atoms");
+        }
 
-			crystal->computeBonds();
-*/
-			crystal->reComputeBoundingBox();
-
-			std::shared_ptr<iRASPAStructure> iraspastructure = std::make_shared<iRASPAStructure>(crystal);
-
-			crystal->recomputeDensityProperties();
-
-			if (log)
-			{
-				int numberOfAtoms = crystal->atomsTreeController()->flattenedLeafNodes().size();
-				log->logMessage(LogReporting::ErrorLevel::info, "Read " + QString::number(numberOfAtoms) + " atoms");
-			}
-
-			movie->append(iraspastructure);
-		}
-		_movies.push_back(movie);
-	}
+        movie->append(iraspastructure);
+      }
+      _movies.push_back(movie);
+    }
   }
 	else
 	{
@@ -160,6 +173,23 @@ std::optional<int> Scene::findChildIndex(std::shared_ptr<Movie> movie)
   }
 
   return std::nullopt;
+}
+
+std::vector<std::shared_ptr<Structure>> Scene::structures() const
+{
+  std::vector<std::shared_ptr<Structure>> structures = std::vector<std::shared_ptr<Structure>>();
+
+  for(std::shared_ptr<Movie> movie: _movies)
+  {
+    for(std::shared_ptr<iRASPAStructure> frame: movie->frames())
+    {
+      if(std::shared_ptr<Structure> structure = frame->structure())
+      {
+        structures.push_back(structure);
+      }
+    }
+  }
+  return structures;
 }
 
 QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<Scene> &scene)

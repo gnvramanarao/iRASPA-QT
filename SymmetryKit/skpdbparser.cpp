@@ -33,21 +33,33 @@
 #include "skasymmetricatom.h"
 #include "skelement.h"
 
+SKPDBParser::SKPDBParser(QString fileContent, bool onlyAsymmetricUnitCell, bool asMolecule, CharacterSet charactersToBeSkipped): SKParser(),
+  _scanner(fileContent, charactersToBeSkipped), _onlyAsymmetricUnitCell(onlyAsymmetricUnitCell),_asMolecule(asMolecule), _frame(std::make_shared<SKStructure>())
+{
+  _frame->kind = SKStructure::Kind::molecule;
+}
 
 void SKPDBParser::addFrameToStructure(size_t currentMovie, size_t currentFrame)
 {
-  if (std::get<0>(_frame)->rootNodes().size() > 0)
+  if (_frame->atoms.size() > 0)
   {
     if (currentMovie >= _movies.size())
     {
-      std::vector<std::tuple<std::shared_ptr<SKAtomTreeController>,std::shared_ptr<SKCell>, int>> movie = std::vector<std::tuple<std::shared_ptr<SKAtomTreeController>,std::shared_ptr<SKCell>,int>>();
+      std::vector<std::shared_ptr<SKStructure>> movie = std::vector<std::shared_ptr<SKStructure>>();
       _movies.push_back(movie);
     }
 
     if (currentFrame >= _movies[currentMovie].size())
     {
+      if(_cell && !_asMolecule)
+      {
+        _frame->cell = std::make_shared<SKCell>(*_cell);
+        _frame->kind = SKStructure::Kind::molecularCrystal;
+      }
+
       _movies[currentMovie].push_back(_frame);
-      _frame = std::make_tuple(std::make_shared<SKAtomTreeController>(),std::make_shared<SKCell>(),1);
+      _frame = std::make_shared<SKStructure>();
+      _frame->kind = SKStructure::Kind::molecule;
     }
   }
 }
@@ -129,7 +141,7 @@ void SKPDBParser::startParsing()
         int integerValue = modelString.toInt(&success);
         if(success)
         {
-          _frame = std::make_tuple(std::make_shared<SKAtomTreeController>(),std::make_shared<SKCell>(), 1);
+          _frame = std::make_shared<SKStructure>();
           currentFrame = std::max(0, integerValue-1);
           currentFrame = modelNumber;
           modelNumber += 1;
@@ -174,15 +186,22 @@ void SKPDBParser::startParsing()
           _beta = betaAngleString.toDouble(&succes);
           _gamma = gammaAngleString.toDouble(&succes);
         }
-        std::get<1>(_frame) = std::make_shared<SKCell>(_a, _b, _c, _alpha * M_PI/180.0, _beta*M_PI/180.0, _gamma*M_PI/180.0);
-
+        _cell = SKCell(_a, _b, _c, _alpha * M_PI/180.0, _beta*M_PI/180.0, _gamma*M_PI/180.0);
+        if(!_asMolecule)
+        {
+          _frame->kind = SKStructure::Kind::molecularCrystal;
+        }
         if(scannedLine.size()>=66)
         {
           QStringRef spaceGroupString(&scannedLine, 55, 11);
 
-          if(std::optional<int> spaceGroupHallNumber = SKSpaceGroup::HallNumberFromHMString(spaceGroupString.toString()))
+          if(_onlyAsymmetricUnitCell)
           {
-            std::get<2>(_frame) = *spaceGroupHallNumber;
+            _frame->spaceGroupHallNumber = 1;
+          }
+          else if(std::optional<int> spaceGroupHallNumber = SKSpaceGroup::HallNumberFromHMString(spaceGroupString.toString()))
+          {
+            _frame->spaceGroupHallNumber = *spaceGroupHallNumber;
           }
         }
         continue;
@@ -208,6 +227,9 @@ void SKPDBParser::startParsing()
       {
         std::shared_ptr<SKAsymmetricAtom> atom = std::make_shared<SKAsymmetricAtom>();
 
+
+        QStringRef residueName(&scannedLine, 17, 3);
+
         QStringRef positionsX(&scannedLine, 30, 8);
         QStringRef positionsY(&scannedLine, 38, 8);
         QStringRef positionsZ(&scannedLine, 46, 8);
@@ -228,7 +250,7 @@ void SKPDBParser::startParsing()
         position.x = positionsX.toDouble(&succes);
         position.y = positionsY.toDouble(&succes);
         position.z = positionsZ.toDouble(&succes);
-        atom->setPosition(std::get<1>(_frame)->convertToFractional(position));
+        atom->setPosition(position);
 
         QString chemicalElement = chemicalElementString.toString().simplified().toLower();
         chemicalElement.replace(0, 1, chemicalElement[0].toUpper());
@@ -238,8 +260,7 @@ void SKPDBParser::startParsing()
            atom->setDisplayName(chemicalElement);
         }
 
-        std::shared_ptr<SKAtomTreeNode> atomTreeNode = std::make_shared<SKAtomTreeNode>(atom);
-        std::get<0>(_frame)->appendToRootnodes(atomTreeNode);
+        _frame->atoms.push_back(atom);
         continue;
       }
 

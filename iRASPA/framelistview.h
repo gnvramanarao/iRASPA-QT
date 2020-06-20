@@ -59,7 +59,7 @@ private:
   std::shared_ptr<SceneList> _sceneList;
   void keyPressEvent(QKeyEvent *event) override final;
 public slots:
-  void setRootNode(std::shared_ptr<Movie> movie);
+  //void setRootNode(std::shared_ptr<Movie> movie);
 private slots:
   void currentFrameChanged(const QModelIndex &current);
 signals:

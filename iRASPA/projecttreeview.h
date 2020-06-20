@@ -69,5 +69,6 @@ private:
   QUndoStack _undoStack;
 public slots:
   void setSelectedProject(const QModelIndex& current, const QModelIndex& previous);
+  void setSelectedProjects(const QItemSelection &selected, const QItemSelection &deselected);
   void ShowContextMenu(const QPoint &pos);
 };

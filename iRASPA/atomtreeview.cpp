@@ -77,16 +77,6 @@ void AtomTreeView::setBondModel(std::shared_ptr<BondListViewModel> bondModel)
   _bondModel = bondModel;
 }
 
-void AtomTreeView::setAtomController(std::shared_ptr<SKAtomTreeController> atomController)
-{
-  //_atomTreeController = atomController;
-}
-
-void AtomTreeView::setBondController(std::shared_ptr<SKBondSetController> bondController)
-{
-  //_bondController = bondController;
-}
-
 void AtomTreeView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 {
   _projectTreeNode = projectTreeNode;
@@ -145,12 +135,6 @@ SKAtomTreeNode* AtomTreeView::getItem(const QModelIndex &index) const
   }
   return nullptr;
 }
-
-void AtomTreeView::setRootNode(std::shared_ptr<ProjectStructure> structure)
-{
-
-}
-
 
 void AtomTreeView::keyPressEvent(QKeyEvent *event)
 {

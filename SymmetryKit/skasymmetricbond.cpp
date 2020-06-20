@@ -30,7 +30,7 @@
 #include <qdebug.h>
 #include "skasymmetricbond.h"
 
-SKAsymmetricBond::SKAsymmetricBond(std::shared_ptr<SKAsymmetricAtom> a, std::shared_ptr<SKAsymmetricAtom> b)
+SKAsymmetricBond::SKAsymmetricBond(std::shared_ptr<SKAsymmetricAtom> a, std::shared_ptr<SKAsymmetricAtom> b): _isVisible(true), _bondType(SKBondType::singleBond)
 {
   if(a->tag() < b->tag())
   {
@@ -49,7 +49,6 @@ bool SKAsymmetricBond::operator==(SKAsymmetricBond const& rhs) const
   return (this->atom1().get() == rhs.atom1().get() && this->atom2().get() == rhs.atom2().get()) ||
          (this->atom1().get() == rhs.atom2().get() && this->atom2().get() == rhs.atom1().get());
 }
-
 
 
 QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<SKAsymmetricBond> &asymmetricBond)

@@ -36,6 +36,7 @@ class MolecularCrystal: public Structure
 {
 public:
   MolecularCrystal();
+  MolecularCrystal(std::shared_ptr<SKStructure> structure);
 
 	iRASPAStructureType structureType() override final  { return iRASPAStructureType::molecularCrystal; }
 

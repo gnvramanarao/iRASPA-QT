@@ -57,6 +57,7 @@ private:
   std::shared_ptr<BondListViewModel> _bondModel;
   std::weak_ptr<ProjectTreeNode> _projectTreeNode;
   std::weak_ptr<ProjectStructure> _project;
+  std::weak_ptr<iRASPAProject> _iRASPAProject;
   std::weak_ptr<RKCamera> _camera;
   std::vector<std::vector<std::shared_ptr<Structure>>> _structures;
   QRubberBand* _rubberBand;

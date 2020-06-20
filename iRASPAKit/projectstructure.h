@@ -44,8 +44,8 @@ class ProjectStructure: public Project, public RKRenderDataSource
 public:
   ProjectStructure();
   ~ProjectStructure() override;
-  ProjectStructure(QString filename, SKColorSets& colorSets, ForceFieldSets& forcefieldSets, LogReporting *log);
-  ProjectStructure(QList<QUrl> fileURLs, SKColorSets& colorSets, ForceFieldSets& forcefieldSets, LogReporting *log);
+  ProjectStructure(QString filename, SKColorSets& colorSets, ForceFieldSets& forcefieldSets, LogReporting *log, bool asSeparateProject, bool onlyAsymmetricUnit, bool asMolecule);
+  ProjectStructure(QList<QUrl> fileURLs, SKColorSets& colorSets, ForceFieldSets& forcefieldSets, LogReporting *log, bool asSeparateProject, bool onlyAsymmetricUnit, bool asMolecule);
 
 
   std::shared_ptr<SceneList> getSceneTreeModel();

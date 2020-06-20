@@ -259,6 +259,7 @@ void CellTreeWidgetController::expandSymmetryItem()
 
 void CellTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 {
+  _projectStructure = nullptr;
   if (projectTreeNode)
   {
     if(std::shared_ptr<iRASPAProject> iraspaProject = projectTreeNode->representedObject())
@@ -268,13 +269,12 @@ void CellTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode> proje
         if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
         {
           _projectStructure = projectStructure;
+          _structures = projectStructure->flattenedStructures();
           reloadData();
-          return;
         }
       }
     }
   }
-  _projectStructure = nullptr;
 }
 
 

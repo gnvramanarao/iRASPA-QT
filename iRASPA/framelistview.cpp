@@ -47,6 +47,7 @@ FrameListView::FrameListView(QWidget* parent): QListView(parent ), _model(std::m
 void FrameListView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 {
   _projectTreeNode = projectTreeNode;
+  _sceneList = nullptr;
   if (projectTreeNode)
   {
     if(std::shared_ptr<iRASPAProject> iraspaProject = projectTreeNode->representedObject())
@@ -56,12 +57,14 @@ void FrameListView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
         if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
         {
           _sceneList = projectStructure->sceneList();
-          return;
+
+          _movie = projectStructure->getFrameListModel();
+          _model->setMovie(_movie);
         }
       }
     }
   }
-  _sceneList = nullptr;
+
 }
 
 void FrameListView::keyPressEvent(QKeyEvent *event)
@@ -134,11 +137,12 @@ void FrameListView::currentFrameChanged(const QModelIndex &current)
   }
 }
 
+/*
 void FrameListView::setRootNode(std::shared_ptr<Movie> movie)
 {
   _movie = movie;
   _model->setMovie(movie);
-}
+}*/
 
 QSize FrameListView::sizeHint() const
 {

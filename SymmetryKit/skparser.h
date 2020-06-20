@@ -37,6 +37,7 @@
 #include <string>
 #include "skatomtreecontroller.h"
 #include "skcell.h"
+#include <skstructure.h>
 
 class SKParser
 {
@@ -44,9 +45,9 @@ public:
   SKParser();
   virtual ~SKParser() = 0;
   virtual void startParsing() = 0;
-  std::vector<std::vector<std::tuple<std::shared_ptr<SKAtomTreeController>, std::shared_ptr<SKCell>, int>>> movies();
+  std::vector<std::vector<std::shared_ptr<SKStructure>>> movies();
 protected:
   double _a,_b,_c;
   double _alpha,_beta,_gamma;
-  std::vector<std::vector<std::tuple<std::shared_ptr<SKAtomTreeController>, std::shared_ptr<SKCell>, int>>> _movies;
+  std::vector<std::vector<std::shared_ptr<SKStructure>>> _movies;
 };

@@ -74,6 +74,7 @@ AppearanceTreeWidgetController::AppearanceTreeWidgetController(QWidget* parent):
   _appearanceAtomsForm->atomRepresentationStyle->insertItem(0,"Default");
   _appearanceAtomsForm->atomRepresentationStyle->insertItem(1,"Fancy");
   _appearanceAtomsForm->atomRepresentationStyle->insertItem(2,"Licorice");
+  _appearanceAtomsForm->atomRepresentationStyle->insertItem(3,"Objects");
 
   _appearanceAtomsForm->colorSchemeComboBox->insertItem(0,"Jmol");
   _appearanceAtomsForm->colorSchemeComboBox->insertItem(1,"Rasmol modern");
@@ -330,6 +331,7 @@ AppearanceTreeWidgetController::AppearanceTreeWidgetController(QWidget* parent):
 
 void AppearanceTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 {
+   _projectStructure = nullptr;
   if (projectTreeNode)
   {
     if(std::shared_ptr<iRASPAProject> iraspaProject = projectTreeNode->representedObject())
@@ -338,17 +340,13 @@ void AppearanceTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode>
       {
         if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
         {
-           std::cout << "setProject : " << projectTreeNode->displayName().toStdString() << std::endl;
           _projectStructure = projectStructure;
+          _structures = projectStructure->flattenedStructures();
           reloadData();
-          return;
         }
       }
     }
   }
-  _projectStructure = nullptr;
-
-  emit rendererReloadData();
 }
 
 void AppearanceTreeWidgetController::setStructures(std::vector<std::shared_ptr<Structure>> structures)

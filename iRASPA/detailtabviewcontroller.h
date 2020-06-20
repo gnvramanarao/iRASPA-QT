@@ -47,22 +47,7 @@ class DetailTabViewController: public QTabWidget
 public:
   DetailTabViewController(QWidget* parent = nullptr );
   QSize sizeHint() const override final;
-  void setCameraTreeView(CameraTreeWidgetController* view) {_cameraTreeView = view;}
-  void setElementListView(ElementListWidgetController* view) {_elementListview = view;}
-  void setInfoTreeView(InfoTreeWidgetController* view) {_infoTreeView = view;}
-  void setCellTreeView(CellTreeWidgetController* view) {_cellTreeView = view;}
-  void setAtomTreeView(AtomTreeView* view) {_atomTreeView = view;}
-  void setBondListView(BondListView* view) {_bondListView = view;}
-private:
-  CameraTreeWidgetController* _cameraTreeView;
-  ElementListWidgetController* _elementListview;
-  InfoTreeWidgetController* _infoTreeView;
-  CellTreeWidgetController* _cellTreeView;
-  AtomTreeView* _atomTreeView;
-  BondListView* _bondListView;
 public slots:
   void reloadTab(int tab);
   void rendererWidgetResized();
-  void setTreeControllers(std::shared_ptr<SKAtomTreeController> atomController, std::shared_ptr<SKBondSetController> bondController);
-  void setBondSetController(std::shared_ptr<ProjectStructure> structure);
 };

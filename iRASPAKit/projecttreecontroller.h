@@ -72,6 +72,8 @@ public:
     std::shared_ptr<ProjectTreeNode> icloudProjects() {return _icloudProjects;}
 
     std::unordered_set<std::shared_ptr<ProjectTreeNode>>& selectedTreeNodes() {return _selectedTreeNodes;}
+    std::shared_ptr<ProjectTreeNode>& selectedTreeNode() {return _selectedTreeNode;}
+    void setSelectedTreeNode(std::shared_ptr<ProjectTreeNode> selectedNode) {_selectedTreeNode = selectedNode;}
 private:
     qint64 _versionNumber{1};
 

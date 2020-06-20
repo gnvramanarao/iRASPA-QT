@@ -39,7 +39,34 @@
 
 SKCell::SKCell()
 {
-  SKCell(90.0, 90.0, 90.0, 90.0*M_PI/180.0, 90.0*M_PI/180.0, 90.0*M_PI/180.0);
+  double a=20.0;
+  double b=20.0;
+  double c=20.0;
+  double alpha=90.0*M_PI/180.0;
+  double beta=90.0*M_PI/180.0;
+  double gamma=90.0*M_PI/180.0;
+
+  double temp = (cos(alpha) - cos(gamma) * cos(beta)) / sin(gamma);
+
+  double3 v1 = double3(a, 0.0, 0.0);
+  double3 v2 = double3(b * cos(gamma), b * sin(gamma), 0.0);
+  double3 v3 = double3(c * cos(beta), c * temp, c * sqrt(1.0 - cos(beta)*cos(beta)-temp*temp));
+  _unitCell = double3x3(v1, v2, v3);
+
+  _inverseUnitCell = _unitCell.inverse();
+  _fullCell = _unitCell;
+
+  int dx = _maximumReplica[0] - _minimumReplica[0] + 1;
+  int dy = _maximumReplica[1] - _minimumReplica[1] + 1;
+  int dz = _maximumReplica[2] - _minimumReplica[2] + 1;
+
+  _fullCell[0][0] *= dx;  _fullCell[1][0] *= dy;  _fullCell[2][0] *= dz;
+  _fullCell[0][1] *= dx;  _fullCell[1][1] *= dy;  _fullCell[2][1] *= dz;
+  _fullCell[0][2] *= dx;  _fullCell[1][2] *= dy;  _fullCell[2][2] *= dz;
+
+  _inverseFullCell = _fullCell.inverse();
+
+  _boundingBox = enclosingBoundingBox();
 }
 
 SKCell::SKCell(double a, double b, double c, double alpha, double beta, double gamma)

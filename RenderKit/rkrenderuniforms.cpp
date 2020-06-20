@@ -159,7 +159,6 @@ RKStructureUniforms::RKStructureUniforms(int sceneIdentifier, int movieIdentifie
 
   if(RKRenderPrimitiveObjectsSource *source = dynamic_cast<RKRenderPrimitiveObjectsSource*>(structure.get()))
   {
-    qDebug() << "YEAAAHHHH";
     float4x4 primitiveModelMatrix = float4x4(double4x4(source->primitiveOrientation()));
     float4x4 primitiveNormalMatrix = float4x4(double3x3(source->primitiveOrientation()).inverse().transpose());  // tranpose
 

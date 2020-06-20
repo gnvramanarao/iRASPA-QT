@@ -36,16 +36,13 @@ SKBoundingBox::SKBoundingBox(): _minimum(double3(0,0,0)),_maximum(double3(20,20,
 
 }
 
-SKBoundingBox::SKBoundingBox(double3 minimum, double3 maximum)
+SKBoundingBox::SKBoundingBox(double3 minimum, double3 maximum): _minimum(minimum), _maximum(maximum)
 {
-  this->_minimum = minimum;
-  this->_maximum = maximum;
 }
 
-SKBoundingBox::SKBoundingBox(const double3 center, const double3 width, const double scale)
+SKBoundingBox::SKBoundingBox(const double3 center, const double3 width, const double scale):
+     _minimum(center - (0.5 * scale) * width), _maximum(center + (0.5 * scale) * width)
 {
-  this->_minimum = center - (0.5 * scale) * width;
-  this->_maximum = center + (0.5 * scale) * width;
 }
 
 

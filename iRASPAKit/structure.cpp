@@ -45,6 +45,17 @@ Structure::Structure(std::shared_ptr<SKAtomTreeController> atomTreeController): 
 
 }
 
+Structure::Structure(std::shared_ptr<SKStructure> structure): _atomsTreeController(std::make_shared<SKAtomTreeController>()),
+  _bondSetController(std::make_shared<SKBondSetController>(_atomsTreeController)), _spaceGroup(1), _cell(structure->cell)
+{
+  for(std::shared_ptr<SKAsymmetricAtom> atom: structure->atoms)
+  {
+    std::shared_ptr<SKAtomTreeNode> node = std::make_shared<SKAtomTreeNode>(atom);
+    _atomsTreeController->appendToRootnodes(node);
+  }
+
+}
+
 // MARK: Rendering
 // =====================================================================
 

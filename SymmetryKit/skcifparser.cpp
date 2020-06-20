@@ -95,9 +95,14 @@ void SKCIFParser::startParsing()
     }
   }
 
-  std::vector<std::tuple<std::shared_ptr<SKAtomTreeController>,std::shared_ptr<SKCell>, int>> movieFrames{};
-  std::shared_ptr<SKCell> _cell = std::make_shared<SKCell>(_a, _b, _c, _alpha * M_PI/180.0, _beta*M_PI/180.0, _gamma*M_PI/180.0);
-  movieFrames.push_back(std::make_tuple(_atomTreeController,_cell, _spaceGroupHallNumber ? *_spaceGroupHallNumber : 1));
+
+  std::vector<std::shared_ptr<SKStructure>> movieFrames{};
+  std::shared_ptr<SKStructure> structure = std::make_shared<SKStructure>();
+  structure->kind = SKStructure::Kind::crystal;
+  structure->atoms = _atoms;
+  structure->cell = std::make_shared<SKCell>(_a, _b, _c, _alpha * M_PI/180.0, _beta*M_PI/180.0, _gamma*M_PI/180.0);
+  structure->spaceGroupHallNumber = _spaceGroupHallNumber;
+  movieFrames.push_back(structure);
   _movies.push_back(movieFrames);
 }
 
@@ -268,15 +273,17 @@ void SKCIFParser::parseLoop(QString& string)
         // at least _atom_site_type_symbol is present
         QString chemicalElement = index->second;
 
-        chemicalElement.remove(QRegExp("[0123456789+-]."));
-        chemicalElement.replace(0, 1, chemicalElement[0].toUpper());
+        if(chemicalElement.size()>0)
+        {
+          // First character to uppercase
+          chemicalElement.remove(QRegExp("[0123456789+-]."));
+          chemicalElement.replace(0, 1, chemicalElement[0].toUpper());
+        }
 
        std::shared_ptr<SKAsymmetricAtom> atom = std::make_shared<SKAsymmetricAtom>();
 
        if (std::map<QString,QString>::iterator index = dictionary.find(QString("_atom_site_label")); (index != dictionary.end()))
        {
-         // First character to uppercase
-
          atom->setDisplayName(chemicalElement);
        }
 
@@ -298,9 +305,7 @@ void SKCIFParser::parseLoop(QString& string)
           atom->setElementIdentifier(index->second);
        }
 
-
-       std::shared_ptr<SKAtomTreeNode> atomTreeNode = std::make_shared<SKAtomTreeNode>(atom);
-       _atomTreeController->appendToRootnodes(atomTreeNode);
+       _atoms.push_back(atom);
       }
       else if (std::map<QString,QString>::iterator index = dictionary.find(QString("_atom_site.type_symbol")); (index != dictionary.end()))
       {
@@ -324,8 +329,7 @@ void SKCIFParser::parseLoop(QString& string)
           atom->setPosition(position);
         }
 
-        std::shared_ptr<SKAtomTreeNode> atomTreeNode = std::make_shared<SKAtomTreeNode>(atom);
-        _atomTreeController->appendToRootnodes(atomTreeNode);
+        _atoms.push_back(atom);
       }
     }
   }

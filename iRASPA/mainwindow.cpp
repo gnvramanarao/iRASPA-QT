@@ -43,18 +43,28 @@
 #include <renderkit.h>
 #include "glwidget.h"
 #include "masterstackedwidget.h"
+#include "importfiledialog.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
   ui(new Ui::MainWindow)
 {
   ui->setupUi(this);
 
+  // atomTreeView needs to update the bonds via the bondModel (used in undo/redo).
+  // (the bondListView does not need to know the atomModel because deleting bonds does not change the atom-selection)
   ui->atomTreeView->setBondModel(ui->bondListView->bondModel());
-  ui->bondListView->setAtomModel(ui->atomTreeView->atomModel());
+
+  // the renderView needs to update via the atomModel and bondModel (used in undo/redo).
   ui->stackedRenderers->setAtomModel(ui->atomTreeView->atomModel());
   ui->stackedRenderers->setBondModel(ui->bondListView->bondModel());
 
+  // create the file, edit, help menus
   this->createMenus();
+
+  // connect the toolbar slide left-, right-, down- panels
+  QObject::connect(ui->mainToolBar->rightPanel(),&QToolButton::clicked,this,&MainWindow::slideRightPanel);
+  QObject::connect(ui->mainToolBar->downPanel(),&QToolButton::clicked,this,&MainWindow::slideDownPanel);
+  QObject::connect(ui->mainToolBar->leftPanel(),&QToolButton::clicked,this,&MainWindow::slideLeftPanel);
 
   // propagate mainWindow to all interested controllers
   this->propagateMainWindow(this,this);
@@ -62,17 +72,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
   // propagate the logWidget to all interested controller
   this->propagateLogReporter(this->ui->logPlainTextEdit,this);
 
-  ui->detailTabViewController->setCameraTreeView(ui->cameraTreeWidget);
-  ui->detailTabViewController->setElementListView(ui->elementListWidget);
-  ui->detailTabViewController->setInfoTreeView(ui->infoTreeWidget);
-  ui->detailTabViewController->setCellTreeView(ui->cellTreeWidget);
-  ui->detailTabViewController->setAtomTreeView(ui->atomTreeView);
-  ui->detailTabViewController->setBondListView(ui->bondListView);
-
-
 
   ui->projectTreeView->setController(_documentData.projectTreeController());
-  QObject::connect(ui->projectTreeView->selectionModel(),&QItemSelectionModel::currentRowChanged,ui->projectTreeView,&ProjectTreeView::setSelectedProject);
+  //QObject::connect(ui->projectTreeView->selectionModel(),&QItemSelectionModel::currentRowChanged,ui->projectTreeView,&ProjectTreeView::setSelectedProject);
 
   QModelIndex index1 = ui->projectTreeView->model()->index(0,0,QModelIndex());
   QModelIndex index2 = ui->projectTreeView->model()->index(2,0,QModelIndex());
@@ -84,12 +86,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
   QModelIndex index4 = ui->projectTreeView->model()->index(0,0,index2);
   ui->projectTreeView->expand(index4);
 
-
   this->propagateProject(std::shared_ptr<ProjectTreeNode>(nullptr), this);
-
-  QObject::connect(ui->mainToolBar->rightPanel(),&QToolButton::clicked,this,&MainWindow::slideRightPanel);
-  QObject::connect(ui->mainToolBar->downPanel(),&QToolButton::clicked,this,&MainWindow::slideDownPanel);
-  QObject::connect(ui->mainToolBar->leftPanel(),&QToolButton::clicked,this,&MainWindow::slideLeftPanel);
 
   QObject::connect(ui->stackedRenderers, &RenderStackedWidget::updateCameraModelViewMatrix, ui->cameraTreeWidget, &CameraTreeWidgetController::reloadCameraModelViewMatrix);
   QObject::connect(ui->stackedRenderers, &RenderStackedWidget::updateCameraEulerAngles, ui->cameraTreeWidget, &CameraTreeWidgetController::reloadCameraEulerAngles);
@@ -114,7 +111,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
   QObject::connect(ui->masterToolBar->mapper(), static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped),ui->masterStackedWidget, &MasterStackedWidget::reloadTab);
 
 
-  QObject::connect(ui->sceneTreeView, &SceneTreeView::setSelectedMovie, ui->frameListView, &FrameListView::setRootNode);
+  // FIX!!
+  //QObject::connect(ui->sceneTreeView, &SceneTreeView::setSelectedMovie, ui->frameListView, &FrameListView::setRootNode);
 
 
   QObject::connect(ui->sceneTreeView, &SceneTreeView::setCellTreeController, ui->appearanceTreeWidget, &AppearanceTreeWidgetController::setStructures);
@@ -124,17 +122,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 
   QObject::connect(ui->frameListView, &FrameListView::setCellTreeController, ui->cellTreeWidget, &CellTreeWidgetController::setStructures);
 
-  //QObject::connect(ui->frameListView, &FrameListView::setAtomTreeController, ui->atomTreeView, &AtomTreeView::setRootNode);
   QObject::connect(ui->frameListView, &FrameListView::setSelectedFrame, ui->atomTreeView, &AtomTreeView::setSelectedFrame);
   QObject::connect(ui->frameListView, &FrameListView::setSelectedFrame, ui->bondListView, &BondListView::setSelectedFrame);
 
-  QObject::connect(ui->atomTreeView->atomTreeModel(), &AtomTreeViewModel::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
+  QObject::connect(ui->atomTreeView->atomModel().get(), &AtomTreeViewModel::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
   QObject::connect(ui->atomTreeView, &AtomTreeView::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
 
-  QObject::connect(ui->bondListView->bondListModel(), &BondListViewModel::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
+  QObject::connect(ui->bondListView->bondModel().get(), &BondListViewModel::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
   QObject::connect(ui->bondListView, &BondListView::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
 
   QObject::connect(ui->sceneTreeView->sceneTreeModel(), &SceneTreeViewModel::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
+  QObject::connect(ui->sceneTreeView->sceneTreeModel(), &SceneTreeViewModel::invalidateCachedAmbientOcclusionTexture,ui->stackedRenderers, &RenderStackedWidget::invalidateCachedAmbientOcclusionTexture);
 
   QObject::connect(ui->appearanceTreeWidget, &AppearanceTreeWidgetController::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
 
@@ -168,8 +166,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 
   QObject::connect(ui->stackedRenderers, &RenderStackedWidget::updateAtomSelection,ui->atomTreeView, &AtomTreeView::reloadSelection);
   QObject::connect(ui->stackedRenderers, &RenderStackedWidget::updateBondSelection,ui->bondListView, &BondListView::reloadSelection);
-
-
 
   readLibraryOfStructures();
 }
@@ -238,46 +234,6 @@ void MainWindow::setRedoAction(QAction *newRedoAction)
   redoAction = newRedoAction;
   redoAction->setShortcuts(QKeySequence::Redo);
 }
-
-void MainWindow::setProject(std::shared_ptr<ProjectTreeNode> project)
-{
-  std::cout.flush();
-  qDebug() << "MainWindow setProject";
-  if (project)
-  {
-    if(std::shared_ptr<iRASPAProject> iraspaProject = project->representedObject())
-    {
-      if(std::shared_ptr<Project> project = iraspaProject->project())
-      {
-        if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
-        {
-          ui->sceneTreeView->setRootNode(projectStructure->getSceneTreeModel());
-          ui->sceneTreeView->expandAll();
-
-          ui->frameListView->setRootNode(projectStructure->getFrameListModel());
-
-          ui->infoTreeWidget->setStructures(projectStructure->flattenedStructures());
-          ui->appearanceTreeWidget->setStructures(projectStructure->flattenedStructures());
-          ui->elementListWidget->setStructures(projectStructure->flattenedStructures());
-          ui->cellTreeWidget->setStructures(projectStructure->flattenedStructures());
-          //ui->atomTreeView->setRootNode(projectStructure->getAtomTreeModel());
-
-          //ui->detailTabViewController->setTreeControllers(projectStructure->getAtomTreeModel(), projectStructure->getBondListModel());
-          //ui->detailTabViewController->setBondSetController(projectStructure);
-
-          //std::shared_ptr<Structure> structure = projectStructure->selectedStructure();
-          //ui->atomTreeView->setRootNode()
-
-          ui->cameraTreeWidget->reloadData();
-        }
-      }
-    }
-  }
-  std::cout.flush();
-  qDebug() << "MainWindow setProject ending";
-}
-
-
 
 void MainWindow::propagateProject(std::shared_ptr<ProjectTreeNode> project, QObject *widget)
 {
@@ -354,42 +310,46 @@ void MainWindow::showAboutDialog()
 
 void MainWindow::importFile()
 {
-  std::cout.flush();
-  qDebug() << "Import cif-file";
+  ImportFileDialog dialog(this);
 
-  QString selFilter = tr("cif/pdb files (*.cif *.pdb )");
-  QList<QUrl> fileURLs = QFileDialog::getOpenFileUrls(this, tr("Open CIF or PDB-files"), tr("Open CIF or PDB-files"), tr("PDB or CIF files (*.cif *.pdb)"));
-
-  if(fileURLs.isEmpty())
+  if(dialog.exec() == QDialog::Accepted)
   {
-    return;
-  }
-  else
-  {  
-    ProjectTreeViewModel* pModel = qobject_cast<ProjectTreeViewModel*>(ui->projectTreeView->model());
+    QList<QUrl> fileURLs = dialog.selectedUrls();
+    if(fileURLs.isEmpty())
+    {
+      return;
+    }
+    else
+    {
+      bool asSeparateProject=dialog.checkboxSeperateProjects->checkState() == Qt::CheckState::Checked;
+      bool onlyAsymmetricUnit=dialog.checkboxOnlyAsymmetricUnitCell->checkState() == Qt::CheckState::Checked;
+      bool asMolecule=dialog.checkboxImportAsMolecule->checkState() == Qt::CheckState::Checked;
 
-    QModelIndex rootLocalProjectsParentIndex = ui->projectTreeView->model()->index(2,0,QModelIndex());
-    QModelIndex localProjectsParentIndex = ui->projectTreeView->model()->index(0,0,rootLocalProjectsParentIndex);
+      ProjectTreeViewModel* pModel = qobject_cast<ProjectTreeViewModel*>(ui->projectTreeView->model());
 
-    std::shared_ptr<ProjectTreeNode> localProjects =  _documentData.projectTreeController()->localProjects();
+      QModelIndex rootLocalProjectsParentIndex = ui->projectTreeView->model()->index(2,0,QModelIndex());
+      QModelIndex localProjectsParentIndex = ui->projectTreeView->model()->index(0,0,rootLocalProjectsParentIndex);
 
-    QAbstractItemModel* model = ui->projectTreeView->model();
-    QModelIndex index = ui->projectTreeView->selectionModel()->currentIndex();
-    //int insertionIndex = index.row() + 1;
+      std::shared_ptr<ProjectTreeNode> localProjects =  _documentData.projectTreeController()->localProjects();
 
-    QString fileName = fileURLs.first().toString();
+      QAbstractItemModel* model = ui->projectTreeView->model();
+      QModelIndex index = ui->projectTreeView->selectionModel()->currentIndex();
+      //int insertionIndex = index.row() + 1;
+
+      QString fileName = fileURLs.first().toString();
 
 
-    QFileInfo fileInfo(fileName);
-    QModelIndex insertedIndex = model->index(0,0,localProjectsParentIndex);
+      QFileInfo fileInfo(fileName);
+      QModelIndex insertedIndex = model->index(0,0,localProjectsParentIndex);
 
-    ui->logPlainTextEdit->logMessage(LogReporting::ErrorLevel::info,"start reading CIF-file: " + fileInfo.baseName());
+      ui->logPlainTextEdit->logMessage(LogReporting::ErrorLevel::info,"start reading CIF-file: " + fileInfo.baseName());
 
-    std::shared_ptr<ProjectStructure> project = std::make_shared<ProjectStructure>(fileURLs, _colorSets, _forceFieldSets, ui->logPlainTextEdit);
-    std::shared_ptr<iRASPAProject>  iraspaproject = std::make_shared<iRASPAProject>(project);
-    std::shared_ptr<ProjectTreeNode> newProject = std::make_shared<ProjectTreeNode>(fileInfo.baseName(), iraspaproject, true, true);
+      std::shared_ptr<ProjectStructure> project = std::make_shared<ProjectStructure>(fileURLs, _colorSets, _forceFieldSets, ui->logPlainTextEdit, asSeparateProject, onlyAsymmetricUnit, asMolecule);
+      std::shared_ptr<iRASPAProject>  iraspaproject = std::make_shared<iRASPAProject>(project);
+      std::shared_ptr<ProjectTreeNode> newProject = std::make_shared<ProjectTreeNode>(fileInfo.baseName(), iraspaproject, true, true);
 
-    ui->projectTreeView->insertRows(0, 1, localProjectsParentIndex, newProject);
+      ui->projectTreeView->insertRows(0, 1, localProjectsParentIndex, newProject);
+    }
   }
 }
 
@@ -404,6 +364,7 @@ void MainWindow::readLibraryOfStructures()
     QUrl fileURL(dir.absoluteFilePath("LibraryOfStructures.irspdoc"));
   #else
     QDir dir(QCoreApplication::applicationDirPath());
+    qDebug() << "library: " << dir.absoluteFilePath("LibraryOfStructures.irspdoc");
     QUrl fileURL(dir.absoluteFilePath("LibraryOfStructures.irspdoc"));
   #endif
     QFileInfo info(fileURL.toString());

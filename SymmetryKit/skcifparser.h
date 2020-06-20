@@ -46,18 +46,19 @@
 class SKCIFParser: public SKParser
 {
 public:
-  SKCIFParser(QString fileContent, bool onlyAsymmetricUnitCell, CharacterSet charactersToBeSkipped): SKParser(), _scanner(fileContent, charactersToBeSkipped), _onlyAsymmetricUnitCell(onlyAsymmetricUnitCell) {}
+  SKCIFParser(QString fileContent, bool onlyAsymmetricUnitCell, bool asMolecule, CharacterSet charactersToBeSkipped): SKParser(),
+    _scanner(fileContent, charactersToBeSkipped), _onlyAsymmetricUnitCell(onlyAsymmetricUnitCell), _asMolecule(asMolecule) {}
   void startParsing() override final;
   std::optional<int> spaceGroupHallNumber() {return _spaceGroupHallNumber;}
 private:
   Scanner _scanner;
   bool _onlyAsymmetricUnitCell;
+  bool _asMolecule;
   QString::const_iterator _previousScanLocation;
   std::vector<QString> _keys;
   std::map<QString,QString> _map;
   std::optional<int> _spaceGroupHallNumber;
-  std::shared_ptr<SKAtomTreeController> _atomTreeController = std::make_shared<SKAtomTreeController>();
-  std::vector<SKAsymmetricAtom> _atoms{};
+  std::vector<std::shared_ptr<SKAsymmetricAtom>> _atoms{};
 
   void ParseLine(QString);
   void parseAudit(QString& string);

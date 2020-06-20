@@ -60,5 +60,6 @@ private:
   std::shared_ptr<Scene> parentForMovie(const std::shared_ptr<Movie> movie) const;
 signals:
     void rendererReloadData();
+    void invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>> structures);
 };
 

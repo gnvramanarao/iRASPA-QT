@@ -78,7 +78,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;MathKit;FoundationKit;SymmetryKit;SimulationKit;RenderKit;iRASPAKit;iRASPA;..\..\..\vcpkg\installed\x64-windows-static\include;..\..\..\vcpkg\installed\x64-windows-static\include\python2.7;..\..\..\QT\5.12.5\MSVC2017_64\include;..\..\..\QT\5.12.5\MSVC2017_64\include\QtOpenGL;..\..\..\QT\5.12.5\MSVC2017_64\include\QtWebEngineWidgets;..\..\..\QT\5.12.5\MSVC2017_64\include\QtPrintSupport;..\..\..\QT\5.12.5\MSVC2017_64\include\QtWidgets;..\..\..\QT\5.12.5\MSVC2017_64\include\QtWebEngineCore;..\..\..\QT\5.12.5\MSVC2017_64\include\QtQuick;..\..\..\QT\5.12.5\MSVC2017_64\include\QtGui;..\..\..\QT\5.12.5\MSVC2017_64\include\QtANGLE;..\..\..\QT\5.12.5\MSVC2017_64\include\QtWebChannel;..\..\..\QT\5.12.5\MSVC2017_64\include\QtQml;..\..\..\QT\5.12.5\MSVC2017_64\include\QtNetwork;..\..\..\QT\5.12.5\MSVC2017_64\include\QtPositioning;..\..\..\QT\5.12.5\MSVC2017_64\include\QtCore;release;/include;..\..\..\QT\5.12.5\MSVC2017_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;MathKit;FoundationKit;SymmetryKit;SimulationKit;RenderKit;iRASPAKit;iRASPA;..\..\..\vcpkg\installed\x64-windows-static\include;..\..\..\vcpkg\installed\x64-windows-static\include\python2.7;release;/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus /F 4194304 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -143,7 +143,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;MathKit;FoundationKit;SymmetryKit;SimulationKit;RenderKit;iRASPAKit;iRASPA;..\..\..\vcpkg\installed\x64-windows-static\include;..\..\..\vcpkg\installed\x64-windows-static\include\python2.7;..\..\..\QT\5.12.5\MSVC2017_64\include;..\..\..\QT\5.12.5\MSVC2017_64\include\QtOpenGL;..\..\..\QT\5.12.5\MSVC2017_64\include\QtWebEngineWidgets;..\..\..\QT\5.12.5\MSVC2017_64\include\QtPrintSupport;..\..\..\QT\5.12.5\MSVC2017_64\include\QtWidgets;..\..\..\QT\5.12.5\MSVC2017_64\include\QtWebEngineCore;..\..\..\QT\5.12.5\MSVC2017_64\include\QtQuick;..\..\..\QT\5.12.5\MSVC2017_64\include\QtGui;..\..\..\QT\5.12.5\MSVC2017_64\include\QtANGLE;..\..\..\QT\5.12.5\MSVC2017_64\include\QtWebChannel;..\..\..\QT\5.12.5\MSVC2017_64\include\QtQml;..\..\..\QT\5.12.5\MSVC2017_64\include\QtNetwork;..\..\..\QT\5.12.5\MSVC2017_64\include\QtPositioning;..\..\..\QT\5.12.5\MSVC2017_64\include\QtCore;debug;/include;..\..\..\QT\5.12.5\MSVC2017_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;MathKit;FoundationKit;SymmetryKit;SimulationKit;RenderKit;iRASPAKit;iRASPA;..\..\..\vcpkg\installed\x64-windows-static\include;..\..\..\vcpkg\installed\x64-windows-static\include\python2.7;debug;/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus /F 4194304 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -211,10 +211,12 @@
     <ClCompile Include="iRASPA\appearancebondsform.cpp" />
     <ClCompile Include="iRASPA\appearancetreewidgetcontroller.cpp" />
     <ClCompile Include="iRASPA\appearanceunitcellform.cpp" />
+    <ClCompile Include="iRASPA\atomchangeselectioncommand.cpp" />
     <ClCompile Include="iRASPA\atomtreeview.cpp" />
     <ClCompile Include="iRASPA\atomtreeviewdeleteselectioncommand.cpp" />
     <ClCompile Include="iRASPA\atomtreeviewmodel.cpp" />
     <ClCompile Include="iRASPA\atomtreeviewpushbuttonstyleditemdelegate.cpp" />
+    <ClCompile Include="iRASPA\bondchangeselectioncommand.cpp" />
     <ClCompile Include="iRASPA\bondlistpushbuttonstyleditemdelegate.cpp" />
     <ClCompile Include="iRASPA\bondlistview.cpp" />
     <ClCompile Include="iRASPA\bondlistviewcomboboxstyleditemdelegate.cpp" />
@@ -241,6 +243,9 @@
     <ClCompile Include="FoundationKit\characterset.cpp" />
     <ClCompile Include="SimulationKit\constants.cpp" />
     <ClCompile Include="iRASPAKit\crystal.cpp" />
+    <ClCompile Include="iRASPAKit\crystalcylinderprimitive.cpp" />
+    <ClCompile Include="iRASPAKit\crystalellipsoidprimitive.cpp" />
+    <ClCompile Include="iRASPAKit\crystalpolygonalprismprimitive.cpp" />
     <ClCompile Include="RenderKit\cubegeometry.cpp" />
     <ClCompile Include="iRASPA\customdoublespinbox.cpp" />
     <ClCompile Include="iRASPA\customintspinbox.cpp" />
@@ -272,6 +277,7 @@
     <ClCompile Include="RenderKit\glwidget.cpp" />
     <ClCompile Include="iRASPA\helpbrowser.cpp" />
     <ClCompile Include="iRASPA\helpwidget.cpp" />
+    <ClCompile Include="iRASPA\importfiledialog.cpp" />
     <ClCompile Include="FoundationKit\indexpath.cpp" />
     <ClCompile Include="iRASPA\infochemicalform.cpp" />
     <ClCompile Include="iRASPA\infocitationform.cpp" />
@@ -312,7 +318,11 @@
     <ClCompile Include="RenderKit\openglblurshader.cpp" />
     <ClCompile Include="RenderKit\openglboundingboxcylindershader.cpp" />
     <ClCompile Include="RenderKit\openglboundingboxsphereshader.cpp" />
+    <ClCompile Include="RenderKit\openglcrystalcylinderobjectshader.cpp" />
+    <ClCompile Include="RenderKit\openglcrystalellipseobjectshader.cpp" />
+    <ClCompile Include="RenderKit\openglcrystalpolygonalprismobjectshader.cpp" />
     <ClCompile Include="RenderKit\openglcylinderobjectshader.cpp" />
+    <ClCompile Include="RenderKit\openglellipseobjectshader.cpp" />
     <ClCompile Include="RenderKit\openglenergysurface.cpp" />
     <ClCompile Include="RenderKit\openglexternalbondpickingshader.cpp" />
     <ClCompile Include="RenderKit\openglexternalbondselectionglowshader.cpp" />
@@ -326,7 +336,6 @@
     <ClCompile Include="RenderKit\openglinternalbondshader.cpp" />
     <ClCompile Include="RenderKit\openglpolygonalprismobjectshader.cpp" />
     <ClCompile Include="RenderKit\openglshader.cpp" />
-    <ClCompile Include="RenderKit\openglsphereobjectshader.cpp" />
     <ClCompile Include="RenderKit\openglunitcellcylindershader.cpp" />
     <ClCompile Include="RenderKit\openglunitcellsphereshader.cpp" />
     <ClCompile Include="iRASPAKit\polygonalprismprimitive.cpp" />
@@ -359,6 +368,7 @@
     <ClCompile Include="MathKit\simd_quatd.cpp" />
     <ClCompile Include="SymmetryKit\skasymmetricatom.cpp" />
     <ClCompile Include="SymmetryKit\skasymmetricbond.cpp" />
+    <ClCompile Include="SymmetryKit\skatomcopy.cpp" />
     <ClCompile Include="SymmetryKit\skatomtreecontroller.cpp" />
     <ClCompile Include="SymmetryKit\skatomtreenode.cpp" />
     <ClCompile Include="SymmetryKit\skbond.cpp" />
@@ -414,6 +424,7 @@
     <QtMoc Include="iRASPA\appearanceunitcellform.h">
     </QtMoc>
     <ClInclude Include="FoundationKit\aspectratiosingleitemlayout.h" />
+    <ClInclude Include="iRASPA\atomchangeselectioncommand.h" />
     <QtMoc Include="iRASPA\atomtreeview.h">
     </QtMoc>
     <ClInclude Include="iRASPA\atomtreeviewdeleteselectioncommand.h" />
@@ -421,6 +432,7 @@
     </QtMoc>
     <QtMoc Include="iRASPA\atomtreeviewpushbuttonstyleditemdelegate.h">
     </QtMoc>
+    <ClInclude Include="iRASPA\bondchangeselectioncommand.h" />
     <QtMoc Include="iRASPA\bondlistpushbuttonstyleditemdelegate.h">
     </QtMoc>
     <QtMoc Include="iRASPA\bondlistview.h">
@@ -462,6 +474,9 @@
     <ClInclude Include="FoundationKit\characterset.h" />
     <ClInclude Include="SimulationKit\constants.h" />
     <ClInclude Include="iRASPAKit\crystal.h" />
+    <ClInclude Include="iRASPAKit\crystalcylinderprimitive.h" />
+    <ClInclude Include="iRASPAKit\crystalellipsoidprimitive.h" />
+    <ClInclude Include="iRASPAKit\crystalpolygonalprismprimitive.h" />
     <ClInclude Include="RenderKit\cubegeometry.h" />
     <QtMoc Include="iRASPA\customdoublespinbox.h">
     </QtMoc>
@@ -504,6 +519,7 @@
     <ClInclude Include="iRASPA\helpbrowser.h" />
     <QtMoc Include="iRASPA\helpwidget.h">
     </QtMoc>
+    <ClInclude Include="iRASPA\importfiledialog.h" />
     <ClInclude Include="FoundationKit\indexpath.h" />
     <QtMoc Include="iRASPA\infochemicalform.h">
     </QtMoc>
@@ -560,7 +576,11 @@
     <ClInclude Include="RenderKit\openglblurshader.h" />
     <ClInclude Include="RenderKit\openglboundingboxcylindershader.h" />
     <ClInclude Include="RenderKit\openglboundingboxsphereshader.h" />
+    <ClInclude Include="RenderKit\openglcrystalcylinderobjectshader.h" />
+    <ClInclude Include="RenderKit\openglcrystalellipseobjectshader.h" />
+    <ClInclude Include="RenderKit\openglcrystalpolygonalprismobjectshader.h" />
     <ClInclude Include="RenderKit\openglcylinderobjectshader.h" />
+    <ClInclude Include="RenderKit\openglellipseobjectshader.h" />
     <ClInclude Include="RenderKit\openglenergysurface.h" />
     <ClInclude Include="RenderKit\openglexternalbondpickingshader.h" />
     <ClInclude Include="RenderKit\openglexternalbondselectionglowshader.h" />
@@ -574,7 +594,6 @@
     <ClInclude Include="RenderKit\openglinternalbondshader.h" />
     <ClInclude Include="RenderKit\openglpolygonalprismobjectshader.h" />
     <ClInclude Include="RenderKit\openglshader.h" />
-    <ClInclude Include="RenderKit\openglsphereobjectshader.h" />
     <ClInclude Include="RenderKit\openglunitcellcylindershader.h" />
     <ClInclude Include="RenderKit\openglunitcellsphereshader.h" />
     <ClInclude Include="iRASPAKit\polygonalprismprimitive.h" />
@@ -621,6 +640,7 @@
     <ClInclude Include="SimulationKit\simulationkit.h" />
     <ClInclude Include="SymmetryKit\skasymmetricatom.h" />
     <ClInclude Include="SymmetryKit\skasymmetricbond.h" />
+    <ClInclude Include="SymmetryKit\skatomcopy.h" />
     <ClInclude Include="SymmetryKit\skatomtreecontroller.h" />
     <ClInclude Include="SymmetryKit\skatomtreenode.h" />
     <ClInclude Include="SymmetryKit\skbond.h" />
@@ -651,6 +671,7 @@
     <ClInclude Include="SymmetryKit\skseitzmatrix.h" />
     <ClInclude Include="SymmetryKit\skspacegroup.h" />
     <ClInclude Include="SymmetryKit\skspacegroupsetting.h" />
+    <ClInclude Include="SymmetryKit\skstructure.h" />
     <ClInclude Include="SymmetryKit\sksymmetryoperationset.h" />
     <ClInclude Include="SymmetryKit\skxyzparser.h" />
     <ClInclude Include="SymmetryKit\skxyzwriter.h" />
@@ -669,15 +690,15 @@
     <CustomBuild Include="debug\moc_predefs.h.cbt">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\QT\5.12.5\MSVC2017_64\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus /F 4194304 -Zi -MDd -std:c++17 -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E ..\..\..\QT\5.12.5\MSVC2017_64\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;debug\moc_predefs.h</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus /F 4194304 -Zi -MDd -std:c++17 -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;debug\moc_predefs.h</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generate moc_predefs.h</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">debug\moc_predefs.h;%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="release\moc_predefs.h.cbt">
       <FileType>Document</FileType>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\QT\5.12.5\MSVC2017_64\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus /F 4194304 -O2 -MD -std:c++17 -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E ..\..\..\QT\5.12.5\MSVC2017_64\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;release\moc_predefs.h</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus /F 4194304 -O2 -MD -std:c++17 -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;release\moc_predefs.h</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generate moc_predefs.h</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">release\moc_predefs.h;%(Outputs)</Outputs>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

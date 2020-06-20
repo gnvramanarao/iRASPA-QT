@@ -40,7 +40,7 @@ SKParser::~SKParser()
 }
 
 
-std::vector<std::vector<std::tuple<std::shared_ptr<SKAtomTreeController>, std::shared_ptr<SKCell>, int>>> SKParser::movies()
+std::vector<std::vector<std::shared_ptr<SKStructure>>> SKParser::movies()
 {
   return _movies;
 }

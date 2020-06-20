@@ -34,6 +34,16 @@ MolecularCrystal::MolecularCrystal()
 
 }
 
+MolecularCrystal::MolecularCrystal(std::shared_ptr<SKStructure> structure): Structure(structure)
+{
+  if(structure->spaceGroupHallNumber)
+  {
+    this->_spaceGroup = *(structure->spaceGroupHallNumber);
+  }
+  expandSymmetry();
+  _atomsTreeController->setTags();
+}
+
 // MARK: Rendering
 // =====================================================================
 
@@ -588,11 +598,13 @@ void MolecularCrystal::expandSymmetry()
     {
       std::vector<std::shared_ptr<SKAtomCopy>> atomCopies = std::vector<std::shared_ptr<SKAtomCopy>>{};
 
-      std::vector<double3> images = _spaceGroup.listOfSymmetricPositions(asymmetricAtom->position());
+      double3 fractionalPosition = _cell->convertToFractional(asymmetricAtom->position());
+      std::vector<double3> images = _spaceGroup.listOfSymmetricPositions(fractionalPosition);
 
       for (double3 image : images)
       {
-        std::shared_ptr<SKAtomCopy> newAtom = std::make_shared<SKAtomCopy>(asymmetricAtom, double3::fract(image));
+        double3 CartesianPosition = _cell->convertToCartesian(image);
+        std::shared_ptr<SKAtomCopy> newAtom = std::make_shared<SKAtomCopy>(asymmetricAtom, CartesianPosition);
         newAtom->setType(SKAtomCopy::AtomCopyType::copy);
         atomCopies.push_back(newAtom);
       }
@@ -605,11 +617,13 @@ void MolecularCrystal::expandSymmetry(std::shared_ptr<SKAsymmetricAtom> asymmetr
 {
   std::vector<std::shared_ptr<SKAtomCopy>> atomCopies = std::vector<std::shared_ptr<SKAtomCopy>>{};
 
-  std::vector<double3> images = _spaceGroup.listOfSymmetricPositions(asymmetricAtom->position());
+  double3 fractionalPosition = _cell->convertToFractional(asymmetricAtom->position());
+  std::vector<double3> images = _spaceGroup.listOfSymmetricPositions(fractionalPosition);
 
   for (double3 image : images)
   {
-    std::shared_ptr<SKAtomCopy> newAtom = std::make_shared<SKAtomCopy>(asymmetricAtom, double3::fract(image));
+    double3 CartesianPosition = _cell->convertToCartesian(double3::fract(image));
+    std::shared_ptr<SKAtomCopy> newAtom = std::make_shared<SKAtomCopy>(asymmetricAtom, CartesianPosition);
     newAtom->setType(SKAtomCopy::AtomCopyType::copy);
     atomCopies.push_back(newAtom);
   }
@@ -634,7 +648,7 @@ void MolecularCrystal::computeBonds()
   for (size_t i = 0;i < copies.size();i++)
 	{
 		copies[i]->setType(SKAtomCopy::AtomCopyType::copy);
-		double3 posA = _cell->unitCell() * copies[i]->position();
+    double3 posA = copies[i]->position();
 		int elementIdentifierA = copies[i]->parent()->elementIdentifier();
 		double covalentRadiusA = PredefinedElements::predefinedElements[elementIdentifierA]._covalentRadius;
     for (size_t j = i + 1;j < copies.size();j++)
@@ -642,7 +656,7 @@ void MolecularCrystal::computeBonds()
 			if ((copies[i]->parent()->occupancy() == 1.0 && copies[j]->parent()->occupancy() == 1.0) ||
 				(copies[i]->parent()->occupancy() < 1.0 && copies[j]->parent()->occupancy() < 1.0))
 			{
-				double3 posB = _cell->unitCell() * copies[j]->position();
+        double3 posB = copies[j]->position();
 				int elementIdentifierB = copies[j]->parent()->elementIdentifier();
 				double covalentRadiusB = PredefinedElements::predefinedElements[elementIdentifierB]._covalentRadius;
 

@@ -35,6 +35,7 @@ class Molecule: public Structure
 {
 public:
   Molecule();
+  Molecule(std::shared_ptr<SKStructure> structure);
 
 	iRASPAStructureType structureType() override final { return iRASPAStructureType::molecule; }
 

@@ -67,6 +67,7 @@ class Structure: public RKRenderStructure, public DisplayableProtocol
 public:
   Structure();
   Structure(std::shared_ptr<SKAtomTreeController> atomTreeController);
+  Structure(std::shared_ptr<SKStructure> structure);
   //Structure(std::shared_ptr<SKAtomTreeController> atomTreeController, std::shared_ptr<SKBondSetController> bondSetController);
   virtual ~Structure() {}
 

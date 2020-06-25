@@ -67,7 +67,6 @@ public:
 	std::vector<double2> potentialParameters() const override final;
 private:
   qint64 _versionNumber{1};
-  SKSpaceGroup _spaceGroup = SKSpaceGroup(1);
 
   friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<ProteinCrystal> &);
   friend QDataStream &operator>>(QDataStream &, std::shared_ptr<ProteinCrystal> &);

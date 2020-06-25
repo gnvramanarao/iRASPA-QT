@@ -33,6 +33,7 @@
 #include <array>
 #include <vector>
 #include <map>
+#include <set>
 
 struct SKElement
 {
@@ -61,4 +62,9 @@ struct PredefinedElements
 {
   static std::vector<SKElement> predefinedElements;
   static std::map<QString, int> atomicNumberData;
+
+  static std::set<QString> residueDefinitions;
+  static std::map<QString, QString> residueDefinitionsElement;
+  static std::map<QString, QString> residueDefinitionsType;
+  static std::map<QString, std::vector<QString>> residueDefinitionsBondedAtoms;
 };

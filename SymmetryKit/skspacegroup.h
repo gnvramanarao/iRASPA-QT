@@ -45,11 +45,13 @@ public:
   static QString inversionCenterString(int HallNumber);
   static std::optional<int> HallNumberFromHMString(QString inputString);
   static std::optional<int> HallNumber(QString inputString);
-  static const std::vector<SKSpaceGroupSetting>& spaceGroupData() {return SKSpaceGroup::_spaceGroupData;}
+  static const std::array<SKSpaceGroupSetting,531>& spaceGroupData() {return SKSpaceGroup::_spaceGroupData;}
   static const std::vector<std::vector<int>>  spaceGroupHallData;
 private:
-  SKSpaceGroupSetting _spaceGroupSetting = SKSpaceGroup::_spaceGroupData[1];
-  static const std::vector<SKSpaceGroupSetting> _spaceGroupData;
+  SKSpaceGroupSetting _spaceGroupSetting;
+  static const std::array<SKSpaceGroupSetting,531> _spaceGroupData;
+
+  static bool matchSpacegroup(QString spaceSearchGroupString, QString storedSpaceGroupString);
 
   friend QDataStream &operator<<(QDataStream &, const SKSpaceGroup &);
   friend QDataStream &operator>>(QDataStream &, SKSpaceGroup &);

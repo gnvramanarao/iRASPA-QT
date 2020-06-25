@@ -36,10 +36,6 @@ MolecularCrystal::MolecularCrystal()
 
 MolecularCrystal::MolecularCrystal(std::shared_ptr<SKStructure> structure): Structure(structure)
 {
-  if(structure->spaceGroupHallNumber)
-  {
-    this->_spaceGroup = *(structure->spaceGroupHallNumber);
-  }
   expandSymmetry();
   _atomsTreeController->setTags();
 }

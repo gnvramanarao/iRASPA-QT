@@ -31,15 +31,11 @@
 
 ProteinCrystal::ProteinCrystal()
 {
-
+qDebug() << "Wrong Read ";
 }
 
 ProteinCrystal::ProteinCrystal(std::shared_ptr<SKStructure> structure): Structure(structure)
 {
-  if(structure->spaceGroupHallNumber)
-  {
-    this->_spaceGroup = *(structure->spaceGroupHallNumber);
-  }
   expandSymmetry();
   _atomsTreeController->setTags();
 }
@@ -585,7 +581,6 @@ void ProteinCrystal::expandSymmetry()
 {
   std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
 
-  int index = 0;
   for (std::shared_ptr<SKAtomTreeNode> node : asymmetricAtomNodes)
   {
     std::vector<std::shared_ptr<SKAtomCopy>> atomCopies = std::vector<std::shared_ptr<SKAtomCopy>>{};
@@ -593,11 +588,13 @@ void ProteinCrystal::expandSymmetry()
     {
       std::vector<std::shared_ptr<SKAtomCopy>> atomCopies = std::vector<std::shared_ptr<SKAtomCopy>>{};
 
-      std::vector<double3> images = _spaceGroup.listOfSymmetricPositions(asymmetricAtom->position());
+      double3 fractionalPosition = _cell->convertToFractional(asymmetricAtom->position());
+      std::vector<double3> images = _spaceGroup.listOfSymmetricPositions(fractionalPosition);
 
       for (double3 image : images)
       {
-        std::shared_ptr<SKAtomCopy> newAtom = std::make_shared<SKAtomCopy>(asymmetricAtom, double3::fract(image));
+        double3 CartesianPosition = _cell->convertToCartesian(image);
+        std::shared_ptr<SKAtomCopy> newAtom = std::make_shared<SKAtomCopy>(asymmetricAtom, CartesianPosition);
         newAtom->setType(SKAtomCopy::AtomCopyType::copy);
         atomCopies.push_back(newAtom);
       }
@@ -610,11 +607,13 @@ void ProteinCrystal::expandSymmetry(std::shared_ptr<SKAsymmetricAtom> asymmetric
 {
   std::vector<std::shared_ptr<SKAtomCopy>> atomCopies = std::vector<std::shared_ptr<SKAtomCopy>>{};
 
-  std::vector<double3> images = _spaceGroup.listOfSymmetricPositions(asymmetricAtom->position());
+  double3 fractionalPosition = _cell->convertToFractional(asymmetricAtom->position());
+  std::vector<double3> images = _spaceGroup.listOfSymmetricPositions(fractionalPosition);
 
   for (double3 image : images)
   {
-    std::shared_ptr<SKAtomCopy> newAtom = std::make_shared<SKAtomCopy>(asymmetricAtom, double3::fract(image));
+    double3 CartesianPosition = _cell->convertToCartesian(double3::fract(image));
+    std::shared_ptr<SKAtomCopy> newAtom = std::make_shared<SKAtomCopy>(asymmetricAtom, CartesianPosition);
     newAtom->setType(SKAtomCopy::AtomCopyType::copy);
     atomCopies.push_back(newAtom);
   }
@@ -829,8 +828,6 @@ std::pair<double3, double3> ProteinCrystal::computeChangedBondLength(std::shared
 void ProteinCrystal::setSpaceGroupHallNumber(int HallNumber)
 {
 	_spaceGroup = SKSpaceGroup(HallNumber);
-
-	std::cout << "Crystal spacegroup set to: " << HallNumber << std::endl;
 
 	expandSymmetry();
   _atomsTreeController->setTags();

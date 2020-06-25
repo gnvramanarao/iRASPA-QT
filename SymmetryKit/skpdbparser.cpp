@@ -51,15 +51,31 @@ void SKPDBParser::addFrameToStructure(size_t currentMovie, size_t currentFrame)
 
     if (currentFrame >= _movies[currentMovie].size())
     {
+      if(double(_numberOfAminoAcidAtoms)/double(_numberOfAtoms) > 0.5)
+      {
+        _frame->kind = SKStructure::Kind::protein;
+        _frame->spaceGroupHallNumber = 1;
+      }
       if(_cell && !_asMolecule)
       {
         _frame->cell = std::make_shared<SKCell>(*_cell);
-        _frame->kind = SKStructure::Kind::molecularCrystal;
+        _frame->spaceGroupHallNumber = _spaceGroupHallNumber;
+        if(double(_numberOfAminoAcidAtoms)/double(_numberOfAtoms) > 0.5)
+        {
+          _frame->kind = SKStructure::Kind::proteinCrystal;
+        }
+        else
+        {
+          _frame->kind = SKStructure::Kind::molecularCrystal;
+        }
       }
 
       _movies[currentMovie].push_back(_frame);
+
       _frame = std::make_shared<SKStructure>();
       _frame->kind = SKStructure::Kind::molecule;
+      _numberOfAminoAcidAtoms=0;
+      _numberOfAtoms=0;
     }
   }
 }
@@ -197,11 +213,11 @@ void SKPDBParser::startParsing()
 
           if(_onlyAsymmetricUnitCell)
           {
-            _frame->spaceGroupHallNumber = 1;
+            _spaceGroupHallNumber = 1;
           }
-          else if(std::optional<int> spaceGroupHallNumber = SKSpaceGroup::HallNumberFromHMString(spaceGroupString.toString()))
+          else if(std::optional<int> spaceGroupHallNumber = SKSpaceGroup::HallNumberFromHMString(spaceGroupString.toString().simplified()))
           {
-            _frame->spaceGroupHallNumber = *spaceGroupHallNumber;
+            _spaceGroupHallNumber = *spaceGroupHallNumber;
           }
         }
         continue;
@@ -225,6 +241,7 @@ void SKPDBParser::startParsing()
 
       if(keyword == "ATOM  " || keyword == "HETATM")
       {
+        _numberOfAtoms += 1;
         std::shared_ptr<SKAsymmetricAtom> atom = std::make_shared<SKAsymmetricAtom>();
 
 
@@ -258,6 +275,11 @@ void SKPDBParser::startParsing()
         {
            atom->setElementIdentifier(index->second);
            atom->setDisplayName(chemicalElement);
+        }
+
+        if(PredefinedElements::residueDefinitions.find(residueName.toString().toUpper()) != PredefinedElements::residueDefinitions.end())
+        {
+          _numberOfAminoAcidAtoms += 1;
         }
 
         _frame->atoms.push_back(atom);

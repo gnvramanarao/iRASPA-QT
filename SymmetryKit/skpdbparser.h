@@ -57,8 +57,11 @@ private:
   bool _asMolecule;
   QString::const_iterator _previousScanLocation;
 
+  int _numberOfAtoms = 0;
+  int _numberOfAminoAcidAtoms = 0;
   std::shared_ptr<SKStructure> _frame;
   std::optional<SKCell> _cell;
+  int _spaceGroupHallNumber;
 
   void addFrameToStructure(size_t currentMovie, size_t currentFrame);
 };

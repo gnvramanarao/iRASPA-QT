@@ -36,18 +36,21 @@
 Structure::Structure(): _atomsTreeController(std::make_shared<SKAtomTreeController>()),
                         _bondSetController(std::make_shared<SKBondSetController>(_atomsTreeController)), _spaceGroup(1), _cell(std::make_shared<SKCell>())
 {
-
 }
 
 Structure::Structure(std::shared_ptr<SKAtomTreeController> atomTreeController): _atomsTreeController(atomTreeController),
                      _bondSetController(std::make_shared<SKBondSetController>(_atomsTreeController)), _spaceGroup(1), _cell(std::make_shared<SKCell>())
 {
-
 }
 
 Structure::Structure(std::shared_ptr<SKStructure> structure): _atomsTreeController(std::make_shared<SKAtomTreeController>()),
   _bondSetController(std::make_shared<SKBondSetController>(_atomsTreeController)), _spaceGroup(1), _cell(structure->cell)
 {
+  if(structure->spaceGroupHallNumber)
+  {
+    this->_spaceGroup = *(structure->spaceGroupHallNumber);
+  }
+
   for(std::shared_ptr<SKAsymmetricAtom> atom: structure->atoms)
   {
     std::shared_ptr<SKAtomTreeNode> node = std::make_shared<SKAtomTreeNode>(atom);

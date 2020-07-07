@@ -105,6 +105,7 @@ public:
   void redrawWithHighQuality() override final;
   void redrawWithPictureQuality() override final;
 
+  void setRenderStructures(std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> structures) override final;
   void setRenderDataSource(std::shared_ptr<RKRenderDataSource> source) override final;
   void reloadData() override final;
   void reloadData(RKRenderQuality ambientOcclusionQuality) override final;

@@ -270,8 +270,12 @@ std::vector<std::shared_ptr<SKAtomTreeNode>> SKAtomTreeController::selectedAtomT
 
 QDataStream &operator<<(QDataStream& stream, const std::shared_ptr<SKAtomTreeController>& controller)
 {
+  qDebug() << " << _atomTreeController 1";
+  std::cout << controller;
   stream << controller->_versionNumber;
+  qDebug() << " << _atomTreeController 2";
   stream << controller->_hiddenRootNode;
+  qDebug() << " << _atomTreeController 3";
   return stream;
 }
 

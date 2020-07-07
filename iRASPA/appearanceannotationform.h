@@ -30,19 +30,15 @@
 #pragma once
 
 #include <QWidget>
+#include <QObject>
+#include "ui_appearanceannotationform.h"
 
-namespace Ui {
-class AppearanceAnnotationForm;
-}
 
-class AppearanceAnnotationForm : public QWidget
+class AppearanceAnnotationForm : public QWidget, public Ui::AppearanceAnnotationForm
 {
     Q_OBJECT
 
 public:
     explicit AppearanceAnnotationForm(QWidget *parent = nullptr);
     ~AppearanceAnnotationForm();
-
-private:
-    Ui::AppearanceAnnotationForm *ui;
 };

@@ -31,6 +31,8 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <iostream>
+#include <type_traits>
+#include <tuple>
 #include <QLabel>
 #include <QSpinBox>
 #include <mathkit.h>
@@ -41,6 +43,7 @@
 
 CellTreeWidgetController::CellTreeWidgetController(QWidget* parent): QTreeWidget(parent ),
     _cellCellForm(new CellCellForm),
+    _cellTransformContentForm(new CellTransformContentForm),
     _cellStructuralForm(new CellStructuralForm),
     _cellSymmetryForm(new CellSymmetryForm)
 {
@@ -80,6 +83,28 @@ CellTreeWidgetController::CellTreeWidgetController(QWidget* parent): QTreeWidget
   _cellCellForm->cellStructureTypeComboBox->insertItem(4, "Molecule");
   _cellCellForm->cellStructureTypeComboBox->insertItem(5, "Protein");
   _cellCellForm->cellStructureTypeComboBox->insertItem(6, "Protein crystal");
+  _cellCellForm->cellStructureTypeComboBox->insertItem(7, "Protein crystal solvent");
+  _cellCellForm->cellStructureTypeComboBox->insertItem(8, "Crystal solvent");
+  _cellCellForm->cellStructureTypeComboBox->insertItem(9, "Molecular crystal solvent");
+  _cellCellForm->cellStructureTypeComboBox->insertItem(10, "Crystal ellipse primitive");
+  _cellCellForm->cellStructureTypeComboBox->insertItem(11, "Crystal cylinder primitive");
+  _cellCellForm->cellStructureTypeComboBox->insertItem(12, "Crystal polygonal prism primitive");
+  _cellCellForm->cellStructureTypeComboBox->insertItem(13, "Ellipse primitive");
+  _cellCellForm->cellStructureTypeComboBox->insertItem(14, "Cylinder primitive");
+  _cellCellForm->cellStructureTypeComboBox->insertItem(15, "Polygonal prism primitive");
+  QStandardItemModel *model = qobject_cast<QStandardItemModel *>( _cellCellForm->cellStructureTypeComboBox->model());
+  QStandardItem *itemEmpty = model->item(0);
+  itemEmpty->setFlags(itemEmpty->flags() & ~Qt::ItemIsEnabled);
+  QStandardItem *itemStructure = model->item(1);
+  itemStructure->setFlags(itemStructure->flags() & ~Qt::ItemIsEnabled);
+  QStandardItem *itemProteinCrystalSolvent = model->item(7);
+  itemProteinCrystalSolvent->setFlags(itemProteinCrystalSolvent->flags() & ~Qt::ItemIsEnabled);
+  QStandardItem *itemCrystalSolvent = model->item(8);
+  itemCrystalSolvent->setFlags(itemCrystalSolvent->flags() & ~Qt::ItemIsEnabled);
+  QStandardItem *itemMolecularCrystalSolvent = model->item(9);
+  itemMolecularCrystalSolvent->setFlags(itemMolecularCrystalSolvent->flags() & ~Qt::ItemIsEnabled);
+  QObject::connect(_cellCellForm->cellStructureTypeComboBox,static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),this,&CellTreeWidgetController::setStructureType);
+
 
   QObject::connect(_cellCellForm->unitCellADoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&CellTreeWidgetController::setUnitCellLengthA);
   QObject::connect(_cellCellForm->unitCellBDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&CellTreeWidgetController::setUnitCellLengthB);
@@ -114,9 +139,56 @@ CellTreeWidgetController::CellTreeWidgetController(QWidget* parent): QTreeWidget
   QObject::connect(_cellCellForm->cellMinimumReplicaY, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),this,&CellTreeWidgetController::setMinimumReplicasY);
   QObject::connect(_cellCellForm->cellMinimumReplicaZ, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),this,&CellTreeWidgetController::setMinimumReplicasZ);
 
+
+  _cellCellForm->EulerAngleXDoubleSpinBox->setMinimum(-180);
+  _cellCellForm->EulerAngleXDoubleSpinBox->setMaximum(180);
+  _cellCellForm->EulerAngleXDial->setDoubleMinimum(-180);
+  _cellCellForm->EulerAngleXDial->setDoubleMaximum(180);
+
+  _cellCellForm->EulerAngleYDoubleSpinBox->setMinimum(-90.0);
+  _cellCellForm->EulerAngleYDoubleSpinBox->setMaximum(90.0);
+  _cellCellForm->EulerAngleYSlider->setDoubleMinimum(-90.0);
+  _cellCellForm->EulerAngleYSlider->setDoubleMaximum(90.0);
+
+  _cellCellForm->EulerAngleZDoubleSpinBox->setMinimum(-180.0);
+  _cellCellForm->EulerAngleZDoubleSpinBox->setMaximum(180.0);
+  _cellCellForm->EulerAngleZDial->setDoubleMinimum(-180);
+  _cellCellForm->EulerAngleZDial->setDoubleMaximum(180);
+
+  QObject::connect(_cellCellForm->rotationAngleDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &CellTreeWidgetController::setRotationAngle);
+  QObject::connect(_cellCellForm->rotatePlusXPushButton, &QPushButton::clicked, this, &CellTreeWidgetController::rotateYawPlus);
+  QObject::connect(_cellCellForm->rotatePlusZPushButton, &QPushButton::clicked, this, &CellTreeWidgetController::rotatePitchPlus);
+  QObject::connect(_cellCellForm->rotatePlusYPushButton, &QPushButton::clicked, this, &CellTreeWidgetController::rotateRollPlus);
+  QObject::connect(_cellCellForm->rotateMinusXPushButton, &QPushButton::clicked, this, &CellTreeWidgetController::rotateYawMinus);
+  QObject::connect(_cellCellForm->rotateMinusZPushButton, &QPushButton::clicked, this, &CellTreeWidgetController::rotatePitchMinus);
+  QObject::connect(_cellCellForm->rotateMinusYPushButton, &QPushButton::clicked, this, &CellTreeWidgetController::rotateRollMinus);
+
+
+  QObject::connect(_cellCellForm->EulerAngleXDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &CellTreeWidgetController::setEulerAngleX);
+  QObject::connect(_cellCellForm->EulerAngleYDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &CellTreeWidgetController::setEulerAngleY);
+  QObject::connect(_cellCellForm->EulerAngleZDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &CellTreeWidgetController::setEulerAngleZ);
+  QObject::connect(_cellCellForm->EulerAngleXDial,static_cast<void (QDoubleDial::*)(double)>(&QDoubleDial::sliderMoved),this,&CellTreeWidgetController::setEulerAngleX);
+  QObject::connect(_cellCellForm->EulerAngleYSlider,static_cast<void (QDoubleSlider::*)(double)>(&QDoubleSlider::sliderMoved),this,&CellTreeWidgetController::setEulerAngleY);
+  QObject::connect(_cellCellForm->EulerAngleZDial,static_cast<void (QDoubleDial::*)(double)>(&QDoubleDial::sliderMoved),this,&CellTreeWidgetController::setEulerAngleZ);
+
   QObject::connect(_cellCellForm->originXDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &CellTreeWidgetController::setOriginX);
   QObject::connect(_cellCellForm->originYDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &CellTreeWidgetController::setOriginY);
   QObject::connect(_cellCellForm->originZDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &CellTreeWidgetController::setOriginZ);
+
+  // Tranform content
+  //==============================================================================================
+  QTreeWidgetItem* transformContentItem = new QTreeWidgetItem(this);
+  this->addTopLevelItem(transformContentItem);
+
+  pushButtonTransformContent = new QPushButton(QString("Tranform content"),this);
+  pushButtonTransformContent->setIcon(QIcon(":/iRASPA/collapsed.png"));
+  pushButtonTransformContent->setStyleSheet("text-align:left;");
+  setItemWidget(transformContentItem,0,pushButtonTransformContent);
+
+  QTreeWidgetItem *childTransformContentItem = new QTreeWidgetItem(transformContentItem);
+  this->setItemWidget(childTransformContentItem,0, _cellTransformContentForm);
+
+  QObject::connect(pushButtonTransformContent, &QPushButton::clicked, this, &CellTreeWidgetController::expandTransformContentItem);
 
   // Structural
   //==============================================================================================
@@ -228,9 +300,24 @@ void CellTreeWidgetController::expandCellItem()
   }
 }
 
-void CellTreeWidgetController::expandStructuralItem()
+void CellTreeWidgetController::expandTransformContentItem()
 {
   QModelIndex index = indexFromItem(topLevelItem(1),0);
+  if(this->isExpanded(index))
+  {
+    this->collapse(index);
+    pushButtonTransformContent->setIcon(QIcon(":/iRASPA/collapsed.png"));
+  }
+  else
+  {
+    this->expand(index);
+    pushButtonTransformContent->setIcon(QIcon(":/iRASPA/expanded.png"));
+  }
+}
+
+void CellTreeWidgetController::expandStructuralItem()
+{
+  QModelIndex index = indexFromItem(topLevelItem(2),0);
   if(this->isExpanded(index))
   {
     this->collapse(index);
@@ -242,9 +329,10 @@ void CellTreeWidgetController::expandStructuralItem()
     pushButtonStructural->setIcon(QIcon(":/iRASPA/expanded.png"));
   }
 }
+
 void CellTreeWidgetController::expandSymmetryItem()
 {
-  QModelIndex index = indexFromItem(topLevelItem(2),0);
+  QModelIndex index = indexFromItem(topLevelItem(3),0);
   if(this->isExpanded(index))
   {
     this->collapse(index);
@@ -259,6 +347,7 @@ void CellTreeWidgetController::expandSymmetryItem()
 
 void CellTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 {
+  _projectTreeNode = projectTreeNode;
   _projectStructure = nullptr;
   if (projectTreeNode)
   {
@@ -269,7 +358,7 @@ void CellTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode> proje
         if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
         {
           _projectStructure = projectStructure;
-          _structures = projectStructure->flattenedStructures();
+          _iraspa_structures = projectStructure->flattenediRASPAStructures();
           reloadData();
         }
       }
@@ -278,17 +367,18 @@ void CellTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode> proje
 }
 
 
-void CellTreeWidgetController::setStructures(std::vector<std::shared_ptr<Structure>> structures)
+void CellTreeWidgetController::setFlattenedSelectedFrames(std::vector<std::shared_ptr<iRASPAStructure>> iraspa_structures)
 {
-  _structures = structures;
+  _iraspa_structures = iraspa_structures;
   reloadData();
 }
 
 void CellTreeWidgetController::reloadData()
 {
-   reloadCellProperties();
-   reloadStructureProperties();
-   reloadSymmetryProperties();
+  reloadCellProperties();
+  reloadTransformContentProperties();
+  reloadStructureProperties();
+  reloadSymmetryProperties();
 }
 
 void CellTreeWidgetController::reloadSelection()
@@ -321,15 +411,27 @@ void CellTreeWidgetController::reloadCellProperties()
   reloadCellMaximumReplicasZ();
   reloadCellMinimumReplicasZ();
 
+  reloadRotationAngle();
+  reloadEulerAngles();
+
   reloadCellOriginX();
   reloadCellOriginY();
   reloadCellOriginZ();
 }
 
+
 void CellTreeWidgetController::reloadStructureType()
 {
-	_cellCellForm->cellStructureTypeComboBox->setEnabled(false);
-	if (!_structures.empty())
+  if(_projectTreeNode)
+  {
+    _cellCellForm->cellStructureTypeComboBox->setEnabled(_projectTreeNode->isEditable());
+  }
+  else
+  {
+    _cellCellForm->cellStructureTypeComboBox->setEnabled(false);
+  }
+
+  if (!_iraspa_structures.empty())
 	{
     if (std::optional<iRASPAStructureType> type = structureType())
 		{
@@ -352,7 +454,23 @@ void CellTreeWidgetController::reloadStructureType()
 
 void CellTreeWidgetController::reloadBoundingBox()
 {
-  if(!_structures.empty())
+  _cellCellForm->cellBoundingBoxMaxXDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->cellBoundingBoxMaxYDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->cellBoundingBoxMaxZDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->cellBoundingBoxMinXDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->cellBoundingBoxMinYDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->cellBoundingBoxMinZDoubleSpinBox->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellCellForm->cellBoundingBoxMaxXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _cellCellForm->cellBoundingBoxMaxYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _cellCellForm->cellBoundingBoxMaxZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _cellCellForm->cellBoundingBoxMinXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _cellCellForm->cellBoundingBoxMinYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _cellCellForm->cellBoundingBoxMinZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     SKBoundingBox overAllBoundingBox = boundingBox();
 
@@ -368,7 +486,17 @@ void CellTreeWidgetController::reloadBoundingBox()
 
 void CellTreeWidgetController::reloadUnitCellLengths()
 {
-  if(!_structures.empty())
+  _cellCellForm->unitCellADoubleSpinBox->setReadOnly(true);
+  _cellCellForm->unitCellBDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->unitCellCDoubleSpinBox->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellCellForm->unitCellADoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _cellCellForm->unitCellBDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _cellCellForm->unitCellCDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<double> value = unitCellLengthA())
     {
@@ -400,7 +528,17 @@ void CellTreeWidgetController::reloadUnitCellLengths()
 }
 void CellTreeWidgetController::reloadUnitCellAngles()
 {
-  if(!_structures.empty())
+  _cellCellForm->unitCellAlphaDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->unitCellBetaDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->unitCellGammaDoubleSpinBox->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellCellForm->unitCellAlphaDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _cellCellForm->unitCellBetaDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _cellCellForm->unitCellGammaDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<double> value = unitCellAngleAlpha())
     {
@@ -433,7 +571,29 @@ void CellTreeWidgetController::reloadUnitCellAngles()
 
 void CellTreeWidgetController::reloadUnitCell()
 {
-  if(!_structures.empty())
+  _cellCellForm->unitCellAXDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->unitCellAYDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->unitCellAZDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->unitCellBXDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->unitCellBYDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->unitCellBZDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->unitCellBXDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->unitCellBYDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->unitCellBZDoubleSpinBox->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellCellForm->unitCellAXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _cellCellForm->unitCellAYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _cellCellForm->unitCellAZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _cellCellForm->unitCellBXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _cellCellForm->unitCellBYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _cellCellForm->unitCellBZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _cellCellForm->unitCellCXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _cellCellForm->unitCellCYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _cellCellForm->unitCellCZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<double> value = unitCellAX())
     {
@@ -520,7 +680,9 @@ void CellTreeWidgetController::reloadUnitCell()
 
 void CellTreeWidgetController::reloadCellVolume()
 {
-  if(!_structures.empty())
+  _cellCellForm->volumeDoubleSpinBox->setReadOnly(true);
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<double> value = unitCellVolume())
     {
@@ -535,7 +697,9 @@ void CellTreeWidgetController::reloadCellVolume()
 
 void CellTreeWidgetController::reloadCellPerpendicularWidthX()
 {
-  if(!_structures.empty())
+  _cellCellForm->perpendicularWidthXDoubleSpinBox->setReadOnly(true);
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<double> value = unitCellPerpendicularWidthX())
     {
@@ -550,7 +714,9 @@ void CellTreeWidgetController::reloadCellPerpendicularWidthX()
 
 void CellTreeWidgetController::reloadCellPerpendicularWidthY()
 {
-  if(!_structures.empty())
+  _cellCellForm->perpendicularWidthYDoubleSpinBox->setReadOnly(true);
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<double> value = unitCellPerpendicularWidthY())
     {
@@ -565,7 +731,9 @@ void CellTreeWidgetController::reloadCellPerpendicularWidthY()
 
 void CellTreeWidgetController::reloadCellPerpendicularWidthZ()
 {
-  if(!_structures.empty())
+  _cellCellForm->perpendicularWidthZDoubleSpinBox->setReadOnly(true);
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<double> value = unitCellPerpendicularWidthZ())
     {
@@ -580,7 +748,13 @@ void CellTreeWidgetController::reloadCellPerpendicularWidthZ()
 
 void CellTreeWidgetController::reloadCellMaximumReplicasX()
 {
-  if(!_structures.empty())
+  _cellCellForm->cellMaximumReplicaX->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellCellForm->cellMaximumReplicaX->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<int> value = maximumReplicasX())
     {
@@ -595,7 +769,13 @@ void CellTreeWidgetController::reloadCellMaximumReplicasX()
 
 void CellTreeWidgetController::reloadCellMinimumReplicasX()
 {
-  if(!_structures.empty())
+  _cellCellForm->cellMinimumReplicaX->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellCellForm->cellMinimumReplicaX->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<int> value = minimumReplicasX())
     {
@@ -610,7 +790,13 @@ void CellTreeWidgetController::reloadCellMinimumReplicasX()
 
 void CellTreeWidgetController::reloadCellMaximumReplicasY()
 {
-  if(!_structures.empty())
+  _cellCellForm->cellMaximumReplicaY->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellCellForm->cellMaximumReplicaY->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<int> value = maximumReplicasY())
     {
@@ -625,7 +811,13 @@ void CellTreeWidgetController::reloadCellMaximumReplicasY()
 
 void CellTreeWidgetController::reloadCellMinimumReplicasY()
 {
-  if(!_structures.empty())
+  _cellCellForm->cellMinimumReplicaY->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellCellForm->cellMinimumReplicaY->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<int> value = minimumReplicasY())
     {
@@ -640,7 +832,13 @@ void CellTreeWidgetController::reloadCellMinimumReplicasY()
 
 void CellTreeWidgetController::reloadCellMaximumReplicasZ()
 {
-  if(!_structures.empty())
+  _cellCellForm->cellMaximumReplicaZ->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellCellForm->cellMaximumReplicaZ->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<int> value = maximumReplicasZ())
     {
@@ -655,7 +853,13 @@ void CellTreeWidgetController::reloadCellMaximumReplicasZ()
 
 void CellTreeWidgetController::reloadCellMinimumReplicasZ()
 {
-  if(!_structures.empty())
+  _cellCellForm->cellMinimumReplicaZ->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellCellForm->cellMinimumReplicaZ->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<int> value = minimumReplicasZ())
     {
@@ -668,9 +872,111 @@ void CellTreeWidgetController::reloadCellMinimumReplicasZ()
   }
 }
 
+void CellTreeWidgetController::reloadRotationAngle()
+{
+  _cellCellForm->rotationAngleDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->rotatePlusXPushButton->setEnabled(false);
+  _cellCellForm->rotatePlusYPushButton->setEnabled(false);
+  _cellCellForm->rotatePlusZPushButton->setEnabled(false);
+  _cellCellForm->rotateMinusXPushButton->setEnabled(false);
+  _cellCellForm->rotateMinusYPushButton->setEnabled(false);
+  _cellCellForm->rotateMinusZPushButton->setEnabled(false);
+  if(_projectTreeNode)
+  {
+    _cellCellForm->rotationAngleDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+
+  }
+
+  if(!_iraspa_structures.empty())
+  {
+    if (std::optional<double> angle = rotationAngle())
+    {
+      whileBlocking(_cellCellForm->rotationAngleDoubleSpinBox)->setValue(*angle);
+
+      _cellCellForm->rotatePlusXPushButton->setEnabled(_projectTreeNode->isEditable());
+      _cellCellForm->rotatePlusYPushButton->setEnabled(_projectTreeNode->isEditable());
+      _cellCellForm->rotatePlusZPushButton->setEnabled(_projectTreeNode->isEditable());
+      _cellCellForm->rotateMinusXPushButton->setEnabled(_projectTreeNode->isEditable());
+      _cellCellForm->rotateMinusYPushButton->setEnabled(_projectTreeNode->isEditable());
+      _cellCellForm->rotateMinusZPushButton->setEnabled(_projectTreeNode->isEditable());
+
+      _cellCellForm->rotatePlusXPushButton->setText("Rotate +" + QString::number(*angle));
+      _cellCellForm->rotatePlusYPushButton->setText("Rotate +" + QString::number(*angle));
+      _cellCellForm->rotatePlusZPushButton->setText("Rotate +" + QString::number(*angle));
+      _cellCellForm->rotateMinusXPushButton->setText("Rotate -" + QString::number(*angle));
+      _cellCellForm->rotateMinusYPushButton->setText("Rotate -" + QString::number(*angle));
+      _cellCellForm->rotateMinusZPushButton->setText("Rotate -" + QString::number(*angle));
+    }
+    else
+    {
+      whileBlocking(_cellCellForm->rotationAngleDoubleSpinBox)->setText("Mult. Val.");
+    }
+  }
+}
+
+// QT-bug: disabling and re-enabling does not work for QDial and 'sliderMoved'
+void CellTreeWidgetController::reloadEulerAngles()
+{
+  _cellCellForm->EulerAngleXDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->EulerAngleXDial->setEnabled(false);
+  _cellCellForm->EulerAngleYDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->EulerAngleYSlider->setEnabled(false);
+  _cellCellForm->EulerAngleZDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->EulerAngleZDial->setEnabled(false);
+  if(_projectTreeNode)
+  {
+    _cellCellForm->EulerAngleXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _cellCellForm->EulerAngleXDial->setEnabled(_projectTreeNode->isEditable());
+    _cellCellForm->EulerAngleYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _cellCellForm->EulerAngleYSlider->setEnabled(_projectTreeNode->isEditable());
+    _cellCellForm->EulerAngleZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _cellCellForm->EulerAngleZDial->setEnabled(_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
+  {
+    if (std::optional<double> angle = EulerAngleX())
+    {
+      whileBlocking(_cellCellForm->EulerAngleXDial)->setDoubleValue(*angle);
+      whileBlocking(_cellCellForm->EulerAngleXDoubleSpinBox)->setValue(*angle);
+    }
+    else
+    {
+      whileBlocking(_cellCellForm->EulerAngleXDoubleSpinBox)->setText("Mult. Val.");
+    }
+
+    if (std::optional<double> angle = EulerAngleY())
+    {
+      whileBlocking(_cellCellForm->EulerAngleYDoubleSpinBox)->setValue(*angle);
+      whileBlocking(_cellCellForm->EulerAngleYSlider)->setDoubleValue(*angle);
+    }
+    else
+    {
+      whileBlocking(_cellCellForm->EulerAngleYDoubleSpinBox)->setText("Mult. Val.");
+    }
+
+    if (std::optional<double> angle = EulerAngleZ())
+    {
+      whileBlocking(_cellCellForm->EulerAngleZDoubleSpinBox)->setValue(*angle);
+      whileBlocking(_cellCellForm->EulerAngleZDial)->setDoubleValue(*angle);
+    }
+    else
+    {
+      whileBlocking(_cellCellForm->EulerAngleZDoubleSpinBox)->setText("Mult. Val.");
+    }
+  }
+}
+
+
 void CellTreeWidgetController::reloadCellOriginX()
 {
-  if(!_structures.empty())
+  _cellCellForm->originXDoubleSpinBox->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellCellForm->originXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<double> value = originX())
     {
@@ -685,7 +991,13 @@ void CellTreeWidgetController::reloadCellOriginX()
 
 void CellTreeWidgetController::reloadCellOriginY()
 {
-  if(!_structures.empty())
+  _cellCellForm->originYDoubleSpinBox->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellCellForm->originYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<double> value = originY())
     {
@@ -700,7 +1012,13 @@ void CellTreeWidgetController::reloadCellOriginY()
 
 void CellTreeWidgetController::reloadCellOriginZ()
 {
-  if(!_structures.empty())
+  _cellCellForm->originZDoubleSpinBox->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellCellForm->originZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<double> value = originZ())
     {
@@ -713,41 +1031,147 @@ void CellTreeWidgetController::reloadCellOriginZ()
   }
 }
 
+void CellTreeWidgetController::setStructureType(int value)
+{
+  std::vector<std::pair<std::shared_ptr<iRASPAStructure>,std::shared_ptr<iRASPAStructure>>> data;
+
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    switch(value)
+    {
+      case static_cast<typename std::underlying_type<Structure::CreationMethod>::type>(SKStructure::Kind::crystal):
+      {
+        std::shared_ptr<Crystal> crystal = std::make_shared<Crystal>(iraspa_structure->structure());
+        std::shared_ptr<iRASPAStructure> newiRASPAStructure = std::make_shared<iRASPAStructure>(crystal);
+        data.push_back(std::make_pair(iraspa_structure, newiRASPAStructure));
+        break;
+      }
+      case static_cast<typename std::underlying_type<Structure::CreationMethod>::type>(SKStructure::Kind::molecularCrystal):
+      {
+        std::shared_ptr<MolecularCrystal> molecularCrystal = std::make_shared<MolecularCrystal>(iraspa_structure->structure());
+        std::shared_ptr<iRASPAStructure> newiRASPAStructure = std::make_shared<iRASPAStructure>(molecularCrystal);
+        data.push_back(std::make_pair(iraspa_structure, newiRASPAStructure));
+        break;
+      }
+      case static_cast<typename std::underlying_type<Structure::CreationMethod>::type>(SKStructure::Kind::molecule):
+      {
+        std::shared_ptr<Molecule> molecule = std::make_shared<Molecule>(iraspa_structure->structure());
+        std::shared_ptr<iRASPAStructure> newiRASPAStructure = std::make_shared<iRASPAStructure>(molecule);
+        data.push_back(std::make_pair(iraspa_structure, newiRASPAStructure));
+        break;
+      }
+      case static_cast<typename std::underlying_type<Structure::CreationMethod>::type>(SKStructure::Kind::protein):
+      {
+        std::shared_ptr<Protein> protein = std::make_shared<Protein>(iraspa_structure->structure());
+        std::shared_ptr<iRASPAStructure> newiRASPAStructure = std::make_shared<iRASPAStructure>(protein);
+        data.push_back(std::make_pair(iraspa_structure, newiRASPAStructure));
+        break;
+      }
+      case static_cast<typename std::underlying_type<Structure::CreationMethod>::type>(SKStructure::Kind::proteinCrystal):
+      {
+        std::shared_ptr<ProteinCrystal> proteinCrystal = std::make_shared<ProteinCrystal>(iraspa_structure->structure());
+        std::shared_ptr<iRASPAStructure> newiRASPAStructure = std::make_shared<iRASPAStructure>(proteinCrystal);
+        data.push_back(std::make_pair(iraspa_structure, newiRASPAStructure));
+        break;
+      }
+      case static_cast<typename std::underlying_type<Structure::CreationMethod>::type>(SKStructure::Kind::crystalEllipsoidPrimitive):
+      {
+        std::shared_ptr<CrystalEllipsoidPrimitive> crystalEllipsoidPrimitive = std::make_shared<CrystalEllipsoidPrimitive>(iraspa_structure->structure());
+        std::shared_ptr<iRASPAStructure> newiRASPAStructure = std::make_shared<iRASPAStructure>(crystalEllipsoidPrimitive);
+        data.push_back(std::make_pair(iraspa_structure, newiRASPAStructure));
+        break;
+      }
+      case static_cast<typename std::underlying_type<Structure::CreationMethod>::type>(SKStructure::Kind::crystalCylinderPrimitive):
+      {
+        std::shared_ptr<CrystalCylinderPrimitive> crystalCylinderPrimitive = std::make_shared<CrystalCylinderPrimitive>(iraspa_structure->structure());
+        std::shared_ptr<iRASPAStructure> newiRASPAStructure = std::make_shared<iRASPAStructure>(crystalCylinderPrimitive);
+        data.push_back(std::make_pair(iraspa_structure, newiRASPAStructure));
+        break;
+      }
+      case static_cast<typename std::underlying_type<Structure::CreationMethod>::type>(SKStructure::Kind::crystalPolygonalPrismPrimitive):
+      {
+        std::shared_ptr<CrystalPolygonalPrismPrimitive> crystalPolygonalPrismPrimitive = std::make_shared<CrystalPolygonalPrismPrimitive>(iraspa_structure->structure());
+        std::shared_ptr<iRASPAStructure> newiRASPAStructure = std::make_shared<iRASPAStructure>(crystalPolygonalPrismPrimitive);
+        data.push_back(std::make_pair(iraspa_structure, newiRASPAStructure));
+        break;
+      }
+      case static_cast<typename std::underlying_type<Structure::CreationMethod>::type>(SKStructure::Kind::ellipsoidPrimitive):
+      {
+        std::shared_ptr<EllipsoidPrimitive> ellipsoidPrimitive = std::make_shared<EllipsoidPrimitive>(iraspa_structure->structure());
+        std::shared_ptr<iRASPAStructure> newiRASPAStructure = std::make_shared<iRASPAStructure>(ellipsoidPrimitive);
+        data.push_back(std::make_pair(iraspa_structure, newiRASPAStructure));
+        break;
+      }
+      case static_cast<typename std::underlying_type<Structure::CreationMethod>::type>(SKStructure::Kind::cylinderPrimitive):
+      {
+        std::shared_ptr<CylinderPrimitive> cylinderPrimitive = std::make_shared<CylinderPrimitive>(iraspa_structure->structure());
+        std::shared_ptr<iRASPAStructure> newiRASPAStructure = std::make_shared<iRASPAStructure>(cylinderPrimitive);
+        data.push_back(std::make_pair(iraspa_structure, newiRASPAStructure));
+        break;
+      }
+      case static_cast<typename std::underlying_type<Structure::CreationMethod>::type>(SKStructure::Kind::polygonalPrismPrimitive):
+      {
+        std::shared_ptr<PolygonalPrismPrimitive> polygonalPrismPrimitive = std::make_shared<PolygonalPrismPrimitive>(iraspa_structure->structure());
+        std::shared_ptr<iRASPAStructure> newiRASPAStructure = std::make_shared<iRASPAStructure>(polygonalPrismPrimitive);
+        data.push_back(std::make_pair(iraspa_structure, newiRASPAStructure));
+        break;
+      }
+      default:
+        break;
+    }
+  }
+  replaceStructure(data);
+}
+
+void CellTreeWidgetController::replaceStructure(std::vector<std::pair<std::shared_ptr<iRASPAStructure>,std::shared_ptr<iRASPAStructure>>> data)
+{
+  for(std::pair<std::shared_ptr<iRASPAStructure>,std::shared_ptr<iRASPAStructure>> tuple : data)
+  {
+    iRASPAStructure::swapRepresentedObjects(std::get<0>(tuple), std::get<1>(tuple));
+  }
+
+  std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+  std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                  [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+  SKBoundingBox box = _projectStructure->renderBoundingBox();
+  _projectStructure->camera()->resetForNewBoundingBox(box);
+
+  emit invalidateCachedAmbientOcclusionTexture(render_structures);
+  emit reloadAllViews();
+}
 
 std::optional<iRASPAStructureType> CellTreeWidgetController::structureType()
 {
-	if (_structures.empty())
+  if (_iraspa_structures.empty())
 	{
     return std::nullopt;
 	}
-    std::unordered_set<iRASPAStructureType, enum_hash> set = std::unordered_set<iRASPAStructureType, enum_hash>{};
-	for (std::shared_ptr<Structure> structure : _structures)
+  std::unordered_set<iRASPAStructureType, enum_hash> set = std::unordered_set<iRASPAStructureType, enum_hash>{};
+  for (std::shared_ptr<iRASPAStructure> iraspa_structure : _iraspa_structures)
 	{
-		iRASPAStructureType value = structure->structureType();
-        set.emplace(value);
+    iRASPAStructureType value = iraspa_structure->structure()->structureType();
+    set.emplace(value);
 	}
 
 	if (set.size() == 1)
 	{
-      iRASPAStructureType value = *set.begin();
-      return value;
+    iRASPAStructureType value = *set.begin();
+    return value;
 	}
   return std::nullopt;
 }
 
 SKBoundingBox CellTreeWidgetController::boundingBox()
 {
-  if(!_structures.empty())
+  if(!_iraspa_structures.empty())
   {
     double3 minimum = double3(DBL_MAX,DBL_MAX, DBL_MAX);
     double3 maximum = double3(-DBL_MAX,-DBL_MAX, -DBL_MAX);
-    for(std::shared_ptr<Structure> structure : _structures)
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure : _iraspa_structures)
     {
+      std::shared_ptr<Structure> structure = iraspa_structure->structure();
       SKBoundingBox transformedBoundingBox = structure->transformedBoundingBox();
-
-      std::cout << "TEST-CHECK: " << transformedBoundingBox.minimum().x << ", "
-                   << transformedBoundingBox.minimum().y << ", "
-                      << transformedBoundingBox.minimum().z << std::endl;
 
       minimum.x = std::min(minimum.x, transformedBoundingBox.minimum().x + structure->origin().x);
       minimum.y = std::min(minimum.y, transformedBoundingBox.minimum().y + structure->origin().y);
@@ -756,7 +1180,6 @@ SKBoundingBox CellTreeWidgetController::boundingBox()
       maximum.y = std::max(maximum.y, transformedBoundingBox.maximum().y + structure->origin().y);
       maximum.z = std::max(maximum.z, transformedBoundingBox.maximum().z + structure->origin().z);
     }
-    std::cout << "MINIMUM: " << minimum.x << ", " << minimum.y << ", " << minimum.z << std::endl;
     return SKBoundingBox(minimum,maximum);
   }
   return SKBoundingBox(double3(0.0,0.0,0.0),double3(0.0,0.0,0.0));
@@ -764,14 +1187,14 @@ SKBoundingBox CellTreeWidgetController::boundingBox()
 
 std::optional<double> CellTreeWidgetController::unitCellAX()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->unitCell().ax);
+    set.insert(iraspa_structure->structure()->cell()->unitCell().ax);
   }
 
   if(set.size() == 1)
@@ -784,14 +1207,14 @@ std::optional<double> CellTreeWidgetController::unitCellAX()
 
 std::optional<double> CellTreeWidgetController::unitCellAY()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->unitCell().ay);
+    set.insert(iraspa_structure->structure()->cell()->unitCell().ay);
   }
 
   if(set.size() == 1)
@@ -803,14 +1226,14 @@ std::optional<double> CellTreeWidgetController::unitCellAY()
 
 std::optional<double> CellTreeWidgetController::unitCellAZ()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->unitCell().az);
+    set.insert(iraspa_structure->structure()->cell()->unitCell().az);
   }
 
   if(set.size() == 1)
@@ -823,14 +1246,14 @@ std::optional<double> CellTreeWidgetController::unitCellAZ()
 
 std::optional<double> CellTreeWidgetController::unitCellBX()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->unitCell().bx);
+    set.insert(iraspa_structure->structure()->cell()->unitCell().bx);
   }
 
   if(set.size() == 1)
@@ -842,14 +1265,14 @@ std::optional<double> CellTreeWidgetController::unitCellBX()
 
 std::optional<double> CellTreeWidgetController::unitCellBY()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->unitCell().by);
+    set.insert(iraspa_structure->structure()->cell()->unitCell().by);
   }
 
   if(set.size() == 1)
@@ -861,14 +1284,14 @@ std::optional<double> CellTreeWidgetController::unitCellBY()
 
 std::optional<double> CellTreeWidgetController::unitCellBZ()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->unitCell().bz);
+    set.insert(iraspa_structure->structure()->cell()->unitCell().bz);
   }
 
   if(set.size() == 1)
@@ -880,14 +1303,14 @@ std::optional<double> CellTreeWidgetController::unitCellBZ()
 
 std::optional<double> CellTreeWidgetController::unitCellCX()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->unitCell().cx);
+    set.insert(iraspa_structure->structure()->cell()->unitCell().cx);
   }
 
   if(set.size() == 1)
@@ -899,14 +1322,14 @@ std::optional<double> CellTreeWidgetController::unitCellCX()
 
 std::optional<double> CellTreeWidgetController::unitCellCY()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->unitCell().cy);
+    set.insert(iraspa_structure->structure()->cell()->unitCell().cy);
   }
 
   if(set.size() == 1)
@@ -918,14 +1341,14 @@ std::optional<double> CellTreeWidgetController::unitCellCY()
 
 std::optional<double> CellTreeWidgetController::unitCellCZ()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->unitCell().cz);
+    set.insert(iraspa_structure->structure()->cell()->unitCell().cz);
   }
 
   if(set.size() == 1)
@@ -937,14 +1360,14 @@ std::optional<double> CellTreeWidgetController::unitCellCZ()
 
 std::optional<double> CellTreeWidgetController::unitCellLengthA()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->a());
+    set.insert(iraspa_structure->structure()->cell()->a());
   }
 
   if(set.size() == 1)
@@ -956,18 +1379,22 @@ std::optional<double> CellTreeWidgetController::unitCellLengthA()
 
 void CellTreeWidgetController::setUnitCellLengthA(double value)
 {
-  if(!_structures.empty())
+  if(!_iraspa_structures.empty())
   {
-    for(std::shared_ptr<Structure> structure: _structures)
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
     {
-      structure->cell()->setLengthA(value);
-      structure->reComputeBoundingBox();
+      iraspa_structure->structure()->cell()->setLengthA(value);
+      iraspa_structure->structure()->reComputeBoundingBox();
     }
 
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    emit invalidateCachedAmbientOcclusionTexture(render_structures);
     emit rendererReloadData();
 
     reloadBoundingBox();
@@ -977,14 +1404,14 @@ void CellTreeWidgetController::setUnitCellLengthA(double value)
 
 std::optional<double> CellTreeWidgetController::unitCellLengthB()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->b());
+    set.insert(iraspa_structure->structure()->cell()->b());
   }
 
   if(set.size() == 1)
@@ -996,18 +1423,22 @@ std::optional<double> CellTreeWidgetController::unitCellLengthB()
 
 void CellTreeWidgetController::setUnitCellLengthB(double value)
 {
-  if(!_structures.empty())
+  if(!_iraspa_structures.empty())
   {
-    for(std::shared_ptr<Structure> structure: _structures)
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
     {
-      structure->cell()->setLengthB(value);
-      structure->reComputeBoundingBox();
+      iraspa_structure->structure()->cell()->setLengthB(value);
+      iraspa_structure->structure()->reComputeBoundingBox();
     }
 
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    emit invalidateCachedAmbientOcclusionTexture(render_structures);
     emit rendererReloadData();
 
     reloadBoundingBox();
@@ -1017,14 +1448,14 @@ void CellTreeWidgetController::setUnitCellLengthB(double value)
 
 std::optional<double> CellTreeWidgetController::unitCellLengthC()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->c());
+    set.insert(iraspa_structure->structure()->cell()->c());
   }
 
   if(set.size() == 1)
@@ -1036,18 +1467,23 @@ std::optional<double> CellTreeWidgetController::unitCellLengthC()
 
 void CellTreeWidgetController::setUnitCellLengthC(double value)
 {
-  if(!_structures.empty())
+  if(!_iraspa_structures.empty())
   {
-    for(std::shared_ptr<Structure> structure: _structures)
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
     {
-      structure->cell()->setLengthC(value);
-      structure->reComputeBoundingBox();
+      iraspa_structure->structure()->cell()->setLengthC(value);
+      iraspa_structure->structure()->reComputeBoundingBox();
     }
 
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    emit invalidateCachedAmbientOcclusionTexture(render_structures);
     emit rendererReloadData();
 
     reloadBoundingBox();
@@ -1057,14 +1493,14 @@ void CellTreeWidgetController::setUnitCellLengthC(double value)
 
 std::optional<double> CellTreeWidgetController::unitCellAngleAlpha()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->alpha() * 180.0/M_PI);
+    set.insert(iraspa_structure->structure()->cell()->alpha() * 180.0/M_PI);
   }
 
   if(set.size() == 1)
@@ -1076,18 +1512,22 @@ std::optional<double> CellTreeWidgetController::unitCellAngleAlpha()
 
 void CellTreeWidgetController::setUnitCellAngleAlpha(double value)
 {
-  if(!_structures.empty())
+  if(!_iraspa_structures.empty())
   {
-    for(std::shared_ptr<Structure> structure: _structures)
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
     {
-      structure->cell()->setAlphaAngle(value * M_PI / 180.0);
-      structure->reComputeBoundingBox();
+      iraspa_structure->structure()->cell()->setAlphaAngle(value * M_PI / 180.0);
+      iraspa_structure->structure()->reComputeBoundingBox();
     }
 
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    emit invalidateCachedAmbientOcclusionTexture(render_structures);
     emit rendererReloadData();
 
     reloadBoundingBox();
@@ -1097,14 +1537,14 @@ void CellTreeWidgetController::setUnitCellAngleAlpha(double value)
 
 std::optional<double> CellTreeWidgetController::unitCellAngleBeta()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->beta() * 180.0/M_PI);
+    set.insert(iraspa_structure->structure()->cell()->beta() * 180.0/M_PI);
   }
 
   if(set.size() == 1)
@@ -1116,18 +1556,22 @@ std::optional<double> CellTreeWidgetController::unitCellAngleBeta()
 
 void CellTreeWidgetController::setUnitCellAngleBeta(double value)
 {
-  if(!_structures.empty())
+  if(!_iraspa_structures.empty())
   {
-    for(std::shared_ptr<Structure> structure: _structures)
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
     {
-      structure->cell()->setBetaAngle(value * M_PI / 180.0);
-      structure->reComputeBoundingBox();
+      iraspa_structure->structure()->cell()->setBetaAngle(value * M_PI / 180.0);
+      iraspa_structure->structure()->reComputeBoundingBox();
     }
 
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    emit invalidateCachedAmbientOcclusionTexture(render_structures);
     emit rendererReloadData();
 
     reloadBoundingBox();
@@ -1137,14 +1581,14 @@ void CellTreeWidgetController::setUnitCellAngleBeta(double value)
 
 std::optional<double> CellTreeWidgetController::unitCellAngleGamma()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->gamma() * 180.0/M_PI);
+    set.insert(iraspa_structure->structure()->cell()->gamma() * 180.0/M_PI);
   }
 
   if(set.size() == 1)
@@ -1156,18 +1600,22 @@ std::optional<double> CellTreeWidgetController::unitCellAngleGamma()
 
 void CellTreeWidgetController::setUnitCellAngleGamma(double value)
 {
-  if(!_structures.empty())
+  if(!_iraspa_structures.empty())
   {
-    for(std::shared_ptr<Structure> structure: _structures)
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
     {
-      structure->cell()->setGammaAngle(value * M_PI / 180.0);
-      structure->reComputeBoundingBox();
+      iraspa_structure->structure()->cell()->setGammaAngle(value * M_PI / 180.0);
+      iraspa_structure->structure()->reComputeBoundingBox();
     }
 
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    emit invalidateCachedAmbientOcclusionTexture(render_structures);
     emit rendererReloadData();
 
     reloadBoundingBox();
@@ -1178,14 +1626,14 @@ void CellTreeWidgetController::setUnitCellAngleGamma(double value)
 
 std::optional<double> CellTreeWidgetController::unitCellVolume()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->volume());
+    set.insert(iraspa_structure->structure()->cell()->volume());
   }
 
   if(set.size() == 1)
@@ -1199,14 +1647,14 @@ std::optional<double> CellTreeWidgetController::unitCellVolume()
 
 std::optional<double> CellTreeWidgetController::unitCellPerpendicularWidthX()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->perpendicularWidths().x);
+    set.insert(iraspa_structure->structure()->cell()->perpendicularWidths().x);
   }
 
   if(set.size() == 1)
@@ -1219,14 +1667,14 @@ std::optional<double> CellTreeWidgetController::unitCellPerpendicularWidthX()
 
 std::optional<double> CellTreeWidgetController::unitCellPerpendicularWidthY()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->perpendicularWidths().y);
+    set.insert(iraspa_structure->structure()->cell()->perpendicularWidths().y);
   }
 
   if(set.size() == 1)
@@ -1240,14 +1688,14 @@ std::optional<double> CellTreeWidgetController::unitCellPerpendicularWidthY()
 
 std::optional<double> CellTreeWidgetController::unitCellPerpendicularWidthZ()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->perpendicularWidths().z);
+    set.insert(iraspa_structure->structure()->cell()->perpendicularWidths().z);
   }
 
   if(set.size() == 1)
@@ -1261,14 +1709,14 @@ std::optional<double> CellTreeWidgetController::unitCellPerpendicularWidthZ()
 
 std::optional<int> CellTreeWidgetController::maximumReplicasX()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->maximumReplicaX());
+    set.insert(iraspa_structure->structure()->cell()->maximumReplicaX());
   }
 
   if(set.size() == 1)
@@ -1281,20 +1729,24 @@ std::optional<int> CellTreeWidgetController::maximumReplicasX()
 
 void CellTreeWidgetController::setMaximumReplicasX(int value)
 {
-  if(!_structures.empty())
+  if(!_iraspa_structures.empty())
   {
-    for(std::shared_ptr<Structure> structure: _structures)
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
     {
-      if (value >= structure->cell()->minimumReplicaX())
+      if (value >= iraspa_structure->structure()->cell()->minimumReplicaX())
       {
-        structure->cell()->setMaximumReplicaX(value);
+        iraspa_structure->structure()->cell()->setMaximumReplicaX(value);
       }
     }
 
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    emit invalidateCachedAmbientOcclusionTexture(render_structures);
     emit rendererReloadData();
 
     reloadCellMaximumReplicasX();
@@ -1304,14 +1756,14 @@ void CellTreeWidgetController::setMaximumReplicasX(int value)
 
 std::optional<int> CellTreeWidgetController::maximumReplicasY()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->maximumReplicaY());
+    set.insert(iraspa_structure->structure()->cell()->maximumReplicaY());
   }
 
   if(set.size() == 1)
@@ -1324,20 +1776,24 @@ std::optional<int> CellTreeWidgetController::maximumReplicasY()
 
 void CellTreeWidgetController::setMaximumReplicasY(int value)
 {
-  if(!_structures.empty())
+  if(!_iraspa_structures.empty())
   {
-    for(std::shared_ptr<Structure> structure: _structures)
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
     {
-      if (value >= structure->cell()->minimumReplicaY())
+      if (value >= iraspa_structure->structure()->cell()->minimumReplicaY())
       {
-        structure->cell()->setMaximumReplicaY(value);
+        iraspa_structure->structure()->cell()->setMaximumReplicaY(value);
       }
     }
 
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    emit invalidateCachedAmbientOcclusionTexture(render_structures);
     emit rendererReloadData();
 
     reloadCellMaximumReplicasY();
@@ -1347,14 +1803,14 @@ void CellTreeWidgetController::setMaximumReplicasY(int value)
 
 std::optional<int> CellTreeWidgetController::maximumReplicasZ()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->maximumReplicaZ());
+    set.insert(iraspa_structure->structure()->cell()->maximumReplicaZ());
   }
 
   if(set.size() == 1)
@@ -1367,20 +1823,24 @@ std::optional<int> CellTreeWidgetController::maximumReplicasZ()
 
 void CellTreeWidgetController::setMaximumReplicasZ(int value)
 {
-  if(!_structures.empty())
+  if(!_iraspa_structures.empty())
   {
-    for(std::shared_ptr<Structure> structure: _structures)
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
     {
-      if (value >= structure->cell()->minimumReplicaZ())
+      if (value >= iraspa_structure->structure()->cell()->minimumReplicaZ())
       {
-        structure->cell()->setMaximumReplicaZ(value);
+        iraspa_structure->structure()->cell()->setMaximumReplicaZ(value);
       }
     }
 
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    emit invalidateCachedAmbientOcclusionTexture(render_structures);
     emit rendererReloadData();
 
     reloadCellMaximumReplicasZ();
@@ -1390,14 +1850,14 @@ void CellTreeWidgetController::setMaximumReplicasZ(int value)
 
 std::optional<int> CellTreeWidgetController::minimumReplicasX()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->minimumReplicaX());
+    set.insert(iraspa_structure->structure()->cell()->minimumReplicaX());
   }
 
   if(set.size() == 1)
@@ -1410,20 +1870,24 @@ std::optional<int> CellTreeWidgetController::minimumReplicasX()
 
 void CellTreeWidgetController::setMinimumReplicasX(int value)
 {
-  if(!_structures.empty())
+  if(!_iraspa_structures.empty())
   {
-    for(std::shared_ptr<Structure> structure: _structures)
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
     {
-      if (value <= structure->cell()->maximumReplicaX())
+      if (value <= iraspa_structure->structure()->cell()->maximumReplicaX())
       {
-        structure->cell()->setMinimumReplicaX(value);
+        iraspa_structure->structure()->cell()->setMinimumReplicaX(value);
       }
     }
 
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    emit invalidateCachedAmbientOcclusionTexture(render_structures);
     emit rendererReloadData();
 
     reloadCellMinimumReplicasX();
@@ -1433,14 +1897,14 @@ void CellTreeWidgetController::setMinimumReplicasX(int value)
 
 std::optional<int> CellTreeWidgetController::minimumReplicasY()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->minimumReplicaY());
+    set.insert(iraspa_structure->structure()->cell()->minimumReplicaY());
   }
 
   if(set.size() == 1)
@@ -1453,20 +1917,24 @@ std::optional<int> CellTreeWidgetController::minimumReplicasY()
 
 void CellTreeWidgetController::setMinimumReplicasY(int value)
 {
-  if(!_structures.empty())
+  if(!_iraspa_structures.empty())
   {
-    for(std::shared_ptr<Structure> structure: _structures)
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
     {
-      if (value <= structure->cell()->maximumReplicaY())
+      if (value <= iraspa_structure->structure()->cell()->maximumReplicaY())
       {
-        structure->cell()->setMinimumReplicaY(value);
+        iraspa_structure->structure()->cell()->setMinimumReplicaY(value);
       }
     }
 
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    emit invalidateCachedAmbientOcclusionTexture(render_structures);
     emit rendererReloadData();
 
     reloadCellMinimumReplicasY();
@@ -1476,14 +1944,14 @@ void CellTreeWidgetController::setMinimumReplicasY(int value)
 
 std::optional<int> CellTreeWidgetController::minimumReplicasZ()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->cell()->minimumReplicaZ());
+    set.insert(iraspa_structure->structure()->cell()->minimumReplicaZ());
   }
 
   if(set.size() == 1)
@@ -1496,20 +1964,24 @@ std::optional<int> CellTreeWidgetController::minimumReplicasZ()
 
 void CellTreeWidgetController::setMinimumReplicasZ(int value)
 {
-  if(!_structures.empty())
+  if(!_iraspa_structures.empty())
   {
-    for(std::shared_ptr<Structure> structure: _structures)
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
     {
-      if (value <= structure->cell()->maximumReplicaZ())
+      if (value <= iraspa_structure->structure()->cell()->maximumReplicaZ())
       {
-        structure->cell()->setMinimumReplicaZ(value);
+        iraspa_structure->structure()->cell()->setMinimumReplicaZ(value);
       }
     }
 
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    emit invalidateCachedAmbientOcclusionTexture(render_structures);
     emit rendererReloadData();
 
     reloadCellMinimumReplicasZ();
@@ -1517,16 +1989,347 @@ void CellTreeWidgetController::setMinimumReplicasZ(int value)
   }
 }
 
+std::optional<double> CellTreeWidgetController::rotationAngle()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+
+  std::set<double> set = std::set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    double angle = iraspa_structure->structure()->rotationDelta();
+    set.insert(angle);
+  }
+
+  if(set.size() == 1)
+  {
+    return *(set.begin());
+  }
+  return std::nullopt;
+}
+
+void CellTreeWidgetController::setRotationAngle(double angle)
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      iraspa_structure->structure()->setRotationDelta(angle);
+    }
+    reloadRotationAngle();
+  }
+}
+
+void CellTreeWidgetController::rotateYawPlus()
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      double rotationDelta = iraspa_structure->structure()->rotationDelta();
+      simd_quatd orientation = iraspa_structure->structure()->orientation();
+      simd_quatd dq = simd_quatd::yaw(rotationDelta);
+      simd_quatd newOrientation = orientation *dq;
+      iraspa_structure->structure()->setOrientation(newOrientation);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    emit rendererReloadData();
+
+    reloadBoundingBox();
+    reloadEulerAngles();
+  }
+}
+
+void CellTreeWidgetController::rotateYawMinus()
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      double rotationDelta = iraspa_structure->structure()->rotationDelta();
+      simd_quatd orientation = iraspa_structure->structure()->orientation();
+      simd_quatd dq = simd_quatd::yaw(-rotationDelta);
+      simd_quatd newOrientation = orientation *dq;
+      iraspa_structure->structure()->setOrientation(newOrientation);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    emit rendererReloadData();
+
+    reloadBoundingBox();
+    reloadEulerAngles();
+  }
+}
+
+void CellTreeWidgetController::rotatePitchPlus()
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      double rotationDelta = iraspa_structure->structure()->rotationDelta();
+      simd_quatd orientation = iraspa_structure->structure()->orientation();
+      simd_quatd dq = simd_quatd::pitch(rotationDelta);
+      simd_quatd newOrientation = orientation *dq;
+      iraspa_structure->structure()->setOrientation(newOrientation);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    emit rendererReloadData();
+
+    reloadBoundingBox();
+    reloadEulerAngles();
+  }
+}
+
+void CellTreeWidgetController::rotatePitchMinus()
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      double rotationDelta = iraspa_structure->structure()->rotationDelta();
+      simd_quatd orientation = iraspa_structure->structure()->orientation();
+      simd_quatd dq = simd_quatd::pitch(-rotationDelta);
+      simd_quatd newOrientation = orientation *dq;
+      iraspa_structure->structure()->setOrientation(newOrientation);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    emit rendererReloadData();
+
+    reloadBoundingBox();
+    reloadEulerAngles();
+  }
+}
+
+void CellTreeWidgetController::rotateRollPlus()
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      double rotationDelta = iraspa_structure->structure()->rotationDelta();
+      simd_quatd orientation = iraspa_structure->structure()->orientation();
+      simd_quatd dq = simd_quatd::roll(rotationDelta);
+      simd_quatd newOrientation = orientation *dq;
+      iraspa_structure->structure()->setOrientation(newOrientation);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    emit rendererReloadData();
+
+    reloadBoundingBox();
+    reloadEulerAngles();
+  }
+}
+
+void CellTreeWidgetController::rotateRollMinus()
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      double rotationDelta = iraspa_structure->structure()->rotationDelta();
+      simd_quatd orientation = iraspa_structure->structure()->orientation();
+      simd_quatd dq = simd_quatd::roll(-rotationDelta);
+      simd_quatd newOrientation = orientation *dq;
+      iraspa_structure->structure()->setOrientation(newOrientation);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    emit rendererReloadData();
+
+    reloadBoundingBox();
+    reloadEulerAngles();
+  }
+}
+
+std::optional<double> CellTreeWidgetController::EulerAngleX()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+
+  std::set<double> set = std::set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    simd_quatd orientation = iraspa_structure->structure()->orientation();
+    double EulerAngle = orientation.EulerAngles().x * 180.0 / M_PI;
+    set.insert(EulerAngle);
+  }
+
+  if(set.size() == 1)
+  {
+    return *(set.begin());
+  }
+  return std::nullopt;
+}
+
+void CellTreeWidgetController::setEulerAngleX(double angle)
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      simd_quatd orientation = iraspa_structure->structure()->orientation();
+      double3 EulerAngles = orientation.EulerAngles();
+      EulerAngles.x = angle * M_PI / 180.0;
+      simd_quatd newOrientation = simd_quatd(EulerAngles);
+      iraspa_structure->structure()->setOrientation(newOrientation);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit rendererReloadData();
+
+    reloadBoundingBox();
+    reloadEulerAngles();
+  }
+}
+
+std::optional<double> CellTreeWidgetController::EulerAngleY()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+
+  std::set<double> set = std::set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    simd_quatd orientation = iraspa_structure->structure()->orientation();
+    int EulerAngle = orientation.EulerAngles().y * 180.0 / M_PI;
+    set.insert(EulerAngle);
+  }
+
+  if(set.size() == 1)
+  {
+    return *(set.begin());
+  }
+  return std::nullopt;
+}
+
+void CellTreeWidgetController::setEulerAngleY(double angle)
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      simd_quatd orientation = iraspa_structure->structure()->orientation();
+      double3 EulerAngles = orientation.EulerAngles();
+      EulerAngles.y = angle * M_PI / 180.0;
+      simd_quatd newOrientation = simd_quatd(EulerAngles);
+      iraspa_structure->structure()->setOrientation(newOrientation);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit rendererReloadData();
+
+    reloadBoundingBox();
+    reloadEulerAngles();
+  }
+}
+
+std::optional<double> CellTreeWidgetController::EulerAngleZ()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+
+  std::set<double> set = std::set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    simd_quatd orientation = iraspa_structure->structure()->orientation();
+    int EulerAngle = orientation.EulerAngles().z * 180.0 / M_PI;
+    set.insert(EulerAngle);
+  }
+
+  if(set.size() == 1)
+  {
+    return *(set.begin());
+  }
+  return std::nullopt;
+}
+
+void CellTreeWidgetController::setEulerAngleZ(double angle)
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      simd_quatd orientation = iraspa_structure->structure()->orientation();
+      double3 EulerAngles = orientation.EulerAngles();
+      EulerAngles.z = angle * M_PI / 180.0;
+      simd_quatd newOrientation = simd_quatd(EulerAngles);
+      iraspa_structure->structure()->setOrientation(newOrientation);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit rendererReloadData();
+
+    reloadBoundingBox();
+    reloadEulerAngles();
+  }
+}
+
+
 std::optional<double>  CellTreeWidgetController::originX()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->origin().x);
+    set.insert(iraspa_structure->structure()->origin().x);
   }
 
   if(set.size() == 1)
@@ -1539,17 +2342,21 @@ std::optional<double>  CellTreeWidgetController::originX()
 
 void CellTreeWidgetController::setOriginX(double value)
 {
-  if(!_structures.empty())
+  if(!_iraspa_structures.empty())
   {
-    for(std::shared_ptr<Structure> structure: _structures)
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
     {
-      structure->setOriginX(value);
+      iraspa_structure->structure()->setOriginX(value);
     }
 
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    emit invalidateCachedAmbientOcclusionTexture(render_structures);
     emit rendererReloadData();
 
     reloadBoundingBox();
@@ -1559,14 +2366,14 @@ void CellTreeWidgetController::setOriginX(double value)
 
 std::optional<double>  CellTreeWidgetController::originY()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->origin().y);
+    set.insert(iraspa_structure->structure()->origin().y);
   }
 
   if(set.size() == 1)
@@ -1579,17 +2386,21 @@ std::optional<double>  CellTreeWidgetController::originY()
 
 void CellTreeWidgetController::setOriginY(double value)
 {
-  if(!_structures.empty())
+  if(!_iraspa_structures.empty())
   {
-    for(std::shared_ptr<Structure> structure: _structures)
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
     {
-      structure->setOriginY(value);
+      iraspa_structure->structure()->setOriginY(value);
     }
 
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    emit invalidateCachedAmbientOcclusionTexture(render_structures);
     emit rendererReloadData();
 
     reloadBoundingBox();
@@ -1599,14 +2410,14 @@ void CellTreeWidgetController::setOriginY(double value)
 
 std::optional<double>  CellTreeWidgetController::originZ()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(structure->origin().z);
+    set.insert(iraspa_structure->structure()->origin().z);
   }
 
   if(set.size() == 1)
@@ -1619,23 +2430,52 @@ std::optional<double>  CellTreeWidgetController::originZ()
 
 void CellTreeWidgetController::setOriginZ(double value)
 {
-  if(!_structures.empty())
+  if(!_iraspa_structures.empty())
   {
-    for(std::shared_ptr<Structure> structure: _structures)
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
     {
-      structure->setOriginZ(value);
+      iraspa_structure->structure()->setOriginZ(value);
     }
 
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    emit invalidateCachedAmbientOcclusionTexture(render_structures);
     emit rendererReloadData();
 
     reloadBoundingBox();
   }
 }
 
+
+// Transform content properties
+//========================================================================================================================================
+
+void CellTreeWidgetController::reloadTransformContentProperties()
+{
+  reloadFlipAxesProperties();
+  reloadShiftAxesProperties();
+
+  _cellTransformContentForm->applyPushButton->setEnabled(false);
+}
+
+void CellTreeWidgetController::reloadFlipAxesProperties()
+{
+  _cellTransformContentForm->flipAxisACheckBox->setEnabled(false);
+  _cellTransformContentForm->flipAxisBCheckBox->setEnabled(false);
+  _cellTransformContentForm->flipAxisCCheckBox->setEnabled(false);
+}
+
+void CellTreeWidgetController::reloadShiftAxesProperties()
+{
+  _cellTransformContentForm->shiftAxisADoubleSpinBox->setEnabled(false);
+  _cellTransformContentForm->shiftAxisBDoubleSpinBox->setEnabled(false);
+  _cellTransformContentForm->shiftAxisCDoubleSpinBox->setEnabled(false);
+}
 
 // Structural properties
 //========================================================================================================================================
@@ -1657,11 +2497,26 @@ void CellTreeWidgetController::reloadStructureProperties()
   reloadStructuralLargestOverallCavityDiameter();
   reloadStructuralRestrictingPoreDiameter();
   reloadStructuralLargestDiamtereAlongAViablePath();
+
+  _cellStructuralForm->computeGravimetricSurfaceAreaPushButton->setEnabled(false);
+  _cellStructuralForm->computeVolumetricSurfaceAreaPushButton->setEnabled(false);
+  _cellStructuralForm->computeHeliumVoidFractionPushButton->setEnabled(false);
+  if(_projectTreeNode)
+  {
+    _cellStructuralForm->computeGravimetricSurfaceAreaPushButton->setEnabled(_projectTreeNode->isEditable());
+    _cellStructuralForm->computeVolumetricSurfaceAreaPushButton->setEnabled(_projectTreeNode->isEditable());
+    _cellStructuralForm->computeHeliumVoidFractionPushButton->setEnabled(_projectTreeNode->isEditable());
+  }
 }
 
 void CellTreeWidgetController::reloadStructuralMaterialType()
 {
-  if(!_structures.empty())
+  _cellStructuralForm->materialTypeComboBox->setEnabled(false);
+  if(_projectTreeNode)
+  {
+    _cellStructuralForm->materialTypeComboBox->setEnabled(_projectTreeNode->isEditable());
+  }
+  if(!_iraspa_structures.empty())
   {
 
   }
@@ -1669,7 +2524,13 @@ void CellTreeWidgetController::reloadStructuralMaterialType()
 
 void CellTreeWidgetController::reloadStructuralMass()
 {
-  if(!_structures.empty())
+  _cellStructuralForm->massDoubleSpinBox->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellStructuralForm->massDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<double> value = structuralMass())
     {
@@ -1684,7 +2545,13 @@ void CellTreeWidgetController::reloadStructuralMass()
 
 void CellTreeWidgetController::reloadStructuralDensity()
 {
-  if(!_structures.empty())
+  _cellStructuralForm->densityDoubleSpinBox->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellStructuralForm->densityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<double> value = structuralDensity())
     {
@@ -1699,7 +2566,13 @@ void CellTreeWidgetController::reloadStructuralDensity()
 
 void CellTreeWidgetController::reloadStructuralHeliumVoidFraction()
 {
-  if(!_structures.empty())
+  _cellStructuralForm->heliumVoidFractionDoubleSpinBox->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellStructuralForm->heliumVoidFractionDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<double> value = structureHeliumVoidFraction())
     {
@@ -1714,7 +2587,13 @@ void CellTreeWidgetController::reloadStructuralHeliumVoidFraction()
 
 void CellTreeWidgetController::reloadStructuralSpecificVolume()
 {
-  if(!_structures.empty())
+  _cellStructuralForm->specificVolumeDoubleSpinBox->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellStructuralForm->specificVolumeDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<double> value = structureSpecificVolume())
     {
@@ -1729,7 +2608,13 @@ void CellTreeWidgetController::reloadStructuralSpecificVolume()
 
 void CellTreeWidgetController::reloadStructuralAccessiblePoreVolume()
 {
-  if(!_structures.empty())
+  _cellStructuralForm->accessiblePoreVolumeDoubleSpinBox->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellStructuralForm->accessiblePoreVolumeDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<double> value = structureAccessiblePoreVolume())
     {
@@ -1744,7 +2629,13 @@ void CellTreeWidgetController::reloadStructuralAccessiblePoreVolume()
 
 void CellTreeWidgetController::reloadFrameworkProbeMoleculePopupBox()
 {
-  if(!_structures.empty())
+  _cellStructuralForm->probeMoleculeComboBox->setEnabled(false);
+  if(_projectTreeNode)
+  {
+    _cellStructuralForm->probeMoleculeComboBox->setEnabled(_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<Structure::ProbeMolecule> type=frameworkProbeMolecule())
     {
@@ -1774,7 +2665,13 @@ void CellTreeWidgetController::reloadFrameworkProbeMoleculePopupBox()
 
 void CellTreeWidgetController::reloadStructuralVolumetricSurfaceArea()
 {
-  if(!_structures.empty())
+  _cellStructuralForm->volumetricSurfaceAreaDoubleSpinBox->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellStructuralForm->volumetricSurfaceAreaDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<double> value = structureVolumetricNitrogenSurfaceArea())
     {
@@ -1789,7 +2686,13 @@ void CellTreeWidgetController::reloadStructuralVolumetricSurfaceArea()
 
 void CellTreeWidgetController::reloadStructuralGravimetricSurfaceArea()
 {
-  if(!_structures.empty())
+  _cellStructuralForm->gravimetricSurfaceAreaDoubleSpinBox->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellStructuralForm->gravimetricSurfaceAreaDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<double> value = structureGravimetricNitrogenSurfaceArea())
     {
@@ -1804,7 +2707,13 @@ void CellTreeWidgetController::reloadStructuralGravimetricSurfaceArea()
 
 void CellTreeWidgetController::reloadStructuralNumberOfChannelSystems()
 {
-  if(!_structures.empty())
+  _cellStructuralForm->numberOfChannelSystemsSpinBox->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellStructuralForm->numberOfChannelSystemsSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<int> value = structureNumberOfChannelSystems())
     {
@@ -1819,7 +2728,13 @@ void CellTreeWidgetController::reloadStructuralNumberOfChannelSystems()
 
 void CellTreeWidgetController::reloadStructuralNumberOfInaccessiblePockets()
 {
-  if(!_structures.empty())
+  _cellStructuralForm->numberOfInaccessiblePocketsSpinBox->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellStructuralForm->numberOfInaccessiblePocketsSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<int> value = structureNumberOfInaccessiblePockets())
     {
@@ -1834,7 +2749,13 @@ void CellTreeWidgetController::reloadStructuralNumberOfInaccessiblePockets()
 
 void CellTreeWidgetController::reloadStructuralDimensionalityOfPoreSystem()
 {
-  if(!_structures.empty())
+  _cellStructuralForm->dimensionalityOfPoreSystemSpinBox->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellStructuralForm->dimensionalityOfPoreSystemSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<int> value = structureDimensionalityOfPoreSystem())
     {
@@ -1849,7 +2770,13 @@ void CellTreeWidgetController::reloadStructuralDimensionalityOfPoreSystem()
 
 void CellTreeWidgetController::reloadStructuralLargestOverallCavityDiameter()
 {
-  if(!_structures.empty())
+  _cellStructuralForm->largestOverallCavityDiameterDoubleSpinBox->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellStructuralForm->largestOverallCavityDiameterDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<double> value = structureLargestCavityDiameter())
     {
@@ -1864,7 +2791,13 @@ void CellTreeWidgetController::reloadStructuralLargestOverallCavityDiameter()
 
 void CellTreeWidgetController::reloadStructuralRestrictingPoreDiameter()
 {
-  if(!_structures.empty())
+  _cellStructuralForm->restrictingPoreDiameterDoubleSpinBox->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellStructuralForm->restrictingPoreDiameterDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<double> value = structureRestrictingPoreLimitingDiameter())
     {
@@ -1879,7 +2812,13 @@ void CellTreeWidgetController::reloadStructuralRestrictingPoreDiameter()
 
 void CellTreeWidgetController::reloadStructuralLargestDiamtereAlongAViablePath()
 {
-  if(!_structures.empty())
+  _cellStructuralForm->largestDiameterAlongAViablePathDoubleSpinBox->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellStructuralForm->largestDiameterAlongAViablePathDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<double> value = structureLargestCavityDiameterAlongAviablePath())
     {
@@ -1895,14 +2834,14 @@ void CellTreeWidgetController::reloadStructuralLargestDiamtereAlongAViablePath()
 
 std::optional<double> CellTreeWidgetController::structuralMass()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    double value = structure->structureMass();
+    double value = iraspa_structure->structure()->structureMass();
     set.insert(value);
   }
 
@@ -1915,14 +2854,14 @@ std::optional<double> CellTreeWidgetController::structuralMass()
 
 std::optional<double> CellTreeWidgetController::structuralDensity()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    double value = structure->structureDensity();
+    double value = iraspa_structure->structure()->structureDensity();
     set.insert(value);
   }
 
@@ -1935,14 +2874,14 @@ std::optional<double> CellTreeWidgetController::structuralDensity()
 
 std::optional<double> CellTreeWidgetController::structureHeliumVoidFraction()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    double value = structure->structureHeliumVoidFraction();
+    double value = iraspa_structure->structure()->structureHeliumVoidFraction();
     set.insert(value);
   }
 
@@ -1956,14 +2895,14 @@ std::optional<double> CellTreeWidgetController::structureHeliumVoidFraction()
 
 std::optional<double> CellTreeWidgetController::structureSpecificVolume()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    double value = structure->structureSpecificVolume();
+    double value = iraspa_structure->structure()->structureSpecificVolume();
     set.insert(value);
   }
 
@@ -1976,14 +2915,14 @@ std::optional<double> CellTreeWidgetController::structureSpecificVolume()
 
 std::optional<double> CellTreeWidgetController::structureAccessiblePoreVolume()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    double value = structure->structureAccessiblePoreVolume();
+    double value = iraspa_structure->structure()->structureAccessiblePoreVolume();
     set.insert(value);
   }
 
@@ -1998,13 +2937,17 @@ void CellTreeWidgetController::setFrameworkProbeMolecule(int value)
 {
   if(value>=0 && value<int(Structure::ProbeMolecule::multiple_values))
   {
-    for(std::shared_ptr<Structure> structure: _structures)
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
     {
-      structure->setFrameworkProbeMolecule(Structure::ProbeMolecule(value));
-      structure->recheckRepresentationStyle();
+      iraspa_structure->structure()->setFrameworkProbeMolecule(Structure::ProbeMolecule(value));
+      iraspa_structure->structure()->recheckRepresentationStyle();
     }
 
-    emit computeNitrogenSurfaceArea(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    emit computeNitrogenSurfaceArea(render_structures);
     this->reloadStructureProperties();
 
     reloadFrameworkProbeMoleculePopupBox();
@@ -2013,14 +2956,14 @@ void CellTreeWidgetController::setFrameworkProbeMolecule(int value)
 
 std::optional<Structure::ProbeMolecule> CellTreeWidgetController::frameworkProbeMolecule()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<Structure::ProbeMolecule, enum_hash> set = std::unordered_set<Structure::ProbeMolecule, enum_hash>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    Structure::ProbeMolecule value = structure->frameworkProbeMolecule();
+    Structure::ProbeMolecule value = iraspa_structure->structure()->frameworkProbeMolecule();
     set.insert(value);
   }
 
@@ -2033,14 +2976,14 @@ std::optional<Structure::ProbeMolecule> CellTreeWidgetController::frameworkProbe
 
 std::optional<double> CellTreeWidgetController::structureVolumetricNitrogenSurfaceArea()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    double value = structure->structureVolumetricNitrogenSurfaceArea();
+    double value = iraspa_structure->structure()->structureVolumetricNitrogenSurfaceArea();
     set.insert(value);
   }
 
@@ -2053,14 +2996,14 @@ std::optional<double> CellTreeWidgetController::structureVolumetricNitrogenSurfa
 
 std::optional<double> CellTreeWidgetController::structureGravimetricNitrogenSurfaceArea()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    double value = structure->structureGravimetricNitrogenSurfaceArea();
+    double value = iraspa_structure->structure()->structureGravimetricNitrogenSurfaceArea();
     set.insert(value);
   }
 
@@ -2073,14 +3016,14 @@ std::optional<double> CellTreeWidgetController::structureGravimetricNitrogenSurf
 
 std::optional<int> CellTreeWidgetController::structureNumberOfChannelSystems()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    double value = structure->structureNumberOfChannelSystems();
+    double value = iraspa_structure->structure()->structureNumberOfChannelSystems();
     set.insert(value);
   }
 
@@ -2093,22 +3036,22 @@ std::optional<int> CellTreeWidgetController::structureNumberOfChannelSystems()
 
 void CellTreeWidgetController::setStructureNumberOfChannelSystems(int value)
 {
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    structure->setStructureNumberOfChannelSystems(value);
+    iraspa_structure->structure()->setStructureNumberOfChannelSystems(value);
   }
 }
 
 std::optional<int> CellTreeWidgetController::structureNumberOfInaccessiblePockets()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    int value = structure->structureNumberOfInaccessiblePockets();
+    int value = iraspa_structure->structure()->structureNumberOfInaccessiblePockets();
     set.insert(value);
   }
 
@@ -2121,22 +3064,22 @@ std::optional<int> CellTreeWidgetController::structureNumberOfInaccessiblePocket
 
 void CellTreeWidgetController::setStructureNumberOfInaccessiblePockets(int value)
 {
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    structure->setStructureNumberOfInaccessiblePockets(value);
+    iraspa_structure->structure()->setStructureNumberOfInaccessiblePockets(value);
   }
 }
 
 std::optional<int> CellTreeWidgetController::structureDimensionalityOfPoreSystem()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    int value = structure->structureDimensionalityOfPoreSystem();
+    int value = iraspa_structure->structure()->structureDimensionalityOfPoreSystem();
     set.insert(value);
   }
 
@@ -2149,22 +3092,22 @@ std::optional<int> CellTreeWidgetController::structureDimensionalityOfPoreSystem
 
 void CellTreeWidgetController::setStructureDimensionalityOfPoreSystem(int value)
 {
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    structure->setStructureDimensionalityOfPoreSystem(value);
+    iraspa_structure->structure()->setStructureDimensionalityOfPoreSystem(value);
   }
 }
 
 std::optional<double> CellTreeWidgetController::structureLargestCavityDiameter()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    double value = structure->structureLargestCavityDiameter();
+    double value = iraspa_structure->structure()->structureLargestCavityDiameter();
     set.insert(value);
   }
 
@@ -2177,22 +3120,22 @@ std::optional<double> CellTreeWidgetController::structureLargestCavityDiameter()
 
 void CellTreeWidgetController::setStructureLargestCavityDiameter(double value)
 {
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    structure->setStructureLargestCavityDiameter(value);
+    iraspa_structure->structure()->setStructureLargestCavityDiameter(value);
   }
 }
 
 std::optional<double> CellTreeWidgetController::structureRestrictingPoreLimitingDiameter()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    double value = structure->structureRestrictingPoreLimitingDiameter();
+    double value = iraspa_structure->structure()->structureRestrictingPoreLimitingDiameter();
     set.insert(value);
   }
 
@@ -2205,22 +3148,22 @@ std::optional<double> CellTreeWidgetController::structureRestrictingPoreLimiting
 
 void CellTreeWidgetController::setStructureRestrictingPoreLimitingDiameter(double value)
 {
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    structure->setStructureRestrictingPoreLimitingDiameter(value);
+    iraspa_structure->structure()->setStructureRestrictingPoreLimitingDiameter(value);
   }
 }
 
 std::optional<double> CellTreeWidgetController::structureLargestCavityDiameterAlongAviablePath()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    double value = structure->structureLargestCavityDiameterAlongAviablePath();
+    double value = iraspa_structure->structure()->structureLargestCavityDiameterAlongAviablePath();
     set.insert(value);
   }
 
@@ -2233,9 +3176,9 @@ std::optional<double> CellTreeWidgetController::structureLargestCavityDiameterAl
 
 void CellTreeWidgetController::setStructureLargestCavityDiameterAlongAviablePath(double value)
 {
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    structure->setStructureLargestCavityDiameterAlongAviablePath(value);
+    iraspa_structure->structure()->setStructureLargestCavityDiameterAlongAviablePath(value);
   }
 }
 
@@ -2264,7 +3207,13 @@ void CellTreeWidgetController::reloadSymmetryProperties()
 
 void CellTreeWidgetController::reloadSpaceGroupHallName()
 {
-  if(!_structures.empty())
+  _cellSymmetryForm->spaceGroupHallNamecomboBox->setEnabled(false);
+  if(_projectTreeNode)
+  {
+    _cellSymmetryForm->spaceGroupHallNamecomboBox->setEnabled(_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<int> type = symmetrySpaceGroupHallNumber())
     {
@@ -2287,7 +3236,13 @@ void CellTreeWidgetController::reloadSpaceGroupHallName()
 
 void CellTreeWidgetController::reloadSpaceGroupITNumber()
 {
-  if(!_structures.empty())
+  _cellSymmetryForm->spaceGroupITNumberComboBox->setEnabled(false);
+  if(_projectTreeNode)
+  {
+    _cellSymmetryForm->spaceGroupITNumberComboBox->setEnabled(_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<int> type = symmetrySpaceGroupStamdardNumber())
     {
@@ -2310,7 +3265,13 @@ void CellTreeWidgetController::reloadSpaceGroupITNumber()
 
 void CellTreeWidgetController::reloadSpaceGroupHolohedry()
 {
-  if(!_structures.empty())
+  _cellSymmetryForm->holohedryLineEdit->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellSymmetryForm->holohedryLineEdit->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<QString> string = symmetryHolohedryString())
     {
@@ -2325,7 +3286,13 @@ void CellTreeWidgetController::reloadSpaceGroupHolohedry()
 
 void CellTreeWidgetController::reloadSpaceGroupQualifier()
 {
-  if(!_structures.empty())
+  _cellSymmetryForm->qualifierLineEdit->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellSymmetryForm->qualifierLineEdit->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<QString> string = symmetryQualifierString())
     {
@@ -2340,7 +3307,13 @@ void CellTreeWidgetController::reloadSpaceGroupQualifier()
 
 void CellTreeWidgetController::reloadSpaceGroupPrecision()
 {
-  if(!_structures.empty())
+  _cellSymmetryForm->precisionDoubleSpinBox->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellSymmetryForm->precisionDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<double> value = symmetryPrecision())
     {
@@ -2355,7 +3328,13 @@ void CellTreeWidgetController::reloadSpaceGroupPrecision()
 
 void CellTreeWidgetController::reloadSpaceGroupCenteringType()
 {
-  if(!_structures.empty())
+  _cellSymmetryForm->centeringLineEdit->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellSymmetryForm->centeringLineEdit->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<QString> value = symmetryCenteringString())
     {
@@ -2370,7 +3349,19 @@ void CellTreeWidgetController::reloadSpaceGroupCenteringType()
 
 void CellTreeWidgetController::reloadSpaceGroupCenteringVectors()
 {
-  if(!_structures.empty())
+  _cellSymmetryForm->centerintVector1LineEdit->setReadOnly(true);
+  _cellSymmetryForm->centerintVector2LineEdit->setReadOnly(true);
+  _cellSymmetryForm->centerintVector3LineEdit->setReadOnly(true);
+  _cellSymmetryForm->centerintVector4LineEdit->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellSymmetryForm->centerintVector1LineEdit->setReadOnly(!_projectTreeNode->isEditable());
+    _cellSymmetryForm->centerintVector2LineEdit->setReadOnly(!_projectTreeNode->isEditable());
+    _cellSymmetryForm->centerintVector3LineEdit->setReadOnly(!_projectTreeNode->isEditable());
+    _cellSymmetryForm->centerintVector4LineEdit->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<int> value = symmetrySpaceGroupHallNumber())
     {
@@ -2392,7 +3383,13 @@ void CellTreeWidgetController::reloadSpaceGroupCenteringVectors()
 
 void CellTreeWidgetController::reloadSpaceGroupInversion()
 {
-  if(!_structures.empty())
+  _cellSymmetryForm->inversionLineEdit->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellSymmetryForm->inversionLineEdit->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<bool> type = symmetryInversion())
     {
@@ -2407,7 +3404,13 @@ void CellTreeWidgetController::reloadSpaceGroupInversion()
 
 void CellTreeWidgetController::reloadSpaceGroupInversionCenter()
 {
-  if(!_structures.empty())
+  _cellSymmetryForm->inversionCenterLineEdit->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellSymmetryForm->inversionCenterLineEdit->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<QString> value = symmetryInversionCenterString())
     {
@@ -2422,7 +3425,13 @@ void CellTreeWidgetController::reloadSpaceGroupInversionCenter()
 
 void CellTreeWidgetController::reloadSpaceGroupCentroSymmetric()
 {
-  if(!_structures.empty())
+  _cellSymmetryForm->centrosymmetricLineEdit->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellSymmetryForm->centrosymmetricLineEdit->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<bool> type = symmetryCentrosymmetric())
     {
@@ -2437,7 +3446,13 @@ void CellTreeWidgetController::reloadSpaceGroupCentroSymmetric()
 
 void CellTreeWidgetController::reloadSpaceGroupEnantiomorphic()
 {
-  if(!_structures.empty())
+  _cellSymmetryForm->enantiomorphicLineEdit->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellSymmetryForm->enantiomorphicLineEdit->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<bool> type = symmetryEnatiomorphic())
     {
@@ -2452,7 +3467,13 @@ void CellTreeWidgetController::reloadSpaceGroupEnantiomorphic()
 
 void CellTreeWidgetController::reloadSpaceGroupLaueGroup()
 {
-  if(!_structures.empty())
+  _cellSymmetryForm->LaueGroupLineEdit->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellSymmetryForm->LaueGroupLineEdit->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<int> type = symmetryPointGroup())
     {
@@ -2468,7 +3489,13 @@ void CellTreeWidgetController::reloadSpaceGroupLaueGroup()
 
 void CellTreeWidgetController::reloadSpaceGroupPointGroup()
 {
-  if(!_structures.empty())
+  _cellSymmetryForm->pointGroupLineEdit->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellSymmetryForm->pointGroupLineEdit->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<int> type = symmetryPointGroup())
     {
@@ -2484,7 +3511,13 @@ void CellTreeWidgetController::reloadSpaceGroupPointGroup()
 
 void CellTreeWidgetController::reloadSpaceGroupSchoenfliesSymbol()
 {
-  if(!_structures.empty())
+  _cellSymmetryForm->SchoenfliesLineEdit->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellSymmetryForm->SchoenfliesLineEdit->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<int> type = symmetryPointGroup())
     {
@@ -2500,7 +3533,13 @@ void CellTreeWidgetController::reloadSpaceGroupSchoenfliesSymbol()
 
 void CellTreeWidgetController::reloadSpaceGroupSymmorphicity()
 {
-  if(!_structures.empty())
+  _cellSymmetryForm->symmorphicityLineEdit->setReadOnly(true);
+  if(_projectTreeNode)
+  {
+    _cellSymmetryForm->symmorphicityLineEdit->setReadOnly(!_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
   {
     if (std::optional<QString> string = symmetrySymmorphicity())
     {
@@ -2515,14 +3554,14 @@ void CellTreeWidgetController::reloadSpaceGroupSymmorphicity()
 
 std::optional<int> CellTreeWidgetController::symmetrySpaceGroupHallNumber()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    int value = structure->spaceGroup().spaceGroupSetting().HallNumber();
+    int value = iraspa_structure->structure()->spaceGroup().spaceGroupSetting().HallNumber();
     set.insert(value);
   }
 
@@ -2535,12 +3574,16 @@ std::optional<int> CellTreeWidgetController::symmetrySpaceGroupHallNumber()
 
 void CellTreeWidgetController::setSymmetrySpaceGroupHallNumber(int value)
 {
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    structure->setSpaceGroupHallNumber(value);
+    iraspa_structure->structure()->setSpaceGroupHallNumber(value);
   }
 
-  emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+  std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+  std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                  [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+  emit invalidateCachedAmbientOcclusionTexture(render_structures);
   emit rendererReloadData();
 
   reloadSymmetryProperties();
@@ -2548,14 +3591,14 @@ void CellTreeWidgetController::setSymmetrySpaceGroupHallNumber(int value)
 
 std::optional<int> CellTreeWidgetController::symmetrySpaceGroupStamdardNumber()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    int value = structure->spaceGroup().spaceGroupSetting().number();
+    int value = iraspa_structure->structure()->spaceGroup().spaceGroupSetting().number();
     set.insert(value);
   }
 
@@ -2568,13 +3611,17 @@ std::optional<int> CellTreeWidgetController::symmetrySpaceGroupStamdardNumber()
 
 void CellTreeWidgetController::setSymmetrySpaceGroupStandardNumber(int value)
 {
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
     int HallNumber = SKSpaceGroup::spaceGroupHallData[value].front();
-    structure->setSpaceGroupHallNumber(HallNumber);
+    iraspa_structure->structure()->setSpaceGroupHallNumber(HallNumber);
   }
 
-  emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+  std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+  std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                  [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+  emit invalidateCachedAmbientOcclusionTexture(render_structures);
   emit rendererReloadData();
 
   reloadSymmetryProperties();
@@ -2582,14 +3629,14 @@ void CellTreeWidgetController::setSymmetrySpaceGroupStandardNumber(int value)
 
 std::optional<QString> CellTreeWidgetController::symmetryHolohedryString()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    int pointGroup = structure->spaceGroup().spaceGroupSetting().pointGroup();
+    int pointGroup = iraspa_structure->structure()->spaceGroup().spaceGroupSetting().pointGroup();
     QString value = SKPointGroup::pointGroupData[pointGroup].holohedryString();
     set.insert(value);
   }
@@ -2603,14 +3650,14 @@ std::optional<QString> CellTreeWidgetController::symmetryHolohedryString()
 
 std::optional<QString> CellTreeWidgetController::symmetryQualifierString()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    QString value = structure->spaceGroup().spaceGroupSetting().qualifier();
+    QString value = iraspa_structure->structure()->spaceGroup().spaceGroupSetting().qualifier();
     set.insert(value);
   }
 
@@ -2623,14 +3670,14 @@ std::optional<QString> CellTreeWidgetController::symmetryQualifierString()
 
 std::optional<double> CellTreeWidgetController::symmetryPrecision()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<double> set = std::unordered_set<double>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    double value = structure->cell()->precision();
+    double value = iraspa_structure->structure()->cell()->precision();
     set.insert(value);
   }
 
@@ -2643,22 +3690,22 @@ std::optional<double> CellTreeWidgetController::symmetryPrecision()
 
 void CellTreeWidgetController::setSymmetryPrecision(double value)
 {
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    structure->cell()->setPrecision(value);
+    iraspa_structure->structure()->cell()->setPrecision(value);
   }
 }
 
 std::optional<QString> CellTreeWidgetController::symmetryCenteringString()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    QString value = structure->spaceGroup().spaceGroupSetting().centringString();
+    QString value = iraspa_structure->structure()->spaceGroup().spaceGroupSetting().centringString();
     set.insert(value);
   }
 
@@ -2671,14 +3718,14 @@ std::optional<QString> CellTreeWidgetController::symmetryCenteringString()
 
 std::optional<bool> CellTreeWidgetController::symmetryInversion()
 {
-    if(_structures.empty())
+    if(_iraspa_structures.empty())
     {
       return std::nullopt;
     }
     std::unordered_set<bool> set = std::unordered_set<bool>{};
-    for(std::shared_ptr<Structure> structure: _structures)
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
     {
-      bool inversion = structure->spaceGroup().spaceGroupSetting().inversionAtOrigin();
+      bool inversion = iraspa_structure->structure()->spaceGroup().spaceGroupSetting().inversionAtOrigin();
       set.insert(inversion);
     }
 
@@ -2692,14 +3739,14 @@ std::optional<bool> CellTreeWidgetController::symmetryInversion()
 
 std::optional<QString> CellTreeWidgetController::symmetryInversionCenterString()
 {
-    if(_structures.empty())
+    if(_iraspa_structures.empty())
     {
       return std::nullopt;
     }
     std::set<QString> set = std::set<QString>{};
-    for(std::shared_ptr<Structure> structure: _structures)
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
     {
-      int HallNumber = structure->spaceGroup().spaceGroupSetting().HallNumber();
+      int HallNumber = iraspa_structure->structure()->spaceGroup().spaceGroupSetting().HallNumber();
       QString string = SKSpaceGroup::inversionCenterString(HallNumber);
       set.insert(string);
     }
@@ -2713,14 +3760,14 @@ std::optional<QString> CellTreeWidgetController::symmetryInversionCenterString()
 
 std::optional<bool> CellTreeWidgetController::symmetryCentrosymmetric()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<bool> set = std::unordered_set<bool>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    int pointGroup = structure->spaceGroup().spaceGroupSetting().pointGroup();
+    int pointGroup = iraspa_structure->structure()->spaceGroup().spaceGroupSetting().pointGroup();
     bool centroSymmetric = SKPointGroup::pointGroupData[pointGroup].centrosymmetric();
     set.insert(pointGroup);
   }
@@ -2734,14 +3781,14 @@ std::optional<bool> CellTreeWidgetController::symmetryCentrosymmetric()
 
 std::optional<bool> CellTreeWidgetController::symmetryEnatiomorphic()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<bool> set = std::unordered_set<bool>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    int pointGroup = structure->spaceGroup().spaceGroupSetting().pointGroup();
+    int pointGroup = iraspa_structure->structure()->spaceGroup().spaceGroupSetting().pointGroup();
     bool centroSymmetric = SKPointGroup::pointGroupData[pointGroup].enantiomorphic();
     set.insert(pointGroup);
   }
@@ -2756,14 +3803,14 @@ std::optional<bool> CellTreeWidgetController::symmetryEnatiomorphic()
 
 std::optional<int> CellTreeWidgetController::symmetryPointGroup()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::unordered_set<int> set = std::unordered_set<int>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    int pointGroup = structure->spaceGroup().spaceGroupSetting().pointGroup();
+    int pointGroup = iraspa_structure->structure()->spaceGroup().spaceGroupSetting().pointGroup();
     set.insert(pointGroup);
   }
 
@@ -2777,14 +3824,14 @@ std::optional<int> CellTreeWidgetController::symmetryPointGroup()
 
 std::optional<QString> CellTreeWidgetController::symmetrySymmorphicity()
 {
-  if(_structures.empty())
+  if(_iraspa_structures.empty())
   {
     return std::nullopt;
   }
   std::set<QString> set = std::set<QString>{};
-  for(std::shared_ptr<Structure> structure: _structures)
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    QString symmorphicity = structure->spaceGroup().spaceGroupSetting().symmorphicityString();
+    QString symmorphicity = iraspa_structure->structure()->spaceGroup().spaceGroupSetting().symmorphicityString();
     set.insert(symmorphicity);
   }
 
@@ -2797,13 +3844,21 @@ std::optional<QString> CellTreeWidgetController::symmetrySymmorphicity()
 
 void CellTreeWidgetController::computeHeliumVoidFractionPushButton()
 {
-  emit computeHeliumVoidFraction(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+  std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+  std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                  [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+  emit computeHeliumVoidFraction(render_structures);
   this->reloadStructureProperties();
 }
 
 void CellTreeWidgetController::computeGravimetricSurfaceAreaPushButton()
 {
-  emit computeNitrogenSurfaceArea(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+  std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+  std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                  [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+  emit computeNitrogenSurfaceArea(render_structures);
   this->reloadStructureProperties();
 }
 

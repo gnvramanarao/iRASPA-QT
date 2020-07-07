@@ -30,6 +30,7 @@
 #pragma once
 
 #include <vector>
+#include <array>
 #include <QString>
 #include <optional>
 #include "skspacegroupsetting.h"
@@ -47,9 +48,10 @@ public:
   static std::optional<int> HallNumber(QString inputString);
   static const std::array<SKSpaceGroupSetting,531>& spaceGroupData() {return SKSpaceGroup::_spaceGroupData;}
   static const std::vector<std::vector<int>>  spaceGroupHallData;
+  static const std::array<SKSpaceGroupSetting, 531> _spaceGroupData;
 private:
-  SKSpaceGroupSetting _spaceGroupSetting;
-  static const std::array<SKSpaceGroupSetting,531> _spaceGroupData;
+  SKSpaceGroupSetting _spaceGroupSetting = SKSpaceGroup::_spaceGroupData[1];
+  
 
   static bool matchSpacegroup(QString spaceSearchGroupString, QString storedSpaceGroupString);
 

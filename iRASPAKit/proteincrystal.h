@@ -37,6 +37,7 @@ class ProteinCrystal: public Structure
 public:
   ProteinCrystal();
   ProteinCrystal(std::shared_ptr<SKStructure> structure);
+  ProteinCrystal(std::shared_ptr<Structure> s);
 
 	iRASPAStructureType structureType() override final  { return iRASPAStructureType::proteinCrystal; }
 

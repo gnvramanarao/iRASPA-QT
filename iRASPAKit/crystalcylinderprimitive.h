@@ -37,8 +37,13 @@ class CrystalCylinderPrimitive: public Structure, public RKRenderCrystalPrimitiv
 {
 public:
   CrystalCylinderPrimitive();
+  CrystalCylinderPrimitive(std::shared_ptr<Structure> s);
+
+  iRASPAStructureType structureType() override final { return iRASPAStructureType::crystalCylinderPrimitive; }
 
   std::vector<RKInPerInstanceAttributesAtoms> renderCrystalPrimitiveCylinderObjects() const override;
+
+  SKBoundingBox boundingBox() const final override;
 
   simd_quatd primitiveOrientation() const override {return _primitiveOrientation;}
   double3x3 primitiveTransformationMatrix() const override  {return _primitiveTransformationMatrix;}

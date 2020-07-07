@@ -53,7 +53,7 @@ public:
   InfoTreeWidgetController(QWidget* parent = nullptr);
   void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode) override final;
   void setMainWindow(MainWindow *mainWindow) override final {_mainWindow = mainWindow;}
-  void setStructures(std::vector<std::shared_ptr<Structure>> structures);
+  void setFlattenedSelectedFrames(std::vector<std::shared_ptr<iRASPAStructure>> iraspa_structures);
 private:
   InfoCreatorForm* _infoCreatorForm;
   InfoCreationForm* _infoCreationForm;
@@ -66,8 +66,9 @@ private:
   QPushButton* pushButtonCitation;
 
   MainWindow *_mainWindow;
+  std::shared_ptr<ProjectTreeNode> _projectTreeNode;
   std::shared_ptr<ProjectStructure> _projectStructure;
-  std::vector<std::shared_ptr<Structure>> _structures{};
+  std::vector<std::shared_ptr<iRASPAStructure>> _iraspa_structures{};
 
   void reloadData() override final;
   void reloadSelection() override final {;}

@@ -34,12 +34,14 @@
 #include "structure.h"
 #include "iraspakitprotocols.h"
 
+
 class Crystal: public Structure
 {
 public:
   Crystal() {}
   Crystal(std::shared_ptr<SKAtomTreeController> atomTreeController): Structure(atomTreeController){}
   Crystal(std::shared_ptr<SKStructure> structure);
+  Crystal(std::shared_ptr<Structure> s);
   ~Crystal() {}
 
   iRASPAStructureType structureType() override final { return iRASPAStructureType::crystal; }

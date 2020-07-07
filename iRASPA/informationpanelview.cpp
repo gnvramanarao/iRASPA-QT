@@ -29,6 +29,7 @@
 
 #include "informationpanelview.h"
 #include <QPainter>
+#include <QPainterPath>
 
 InformationPanelView::InformationPanelView(QWidget * parent):QLabel(parent)
 {

@@ -233,6 +233,7 @@ out VS_OUT
   smooth vec4 eye_position;
   smooth vec2 texcoords;
   smooth vec3 frag_pos;
+  flat vec3 frag_center;
   smooth vec3 N;
   smooth vec3 L;
   smooth vec3 V;
@@ -240,10 +241,12 @@ out VS_OUT
   flat mat4x4 ambientOcclusionTransformMatrix;
 } vs_out;
 
+
 in vec4 vertexPosition;
 
 in vec4 instancePosition;
 in vec4 instanceScale;
+
 
 void main(void)
 {
@@ -253,6 +256,7 @@ void main(void)
 
   vs_out.eye_position = frameUniforms.viewMatrix * structureUniforms.modelMatrix * instancePosition;
   vs_out.ambientOcclusionTransformMatrix = transpose(frameUniforms.normalMatrix * structureUniforms.modelMatrix);
+  vs_out.frag_center= vs_out.eye_position.xyz;
 
   // Calculate light vector
   vs_out.L = (lightUniforms.lights[0].position - vs_out.eye_position*lightUniforms.lights[0].position.w).xyz;
@@ -263,9 +267,10 @@ void main(void)
   vs_out.texcoords = vertexPosition.xy;
   vs_out.sphere_radius = scale;
   vec4 pos2 = frameUniforms.viewMatrix * structureUniforms.modelMatrix * instancePosition;
-  pos2.xy += scale.xy * vec2(vertexPosition.x,vertexPosition.y);
+  pos2.xy += 1.5 * scale.xy * vec2(vertexPosition.x,vertexPosition.y);
 
   vs_out.frag_pos = pos2.xyz;
+
   gl_Position =  frameUniforms.projectionMatrix * pos2;
 }
 )foo";
@@ -282,6 +287,7 @@ in VS_OUT
   smooth vec4 eye_position;
   smooth vec2 texcoords;
   smooth vec3 frag_pos;
+  flat vec3 frag_center;
   smooth vec3 N;
   smooth vec3 L;
   smooth vec3 V;
@@ -289,7 +295,6 @@ in VS_OUT
   flat mat4x4 ambientOcclusionTransformMatrix;
 } fs_in;
 
-out vec4 vFragColor;
 
 vec2 textureCoordinateForSphereSurfacePosition(vec3 sphereSurfacePosition)
 {
@@ -317,24 +322,29 @@ vec3 hsv2rgb(vec3 c)
   return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
 
+out vec4 vFragColor;
+
 
 void main(void)
 {
-  float x = fs_in.texcoords.x;
-  float y = fs_in.texcoords.y;
-  float zz = 1.0 - x*x - y*y;
+  vec3 rij = -fs_in.frag_center;
+  vec3 vij = fs_in.frag_pos;
 
-  if (zz <= 0.0)
-    discard;
+  float A = dot(vij, vij);
+  float B = dot(rij, vij);
+  float C = dot(rij, rij) - fs_in.sphere_radius.z * fs_in.sphere_radius.z;
+  float argument = B * B - A * C;
+  if (argument < 0.0) discard;
 
-  float z = sqrt(zz);
-  vec4 pos = fs_in.eye_position;
-  pos.z += fs_in.sphere_radius.z*z;
-  pos = frameUniforms.projectionMatrix *   pos;
-  gl_FragDepth = 0.5*(pos.z / pos.w)+0.5;
+  float t = - C / (B - sqrt(argument));
+  vec3 hit = t * vij;
+
+  vec4 screen_pos = frameUniforms.projectionMatrix * vec4(hit, 1.0);
+  gl_FragDepth = 0.5*(screen_pos.z / screen_pos.w)+0.5;
+
 
   // Normalize the incoming N, L and V vectors
-  vec3 N = vec3(x,y,z);
+  vec3 N = normalize(hit - fs_in.frag_center);
   vec3 L = normalize(fs_in.L);
 
   // Compute the diffuse and specular components for each fragment

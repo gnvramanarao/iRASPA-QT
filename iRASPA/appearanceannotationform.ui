@@ -19,7 +19,7 @@
      <item>
       <layout class="QGridLayout" name="gridLayout" columnstretch="1,1,1">
        <item row="0" column="2">
-        <widget class="QPushButton" name="pushButton_11">
+        <widget class="QPushButton" name="colorPushButton">
          <property name="text">
           <string>Color</string>
          </property>
@@ -61,29 +61,29 @@
         </widget>
        </item>
        <item row="4" column="1">
-        <widget class="QLineEdit" name="lineEdit"/>
+        <widget class="QLineEdit" name="scalingLineEdit"/>
        </item>
        <item row="0" column="1">
-        <widget class="QComboBox" name="comboBox"/>
+        <widget class="QComboBox" name="typeComboBox"/>
        </item>
        <item row="1" column="1">
-        <widget class="QComboBox" name="comboBox_2"/>
+        <widget class="QComboBox" name="fontComboBox"/>
        </item>
        <item row="2" column="1">
-        <widget class="QComboBox" name="comboBox_3"/>
+        <widget class="QComboBox" name="alignmentComboBox"/>
        </item>
        <item row="3" column="1">
-        <widget class="QComboBox" name="comboBox_4"/>
+        <widget class="QComboBox" name="styleComboBox"/>
        </item>
        <item row="4" column="2">
-        <widget class="QSlider" name="horizontalSlider">
+        <widget class="QSlider" name="scalingHorizontalSlider">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
         </widget>
        </item>
        <item row="1" column="2">
-        <widget class="QComboBox" name="comboBox_5"/>
+        <widget class="QComboBox" name="fontSpecifierComboBox"/>
        </item>
        <item row="2" column="2">
         <spacer name="horizontalSpacer">
@@ -127,13 +127,13 @@
         </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
+        <widget class="QDoubleSpinBox" name="offsetXDoubleSpinBox"/>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="doubleSpinBox_2"/>
+        <widget class="QDoubleSpinBox" name="offsetYDoubleSpinBox"/>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="doubleSpinBox_3"/>
+        <widget class="QDoubleSpinBox" name="offsetZDoubleSpinBox"/>
        </item>
       </layout>
      </item>

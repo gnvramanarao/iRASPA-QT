@@ -46,7 +46,6 @@ public:
   SceneTreeView(QWidget* parent = nullptr);
   QModelIndex selectedIndex(void);
   QSize sizeHint() const override final;
-  void setRootNode(std::shared_ptr<SceneList> sceneList);
   SceneTreeViewModel* sceneTreeModel() {return _model.get();}
   void setMainWindow(MainWindow* mainWindow) final override {_mainWindow = mainWindow;}
   void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode) override final;
@@ -55,14 +54,15 @@ public:
 private:
   MainWindow* _mainWindow;
   std::shared_ptr<SceneTreeViewModel> _model;
+  std::shared_ptr<ProjectTreeNode> _projectTreeNode;
   std::shared_ptr<SceneList> _sceneList;
   QString nameOfItem(const QModelIndex &current);
 public slots:
-  void currentMovieChanged(const QModelIndex &current);
   void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override final;
 signals:
-  void setSelectedMovie(std::shared_ptr<Movie> selectedMovie);
-  void setCellTreeController(std::vector<std::shared_ptr<Structure>> structures);
-  void setAppearanceTreeController(std::vector<std::shared_ptr<Structure>> structures);
+  void updateRenderer();
   void setSelectedFrame(std::shared_ptr<iRASPAStructure> structure);
+  void setSelectedMovie(std::shared_ptr<Movie> movie);
+  void setFlattenedSelectedFrames(std::vector<std::shared_ptr<iRASPAStructure>> structures);
+  void setSelectedRenderFrames(std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> structures);
 };

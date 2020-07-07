@@ -27,19 +27,63 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#include "crystal.h"
 #include <iostream>
 #include <mathkit.h>
 #include <algorithm>
 #include <unordered_set>
 #include <symmetrykit.h>
 #include <QDebug>
-
+#include <memory>
+#include "crystal.h"
+#include "molecule.h"
+#include "molecularcrystal.h"
+#include "proteincrystal.h"
+#include "protein.h"
+#include "ellipsoidprimitive.h"
+#include "cylinderprimitive.h"
+#include "polygonalprismprimitive.h"
+#include "crystalellipsoidprimitive.h"
+#include "crystalcylinderprimitive.h"
+#include "crystalpolygonalprismprimitive.h"
 
 Crystal::Crystal(std::shared_ptr<SKStructure> structure): Structure(structure)
 {
   expandSymmetry();
   _atomsTreeController->setTags();
+}
+
+Crystal::Crystal(std::shared_ptr<Structure> s): Structure(s)
+{
+  if(dynamic_cast<Molecule*>(s.get()) ||
+     dynamic_cast<Protein*>(s.get()) ||
+     dynamic_cast<EllipsoidPrimitive*>(s.get()) ||
+     dynamic_cast<CylinderPrimitive*>(s.get()) ||
+     dynamic_cast<PolygonalPrismPrimitive*>(s.get()))
+  {
+    // create a periodic cell based on the bounding-box
+    _cell = std::make_shared<SKCell>(s->boundingBox());
+  }
+  else
+  {
+    _cell = std::make_shared<SKCell>(*s->cell());
+  }
+
+  if(dynamic_cast<MolecularCrystal*>(s.get()) ||
+     dynamic_cast<ProteinCrystal*>(s.get()) ||
+     dynamic_cast<MolecularCrystal*>(s.get()) ||
+     dynamic_cast<Molecule*>(s.get()) ||
+     dynamic_cast<Protein*>(s.get()) ||
+     dynamic_cast<EllipsoidPrimitive*>(s.get()) ||
+     dynamic_cast<CylinderPrimitive*>(s.get()) ||
+     dynamic_cast<PolygonalPrismPrimitive*>(s.get()))
+  {
+    convertAsymmetricAtomsToFractional();
+  }
+
+  expandSymmetry();
+  _atomsTreeController->setTags();
+  reComputeBoundingBox();
+  computeBonds();
 }
 
 // MARK: Rendering
@@ -386,7 +430,7 @@ std::vector<RKInPerInstanceAttributesAtoms> Crystal::renderSelectedAtoms() const
         {
           QColor color = atom->color();
           double w = atom->isVisible() ? 1.0 : -1.0;
-          //std::cout << "here" << std::endl;
+
           for (int k1 = minimumReplicaX;k1 <= maximumReplicaX;k1++)
           {
             for (int k2 = minimumReplicaY;k2 <= maximumReplicaY;k2++)

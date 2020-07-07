@@ -45,7 +45,23 @@ void ProjectTreeViewModel::setProjectTreeController(std::shared_ptr<ProjectTreeC
   }
 }
 
-
+QModelIndex ProjectTreeViewModel::indexForItem(std::shared_ptr<ProjectTreeNode> item)
+{
+  if(item)
+  {
+    std::shared_ptr<ProjectTreeNode> parent = item->parent();
+    if(parent)
+    {
+      std::vector<std::shared_ptr<ProjectTreeNode>>::iterator it = std::find(parent->childNodes().begin(), parent->childNodes().end(), item);
+      if (it != parent->childNodes().end())
+      {
+        int childIndex = std::distance(parent->childNodes().begin(), it);
+        return createIndex(childIndex,0,item.get());
+      }
+    }
+  }
+  return QModelIndex();
+}
 
 ProjectTreeNode *ProjectTreeViewModel::getItem(const QModelIndex &index) const
 {

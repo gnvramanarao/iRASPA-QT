@@ -4,13 +4,18 @@ DEPENDPATH += $$PWD
 include(undocommands.pri)
 
 SOURCES += \
+    $$PWD/appearanceprimitiveform.cpp \
     $$PWD/atomtreeviewpushbuttonstyleditemdelegate.cpp \
     $$PWD/bondlistpushbuttonstyleditemdelegate.cpp \
     $$PWD/bondlistviewcomboboxstyleditemdelegate.cpp \
+    $$PWD/celltransformcontentform.cpp \
+    $$PWD/frameliststyleditemdelegate.cpp \
     $$PWD/importfiledialog.cpp \
     $$PWD/main.cpp \
     $$PWD/mainwindow.cpp \
     $$PWD/projecttreeview.cpp \
+    $$PWD/projecttreeviewstyleditemdelegate.cpp \
+    $$PWD/qdoubledial.cpp \
     $$PWD/renderstackedwidget.cpp \
     $$PWD/aboutdialog.cpp \
     $$PWD/iraspatoolbar.cpp \
@@ -25,6 +30,7 @@ SOURCES += \
     $$PWD/framelistviewmodel.cpp \
     $$PWD/scenetreeviewmodel.cpp \
     $$PWD/informationpanelview.cpp \
+    $$PWD/scenetreeviewstyleditemdelegate.cpp \
     $$PWD/textfield.cpp \
     $$PWD/masterstackedwidget.cpp \
     $$PWD/cellcellform.cpp \
@@ -65,12 +71,17 @@ SOURCES += \
     $$PWD/projecttreeviewmodel.cpp
 
 HEADERS += \
+    $$PWD/appearanceprimitiveform.h \
     $$PWD/atomtreeviewpushbuttonstyleditemdelegate.h \
     $$PWD/bondlistpushbuttonstyleditemdelegate.h \
     $$PWD/bondlistviewcomboboxstyleditemdelegate.h \
+    $$PWD/celltransformcontentform.h \
+    $$PWD/frameliststyleditemdelegate.h \
     $$PWD/importfiledialog.h \
     $$PWD/mainwindow.h \
     $$PWD/projecttreeview.h \
+    $$PWD/projecttreeviewstyleditemdelegate.h \
+    $$PWD/qdoubledial.h \
     $$PWD/renderstackedwidget.h \
     $$PWD/aboutdialog.h \
     $$PWD/iraspatoolbar.h \
@@ -86,6 +97,7 @@ HEADERS += \
     $$PWD/framelistviewmodel.h \
     $$PWD/scenetreeviewmodel.h \
     $$PWD/informationpanelview.h \
+    $$PWD/scenetreeviewstyleditemdelegate.h \
     $$PWD/textfield.h \
     $$PWD/masterstackedwidget.h \
     $$PWD/cellcellform.h \
@@ -127,6 +139,8 @@ HEADERS += \
     $$PWD/projecttreeviewmodel.h
 
 FORMS += \
+    $$PWD/appearanceprimitiveform.ui \
+    $$PWD/celltransformcontentform.ui \
     $$PWD/mainwindow.ui \
     $$PWD/aboutdialog.ui \
     $$PWD/cameracameraform.ui \

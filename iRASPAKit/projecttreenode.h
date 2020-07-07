@@ -64,11 +64,13 @@ public:
 
     void setRepresentedObject(std::shared_ptr<iRASPAProject> object) {_representedObject = object;}
 
+    void setIsEditable(bool editable) {_isEditable = editable;}
     inline bool isEditable() {return _isEditable;}
     inline bool isDropEnabled() {return _isDropEnabled;}
     void insertInParent(std::shared_ptr<ProjectTreeNode> parent, int index);
     void appendToParent(std::shared_ptr<ProjectTreeNode> parent);
     const IndexPath indexPath();
+    std::optional<int> findChildIndex(std::shared_ptr<ProjectTreeNode> child);
     std::shared_ptr<ProjectTreeNode> descendantNodeAtIndexPath(IndexPath indexPath);
     std::vector<std::shared_ptr<ProjectTreeNode>> flattenedNodes();
     std::vector<std::shared_ptr<ProjectTreeNode>> flattenedLeafNodes();
@@ -93,7 +95,6 @@ private:
 
     std::vector<std::shared_ptr<ProjectTreeNode>> _childNodes{};
     std::vector<std::shared_ptr<ProjectTreeNode>> _filteredAndSortedNodes{};
-    std::optional<int> findChildIndex(std::shared_ptr<ProjectTreeNode> child);
 
     bool _matchesFilter = true;
     bool _selected = true;
@@ -104,4 +105,3 @@ private:
     friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<ProjectTreeNode> &);
     friend QDataStream &operator>>(QDataStream &, std::shared_ptr<ProjectTreeNode> &);
 };
-

@@ -52,18 +52,20 @@ std::shared_ptr<iRASPAStructure> Movie::selectedFrame()
 {
   if(_selectedFrame)
     return _selectedFrame;
-  if(!_frames.empty())
-  {
-    _selectedFrame = _frames.front();
-    return _selectedFrame;
-  }
   return nullptr;
+}
+
+void Movie::setSelectedFrame(std::shared_ptr<iRASPAStructure> selectedFrame)
+{
+  _selectedFrame = selectedFrame;
+  _selectedFramesSet.insert(_selectedFrame);
 }
 
 void Movie::setSelectedFrameIndex(int frameIndex)
 {
   int index = std::min(frameIndex, int(_frames.size())-1);
   _selectedFrame = _frames[index];
+  _selectedFramesSet = std::set<std::shared_ptr<iRASPAStructure>>{_selectedFrame};
 }
 
 std::optional<int> Movie::selectedFrameIndex()
@@ -78,16 +80,27 @@ std::optional<int> Movie::selectedFrameIndex()
   return std::nullopt;
 }
 
-std::vector<std::shared_ptr<Structure>> Movie::structures() const
+std::set<int> Movie::selectedFramesIndexSet()
 {
-  std::vector<std::shared_ptr<Structure>> structures = std::vector<std::shared_ptr<Structure>>();
-
-  for(std::shared_ptr<iRASPAStructure> frame: _frames)
+  std::set<int> selectionIndexSet{};
+  for(size_t i=0;i<_frames.size();i++)
   {
-    if(std::shared_ptr<Structure> structure = frame->structure())
+    if(std::find(_selectedFramesSet.begin(), _selectedFramesSet.end(), _frames[i]) != _selectedFramesSet.end())
     {
-      structures.push_back(structure);
+       selectionIndexSet.insert(i);
     }
+  }
+
+  return selectionIndexSet;
+}
+
+std::vector<std::shared_ptr<iRASPAStructure>> Movie::selectedFramesiRASPAStructures() const
+{
+  std::vector<std::shared_ptr<iRASPAStructure>> structures = std::vector<std::shared_ptr<iRASPAStructure>>();
+
+  for(std::shared_ptr<iRASPAStructure> frame: _selectedFramesSet)
+  {
+    structures.push_back(frame);
   }
   return structures;
 }

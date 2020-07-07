@@ -38,6 +38,7 @@
 #include <symmetrykit.h>
 #include "project.h"
 #include "scenelist.h"
+#include "iraspastructure.h"
 
 class ProjectStructure: public Project, public RKRenderDataSource
 {
@@ -56,6 +57,7 @@ public:
   std::shared_ptr<iRASPAStructure> selectedFrame();
 
   std::vector<std::shared_ptr<Structure>> flattenedStructures() const;
+  std::vector<std::shared_ptr<iRASPAStructure>> flattenediRASPAStructures() const;
   std::vector<std::vector<std::shared_ptr<Structure>>> structures() const;
 
 
@@ -63,6 +65,7 @@ public:
   int numberOfMovies(int sceneIndex) const override final;
   std::vector<std::shared_ptr<RKRenderStructure>> renderStructuresForScene(size_t i) const;
 
+  std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> iRASPAstructures() const;
   std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> renderStructures() const override final;
   std::vector<std::shared_ptr<RKRenderStructure>> flattenedRenderStructures() const;
 
@@ -123,6 +126,8 @@ public:
   std::shared_ptr<RKCamera> camera() const override final {return _camera;}
 
   std::shared_ptr<SceneList> sceneList() {return _sceneList;}
+
+  void setInitialSelectionIfNeeded() override final;
 private:
   qint64 _versionNumber{2};
 

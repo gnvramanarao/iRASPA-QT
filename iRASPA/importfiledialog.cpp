@@ -6,6 +6,7 @@ ImportFileDialog::ImportFileDialog(QWidget *parent) : QFileDialog(parent)
 {
   setWindowTitle("Import structures");
   setOption(QFileDialog::DontUseNativeDialog);
+  setFileMode(QFileDialog::ExistingFiles);
 
   setNameFilters(QStringList({"PDB or CIF files (*.cif *.pdb)","CIF files (*.cif)","PDB files (*.pdb)"}));
   selectNameFilter(QString("PDB or CIF files (*.cif *.pdb)"));

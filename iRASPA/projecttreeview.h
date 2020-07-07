@@ -41,7 +41,6 @@
 class ProjectTreeView: public QTreeView, public MainWindowConsumer, public Reloadable
 {
   Q_OBJECT
-
 public:
   ProjectTreeView(QWidget* parent = nullptr);
   QSize sizeHint() const override;
@@ -68,7 +67,9 @@ private:
   QAbstractItemView::DropIndicatorPosition position(QPoint pos, QRect rect, QModelIndex index);
   QUndoStack _undoStack;
 public slots:
-  void setSelectedProject(const QModelIndex& current, const QModelIndex& previous);
-  void setSelectedProjects(const QItemSelection &selected, const QItemSelection &deselected);
+  void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override final;
   void ShowContextMenu(const QPoint &pos);
+signals:
+  void setSelectedRenderFrames(std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> structures);
 };
+

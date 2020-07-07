@@ -57,6 +57,18 @@ std::shared_ptr<Scene> SceneTreeViewModel::parentForMovie(const std::shared_ptr<
   return nullptr;
 }
 
+bool SceneTreeViewModel::isMainSelectedItem(std::shared_ptr<Movie> movie)
+{
+  if(_sceneList)
+  {
+    if(std::shared_ptr<Scene> selectedScene = _sceneList->selectedScene())
+    {
+      return selectedScene->selectedMovie() == movie;
+    }
+  }
+  return false;
+}
+
 
 
 // Returns the index of the item in the model specified by the given row, column and parent index.
@@ -219,7 +231,6 @@ bool SceneTreeViewModel::setData(const QModelIndex &index, const QVariant &value
       std::vector<std::shared_ptr<Structure>> structures = scene->structures();
       if ((Qt::CheckState)value.toInt() == Qt::Checked)
       {
-        //SData::instance().setStatus(index.row(),1);
         movie->setVisibility(true);
         emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{structures.begin(), structures.end()});
         emit rendererReloadData();

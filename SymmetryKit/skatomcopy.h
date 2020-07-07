@@ -49,7 +49,8 @@ public:
       copy = 2, duplicate = 3
     };
     const std::shared_ptr<SKAsymmetricAtom> parent() const {return this->_parent.lock();}
-    double3 position() {return _position;}
+    double3 position() const {return _position;}
+    void setPosition(double3 p) {_position = p;}
     AtomCopyType type() {return _type;}
     void setType(AtomCopyType type) {_type = type;}
     qint64 tag() {return _tag;}

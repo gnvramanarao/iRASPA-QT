@@ -8,6 +8,10 @@
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
+<Tool
+    Name="VCManifestTool"
+    AdditionalManifestFiles="DeclareDPIAware.manifest"
+/>
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">

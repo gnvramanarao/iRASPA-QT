@@ -41,6 +41,7 @@ public:
   Project();
   QString displayName() {return _displayName;}
   virtual ~Project() = default;
+  virtual void setInitialSelectionIfNeeded() {;}
 private:
   qint64 _versionNumber{1};
   QString _displayName = QString("Default");

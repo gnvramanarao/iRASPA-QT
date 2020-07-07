@@ -43,6 +43,7 @@
 #include "iraspamainwindowconsumerprotocol.h"
 
 #include "cellcellform.h"
+#include "celltransformcontentform.h"
 #include "cellstructuralform.h"
 #include "cellsymmetryform.h"
 
@@ -53,23 +54,26 @@ class CellTreeWidgetController : public QTreeWidget, public MainWindowConsumer, 
 public:
   CellTreeWidgetController(QWidget* parent = nullptr);
   void setMainWindow(MainWindow *mainWindow)  override{_mainWindow = mainWindow;}
-  void setStructures(std::vector<std::shared_ptr<Structure>> structures);
+  void setFlattenedSelectedFrames(std::vector<std::shared_ptr<iRASPAStructure>> iraspa_structures);
   void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode) override;
 
   void reloadData() override;
   void reloadSelection() override;
 private:
   CellCellForm* _cellCellForm;
+  CellTransformContentForm* _cellTransformContentForm;
   CellStructuralForm* _cellStructuralForm;
   CellSymmetryForm* _cellSymmetryForm;
 
   QPushButton* pushButtonCell;
+  QPushButton* pushButtonTransformContent;
   QPushButton* pushButtonStructural;
   QPushButton* pushButtonSymmetry;
 
   MainWindow *_mainWindow;
+  std::shared_ptr<ProjectTreeNode> _projectTreeNode;
   std::shared_ptr<ProjectStructure> _projectStructure;
-  std::vector<std::shared_ptr<Structure>> _structures{};
+  std::vector<std::shared_ptr<iRASPAStructure>> _iraspa_structures{};
   void reloadCellProperties();
 
 	void reloadStructureType();
@@ -87,10 +91,14 @@ private:
   void reloadCellMinimumReplicasY();
   void reloadCellMaximumReplicasZ();
   void reloadCellMinimumReplicasZ();
+  void reloadRotationAngle();
+  void reloadEulerAngles();
   void reloadCellOriginX();
   void reloadCellOriginY();
   void reloadCellOriginZ();
 
+  void setStructureType(int value);
+  void replaceStructure(std::vector<std::pair<std::shared_ptr<iRASPAStructure>,std::shared_ptr<iRASPAStructure>>>);
   std::optional<iRASPAStructureType>  structureType();
   SKBoundingBox boundingBox();
 
@@ -138,12 +146,34 @@ private:
   std::optional<int> minimumReplicasZ();
   void setMinimumReplicasZ(int value);
 
+  std::optional<double> rotationAngle();
+  void setRotationAngle(double angle);
+  void rotateYawPlus();
+  void rotateYawMinus();
+  void rotatePitchPlus();
+  void rotatePitchMinus();
+  void rotateRollPlus();
+  void rotateRollMinus();
+
+  std::optional<double> EulerAngleX();
+  void setEulerAngleX(double angle);
+  std::optional<double> EulerAngleY();
+  void setEulerAngleY(double angle);
+  std::optional<double> EulerAngleZ();
+  void setEulerAngleZ(double angle);
+
   std::optional<double> originX();
   void setOriginX(double value);
   std::optional<double> originY();
   void setOriginY(double value);
   std::optional<double> originZ();
   void setOriginZ(double value);
+
+
+  void reloadTransformContentProperties();
+
+  void reloadFlipAxesProperties();
+  void reloadShiftAxesProperties();
 
   void reloadStructureProperties();
 
@@ -222,6 +252,7 @@ private:
 
 private slots:
   void expandCellItem();
+  void expandTransformContentItem();
   void expandStructuralItem();
   void expandSymmetryItem();
 
@@ -229,6 +260,7 @@ private slots:
   void computeGravimetricSurfaceAreaPushButton();
 signals:
   void rendererReloadData();
+  void reloadAllViews();
   void redrawRendererWithHighQuality();
   void computeHeliumVoidFraction(std::vector<std::shared_ptr<RKRenderStructure>> structures);
   void computeNitrogenSurfaceArea(std::vector<std::shared_ptr<RKRenderStructure>> structures);

@@ -152,6 +152,8 @@ void AtomTreeView::keyPressEvent(QKeyEvent *event)
 
 void AtomTreeView::setSelectedAtoms(const QItemSelection &selected, const QItemSelection &deselected)
 {
+  qDebug() << "Number of selected atoms: " << selected.size();
+
   if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iraspaStructure.lock())
   {
     std::shared_ptr<Structure> structure = iraspaStructure->structure();
@@ -468,30 +470,36 @@ void AtomTreeView::ShowContextMenu(const QPoint &pos)
   QMenu contextMenu(tr("Context menu"), this);
 
   QAction actionAddAtomGroup("Add Atom Group", this);
+  actionAddAtomGroup.setEnabled(false);
   connect(&actionAddAtomGroup, &QAction::triggered, [this, index](void) {
      this->addAtomGroup(index);
   });
   contextMenu.addAction(&actionAddAtomGroup);
 
   QAction actionFlattenHierarchy("Flatten hierarchy", this);
+  actionFlattenHierarchy.setEnabled(false);
   connect(&actionFlattenHierarchy, &QAction::triggered, this, &AtomTreeView::flattenHierachy);
   contextMenu.addAction(&actionFlattenHierarchy);
 
   QAction actionMakeSuperCell("Make super-cell", this);
+  actionMakeSuperCell.setEnabled(false);
   connect(&actionMakeSuperCell, &QAction::triggered, this, &AtomTreeView::makeSuperCell);
   contextMenu.addAction(&actionMakeSuperCell);
 
   QMenu* subMenuSelection = contextMenu.addMenu( "Selection" );
   QActionGroup* selectionGroup = new QActionGroup(this);
   QAction actionSelectionInvert("Invert", this);
+  actionSelectionInvert.setEnabled(false);
   selectionGroup->addAction(&actionSelectionInvert);
   subMenuSelection->addAction(&actionSelectionInvert);
   //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
   QAction actionCopyToNewMovie("CopyToNewMovie", this);
+  actionCopyToNewMovie.setEnabled(false);
   selectionGroup->addAction(&actionCopyToNewMovie);
   subMenuSelection->addAction(&actionCopyToNewMovie);
   //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
   QAction actionMoveToNewMovie("CopyToNewMovie", this);
+  actionMoveToNewMovie.setEnabled(false);
   selectionGroup->addAction(&actionMoveToNewMovie);
   subMenuSelection->addAction(&actionMoveToNewMovie);
   //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
@@ -499,10 +507,12 @@ void AtomTreeView::ShowContextMenu(const QPoint &pos)
   QMenu* subMenuVisibility = contextMenu.addMenu( "Visibility" );
   QActionGroup* visibilityGroup = new QActionGroup(this);
   QAction actionVisibilityMatchSelection("Match selection", this);
+  actionVisibilityMatchSelection.setEnabled(false);
   visibilityGroup->addAction(&actionVisibilityMatchSelection);
   subMenuVisibility->addAction(&actionVisibilityMatchSelection);
   //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
   QAction actionVisibilityInvert("Invert", this);
+  actionVisibilityInvert.setEnabled(false);
   visibilityGroup->addAction(&actionVisibilityInvert);
   subMenuVisibility->addAction(&actionVisibilityInvert);
   //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
@@ -510,18 +520,22 @@ void AtomTreeView::ShowContextMenu(const QPoint &pos)
   QMenu* subMenuScrollTo = contextMenu.addMenu( "Visibility" );
   QActionGroup* scrollToGroup = new QActionGroup(this);
   QAction actionScrollToTop("Top", this);
+  actionScrollToTop.setEnabled(false);
   scrollToGroup->addAction(&actionScrollToTop);
   subMenuScrollTo->addAction(&actionScrollToTop);
   //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
   QAction actionScrollToBottom("Bottom", this);
+  actionScrollToBottom.setEnabled(false);
   scrollToGroup->addAction(&actionScrollToBottom);
   subMenuScrollTo->addAction(&actionScrollToBottom);
   //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
   QAction actionScrollToFirstSelected("First selected", this);
+  actionScrollToFirstSelected.setEnabled(false);
   scrollToGroup->addAction(&actionScrollToFirstSelected);
   subMenuScrollTo->addAction(&actionScrollToFirstSelected);
   //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
   QAction actionScrollToLastSelected("Last selected", this);
+  actionScrollToLastSelected.setEnabled(false);
   scrollToGroup->addAction(&actionScrollToLastSelected);
   subMenuScrollTo->addAction(&actionScrollToLastSelected);
   //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
@@ -530,22 +544,27 @@ void AtomTreeView::ShowContextMenu(const QPoint &pos)
   QMenu* subMenuExport = contextMenu.addMenu( "Export to" );
   QActionGroup* exportToGroup = new QActionGroup(this);
   QAction actionExportToPDB("PDB", this);
+  actionExportToPDB.setEnabled(false);
   exportToGroup->addAction(&actionExportToPDB);
   subMenuExport->addAction(&actionExportToPDB);
   connect(&actionExportToPDB, &QAction::triggered, this, &AtomTreeView::exportToPDB);
   QAction actionExportToMMCIF("mmCIF", this);
+  actionExportToMMCIF.setEnabled(false);
   exportToGroup->addAction(&actionExportToMMCIF);
   subMenuExport->addAction(&actionExportToMMCIF);
   connect(&actionExportToMMCIF, &QAction::triggered, this, &AtomTreeView::exportToMMCIF);
   QAction actionExportToCIF("CIF", this);
+  actionExportToCIF.setEnabled(false);
   exportToGroup->addAction(&actionExportToCIF);
   subMenuExport->addAction(&actionExportToCIF);
   connect(&actionExportToCIF, &QAction::triggered, this, &AtomTreeView::exportToCIF);
   QAction actionExportToXYZ("XYZ", this);
+  actionExportToXYZ.setEnabled(false);
   exportToGroup->addAction(&actionExportToXYZ);
   subMenuExport->addAction(&actionExportToXYZ);
   connect(&actionExportToXYZ, &QAction::triggered, this, &AtomTreeView::exportToXYZ);
   QAction actionExportToPOSCAR("VASP POSCAR", this);
+  actionExportToPOSCAR.setEnabled(false);
   exportToGroup->addAction(&actionExportToPOSCAR);
   subMenuExport->addAction(&actionExportToPOSCAR);
   connect(&actionExportToPOSCAR, &QAction::triggered, this, &AtomTreeView::exportToPOSCAR);

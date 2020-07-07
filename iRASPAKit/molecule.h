@@ -36,6 +36,7 @@ class Molecule: public Structure
 public:
   Molecule();
   Molecule(std::shared_ptr<SKStructure> structure);
+  Molecule(std::shared_ptr<Structure> s);
 
 	iRASPAStructureType structureType() override final { return iRASPAStructureType::molecule; }
 
@@ -59,6 +60,8 @@ public:
   void computeBonds() final override;
 
   std::vector<double3> atomPositions() const override final;
+
+  double3x3 unitCell();
 private:
   qint64 _versionNumber{1};
   friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<Molecule> &);

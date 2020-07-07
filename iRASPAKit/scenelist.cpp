@@ -42,13 +42,11 @@ QString SceneList::displayName() const
  return _displayName;
 }
 
-std::shared_ptr<Scene> &SceneList::selectedScene()
+std::shared_ptr<Scene> SceneList::selectedScene()
 {
-  if(!_selectedScene)
-  {
-    _selectedScene = _scenes.front();
-  }
-  return _selectedScene;
+  if(_selectedScene)
+    return _selectedScene;
+  return nullptr;
 }
 
 void SceneList::setSelectedFrameIndices(int frameIndex)
@@ -82,29 +80,48 @@ void SceneList::clearSelection()
     scene->selectedMovies().clear();
     for(std::shared_ptr<Movie> movie:scene->movies())
     {
-      movie->selectedFrames().clear();
+      // FIX
+      //movie->selectedFramesSet().clear();
     }
   }
 }
 
-std::vector<std::shared_ptr<Structure>> SceneList::selectedStructures()
+std::vector<std::shared_ptr<iRASPAStructure>> SceneList::selectedMoviesiRASPAStructures()
 {
-  std::vector<std::shared_ptr<Structure>> structures{};
-  for(std::shared_ptr<Scene> scene: selectedScenes())
+  std::vector<std::shared_ptr<iRASPAStructure>> structures{};
+  for(std::shared_ptr<Scene> scene: scenes())
   {
     for(std::shared_ptr<Movie> movie: scene->selectedMovies())
     {
       for(std::shared_ptr<iRASPAStructure> frame: movie->frames())
       {
-        if(std::shared_ptr<Structure> structure = frame->structure())
-        {
-          structures.push_back(structure);
-        }
+        structures.push_back(frame);
       }
     }
   }
   return structures;
 }
+
+
+std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> SceneList::selectediRASPARenderStructures() const
+{
+  std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> sceneStructures = std::vector<std::vector<std::shared_ptr<iRASPAStructure>>>();
+
+  for(std::shared_ptr<Scene> scene : _scenes)
+  {
+    std::vector<std::shared_ptr<iRASPAStructure>> structures = std::vector<std::shared_ptr<iRASPAStructure>>();
+    for(std::shared_ptr<Movie> movie: scene->movies())
+    {
+      for(std::shared_ptr<iRASPAStructure> selectedFrame: movie->selectedFramesSet())
+      {
+        structures.push_back(selectedFrame);
+      }
+    }
+    sceneStructures.push_back(structures);
+  }
+  return sceneStructures;
+}
+
 
 QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<SceneList> &sceneList)
 {

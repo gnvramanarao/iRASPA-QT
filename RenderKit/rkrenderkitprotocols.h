@@ -149,8 +149,6 @@ public:
   virtual double atomSelectionWorleyNoise3DFrequency() const = 0;
   virtual double atomSelectionWorleyNoise3DJitter() const = 0;
 
-  virtual double3 CartesianPosition(double3 position, int3 replicaPosition) const = 0;
-
   virtual std::vector<RKInPerInstanceAttributesBonds> renderInternalBonds() const = 0;
   virtual std::vector<RKInPerInstanceAttributesBonds> renderExternalBonds() const = 0;
   virtual std::vector<RKInPerInstanceAttributesBonds> renderSelectedInternalBonds() const = 0;
@@ -384,6 +382,7 @@ public:
   virtual void redrawWithHighQuality() = 0;
   virtual void redrawWithPictureQuality() = 0;
 
+  virtual void setRenderStructures(std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> structures) = 0;
   virtual void setRenderDataSource(std::shared_ptr<RKRenderDataSource> source) = 0;
   virtual void reloadData() = 0;
   virtual void reloadData(RKRenderQuality ambientOcclusionQuality) = 0;

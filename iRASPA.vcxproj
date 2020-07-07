@@ -13,9 +13,10 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E62B9EF0-5200-32BF-AE4B-70180A1A486F}</ProjectGuid>
     <RootNamespace>iraspa</RootNamespace>
-    <Keyword>QtVS_v302</Keyword>
+    <Keyword>QtVS_v303</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <WindowsTargetPlatformMinVersion>10.0.18362.0</WindowsTargetPlatformMinVersion>
+    <WindowsTargetPlatformMinVersion>10.0.19041.0</WindowsTargetPlatformMinVersion>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' or !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -37,9 +38,6 @@
     <PrimaryOutput>iraspa</PrimaryOutput>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <PropertyGroup Condition="'$(QtMsBuild)'=='' or !Exists('$(QtMsBuild)\qt.targets')">
-    <QtMsBuild>$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
-  </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
     <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
   </Target>
@@ -54,6 +52,19 @@
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
   </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>debug\</OutDir>
+    <IntDir>debug\</IntDir>
+    <TargetName>iraspa</TargetName>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>release\</OutDir>
+    <IntDir>release\</IntDir>
+    <TargetName>iraspa</TargetName>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <QtInstall>msvc2017_64</QtInstall>
     <QtModules>core;opengl;network;gui;widgets;qml;positioning;printsupport;webchannel;quick;webengine;webenginewidgets</QtModules>
@@ -65,17 +76,6 @@
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
     <Import Project="$(QtMsBuild)\qt.props" />
   </ImportGroup>
-  <PropertyGroup>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">release\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">release\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">iraspa</TargetName>
-    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</IgnoreImportLibrary>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">debug\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">debug\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">iraspa</TargetName>
-    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</IgnoreImportLibrary>
-  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;MathKit;FoundationKit;SymmetryKit;SimulationKit;RenderKit;iRASPAKit;iRASPA;..\..\..\vcpkg\installed\x64-windows-static\include;..\..\..\vcpkg\installed\x64-windows-static\include\python2.7;release;/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -209,6 +209,7 @@
     <ClCompile Include="iRASPA\appearanceannotationform.cpp" />
     <ClCompile Include="iRASPA\appearanceatomsform.cpp" />
     <ClCompile Include="iRASPA\appearancebondsform.cpp" />
+    <ClCompile Include="iRASPA\appearanceprimitiveform.cpp" />
     <ClCompile Include="iRASPA\appearancetreewidgetcontroller.cpp" />
     <ClCompile Include="iRASPA\appearanceunitcellform.cpp" />
     <ClCompile Include="iRASPA\atomchangeselectioncommand.cpp" />
@@ -239,6 +240,7 @@
     <ClCompile Include="iRASPA\cellcellform.cpp" />
     <ClCompile Include="iRASPA\cellstructuralform.cpp" />
     <ClCompile Include="iRASPA\cellsymmetryform.cpp" />
+    <ClCompile Include="iRASPA\celltransformcontentform.cpp" />
     <ClCompile Include="iRASPA\celltreewidgetcontroller.cpp" />
     <ClCompile Include="FoundationKit\characterset.cpp" />
     <ClCompile Include="SimulationKit\constants.cpp" />
@@ -271,6 +273,7 @@
     <ClCompile Include="SimulationKit\forcefieldset.cpp" />
     <ClCompile Include="SimulationKit\forcefieldsets.cpp" />
     <ClCompile Include="SimulationKit\forcefieldtype.cpp" />
+    <ClCompile Include="iRASPA\frameliststyleditemdelegate.cpp" />
     <ClCompile Include="iRASPA\framelistview.cpp" />
     <ClCompile Include="iRASPA\framelistviewmodel.cpp" />
     <ClCompile Include="RenderKit\glgeterror.cpp" />
@@ -346,9 +349,11 @@
     <ClCompile Include="iRASPAKit\projecttreenode.cpp" />
     <ClCompile Include="iRASPA\projecttreeview.cpp" />
     <ClCompile Include="iRASPA\projecttreeviewmodel.cpp" />
+    <ClCompile Include="iRASPA\projecttreeviewstyleditemdelegate.cpp" />
     <ClCompile Include="iRASPAKit\protein.cpp" />
     <ClCompile Include="iRASPAKit\proteincrystal.cpp" />
     <ClCompile Include="iRASPA\pythonviewcontroller.cpp" />
+    <ClCompile Include="iRASPA\qdoubledial.cpp" />
     <ClCompile Include="iRASPA\qdoubleslider.cpp" />
     <ClCompile Include="iRASPA\qtsegmentcontrol.cpp" />
     <ClCompile Include="RenderKit\quadgeometry.cpp" />
@@ -364,6 +369,7 @@
     <ClCompile Include="iRASPAKit\scenelist.cpp" />
     <ClCompile Include="iRASPA\scenetreeview.cpp" />
     <ClCompile Include="iRASPA\scenetreeviewmodel.cpp" />
+    <ClCompile Include="iRASPA\scenetreeviewstyleditemdelegate.cpp" />
     <ClCompile Include="iRASPA\selectcolorbutton.cpp" />
     <ClCompile Include="MathKit\simd_quatd.cpp" />
     <ClCompile Include="SymmetryKit\skasymmetricatom.cpp" />
@@ -419,6 +425,8 @@
     </QtMoc>
     <QtMoc Include="iRASPA\appearancebondsform.h">
     </QtMoc>
+    <QtMoc Include="iRASPA\appearanceprimitiveform.h">
+    </QtMoc>
     <QtMoc Include="iRASPA\appearancetreewidgetcontroller.h">
     </QtMoc>
     <QtMoc Include="iRASPA\appearanceunitcellform.h">
@@ -469,6 +477,8 @@
     </QtMoc>
     <QtMoc Include="iRASPA\cellsymmetryform.h">
     </QtMoc>
+    <QtMoc Include="iRASPA\celltransformcontentform.h">
+    </QtMoc>
     <QtMoc Include="iRASPA\celltreewidgetcontroller.h">
     </QtMoc>
     <ClInclude Include="FoundationKit\characterset.h" />
@@ -509,6 +519,8 @@
     <ClInclude Include="SimulationKit\forcefieldsets.h" />
     <ClInclude Include="SimulationKit\forcefieldtype.h" />
     <ClInclude Include="FoundationKit\foundationkit.h" />
+    <QtMoc Include="iRASPA\frameliststyleditemdelegate.h">
+    </QtMoc>
     <QtMoc Include="iRASPA\framelistview.h">
     </QtMoc>
     <QtMoc Include="iRASPA\framelistviewmodel.h">
@@ -606,11 +618,15 @@
     </QtMoc>
     <QtMoc Include="iRASPA\projecttreeviewmodel.h">
     </QtMoc>
+    <QtMoc Include="iRASPA\projecttreeviewstyleditemdelegate.h">
+    </QtMoc>
     <ClInclude Include="iRASPAKit\protein.h" />
     <ClInclude Include="iRASPAKit\proteincrystal.h" />
     <QtMoc Include="iRASPA\pythonviewcontroller.h">
     </QtMoc>
     <ClInclude Include="iRASPA\qcolorhash.h" />
+    <QtMoc Include="iRASPA\qdoubledial.h">
+    </QtMoc>
     <QtMoc Include="iRASPA\qdoubleslider.h">
     </QtMoc>
     <QtMoc Include="iRASPA\qtsegmentcontrol.h">
@@ -631,6 +647,8 @@
     <QtMoc Include="iRASPA\scenetreeview.h">
     </QtMoc>
     <QtMoc Include="iRASPA\scenetreeviewmodel.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\scenetreeviewstyleditemdelegate.h">
     </QtMoc>
     <QtMoc Include="iRASPA\selectcolorbutton.h">
     </QtMoc>
@@ -715,6 +733,8 @@
     </QtUic>
     <QtUic Include="iRASPA\appearancebondsform.ui">
     </QtUic>
+    <QtUic Include="iRASPA\appearanceprimitiveform.ui">
+    </QtUic>
     <QtUic Include="iRASPA\appearanceunitcellform.ui">
     </QtUic>
     <QtUic Include="iRASPA\camerabackgroundform.ui">
@@ -732,6 +752,8 @@
     <QtUic Include="iRASPA\cellstructuralform.ui">
     </QtUic>
     <QtUic Include="iRASPA\cellsymmetryform.ui">
+    </QtUic>
+    <QtUic Include="iRASPA\celltransformcontentform.ui">
     </QtUic>
     <QtUic Include="iRASPA\elementsform.ui">
     </QtUic>

@@ -27,11 +27,39 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
+#include "crystal.h"
+#include "molecule.h"
+#include "molecularcrystal.h"
+#include "proteincrystal.h"
+#include "protein.h"
+#include "ellipsoidprimitive.h"
 #include "cylinderprimitive.h"
+#include "polygonalprismprimitive.h"
+#include "crystalellipsoidprimitive.h"
+#include "crystalcylinderprimitive.h"
+#include "crystalpolygonalprismprimitive.h"
 
 CylinderPrimitive::CylinderPrimitive()
 {
 
+}
+
+CylinderPrimitive::CylinderPrimitive(std::shared_ptr<Structure> s): Structure(s)
+{
+  _cell = std::make_shared<SKCell>(*s->cell());
+
+  if(dynamic_cast<Crystal*>(s.get()) ||
+     dynamic_cast<CrystalEllipsoidPrimitive*>(s.get()) ||
+     dynamic_cast<CrystalCylinderPrimitive*>(s.get()) ||
+     dynamic_cast<CrystalPolygonalPrismPrimitive*>(s.get()))
+  {
+    convertAsymmetricAtomsToFractional();
+  }
+
+  expandSymmetry();
+  _atomsTreeController->setTags();
+  reComputeBoundingBox();
+  computeBonds();
 }
 
 // MARK: Rendering
@@ -90,6 +118,32 @@ std::vector<RKInPerInstanceAttributesAtoms> CylinderPrimitive::renderPrimitiveCy
 
 // MARK: Bounding box
 // =====================================================================
+
+SKBoundingBox CylinderPrimitive::boundingBox() const
+{
+  double3 minimum = double3(1e10, 1e10, 1e10);
+  double3 maximum = double3(-1e10, -1e10, -1e10);
+
+  std::vector<std::shared_ptr<SKAtomCopy>> atoms = _atomsTreeController->atomCopies();
+
+  if (atoms.empty())
+  {
+    return SKBoundingBox(double3(0.0,0.0,0.0), double3(0.0, 0.0, 0.0));
+  }
+
+  for (std::shared_ptr<SKAtomCopy> atom : atoms)
+  {
+    double3 CartesianPosition = atom->position();
+    minimum.x = std::min(minimum.x, CartesianPosition.x);
+    minimum.y = std::min(minimum.y, CartesianPosition.y);
+    minimum.z = std::min(minimum.z, CartesianPosition.z);
+    maximum.x = std::max(maximum.x, CartesianPosition.x);
+    maximum.y = std::max(maximum.y, CartesianPosition.y);
+    maximum.z = std::max(maximum.z, CartesianPosition.z);
+  }
+
+  return SKBoundingBox(minimum, maximum);
+}
 
 // MARK: Symmetry
 // =====================================================================

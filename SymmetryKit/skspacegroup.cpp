@@ -31,7 +31,7 @@
 #include <iostream>
 #include <QDebug>
 
-SKSpaceGroup::SKSpaceGroup(int HallNumber): _spaceGroupSetting(SKSpaceGroup::_spaceGroupData[1])
+SKSpaceGroup::SKSpaceGroup(int HallNumber)
 {
   _spaceGroupSetting = SKSpaceGroup::_spaceGroupData[HallNumber];
 }
@@ -173,7 +173,7 @@ QDataStream &operator>>(QDataStream &stream, SKSpaceGroup &spaceGroup)
 }
 
 
-const std::array<SKSpaceGroupSetting,531> SKSpaceGroup::_spaceGroupData = std::array<SKSpaceGroupSetting,531>{{
+const std::array<SKSpaceGroupSetting,531> SKSpaceGroup::_spaceGroupData = std::array<SKSpaceGroupSetting,531>{
     SKSpaceGroupSetting(  0,  0, 0,0, "abc",            "", "", "unknown",false, int3(0,0,0), Symmorphicity::symmorphic, false, Centring::primitive,std::vector<int3>{int3(0,0,0)}, 0, "", "012", "", int3x3(1)),
     
     // TRICLINIC GROUPS
@@ -957,7 +957,7 @@ const std::array<SKSpaceGroupSetting,531> SKSpaceGroup::_spaceGroupData = std::a
     SKSpaceGroupSetting(529,229,96,0,     "",    "I m -3 m", "", "-I 4 2 3",true, int3(0,0,0), Symmorphicity::symmorphic,true,  Centring:: body,     std::vector<int3>{int3(0,0,0), int3(6,6,6)}, 32,"Oh^9"  , "402201345","012051024213510402132201120450234423531504153045315342105435240543321354", int3x3(int3(0, 1, 1), int3(1, 0, 1), int3(1, 1, 0))),
     
     SKSpaceGroupSetting(530,230,96,0,     "",    "I a -3 d", "", "-I 4bd 2c 3",true, int3(0,0,0), Symmorphicity::asymmorphic,true,  Centring:: body,     std::vector<int3>{int3(0,0,0), int3(6,6,6)}, 32,"Oh^10" , "P<D201345","012:UA:GRDAMUA:P<D?KG2011204S023NN235I1S0415I04SI153N2?<XPKUDP<UPKKG?KUP", int3x3(int3(0, 1, 1), int3(1, 0, 1), int3(1, 1, 0))),
-}};
+};
 
 const std::vector<std::vector<int>> SKSpaceGroup::spaceGroupHallData =
 {

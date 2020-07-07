@@ -40,11 +40,9 @@ Scene::Scene()
 
 std::shared_ptr<Movie> Scene::selectedMovie()
 {
-  if(!_selectedMovie)
-  {
-    _selectedMovie = _movies.front();
-  }
-  return _selectedMovie;
+  if(_selectedMovie)
+    return _selectedMovie;
+  return nullptr;
 }
 
 void Scene::setSelectedFrameIndices(int frameIndex)
@@ -52,6 +50,15 @@ void Scene::setSelectedFrameIndices(int frameIndex)
   for(std::shared_ptr<Movie> movie : _movies)
   {
     movie->setSelectedFrameIndex(frameIndex);
+  }
+}
+
+void Scene::setSelectedMovie(std::shared_ptr<Movie> movie)
+{
+  _selectedMovie = movie;
+  if(_selectedMovie)
+  {
+    _selectedMovies.insert(_selectedMovie);
   }
 }
 

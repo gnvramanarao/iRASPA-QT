@@ -770,14 +770,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QDoubleSlider</class>
-   <extends>QSlider</extends>
-   <header>qdoubleslider.h</header>
-  </customwidget>
-  <customwidget>
    <class>CustomDoubleSpinBox</class>
    <extends>QDoubleSpinBox</extends>
    <header>customdoublespinbox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QDoubleSlider</class>
+   <extends>QSlider</extends>
+   <header>qdoubleslider.h</header>
   </customwidget>
   <customwidget>
    <class>SelectColorButton</class>

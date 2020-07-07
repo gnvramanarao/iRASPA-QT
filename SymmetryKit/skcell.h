@@ -39,7 +39,8 @@ public:
   SKCell(double a, double b, double c, double alpha, double beta, double gamma);
   SKCell(SKBoundingBox boundingBox);
   SKCell(SKCell superCell, int3 minimumReplica, int3 maximumReplica);
-  double3x3 unitCell() const;
+  double3x3 unitCell() const {return _unitCell;}
+  double3x3 inverseUnitCell() const {return _inverseUnitCell;}
   void setUnitCell(const double3x3& unitCell);
   int3 minimumReplicas() const;
   void setMinimumReplicas(const int3& minimumReplicas);

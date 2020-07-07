@@ -72,9 +72,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
   // propagate the logWidget to all interested controller
   this->propagateLogReporter(this->ui->logPlainTextEdit,this);
 
-
   ui->projectTreeView->setController(_documentData.projectTreeController());
-  //QObject::connect(ui->projectTreeView->selectionModel(),&QItemSelectionModel::currentRowChanged,ui->projectTreeView,&ProjectTreeView::setSelectedProject);
 
   QModelIndex index1 = ui->projectTreeView->model()->index(0,0,QModelIndex());
   QModelIndex index2 = ui->projectTreeView->model()->index(2,0,QModelIndex());
@@ -88,20 +86,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 
   this->propagateProject(std::shared_ptr<ProjectTreeNode>(nullptr), this);
 
-  QObject::connect(ui->stackedRenderers, &RenderStackedWidget::updateCameraModelViewMatrix, ui->cameraTreeWidget, &CameraTreeWidgetController::reloadCameraModelViewMatrix);
-  QObject::connect(ui->stackedRenderers, &RenderStackedWidget::updateCameraEulerAngles, ui->cameraTreeWidget, &CameraTreeWidgetController::reloadCameraEulerAngles);
-  QObject::connect(ui->stackedRenderers, &RenderStackedWidget::updateCameraProjection, ui->cameraTreeWidget, &CameraTreeWidgetController::reloadCameraProjection);
-  QObject::connect(ui->stackedRenderers, &RenderStackedWidget::updateCameraResetDirection, ui->cameraTreeWidget, &CameraTreeWidgetController::reloadCameraResetDirection);
-
-  QObject::connect(ui->cameraTreeWidget, &CameraTreeWidgetController::updateRenderer,ui->stackedRenderers, &RenderStackedWidget::redraw);
-  QObject::connect(ui->cameraTreeWidget, &CameraTreeWidgetController::rendererReloadBackgroundImage,ui->stackedRenderers, &RenderStackedWidget::reloadBackgroundImage);
-  QObject::connect(ui->cameraTreeWidget, &CameraTreeWidgetController::rendererReloadSelectionData,ui->stackedRenderers, &RenderStackedWidget::reloadSelectionData);
-
-  QObject::connect(ui->cameraTreeWidget, &CameraTreeWidgetController::rendererCreatePicture,ui->stackedRenderers, &RenderStackedWidget::createPicture);
-
-
-  QObject::connect(ui->frameListView, &FrameListView::updateRenderer,ui->stackedRenderers, &RenderStackedWidget::reloadData);
-
   // monitor the opengl mouse events in stackRenderers
   ui->glwidget->installEventFilter(ui->stackedRenderers);
 
@@ -110,35 +94,40 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
   // connect the project-toolbar to the stackedWidget
   QObject::connect(ui->masterToolBar->mapper(), static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped),ui->masterStackedWidget, &MasterStackedWidget::reloadTab);
 
-
-  // FIX!!
-  //QObject::connect(ui->sceneTreeView, &SceneTreeView::setSelectedMovie, ui->frameListView, &FrameListView::setRootNode);
-
-
-  QObject::connect(ui->sceneTreeView, &SceneTreeView::setCellTreeController, ui->appearanceTreeWidget, &AppearanceTreeWidgetController::setStructures);
-  QObject::connect(ui->sceneTreeView, &SceneTreeView::setCellTreeController, ui->cellTreeWidget, &CellTreeWidgetController::setStructures);
+  // connect the sceneTreeView
+  QObject::connect(ui->sceneTreeView, &SceneTreeView::updateRenderer,ui->stackedRenderers, &RenderStackedWidget::reloadData);
+  QObject::connect(ui->sceneTreeView, &SceneTreeView::setFlattenedSelectedFrames, ui->infoTreeWidget, &InfoTreeWidgetController::setFlattenedSelectedFrames);
+  QObject::connect(ui->sceneTreeView, &SceneTreeView::setFlattenedSelectedFrames, ui->appearanceTreeWidget, &AppearanceTreeWidgetController::setFlattenedSelectedFrames);
+  QObject::connect(ui->sceneTreeView, &SceneTreeView::setFlattenedSelectedFrames, ui->cellTreeWidget, &CellTreeWidgetController::setFlattenedSelectedFrames);
   QObject::connect(ui->sceneTreeView, &SceneTreeView::setSelectedFrame, ui->atomTreeView, &AtomTreeView::setSelectedFrame);
   QObject::connect(ui->sceneTreeView, &SceneTreeView::setSelectedFrame, ui->bondListView, &BondListView::setSelectedFrame);
-
-  QObject::connect(ui->frameListView, &FrameListView::setCellTreeController, ui->cellTreeWidget, &CellTreeWidgetController::setStructures);
-
-  QObject::connect(ui->frameListView, &FrameListView::setSelectedFrame, ui->atomTreeView, &AtomTreeView::setSelectedFrame);
-  QObject::connect(ui->frameListView, &FrameListView::setSelectedFrame, ui->bondListView, &BondListView::setSelectedFrame);
-
-  QObject::connect(ui->atomTreeView->atomModel().get(), &AtomTreeViewModel::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
-  QObject::connect(ui->atomTreeView, &AtomTreeView::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
-
-  QObject::connect(ui->bondListView->bondModel().get(), &BondListViewModel::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
-  QObject::connect(ui->bondListView, &BondListView::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
-
+  QObject::connect(ui->sceneTreeView, &SceneTreeView::setSelectedRenderFrames, ui->stackedRenderers, &RenderStackedWidget::setSelectedRenderFrames);
+  QObject::connect(ui->sceneTreeView, &SceneTreeView::setSelectedMovie, ui->frameListView, &FrameListView::setSelectedMovie);
   QObject::connect(ui->sceneTreeView->sceneTreeModel(), &SceneTreeViewModel::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
   QObject::connect(ui->sceneTreeView->sceneTreeModel(), &SceneTreeViewModel::invalidateCachedAmbientOcclusionTexture,ui->stackedRenderers, &RenderStackedWidget::invalidateCachedAmbientOcclusionTexture);
 
+  // connect the frameListView
+  QObject::connect(ui->frameListView, &FrameListView::updateRenderer,ui->stackedRenderers, &RenderStackedWidget::reloadData);
+  QObject::connect(ui->frameListView, &FrameListView::setFlattenedSelectedFrames, ui->infoTreeWidget, &InfoTreeWidgetController::setFlattenedSelectedFrames);
+  QObject::connect(ui->frameListView, &FrameListView::setFlattenedSelectedFrames, ui->appearanceTreeWidget, &AppearanceTreeWidgetController::setFlattenedSelectedFrames);
+  QObject::connect(ui->frameListView, &FrameListView::setFlattenedSelectedFrames, ui->cellTreeWidget, &CellTreeWidgetController::setFlattenedSelectedFrames);
+  QObject::connect(ui->frameListView, &FrameListView::setSelectedFrame, ui->atomTreeView, &AtomTreeView::setSelectedFrame);
+  QObject::connect(ui->frameListView, &FrameListView::setSelectedFrame, ui->bondListView, &BondListView::setSelectedFrame);
+  QObject::connect(ui->frameListView, &FrameListView::setSelectedRenderFrames, ui->stackedRenderers, &RenderStackedWidget::setSelectedRenderFrames);
+
+  // connect the camera tab
+  QObject::connect(ui->cameraTreeWidget, &CameraTreeWidgetController::updateRenderer,ui->stackedRenderers, &RenderStackedWidget::redraw);
+  QObject::connect(ui->cameraTreeWidget, &CameraTreeWidgetController::rendererReloadBackgroundImage,ui->stackedRenderers, &RenderStackedWidget::reloadBackgroundImage);
+  QObject::connect(ui->cameraTreeWidget, &CameraTreeWidgetController::rendererReloadSelectionData,ui->stackedRenderers, &RenderStackedWidget::reloadSelectionData);
+  QObject::connect(ui->cameraTreeWidget, &CameraTreeWidgetController::rendererCreatePicture,ui->stackedRenderers, &RenderStackedWidget::createPicture);
+
+  // connect the elements tab
+  QObject::connect(ui->elementListWidget, &ElementListWidgetController::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
+  QObject::connect(ui->elementListWidget, &ElementListWidgetController::invalidateCachedAmbientOcclusionTexture,ui->stackedRenderers, &RenderStackedWidget::invalidateCachedAmbientOcclusionTexture);
+  QObject::connect(ui->elementListWidget, &ElementListWidgetController::invalidateIsosurface,ui->stackedRenderers, &RenderStackedWidget::invalidateIsosurface);
+
+  // copnnect the appearance tab
   QObject::connect(ui->appearanceTreeWidget, &AppearanceTreeWidgetController::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
-
-  QObject::connect(ui->stackedRenderers, &RenderStackedWidget::rendererWidgetResized,ui->detailTabViewController, &DetailTabViewController::rendererWidgetResized);
-
-
   QObject::connect(ui->appearanceTreeWidget, &AppearanceTreeWidgetController::redrawRenderer,ui->stackedRenderers, &RenderStackedWidget::redraw);
   QObject::connect(ui->appearanceTreeWidget, &AppearanceTreeWidgetController::redrawRendererWithLowQuality,ui->stackedRenderers, &RenderStackedWidget::redrawWithLowQuality);
   QObject::connect(ui->appearanceTreeWidget, &AppearanceTreeWidgetController::redrawRendererWithMediumQuality,ui->stackedRenderers, &RenderStackedWidget::redrawWithMediumQuality);
@@ -147,12 +136,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
   QObject::connect(ui->appearanceTreeWidget, &AppearanceTreeWidgetController::invalidateCachedAmbientOcclusionTexture,ui->stackedRenderers, &RenderStackedWidget::invalidateCachedAmbientOcclusionTexture);
   QObject::connect(ui->appearanceTreeWidget, &AppearanceTreeWidgetController::invalidateIsosurface,ui->stackedRenderers, &RenderStackedWidget::invalidateIsosurface);
 
-
-  QObject::connect(ui->elementListWidget, &ElementListWidgetController::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
-  QObject::connect(ui->elementListWidget, &ElementListWidgetController::invalidateCachedAmbientOcclusionTexture,ui->stackedRenderers, &RenderStackedWidget::invalidateCachedAmbientOcclusionTexture);
-  QObject::connect(ui->elementListWidget, &ElementListWidgetController::invalidateIsosurface,ui->stackedRenderers, &RenderStackedWidget::invalidateIsosurface);
-
-
+  // connect the cell tab
+  QObject::connect(ui->cellTreeWidget, &CellTreeWidgetController::reloadAllViews,this, &MainWindow::reloadAllViews);
   QObject::connect(ui->cellTreeWidget, &CellTreeWidgetController::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
   QObject::connect(ui->cellTreeWidget, &CellTreeWidgetController::redrawRendererWithHighQuality,ui->stackedRenderers, &RenderStackedWidget::redrawWithHighQuality);
   QObject::connect(ui->cellTreeWidget, &CellTreeWidgetController::computeHeliumVoidFraction,ui->stackedRenderers, &RenderStackedWidget::computeHeliumVoidFraction);
@@ -160,14 +145,48 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
   QObject::connect(ui->cellTreeWidget, &CellTreeWidgetController::invalidateCachedAmbientOcclusionTexture,ui->stackedRenderers, &RenderStackedWidget::invalidateCachedAmbientOcclusionTexture);
   QObject::connect(ui->cellTreeWidget, &CellTreeWidgetController::invalidateIsosurface,ui->stackedRenderers, &RenderStackedWidget::invalidateIsosurface);
 
-
+  // connect the atom tab
+  QObject::connect(ui->atomTreeView->atomModel().get(), &AtomTreeViewModel::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
+  QObject::connect(ui->atomTreeView, &AtomTreeView::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
   QObject::connect(ui->atomTreeView, &AtomTreeView::invalidateCachedAmbientOcclusionTexture,ui->stackedRenderers, &RenderStackedWidget::invalidateCachedAmbientOcclusionTexture);
 
+  // connect the bond tab
+  QObject::connect(ui->bondListView->bondModel().get(), &BondListViewModel::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
+  QObject::connect(ui->bondListView, &BondListView::rendererReloadData,ui->stackedRenderers, &RenderStackedWidget::reloadRenderData);
 
+  // connect the renderer
+  QObject::connect(ui->stackedRenderers, &RenderStackedWidget::updateCameraModelViewMatrix, ui->cameraTreeWidget, &CameraTreeWidgetController::reloadCameraModelViewMatrix);
+  QObject::connect(ui->stackedRenderers, &RenderStackedWidget::updateCameraEulerAngles, ui->cameraTreeWidget, &CameraTreeWidgetController::reloadCameraEulerAngles);
+  QObject::connect(ui->stackedRenderers, &RenderStackedWidget::updateCameraProjection, ui->cameraTreeWidget, &CameraTreeWidgetController::reloadCameraProjection);
+  QObject::connect(ui->stackedRenderers, &RenderStackedWidget::updateCameraResetDirection, ui->cameraTreeWidget, &CameraTreeWidgetController::reloadCameraResetDirection);
+  QObject::connect(ui->stackedRenderers, &RenderStackedWidget::rendererWidgetResized,ui->detailTabViewController, &DetailTabViewController::rendererWidgetResized);
   QObject::connect(ui->stackedRenderers, &RenderStackedWidget::updateAtomSelection,ui->atomTreeView, &AtomTreeView::reloadSelection);
   QObject::connect(ui->stackedRenderers, &RenderStackedWidget::updateBondSelection,ui->bondListView, &BondListView::reloadSelection);
 
+
+  ui->addProjectToolButton->setEnabled(false);
+  ui->removeProjectToolButton->setEnabled(false);
+  ui->addMovieToolButton->setEnabled(false);
+  ui->removeMovieToolButton->setEnabled(false);
+  ui->addFrameToolButton->setEnabled(false);
+  ui->removeFrameToolButton->setEnabled(false);
+
+  ui->addElementToolButton->setEnabled(false);
+  ui->removeElementToolButton->setEnabled(false);
+
+  ui->addAtomToolButton->setEnabled(false);
+  ui->removeAtomToolButton->setEnabled(false);
+  ui->atomFilterLineEdit->setEnabled(false);
+  ui->atomChargeLineEdit->setEnabled(false);
+
   readLibraryOfStructures();
+}
+
+void MainWindow::reloadAllViews()
+{
+  ui->stackedRenderers->reloadData();
+  ui->atomTreeView->reloadData();
+  ui->bondListView->reloadData();
 }
 
 void MainWindow::reloadDetailViews()
@@ -406,8 +425,12 @@ void MainWindow::readLibraryOfStructures()
 	for (std::shared_ptr<ProjectTreeNode> localNode : libraryData.projectTreeController()->localProjects()->childNodes())
 	{
 		localNode->appendToParent(_documentData.projectTreeController()->galleryProjects());
-		
 	}
+
+  for(std::shared_ptr<ProjectTreeNode> galleryProject : _documentData.projectTreeController()->galleryProjects()->descendantNodes())
+  {
+    galleryProject->setIsEditable(false);
+  }
 
 	reader.close();
 
@@ -552,7 +575,6 @@ void MainWindow::saveFile()
 
     std::vector<std::shared_ptr<ProjectTreeNode>> nodes = _documentData.projectTreeController()->localProjects()->descendantNodes();
 
-    std::cout << "Numner of saved nodes: " << nodes.size() << std::endl;
     for(std::shared_ptr<ProjectTreeNode> &node : nodes)
     {
       node->representedObject()->saveData(zipwriter);

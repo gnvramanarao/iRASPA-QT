@@ -109,8 +109,6 @@ void OpenGLBoundingBoxSphereShader::initializeVertexArrayObject()
       std::vector<RKInPerInstanceAttributesAtoms> unitCellSphereInstanceData = dataSource->renderBoundingBoxSpheres();
       _numberOfUnitCellSpheres = unitCellSphereInstanceData.size();
 
-      qDebug() << "_numberOfUnitCellSpheres: " << _numberOfUnitCellSpheres;
-
       glBindBuffer(GL_ARRAY_BUFFER, _vertexInstanceBuffer);
       if(unitCellSphereInstanceData.size()>0)
       {

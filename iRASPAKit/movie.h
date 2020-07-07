@@ -40,6 +40,8 @@ public:
   Movie();
   Movie(QString displayName);
   Movie(std::shared_ptr<iRASPAStructure> structure) {_frames.push_back(structure);}
+  virtual ~Movie() {}
+
   void append(std::shared_ptr<iRASPAStructure> structure) {_frames.push_back(structure);}
   const std::vector<std::shared_ptr<iRASPAStructure>> frames() const {return _frames;}
   QString displayName() const override final;
@@ -49,10 +51,11 @@ public:
   std::shared_ptr<iRASPAStructure> selectedFrame();
   std::optional<int> selectedFrameIndex();
   void setSelectedFrameIndex(int frameIndex);
-  void setSelectedFrame(std::shared_ptr<iRASPAStructure> selectedFrame) {_selectedFrame = selectedFrame;}
-  std::unordered_set<std::shared_ptr<iRASPAStructure>> &selectedFrames() {return _selectedFrames;}
-  std::vector<std::shared_ptr<Structure>> structures() const;
-  virtual ~Movie() {}
+  void setSelectedFrame(std::shared_ptr<iRASPAStructure> selectedFrame);
+  std::set<std::shared_ptr<iRASPAStructure>> &selectedFramesSet() {return _selectedFramesSet;}
+  std::set<int> selectedFramesIndexSet();
+
+  std::vector<std::shared_ptr<iRASPAStructure>> selectedFramesiRASPAStructures() const;
 private:
   qint64 _versionNumber{1};
   bool _isVisible = true;
@@ -61,7 +64,7 @@ private:
 
   std::vector<std::shared_ptr<iRASPAStructure>> _frames{};
   std::shared_ptr<iRASPAStructure> _selectedFrame;
-  std::unordered_set<std::shared_ptr<iRASPAStructure>> _selectedFrames;
+  std::set<std::shared_ptr<iRASPAStructure>> _selectedFramesSet;
 
   friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<Movie> &);
   friend QDataStream &operator>>(QDataStream &, std::shared_ptr<Movie> &);

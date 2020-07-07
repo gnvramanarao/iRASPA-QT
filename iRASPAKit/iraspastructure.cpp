@@ -34,6 +34,17 @@ QString iRASPAStructure::displayName() const
   return _displayName;
 }
 
+void iRASPAStructure::swapRepresentedObjects(std::shared_ptr<iRASPAStructure> s1, std::shared_ptr<iRASPAStructure> s2)
+{
+  iRASPAStructureType tempRawValue = s2->_rawValue;
+  s2->_rawValue = s1->_rawValue;
+  s1->_rawValue = tempRawValue;
+
+  std::shared_ptr<Structure> tempStructure = s2->_structure;
+  s2->_structure = s1->_structure;
+  s1->_structure = tempStructure;
+}
+
 QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<iRASPAStructure> &iraspa_structure)
 {
   stream << static_cast<typename std::underlying_type<iRASPAStructureType>::type>(iraspa_structure->_rawValue);

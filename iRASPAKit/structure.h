@@ -68,7 +68,7 @@ public:
   Structure();
   Structure(std::shared_ptr<SKAtomTreeController> atomTreeController);
   Structure(std::shared_ptr<SKStructure> structure);
-  //Structure(std::shared_ptr<SKAtomTreeController> atomTreeController, std::shared_ptr<SKBondSetController> bondSetController);
+  Structure(std::shared_ptr<Structure> clone);
   virtual ~Structure() {}
 
   enum class StructureType: qint64
@@ -203,9 +203,10 @@ public:
   double atomSelectionDensity() const override;
   void setAtomSelectionDensity(double value);
 
-  double3 CartesianPosition(double3 position, int3 replicaPosition) const override {Q_UNUSED(position); Q_UNUSED(replicaPosition); return double(); }
-
-
+  virtual double3 CartesianPosition(double3 position, int3 replicaPosition) const {Q_UNUSED(position); Q_UNUSED(replicaPosition); return double(); }
+  virtual double3 FractionalPosition(double3 position, int3 replicaPosition) const {Q_UNUSED(position); Q_UNUSED(replicaPosition); return double(); }
+  void convertAsymmetricAtomsToCartesian();
+  void convertAsymmetricAtomsToFractional();
 
   int numberOfAtoms() const override {return 0;}
   int numberOfInternalBonds() const override {return 0;}
@@ -221,11 +222,18 @@ public:
   bool drawBonds() const override {return _drawBonds;}
   void setDrawBonds(bool drawBonds) {_drawBonds = drawBonds;}
 
+  double rotationDelta() {return _rotationDelta;}
+  void setRotationDelta(double angle) {_rotationDelta = angle;}
+  void setOrientation(simd_quatd orientation) {_orientation = orientation;}
   simd_quatd orientation() const override final {return _orientation;}
   double3 origin() const override final {return _origin;}
   void setOriginX(double value) {_origin.x = value;}
   void setOriginY(double value) {_origin.y = value;}
   void setOriginZ(double value) {_origin.z = value;}
+
+  // primitive
+
+  simd_quatd primitiveOrientation() {return _primitiveOrientation;}
 
   // material properties
   QColor atomAmbientColor() const override {return _atomAmbientColor;}
@@ -519,8 +527,8 @@ public:
   QString citationDatebaseCodes() {return _citationDatebaseCodes;}
   void setCitationDatebaseCodes(QString name) {_citationDatebaseCodes = name;}
 
-  ProbeMolecule frameworkProbeMolecule() const {return _structureProbeMolecule;}
-  void setFrameworkProbeMolecule(ProbeMolecule value) {_structureProbeMolecule = value;}
+  ProbeMolecule frameworkProbeMolecule() const {return _frameworkProbeMolecule;}
+  void setFrameworkProbeMolecule(ProbeMolecule value) {_frameworkProbeMolecule = value;}
   void recomputeDensityProperties() override;
   QString structureMaterialType() {return _structureMaterialType;}
   double structureMass() {return _structureMass;}
@@ -543,8 +551,8 @@ public:
   void setStructureLargestCavityDiameter(double value) {_structureLargestCavityDiameter = value;}
   double structureRestrictingPoreLimitingDiameter() {return _structureRestrictingPoreLimitingDiameter;}
   void setStructureRestrictingPoreLimitingDiameter(double value) {_structureRestrictingPoreLimitingDiameter = value;}
-  double structureLargestCavityDiameterAlongAviablePath() {return _structureLargestCavityDiameterAlongAviablePath;}
-  void setStructureLargestCavityDiameterAlongAviablePath(double value) {_structureLargestCavityDiameterAlongAviablePath = value;}
+  double structureLargestCavityDiameterAlongAviablePath() {return _structureLargestCavityDiameterAlongAViablePath;}
+  void setStructureLargestCavityDiameterAlongAviablePath(double value) {_structureLargestCavityDiameterAlongAViablePath = value;}
 
   virtual void setSpaceGroupHallNumber(int HallNumber)  {_spaceGroup = SKSpaceGroup(HallNumber); std::cout << "BASECLASS" << std::endl;}
   SKSpaceGroup& spaceGroup()  {return _spaceGroup;}
@@ -580,8 +588,8 @@ protected:
   QColor _primitiveFrontSideAmbientColor = QColor(255, 255, 255, 255);
   QColor _primitiveFrontSideDiffuseColor = QColor(255, 255, 0, 255);
   QColor _primitiveFrontSideSpecularColor = QColor(255, 255, 255, 255);
-  double _primitiveFrontSideDiffuseIntensity = 0.1;
-  double _primitiveFrontSideAmbientIntensity = 1.0;
+  double _primitiveFrontSideAmbientIntensity = 0.1;
+  double _primitiveFrontSideDiffuseIntensity = 1.0;
   double _primitiveFrontSideSpecularIntensity = 0.2;
   double _primitiveFrontSideShininess = 4.0;
 
@@ -590,8 +598,8 @@ protected:
   QColor _primitiveBackSideAmbientColor = QColor(255, 255, 255, 255);
   QColor _primitiveBackSideDiffuseColor = QColor(0, 140, 255, 255);
   QColor _primitiveBackSideSpecularColor = QColor(255, 255, 255, 255);
-  double _primitiveBackSideDiffuseIntensity = 0.1;
-  double _primitiveBackSideAmbientIntensity = 1.0;
+  double _primitiveBackSideAmbientIntensity = 0.1;
+  double _primitiveBackSideDiffuseIntensity = 1.0;
   double _primitiveBackSideSpecularIntensity = 0.2;
   double _primitiveBackSideShininess = 4.0;
 
@@ -717,8 +725,12 @@ protected:
   double _adsorptionSurfaceBackSideSpecularIntensity = 1.0;
   double _adsorptionSurfaceBackSideShininess = 4.0;
 
+  double3 _selectionCOMTranslation = double3(0.0, 0.0, 0.0);
+  int _selectionRotationIndex = 0;
+  double3x3 _selectionBodyFixedBasis = double3x3();
+
   StructureType _structureType = StructureType::framework;
-  ProbeMolecule _structureProbeMolecule = ProbeMolecule::nitrogen;
+  ProbeMolecule _frameworkProbeMolecule = ProbeMolecule::nitrogen;
   QString _structureMaterialType = QString("Unspecified");
   double _structureMass = 0.0;
   double _structureDensity = 0.0;
@@ -732,7 +744,7 @@ protected:
   qint64 _structureDimensionalityOfPoreSystem = 0;
   double _structureLargestCavityDiameter = 0.0;
   double _structureRestrictingPoreLimitingDiameter = 0.0;
-  double _structureLargestCavityDiameterAlongAviablePath = 0.0;
+  double _structureLargestCavityDiameterAlongAViablePath = 0.0;
 
   QString _authorFirstName = QString("");
   QString _authorMiddleName = QString("");

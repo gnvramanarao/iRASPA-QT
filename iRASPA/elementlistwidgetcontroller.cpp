@@ -99,8 +99,8 @@ void ElementListWidgetController::setMainWindow(MainWindow *mainWindow)
   {
     QObject::connect(_mainWindow->mainWindowUI()->colorComboBox,static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),this,&ElementListWidgetController::setColorComboBoxIndex);
     QObject::connect(_mainWindow->mainWindowUI()->forceFieldComboBox,static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),this,&ElementListWidgetController::setForceFieldComboBoxIndex);
-    QObject::connect(_mainWindow->mainWindowUI()->addElementPushButton,static_cast<void (QPushButton::*)(void)>(&QPushButton::pressed),this,&ElementListWidgetController::addNewForceFieldAtomType);
-    QObject::connect(_mainWindow->mainWindowUI()->removeElementPushButton,static_cast<void (QPushButton::*)(void)>(&QPushButton::pressed),this,&ElementListWidgetController::removeForceFieldAtomType);
+    QObject::connect(_mainWindow->mainWindowUI()->addElementToolButton,static_cast<void (QToolButton::*)(void)>(&QToolButton::pressed),this,&ElementListWidgetController::addNewForceFieldAtomType);
+    QObject::connect(_mainWindow->mainWindowUI()->removeElementToolButton,static_cast<void (QToolButton::*)(void)>(&QToolButton::pressed),this,&ElementListWidgetController::removeForceFieldAtomType);
   }
 }
 

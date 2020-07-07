@@ -45,7 +45,7 @@ public:
   SceneTreeViewModel();
 
   void setSceneList(std::shared_ptr<SceneList> sceneList);
-
+  bool isMainSelectedItem(std::shared_ptr<Movie> movie);
   //QT
   QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override final;
   QModelIndex parent(const QModelIndex &index) const override final;

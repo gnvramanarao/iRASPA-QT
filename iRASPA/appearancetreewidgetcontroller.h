@@ -43,6 +43,7 @@
 #include "iraspamainwindowconsumerprotocol.h"
 #include <simulationkit.h>
 #include <optional>
+#include "appearanceprimitiveform.h"
 #include "appearanceatomsform.h"
 #include "appearancebondsform.h"
 #include "appearanceunitcellform.h"
@@ -57,14 +58,16 @@ public:
   AppearanceTreeWidgetController(QWidget* parent = nullptr);
   void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode) override final;
   void setMainWindow(MainWindow *mainWindow) override final {_mainWindow = mainWindow;}
-  void setStructures(std::vector<std::shared_ptr<Structure>> structures);
+  void setFlattenedSelectedFrames(std::vector<std::shared_ptr<iRASPAStructure>> iraspa_structures);
 private:
+  AppearancePrimitiveForm* _appearancePrimitiveForm;
   AppearanceAtomsForm* _appearanceAtomsForm;
   AppearanceBondsForm* _appearanceBondsForm;
   AppearanceUnitCellForm* _appearanceUnitCellForm;
   AppearanceAdsorptionSurfaceForm* _appearanceAdsorptionSurfaceForm;
   AppearanceAnnotationForm* _appearanceAnnotationForm;
 
+  QPushButton* pushButtonPrimitive;
   QPushButton* pushButtonAtoms;
   QPushButton* pushButtonBonds;
   QPushButton* pushButtonUnitCell;
@@ -72,15 +75,55 @@ private:
   QPushButton* pushButtonAnnotation;
 
   MainWindow *_mainWindow;
+  std::shared_ptr<ProjectTreeNode> _projectTreeNode;
   std::shared_ptr<ProjectStructure> _projectStructure;
-  std::vector<std::shared_ptr<Structure>> _structures{};
+  std::vector<std::shared_ptr<iRASPAStructure>> _iraspa_structures{};
   void reloadData() override final;
   void reloadSelection() override final;
+
+  void reloadPrimitiveProperties();
   void reloadAtomProperties();
   void reloadBondProperties();
   void reloadUnitCellProperties();
   void reloadAdsorptionSurfaceProperties();
   void reloadAnnotationProperties();
+
+  // primitive properties
+  void reloadRotationAngle();
+  void reloadEulerAngles();
+  void reloadTransformationMatrix();
+  void reloadOpacity();
+  void reloadNumberOfSides();
+  void reloadIsCapped();
+  void reloadFrontHDR();
+  void reloadFrontExposure();
+  void reloadFrontAmbientIntensity();
+  void reloadFrontAmbientColor();
+  void reloadFrontDiffuseIntensity();
+  void reloadFrontDiffuseColor();
+  void reloadFrontSpecularIntensity();
+  void reloadFrontSpecularColor();
+  void reloadFrontShininess();
+  void reloadBackHDR();
+  void reloadBackExposure();
+  void reloadBackAmbientIntensity();
+  void reloadBackAmbientColor();
+  void reloadBackDiffuseIntensity();
+  void reloadBackDiffuseColor();
+  void reloadBackSpecularIntensity();
+  void reloadBackSpecularColor();
+  void reloadBackShininess();
+
+  void setRatationAngle(double value);
+  std::optional<double> rotationAngle();
+
+  void setEulerAngleX(double value);
+  std::optional<double> EulerAngleX();
+  void setEulerAngleY(double value);
+  std::optional<double> EulerAngleY();
+  void setEulerAngleZ(double value);
+  std::optional<double> EulerAngleZ();
+
 
   // atom properties
 
@@ -296,6 +339,7 @@ private:
   std::optional<double> adsorptionSurfaceOutsideShininessy();
 
 private slots:
+  void expandPrimitiveItem();
   void expandAtomsItem();
   void expandBondsItem();
   void expandUnitCellItem();

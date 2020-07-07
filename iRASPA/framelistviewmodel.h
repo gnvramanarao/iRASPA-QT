@@ -45,7 +45,7 @@ public:
   FrameListViewModel();
 
   void setMovie(std::shared_ptr<Movie> movie);
-
+  bool isMainSelectedItem(std::shared_ptr<iRASPAStructure> iraspa_structure);
   QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override final;
   QModelIndex parent(const QModelIndex &child) const override final;
   int rowCount(const QModelIndex &parent = QModelIndex()) const override final;

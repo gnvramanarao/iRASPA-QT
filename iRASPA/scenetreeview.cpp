@@ -28,6 +28,7 @@
  *************************************************************************************************************/
 
 #include "scenetreeview.h"
+#include "scenetreeviewstyleditemdelegate.h"
 #include <QModelIndexList>
 
 SceneTreeView::SceneTreeView(QWidget* parent): QTreeView(parent ), _model(std::make_shared<SceneTreeViewModel>())
@@ -47,14 +48,12 @@ SceneTreeView::SceneTreeView(QWidget* parent): QTreeView(parent ), _model(std::m
 
   this->setStyleSheet("background-color:rgb(240, 240, 240);");
 
-  QObject::connect(selectionModel(),&QItemSelectionModel::currentRowChanged,this, &SceneTreeView::currentMovieChanged);
-
-  //QObject::connect(selectionModel(),&QItemSelectionModel::selectionChanged,this, &SceneTreeView::synchronizeSelection);
-
+  this->setItemDelegateForColumn(0,new SceneTreeViewStyledItemDelegate(this));
 }
 
 void SceneTreeView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 {
+  _projectTreeNode = projectTreeNode;
   if (projectTreeNode)
   {
     if(std::shared_ptr<iRASPAProject> iraspaProject = projectTreeNode->representedObject())
@@ -73,12 +72,6 @@ void SceneTreeView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 }
 
 
-void SceneTreeView::setRootNode(std::shared_ptr<SceneList> sceneList)
-{
-  _sceneList = sceneList;
-  _model->setSceneList(sceneList);
-}
-
 QSize SceneTreeView::sizeHint() const
 {
   return QSize(200, 800);
@@ -88,7 +81,6 @@ void SceneTreeView::reloadSelection()
 {
   if(_sceneList)
   {
-
     std::optional<int> sceneIndex = _sceneList->selectedSceneIndex();
     if(sceneIndex)
     {
@@ -102,7 +94,6 @@ void SceneTreeView::reloadSelection()
 
         selectionModel()->clearSelection();
         selectionModel()->select(selectedMovie, QItemSelectionModel::Select);
-        emit setCellTreeController(_sceneList->selectedScene()->selectedMovie()->structures());
         update();
       }
     }
@@ -116,63 +107,68 @@ void SceneTreeView::reloadData()
 
 void SceneTreeView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
-   if (selectedIndexes().isEmpty())
-   {
-     selectionModel()->select(selected, QItemSelectionModel::QItemSelectionModel::Deselect);
-     selectionModel()->select(deselected, QItemSelectionModel::QItemSelectionModel::SelectCurrent);
-     return;
-   }
-
-   QAbstractItemView::selectionChanged(selected, deselected);
-
-   // synchronize selection
-   _sceneList->clearSelection();
-   for(QModelIndex &selectedIndex: selectedIndexes())
-   {
-     DisplayableProtocol *item = static_cast<DisplayableProtocol*>(selectedIndex.internalPointer());
-
-     if(Movie* movie = dynamic_cast<Movie*>(item))
-     {
-       QModelIndex parentItem = selectedIndex.parent();
-       DisplayableProtocol *item = static_cast<DisplayableProtocol*>(parentItem.internalPointer());
-
-       if(Scene* scene = dynamic_cast<Scene*>(item))
-       {
-         _sceneList->selectedScenes().insert(scene->shared_from_this());
-         scene->selectedMovies().insert(movie->shared_from_this());
-       }
-     }
-   }
-   std::vector<std::shared_ptr<Structure>> structures = _sceneList->selectedStructures();
-   std::cout << "selected structures under movies: " << structures.size() << std::endl;
-   emit setCellTreeController(structures);
-   emit setAppearanceTreeController(structures);
-}
-
-
-void SceneTreeView::currentMovieChanged(const QModelIndex &current)
-{
-  //return;
-
-  DisplayableProtocol *item = static_cast<DisplayableProtocol*>(current.internalPointer());
-
-  if(Movie* movie = dynamic_cast<Movie*>(item))
+  if (selectedIndexes().isEmpty())
   {
-    QModelIndex parentItem = current.parent();
-    DisplayableProtocol *item = static_cast<DisplayableProtocol*>(parentItem.internalPointer());
+    selectionModel()->select(selected, QItemSelectionModel::QItemSelectionModel::Deselect);
+    selectionModel()->select(deselected, QItemSelectionModel::QItemSelectionModel::SelectCurrent);
+    return;
+  }
 
-    if(Scene* scene = dynamic_cast<Scene*>(item))
+  QAbstractItemView::selectionChanged(selected, deselected);
+
+  // clear scene-movie selection
+  _sceneList->selectedScenes().clear();
+  for(std::shared_ptr<Scene> scene : _sceneList->scenes())
+  {
+    scene->selectedMovies().clear();
+  }
+
+  if(selectedIndexes().size() == 1)
+  {
+    QModelIndex current = selectedIndexes().front();
+    DisplayableProtocol *item = static_cast<DisplayableProtocol*>(current.internalPointer());
+
+    if(Movie* movie = dynamic_cast<Movie*>(item))
     {
-      _sceneList->setSelectedScene(scene->shared_from_this());
-      scene->setSelectedMovie(movie->shared_from_this());
+      QModelIndex parentItem = current.parent();
+      DisplayableProtocol *item = static_cast<DisplayableProtocol*>(parentItem.internalPointer());
+
+      if(Scene* scene = dynamic_cast<Scene*>(item))
+      {
+        _sceneList->setSelectedScene(scene->shared_from_this());
+        scene->setSelectedMovie(movie->shared_from_this());
+      }
 
       emit setSelectedMovie(movie->shared_from_this());
-      emit setCellTreeController(movie->structures());
-
       emit setSelectedFrame(movie->selectedFrame());
     }
   }
+
+  // loop over all selected indexes
+  for(QModelIndex index : selectedIndexes())
+  {
+    DisplayableProtocol *item = static_cast<DisplayableProtocol*>(index.internalPointer());
+
+    if(Movie* movie = dynamic_cast<Movie*>(item))
+    {
+      QModelIndex parentItem = index.parent();
+      DisplayableProtocol *item = static_cast<DisplayableProtocol*>(parentItem.internalPointer());
+
+      if(Scene* scene = dynamic_cast<Scene*>(item))
+      {
+        _sceneList->selectedScenes().insert(scene->shared_from_this());
+        scene->selectedMovies().insert(movie->shared_from_this());
+      }
+    }
+  }
+
+  emit setSelectedRenderFrames(_sceneList->selectediRASPARenderStructures());
+  emit setFlattenedSelectedFrames(_sceneList->selectedMoviesiRASPAStructures());
+  emit updateRenderer();
 }
+
+
+
 
 QString SceneTreeView::nameOfItem(const QModelIndex &current)
 {
@@ -188,7 +184,6 @@ QString SceneTreeView::nameOfItem(const QModelIndex &current)
       _sceneList->setSelectedScene(scene->shared_from_this());
       scene->setSelectedMovie(movie->shared_from_this());
       return movie->displayName();
-       // std::cout << "current changed to: " << movie->displayName().toStdString() << std::endl;
     }
   }
   return QString("unknown");

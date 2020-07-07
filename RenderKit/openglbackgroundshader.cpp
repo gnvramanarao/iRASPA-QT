@@ -64,7 +64,6 @@ void OpenGLBackgroundShader::paintGL()
 
 void OpenGLBackgroundShader::reload(std::shared_ptr<RKRenderDataSource> source)
 {
-  std::cout << "setRenderDataSource: " << source << std::endl;
   QImage image;
   if(source)
   {

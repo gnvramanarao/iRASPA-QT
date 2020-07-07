@@ -59,7 +59,7 @@ private:
   std::weak_ptr<ProjectStructure> _project;
   std::weak_ptr<iRASPAProject> _iRASPAProject;
   std::weak_ptr<RKCamera> _camera;
-  std::vector<std::vector<std::shared_ptr<Structure>>> _structures;
+  std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> _iraspa_structures;
   QRubberBand* _rubberBand;
   Tracking _tracking;
   QPoint _origin;
@@ -73,6 +73,7 @@ private:
 protected:
   bool eventFilter(QObject *obj, QEvent *event) override final;
 public slots:
+  void setSelectedRenderFrames(std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> structures);
   void redraw();
   void reloadRenderData();
   void reloadData();

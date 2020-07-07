@@ -42,6 +42,14 @@ void FrameListViewModel::setMovie(std::shared_ptr<Movie> movie)
   endResetModel();
 }
 
+bool FrameListViewModel::isMainSelectedItem(std::shared_ptr<iRASPAStructure> iraspa_structure)
+{
+  if(_movie)
+  {
+    return (_movie->selectedFrame() == iraspa_structure);
+  }
+  return false;
+}
 
 QModelIndex FrameListViewModel::index(int row, int column, const QModelIndex &parent) const
 {

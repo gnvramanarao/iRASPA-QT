@@ -1018,13 +1018,11 @@ void CameraTreeWidgetController::reloadPictureProperties()
       whileBlocking(_cameraPicturesForm->inchRadioButton)->setChecked(true);
       whileBlocking(_cameraPicturesForm->physicalWidthDoubleSpinBox)->setValue(double(_project->renderImagePhysicalSizeInInches()));
       whileBlocking(_cameraPicturesForm->physicalHeightDoubleSpinBox)->setValue(double(_project->renderImagePhysicalSizeInInches())/(_project->imageAspectRatio()));
-      std::cout << "test 1: " << _project->renderImagePhysicalSizeInInches() << std::endl;
       break;
     case RKImageUnits::cm:
       whileBlocking(_cameraPicturesForm->cmRadioButton)->setChecked(true);
       whileBlocking(_cameraPicturesForm->physicalWidthDoubleSpinBox)->setValue(double(2.54 * _project->renderImagePhysicalSizeInInches()));
       whileBlocking(_cameraPicturesForm->physicalHeightDoubleSpinBox)->setValue(double(2.54 * _project->renderImagePhysicalSizeInInches())/(_project->imageAspectRatio()));
-      std::cout << "test 2: " << _project->renderImagePhysicalSizeInInches() << std::endl;
       break;
     }
 
@@ -1190,18 +1188,13 @@ void CameraTreeWidgetController::setMovieFramesPerSecond(int fps)
 
 void CameraTreeWidgetController::savePicture()
 {
-  QString selFilter = tr("JPEG (*.jpg *.jpeg)");
-#if defined(Q_OS_WIN)
-  QUrl fileURL = QFileDialog::getSaveFileUrl(this, tr("Save File"), QUrl(),
-	  tr("Images (*.png *.xpm *.jpg *.tiff)"), &selFilter);
-#else
-  QUrl fileURL = QFileDialog::getSaveFileUrl(this,tr("Save File"),QDir::homePath() + QDir::separator() + "picture.png",
-        tr("Images (*.png *.xpm *.jpg *.tiff)"),&selFilter);
-#endif
+  QDir docsDir(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
+  QUrl pName = QUrl::fromLocalFile(docsDir.filePath("picture.png"));
+  QUrl fileURL = QFileDialog::getSaveFileUrl(this,tr("Save File"), pName,
+        tr("Images (*.png *.xpm *.jpg *.tiff)"));
 
   if(!fileURL.isValid())
   {
-    std::cout << "Picture empty!!" << std::endl;
     return;
   }
   else

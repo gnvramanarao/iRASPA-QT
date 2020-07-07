@@ -159,8 +159,6 @@ void OpenGLInternalBondSelectionGlowShader::initializeVertexArrayObject()
       _numberOfSingleBonds[i][j] = singleBondInstanceData.size();
       _singleBondNumberOfIndices[i][j] = singleBondCylinder.indices().size();
 
-      qDebug() << "_numberOfSingleInternalBonds: " << _numberOfSingleBonds[i][j];
-
       std::vector<RKInPerInstanceAttributesBonds> doubleBondInstanceData;
       int32_t doubleBondType = static_cast<typename std::underlying_type<SKAsymmetricBond::SKBondType>::type>(SKAsymmetricBond::SKBondType::doubleBond);
       std::copy_if(bondInstanceData.begin(), bondInstanceData.end(), std::back_inserter(doubleBondInstanceData),

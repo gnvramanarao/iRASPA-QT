@@ -27,7 +27,17 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
+#include "crystal.h"
+#include "molecule.h"
+#include "molecularcrystal.h"
+#include "proteincrystal.h"
 #include "protein.h"
+#include "ellipsoidprimitive.h"
+#include "cylinderprimitive.h"
+#include "polygonalprismprimitive.h"
+#include "crystalellipsoidprimitive.h"
+#include "crystalcylinderprimitive.h"
+#include "crystalpolygonalprismprimitive.h"
 
 Protein::Protein()
 {
@@ -38,6 +48,24 @@ Protein::Protein(std::shared_ptr<SKStructure> structure): Structure(structure)
 {
   expandSymmetry();
   _atomsTreeController->setTags();
+}
+
+Protein::Protein(std::shared_ptr<Structure> s): Structure(s)
+{
+  _cell = std::make_shared<SKCell>(*s->cell());
+
+  if(dynamic_cast<Crystal*>(s.get()) ||
+     dynamic_cast<CrystalEllipsoidPrimitive*>(s.get()) ||
+     dynamic_cast<CrystalCylinderPrimitive*>(s.get()) ||
+     dynamic_cast<CrystalPolygonalPrismPrimitive*>(s.get()))
+  {
+    convertAsymmetricAtomsToCartesian();
+  }
+
+  expandSymmetry();
+  _atomsTreeController->setTags();
+  reComputeBoundingBox();
+  computeBonds();
 }
 
 // MARK: Rendering

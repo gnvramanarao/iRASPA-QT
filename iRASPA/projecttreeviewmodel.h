@@ -64,7 +64,7 @@ public:
 
   bool hasChildren(const QModelIndex &parent) const override final;
 
-
+  QModelIndex indexForItem(std::shared_ptr<ProjectTreeNode> item);
 
   bool setData(const QModelIndex &index, const QVariant &value, int role) override final;
   bool setData(const QModelIndex &index, std::shared_ptr<iRASPAProject> value, bool isGroup=false);

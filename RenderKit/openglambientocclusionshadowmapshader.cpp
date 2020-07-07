@@ -69,7 +69,6 @@ void OpenGLAmbientOcclusionShadowMapShader::invalidateCachedAmbientOcclusionText
 
 void OpenGLAmbientOcclusionShadowMapShader::reloadData(std::shared_ptr<RKRenderDataSource> dataSource)
 {
-  qDebug() << "OpenGLAmbientOcclusionShadowMapShader reloadData";
   initializeVertexArrayObject();
 
   adjustAmbientOcclusionTextureSize();
@@ -334,8 +333,6 @@ void  OpenGLAmbientOcclusionShadowMapShader::updateAmbientOcclusionTextures(std:
 
   if(dataSource)
   {
-      std::cout << "UPDATE AMBIENT OCCLUSION" << std::endl;
-
   glGenBuffers(1, &structureAmbientOcclusionUniformBuffer);
   glGenBuffers(1, &shadowMapFrameUniformBuffer);
   glGenFramebuffers(1, &shadowMapFrameBufferObject);
@@ -396,7 +393,6 @@ void  OpenGLAmbientOcclusionShadowMapShader::updateAmbientOcclusionTextures(std:
            glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, _renderStructures[i][j]->atomAmbientOcclusionTextureSize(),
                         _renderStructures[i][j]->atomAmbientOcclusionTextureSize(), 0, GL_RED, GL_HALF_FLOAT, textureData->data());
            glBindTexture(GLenum(GL_TEXTURE_2D), 0);
-           std::cout << "USING CACHE!!!" << std::endl;
         }
         else
         {

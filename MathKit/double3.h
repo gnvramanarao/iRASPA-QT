@@ -69,5 +69,20 @@ union double3
 
   friend QDataStream &operator<<(QDataStream &, const double3 &);
   friend QDataStream &operator>>(QDataStream &, double3 &);
+
+  struct KeyHash{
+      size_t operator()(const double3 &k) const{
+      size_t h1 = std::hash<double>()(k.x);
+      size_t h2 = std::hash<double>()(k.y);
+      size_t h3 = std::hash<double>()(k.z);
+      return (h1 ^ (h2 << 1)) ^ h3;
+      }
+  };
+
+  struct KeyEqual{
+    bool operator()( const double3& lhs, const double3& rhs ) const{
+      return (std::fabs(lhs.x - rhs.x) < 1e-3) && std::fabs(lhs.y - rhs.y) < 1e-3 && std::fabs(lhs.z == rhs.z) < 1e-3;
+    }
+  };
 };
 

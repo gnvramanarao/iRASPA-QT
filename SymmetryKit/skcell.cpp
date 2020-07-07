@@ -123,12 +123,6 @@ SKCell::SKCell(SKCell superCell, int3 minimumReplica, int3 maximumReplica)
   _maximumReplica = int3(0,0,0);
 }
 
-
-double3x3 SKCell::unitCell() const
-{
-  return _unitCell;
-}
-
 void SKCell::setUnitCell(const double3x3& unitCell)
 {
   _unitCell = unitCell;

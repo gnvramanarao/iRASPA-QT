@@ -156,7 +156,6 @@ RKStructureUniforms::RKStructureUniforms(int sceneIdentifier, int movieIdentifie
   this->clipPlaneTop = float4(-u_plane1.x, -u_plane1.y, -u_plane1.z, double3::dot(u_plane1,corner2));
   this->clipPlaneRight = float4(-u_plane2.x, -u_plane2.y, -u_plane2.z, double3::dot(u_plane2,corner2));
 
-
   if(RKRenderPrimitiveObjectsSource *source = dynamic_cast<RKRenderPrimitiveObjectsSource*>(structure.get()))
   {
     float4x4 primitiveModelMatrix = float4x4(double4x4(source->primitiveOrientation()));
@@ -169,6 +168,7 @@ RKStructureUniforms::RKStructureUniforms(int sceneIdentifier, int movieIdentifie
     this->primitiveFrontSideHDRExposure = float(source->primitiveFrontSideHDRExposure());
     this->primitiveAmbientFrontSide = float(source->primitiveFrontSideAmbientIntensity()) * float4(source->primitiveFrontSideAmbientColor(), source->primitiveOpacity());
     this->primitiveDiffuseFrontSide = float(source->primitiveFrontSideDiffuseIntensity()) * float4(source->primitiveFrontSideDiffuseColor(), source->primitiveOpacity());
+
     this->primitiveSpecularFrontSide = float(source->primitiveFrontSideSpecularIntensity()) * float4(source->primitiveFrontSideSpecularColor(), source->primitiveOpacity());
     this->primitiveShininessFrontSide = float(source->primitiveFrontSideShininess());
 

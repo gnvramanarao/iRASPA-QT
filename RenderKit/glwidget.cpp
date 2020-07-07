@@ -114,8 +114,6 @@ void GLWidget::setRenderDataSource(std::shared_ptr<RKRenderDataSource> source)
       camera->resetForNewBoundingBox(dataSource->renderBoundingBox());
     }
 
-    _renderStructures = dataSource->renderStructures();
-
     if (_isOpenGLInitialized)
     {
       _backgroundShader.reload(dataSource);
@@ -135,6 +133,49 @@ void GLWidget::setRenderDataSource(std::shared_ptr<RKRenderDataSource> source)
     }
   }
 }
+
+void GLWidget::setRenderStructures(std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> structures)
+{
+  makeCurrent();
+  _renderStructures = structures;
+
+  _atomShader.setRenderStructures(structures);
+  _atomOrthographicImposterShader.setRenderStructures(structures);
+  _atomPerspectiveImposterShader.setRenderStructures(structures);
+  _internalBondShader.setRenderStructures(structures);
+  _externalBondShader.setRenderStructures(structures);
+  _unitCellSphereShader.setRenderStructures(structures);
+  _unitCellCylinderShader.setRenderStructures(structures);
+  _atomSelectionWorleyNoise3DShader.setRenderStructures(structures);
+  _atomSelectionWorleyNoise3DOrthographicImposterShader.setRenderStructures(structures);
+  _atomSelectionWorleyNoise3DPerspectiveImposterShader.setRenderStructures(structures);
+  _atomSelectionStripesShader.setRenderStructures(structures);
+  _atomSelectionStripesOrthographicImposterShader.setRenderStructures(structures);
+  _atomSelectionStripesPerspectiveImposterShader.setRenderStructures(structures);
+  _atomSelectionGlowShader.setRenderStructures(structures);
+
+  _atomPickingShader.setRenderStructures(structures);
+  _atomAmbientOcclusionShader.setRenderStructures(structures);
+  _energySurfaceShader.setRenderStructures(structures);
+
+  _internalBondSelectionStripesShader.setRenderStructures(structures);
+  _externalBondSelectionStripesShader.setRenderStructures(structures);
+  _internalBondSelectionWorleyNoise3DShader.setRenderStructures(structures);
+  _externalBondSelectionWorleyNoise3DShader.setRenderStructures(structures);
+  _internalBondSelectionGlowShader.setRenderStructures(structures);
+  _externalBondSelectionGlowShader.setRenderStructures(structures);
+
+  _internalBondPickingShader.setRenderStructures(structures);
+  _externalBondPickingShader.setRenderStructures(structures);
+
+  _crystalEllipseObjectShader.setRenderStructures(structures);
+  _crystalCylinderObjectShader.setRenderStructures(structures);
+  _crystalPolygonalPrismObjectShader.setRenderStructures(structures);
+  _ellipseObjectShader.setRenderStructures(structures);
+  _cylinderObjectShader.setRenderStructures(structures);
+  _polygonalPrismObjectShader.setRenderStructures(structures);
+}
+
 
 void GLWidget::redraw()
 {
@@ -214,7 +255,7 @@ void GLWidget::initializeGL()
   _atomSelectionWorleyNoise3DOrthographicImposterShader.initializeOpenGLFunctions();
   _atomSelectionWorleyNoise3DPerspectiveImposterShader.initializeOpenGLFunctions();
   _atomSelectionStripesShader.initializeOpenGLFunctions();
-   _atomSelectionStripesOrthographicImposterShader.initializeOpenGLFunctions();
+  _atomSelectionStripesOrthographicImposterShader.initializeOpenGLFunctions();
   _atomSelectionStripesPerspectiveImposterShader.initializeOpenGLFunctions();
   _atomSelectionGlowShader.initializeOpenGLFunctions();
   _blurShader.initializeOpenGLFunctions();
@@ -1095,8 +1136,16 @@ void GLWidget::drawSceneToFramebuffer(GLuint framebuffer)
     }
     else
     {
-      _atomSelectionWorleyNoise3DOrthographicImposterShader.paintGL(_structureUniformBuffer);
-      _atomSelectionStripesOrthographicImposterShader.paintGL(_structureUniformBuffer);
+      if(camera->isOrthographic())
+      {
+        _atomSelectionStripesOrthographicImposterShader.paintGL(_structureUniformBuffer);
+        _atomSelectionWorleyNoise3DOrthographicImposterShader.paintGL(_structureUniformBuffer);
+      }
+      else
+      {
+        _atomSelectionStripesPerspectiveImposterShader.paintGL(_structureUniformBuffer);
+        _atomSelectionWorleyNoise3DPerspectiveImposterShader.paintGL(_structureUniformBuffer);
+      }
     }
 
     _internalBondSelectionStripesShader.paintGL(_structureUniformBuffer);
@@ -1498,66 +1547,7 @@ void GLWidget::updateLightUniforms()
 
 void GLWidget::reloadData()
 {
-  qDebug() << "GLWidget reloadData";
   makeCurrent();
-
-  if(_dataSource)
-  {
-    _atomShader.setRenderStructures(_dataSource->renderStructures());
-	 check_gl_error();
-    _atomOrthographicImposterShader.setRenderStructures(_dataSource->renderStructures());
-	check_gl_error();
-    _atomPerspectiveImposterShader.setRenderStructures(_dataSource->renderStructures());
-	check_gl_error();
-    _internalBondShader.setRenderStructures(_dataSource->renderStructures());
-	check_gl_error();
-    _externalBondShader.setRenderStructures(_dataSource->renderStructures());
-	check_gl_error();
-    _unitCellSphereShader.setRenderStructures(_dataSource->renderStructures());
-	check_gl_error();
-    _unitCellCylinderShader.setRenderStructures(_dataSource->renderStructures());
-	check_gl_error();
-    _atomSelectionWorleyNoise3DShader.setRenderStructures(_dataSource->renderStructures());
-	check_gl_error();
-    _atomSelectionWorleyNoise3DOrthographicImposterShader.setRenderStructures(_dataSource->renderStructures());
-	check_gl_error();
-    _atomSelectionWorleyNoise3DPerspectiveImposterShader.setRenderStructures(_dataSource->renderStructures());
-	check_gl_error();
-    _atomSelectionStripesShader.setRenderStructures(_dataSource->renderStructures());
-	check_gl_error();
-    _atomSelectionStripesOrthographicImposterShader.setRenderStructures(_dataSource->renderStructures());
-	check_gl_error();
-    _atomSelectionStripesPerspectiveImposterShader.setRenderStructures(_dataSource->renderStructures());
-	check_gl_error();
-    _atomSelectionGlowShader.setRenderStructures(_dataSource->renderStructures());
-	check_gl_error();
-
-    _atomPickingShader.setRenderStructures(_dataSource->renderStructures());
-	check_gl_error();
-    _atomAmbientOcclusionShader.setRenderStructures(_dataSource->renderStructures());
-	check_gl_error();
-    _energySurfaceShader.setRenderStructures(_dataSource->renderStructures());
-	check_gl_error();
-
-    _internalBondSelectionStripesShader.setRenderStructures(_dataSource->renderStructures());
-    _externalBondSelectionStripesShader.setRenderStructures(_dataSource->renderStructures());
-    _internalBondSelectionWorleyNoise3DShader.setRenderStructures(_dataSource->renderStructures());
-    _externalBondSelectionWorleyNoise3DShader.setRenderStructures(_dataSource->renderStructures());
-    _internalBondSelectionGlowShader.setRenderStructures(_dataSource->renderStructures());
-    _externalBondSelectionGlowShader.setRenderStructures(_dataSource->renderStructures());
-
-    _internalBondPickingShader.setRenderStructures(_dataSource->renderStructures());
-    _externalBondPickingShader.setRenderStructures(_dataSource->renderStructures());
-
-    _crystalEllipseObjectShader.setRenderStructures(_dataSource->renderStructures());
-    _crystalCylinderObjectShader.setRenderStructures(_dataSource->renderStructures());
-    _crystalPolygonalPrismObjectShader.setRenderStructures(_dataSource->renderStructures());
-    _ellipseObjectShader.setRenderStructures(_dataSource->renderStructures());
-    _cylinderObjectShader.setRenderStructures(_dataSource->renderStructures());
-    _polygonalPrismObjectShader.setRenderStructures(_dataSource->renderStructures());
-
-  }
-  check_gl_error();
 
   _atomShader.reloadData();
   _atomOrthographicImposterShader.reloadData();

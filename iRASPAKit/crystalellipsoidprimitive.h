@@ -37,8 +37,13 @@ class CrystalEllipsoidPrimitive: public Structure, public RKRenderCrystalPrimiti
 {
 public:
   CrystalEllipsoidPrimitive();
+  CrystalEllipsoidPrimitive(std::shared_ptr<Structure> s);
+
+  iRASPAStructureType structureType() override final { return iRASPAStructureType::crystalEllipsoidPrimitive; }
 
   std::vector<RKInPerInstanceAttributesAtoms> renderCrystalPrimitiveEllipsoidObjects() const override;
+
+  SKBoundingBox boundingBox() const final override;
 
   simd_quatd primitiveOrientation() const override {return _primitiveOrientation;}
   double3x3 primitiveTransformationMatrix() const override  {return _primitiveTransformationMatrix;}

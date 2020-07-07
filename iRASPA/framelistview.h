@@ -51,6 +51,7 @@ public:
   void reloadSelection() override final;
   void reloadData() override final;
   void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode) override final;
+  void setSelectedMovie(std::shared_ptr<Movie> movie);
 private:
   MainWindow* _mainWindow;
   std::shared_ptr<ProjectTreeNode> _projectTreeNode;
@@ -58,13 +59,11 @@ private:
   std::shared_ptr<Movie> _movie;
   std::shared_ptr<SceneList> _sceneList;
   void keyPressEvent(QKeyEvent *event) override final;
-public slots:
-  //void setRootNode(std::shared_ptr<Movie> movie);
 private slots:
-  void currentFrameChanged(const QModelIndex &current);
+  void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override final;
 signals:
   void updateRenderer();
-  void setCellTreeController(std::vector<std::shared_ptr<Structure>> structures);
-  void setSelectedRenderFrames(std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> structures);
   void setSelectedFrame(std::shared_ptr<iRASPAStructure> structure);
+  void setSelectedRenderFrames(std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> structures);
+  void setFlattenedSelectedFrames(std::vector<std::shared_ptr<iRASPAStructure>> structures);
 };

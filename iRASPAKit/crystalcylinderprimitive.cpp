@@ -28,11 +28,55 @@
  *************************************************************************************************************/
 
 
+#include "crystal.h"
+#include "molecule.h"
+#include "molecularcrystal.h"
+#include "proteincrystal.h"
+#include "protein.h"
+#include "ellipsoidprimitive.h"
+#include "cylinderprimitive.h"
+#include "polygonalprismprimitive.h"
+#include "crystalellipsoidprimitive.h"
 #include "crystalcylinderprimitive.h"
+#include "crystalpolygonalprismprimitive.h"
 
 CrystalCylinderPrimitive::CrystalCylinderPrimitive()
 {
 
+}
+
+CrystalCylinderPrimitive::CrystalCylinderPrimitive(std::shared_ptr<Structure> s): Structure(s)
+{
+  if(dynamic_cast<Molecule*>(s.get()) ||
+     dynamic_cast<Protein*>(s.get()) ||
+     dynamic_cast<EllipsoidPrimitive*>(s.get()) ||
+     dynamic_cast<CylinderPrimitive*>(s.get()) ||
+     dynamic_cast<PolygonalPrismPrimitive*>(s.get()))
+  {
+    // create a periodic cell based on the bounding-box
+    _cell = std::make_shared<SKCell>(s->boundingBox());
+  }
+  else
+  {
+    _cell = std::make_shared<SKCell>(*s->cell());
+  }
+
+  if(dynamic_cast<MolecularCrystal*>(s.get()) ||
+     dynamic_cast<ProteinCrystal*>(s.get()) ||
+     dynamic_cast<MolecularCrystal*>(s.get()) ||
+     dynamic_cast<Molecule*>(s.get()) ||
+     dynamic_cast<Protein*>(s.get()) ||
+     dynamic_cast<EllipsoidPrimitive*>(s.get()) ||
+     dynamic_cast<CylinderPrimitive*>(s.get()) ||
+     dynamic_cast<PolygonalPrismPrimitive*>(s.get()))
+  {
+    convertAsymmetricAtomsToFractional();
+  }
+
+  expandSymmetry();
+  _atomsTreeController->setTags();
+  reComputeBoundingBox();
+  computeBonds();
 }
 
 // MARK: Rendering
@@ -105,6 +149,35 @@ std::vector<RKInPerInstanceAttributesAtoms> CrystalCylinderPrimitive::renderCrys
 
 // MARK: Bounding box
 // =====================================================================
+
+SKBoundingBox CrystalCylinderPrimitive::boundingBox() const
+{
+  double3 minimumReplica = _cell->minimumReplicas();
+  double3 maximumReplica = _cell->maximumReplicas();
+
+  double3 c0 = _cell->unitCell() * double3(minimumReplica);
+  double3 c1 = _cell->unitCell() * double3(maximumReplica.x+1, minimumReplica.y,   minimumReplica.z);
+  double3 c2 = _cell->unitCell() * double3(maximumReplica.x+1, maximumReplica.y+1, minimumReplica.z);
+  double3 c3 = _cell->unitCell() * double3(minimumReplica.x,   maximumReplica.y+1, minimumReplica.z);
+  double3 c4 = _cell->unitCell() * double3(minimumReplica.x,   minimumReplica.y,   maximumReplica.z+1);
+  double3 c5 = _cell->unitCell() * double3(maximumReplica.x+1, minimumReplica.y,   maximumReplica.z+1);
+  double3 c6 = _cell->unitCell() * double3(maximumReplica.x+1, maximumReplica.y+1, maximumReplica.z+1);
+  double3 c7 = _cell->unitCell() * double3(minimumReplica.x,   maximumReplica.y+1, maximumReplica.z+1);
+
+  double valuesX[8] = {c0.x, c1.x, c2.x, c3.x, c4.x, c5.x, c6.x, c7.x};
+  double valuesY[8] = {c0.y, c1.y, c2.y, c3.y, c4.y, c5.y, c6.y, c7.y};
+  double valuesZ[8] = {c0.z, c1.z, c2.z, c3.z, c4.z, c5.z, c6.z, c7.z};
+
+  double3 minimum = double3(*std::min_element(valuesX,valuesX+8),
+                            *std::min_element(valuesY,valuesY+8),
+                            *std::min_element(valuesZ,valuesZ+8));
+
+  double3 maximum = double3(*std::max_element(valuesX,valuesX+8),
+                            *std::max_element(valuesY,valuesY+8),
+                            *std::max_element(valuesZ,valuesZ+8));
+
+  return SKBoundingBox(minimum,maximum);
+}
 
 // MARK: Symmetry
 // =====================================================================

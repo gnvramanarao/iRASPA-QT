@@ -30,6 +30,7 @@
 #pragma once
 
 #include <QString>
+#include <QDebug>
 #include <typeinfo>
 #include "structure.h"
 #include "crystal.h"
@@ -56,7 +57,15 @@ public:
   iRASPAStructure(std::shared_ptr<ProteinCrystal> proteinCrystal):_rawValue(iRASPAStructureType::proteinCrystal), _structure(proteinCrystal) {}
   iRASPAStructure(std::shared_ptr<Molecule> molecule):_rawValue(iRASPAStructureType::molecule), _structure(molecule) {}
   iRASPAStructure(std::shared_ptr<Protein> protein):_rawValue(iRASPAStructureType::protein), _structure(protein) {}
+  iRASPAStructure(std::shared_ptr<EllipsoidPrimitive> ellipsoidPrimitive):_rawValue(iRASPAStructureType::ellipsoidPrimitive), _structure(ellipsoidPrimitive) {}
+  iRASPAStructure(std::shared_ptr<CylinderPrimitive> cylinderPrimitive):_rawValue(iRASPAStructureType::cylinderPrimitive), _structure(cylinderPrimitive) {}
+  iRASPAStructure(std::shared_ptr<PolygonalPrismPrimitive> polygonalPrismPrimitive):_rawValue(iRASPAStructureType::polygonalPrismPrimitive), _structure(polygonalPrismPrimitive) {}
+  iRASPAStructure(std::shared_ptr<CrystalEllipsoidPrimitive> crystalEllipsoidPrimitive):_rawValue(iRASPAStructureType::crystalEllipsoidPrimitive), _structure(crystalEllipsoidPrimitive) {}
+  iRASPAStructure(std::shared_ptr<CrystalCylinderPrimitive> crystalCylinderPrimitive):_rawValue(iRASPAStructureType::crystalCylinderPrimitive), _structure(crystalCylinderPrimitive) {}
+  iRASPAStructure(std::shared_ptr<CrystalPolygonalPrismPrimitive> crystalPolygonalPrismPrimitive):_rawValue(iRASPAStructureType::crystalPolygonalPrismPrimitive), _structure(crystalPolygonalPrismPrimitive) {}
+
   inline std::shared_ptr<Structure> structure() const {return _structure;}
+  static void swapRepresentedObjects(std::shared_ptr<iRASPAStructure> s1, std::shared_ptr<iRASPAStructure> s2);
   QString displayName() const override final;
   virtual ~iRASPAStructure() {}
 protected:

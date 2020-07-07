@@ -28,6 +28,7 @@
  *************************************************************************************************************/
 
 #include "projecttreeview.h"
+#include "projecttreeviewstyleditemdelegate.h"
 
 ProjectTreeView::ProjectTreeView(QWidget* parent): QTreeView(parent ),
   _model(std::make_shared<ProjectTreeViewModel>()),
@@ -38,7 +39,7 @@ ProjectTreeView::ProjectTreeView(QWidget* parent): QTreeView(parent ),
   this->setStyleSheet("background-color:rgb(240, 240, 240);");
 
   this->setSelectionBehavior (QAbstractItemView::SelectRows);
-  this->setSelectionMode(QAbstractItemView::ExtendedSelection);
+  this->setSelectionMode(QAbstractItemView::SingleSelection);
 
   setDragEnabled(true);
   setAcceptDrops(true);
@@ -53,11 +54,9 @@ ProjectTreeView::ProjectTreeView(QWidget* parent): QTreeView(parent ),
   this->setContextMenuPolicy(Qt::CustomContextMenu);
   QObject::connect(this, &QWidget::customContextMenuRequested, this, &ProjectTreeView::ShowContextMenu);
 
-
-  QObject::connect(selectionModel(),&QItemSelectionModel::currentRowChanged,this,&ProjectTreeView::setSelectedProject);
-  QObject::connect(selectionModel(), &QItemSelectionModel::selectionChanged, this, &ProjectTreeView::setSelectedProjects);
-
   _dropIndicatorRect = QRect();
+
+  this->setItemDelegateForColumn(0,new ProjectTreeViewStyledItemDelegate(this));
 }
 
 // Use the general undoManager for changes to the project-treeView.
@@ -145,8 +144,6 @@ void ProjectTreeView::startDrag(Qt::DropActions supportedActions)
 {
   QModelIndexList selectionIndexes = selectionModel()->selectedRows();
 
-  std::cout << "Start drag: " << selectionIndexes.count() << std::endl;
-
   if(!selectionIndexes.isEmpty())
   {
     QMimeData* mimeData = model()->mimeData(selectionIndexes);
@@ -219,22 +216,21 @@ void ProjectTreeView::dragMoveEvent(QDragMoveEvent *event)
 
 void ProjectTreeView::reloadSelection()
 {
-    ProjectTreeViewModel* pModel = qobject_cast<ProjectTreeViewModel*>(model());
-    whileBlocking(selectionModel())->clearSelection();
-
-    std::cout << "porject selection: " << pModel->selectedIndexes().size() << std::endl;
-
-    for(QModelIndex index : pModel->selectedIndexes())
-    {
-      whileBlocking(selectionModel())->select(index, QItemSelectionModel::Select|QItemSelectionModel::Rows);
-    }
-    viewport()->update();
-/*
-  QModelIndex index = this->selectionModel()->currentIndex();
-  if(ProjectTreeNode* item = static_cast<ProjectTreeNode*>(index.internalPointer()))
+  ProjectTreeViewModel* pModel = qobject_cast<ProjectTreeViewModel*>(model());
+  if (pModel)
   {
-    _mainWindow->propagateProject(item->shared_from_this(),_mainWindow);
-  }*/
+    if(_projectTreeController)
+    {
+      std::shared_ptr<ProjectTreeNode> project = _projectTreeController->selectedTreeNode();
+      QModelIndex index = pModel->indexForItem(project);
+      if(index.isValid())
+      {
+        selectionModel()->clearSelection();
+        selectionModel()->select(index, QItemSelectionModel::Select);
+        update();
+      }
+    }
+  }
 }
 
 void ProjectTreeView::reloadData()
@@ -262,25 +258,38 @@ bool ProjectTreeView::insertRows(int position, int rows, const QModelIndex &pare
 }
 
 
-void ProjectTreeView::setSelectedProject(const QModelIndex& current, const QModelIndex& previous)
+void ProjectTreeView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
-  Q_UNUSED(previous);
-
-  if(current.isValid())
+  if (selectedIndexes().isEmpty())
   {
-    if(ProjectTreeNode* item = static_cast<ProjectTreeNode*>(current.internalPointer()))
+    selectionModel()->select(selected, QItemSelectionModel::QItemSelectionModel::Deselect);
+    selectionModel()->select(deselected, QItemSelectionModel::QItemSelectionModel::SelectCurrent);
+    return;
+  }
+
+  QAbstractItemView::selectionChanged(selected, deselected);
+
+  if(selectedIndexes().size() == 1)
+  {
+    QModelIndex current = selectedIndexes().front();
+    if(ProjectTreeNode *selectedTreeNode = static_cast<ProjectTreeNode*>(current.internalPointer()))
     {
       _projectTreeController->selectedTreeNodes().clear();
-      _projectTreeController->setSelectedTreeNode(item->shared_from_this());
-      _projectTreeController->selectedTreeNodes().insert(item->shared_from_this());
-      item->representedObject()->unwrapIfNeeded();
-      _mainWindow->propagateProject(item->shared_from_this(),_mainWindow);
+      _projectTreeController->setSelectedTreeNode(selectedTreeNode->shared_from_this());
+      _projectTreeController->selectedTreeNodes().insert(selectedTreeNode->shared_from_this());
+      selectedTreeNode->representedObject()->unwrapIfNeeded();
+
+      if(std::shared_ptr<iRASPAProject> iraspa_project = selectedTreeNode->representedObject())
+      {
+        if(std::shared_ptr<Project> project = iraspa_project->project())
+        {
+          project->setInitialSelectionIfNeeded();
+        }
+      }
+
+      _mainWindow->propagateProject(selectedTreeNode->shared_from_this(),_mainWindow);
     }
   }
-}
-
-void ProjectTreeView::setSelectedProjects(const QItemSelection &selected, const QItemSelection &deselected)
-{
 
 }
 
@@ -311,6 +320,7 @@ void ProjectTreeView::ShowContextMenu(const QPoint &pos)
   QMenu contextMenu(tr("Context menu"), this);
 
   QAction actionAddStructureProject("Add structure project", this);
+  actionAddStructureProject.setEnabled(false);
   connect(&actionAddStructureProject, &QAction::triggered, [this, index](void) {
 
   });
@@ -318,6 +328,7 @@ void ProjectTreeView::ShowContextMenu(const QPoint &pos)
 
 
   QAction actionGroupProject("Add group project", this);
+  actionGroupProject.setEnabled(false);
   connect(&actionGroupProject, &QAction::triggered, [this, index](void) {
     this->addGroupProject(index);
   });

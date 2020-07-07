@@ -28,20 +28,20 @@
  *************************************************************************************************************/
 
 #include "framelistview.h"
+#include "frameliststyleditemdelegate.h"
 
 FrameListView::FrameListView(QWidget* parent): QListView(parent ), _model(std::make_shared<FrameListViewModel>())
 {
   this->setModel(_model.get());
 
-  //this->viewport()->setMouseTracking(true);
+  this->viewport()->setMouseTracking(true);
 
-  //this->setSelectionMode(QAbstractItemView::MultiSelection);
+  this->setSelectionBehavior (QAbstractItemView::SelectRows);
+  this->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
   this->setStyleSheet("background-color:rgb(240, 240, 240);");
 
-  QObject::connect(this, &FrameListView::clicked,this, &FrameListView::currentFrameChanged);
-
-
+  this->setItemDelegateForColumn(0,new FrameListViewStyledItemDelegate(this));
 }
 
 void FrameListView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
@@ -64,7 +64,12 @@ void FrameListView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
       }
     }
   }
+}
 
+void FrameListView::setSelectedMovie(std::shared_ptr<Movie> movie)
+{
+ _movie = movie;
+ _model->setMovie(_movie);
 }
 
 void FrameListView::keyPressEvent(QKeyEvent *event)
@@ -82,20 +87,13 @@ void FrameListView::reloadSelection()
 {
   if(_movie)
   {
-    std::optional<int> frameIndex = _movie->selectedFrameIndex();
-    if(frameIndex)
+    selectionModel()->clearSelection();
+    for(int frameIndex : _movie->selectedFramesIndexSet())
     {
-      std::shared_ptr<iRASPAStructure> frame = _movie->selectedFrame();
-      QModelIndex item = model()->index(*frameIndex,0,QModelIndex());
-
-      selectionModel()->clearSelection();
-      selectionModel()->select(item, QItemSelectionModel::Select);
-      if(frame)
-      {
-        emit setCellTreeController(std::vector<std::shared_ptr<Structure>>{frame->structure()});
-      }
-      update();
+      QModelIndex item = model()->index(frameIndex,0,QModelIndex());
+      selectionModel()->select(item,QItemSelectionModel::Select);
     }
+    update();
   }
 }
 
@@ -104,48 +102,48 @@ void FrameListView::reloadData()
 
 }
 
-void FrameListView::currentFrameChanged(const QModelIndex &current)
-{
-  DisplayableProtocol *item = static_cast<DisplayableProtocol*>(current.internalPointer());
 
-  if(iRASPAStructure* iraspa_structure = dynamic_cast<iRASPAStructure*>(item))
+void FrameListView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+{
+  if (selectedIndexes().isEmpty())
   {
-    std::shared_ptr<iRASPAStructure> iraspaStructure = iraspa_structure->shared_from_this();
-    std::shared_ptr<Structure> structure = iraspaStructure->structure();
-
-    int frameIndex = current.row();
-    _sceneList->setSelectedFrameIndices(frameIndex);
-    emit setSelectedFrame(iraspaStructure);
-    emit setCellTreeController(std::vector<std::shared_ptr<Structure>>{structure});
-
-    /*
-    if (_projectTreeNode)
-    {
-      if(std::shared_ptr<iRASPAProject> iraspaProject = _projectTreeNode->representedObject())
-      {
-        if(std::shared_ptr<Project> project = iraspaProject->project())
-        {
-          if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
-          {
-            emit setSelectedRenderFrames(projectStructure->renderStructures());
-          }
-        }
-      }
-    }*/
-
-    emit updateRenderer();
+    selectionModel()->select(selected, QItemSelectionModel::QItemSelectionModel::Deselect);
+    selectionModel()->select(deselected, QItemSelectionModel::QItemSelectionModel::SelectCurrent);
+    return;
   }
-}
 
-/*
-void FrameListView::setRootNode(std::shared_ptr<Movie> movie)
-{
-  _movie = movie;
-  _model->setMovie(movie);
-}*/
+  QAbstractItemView::selectionChanged(selected, deselected);
+
+  if(selectedIndexes().size() == 1)
+  {
+    QModelIndex current = selectedIndexes().front();
+    DisplayableProtocol *item = static_cast<DisplayableProtocol*>(current.internalPointer());
+
+    if(iRASPAStructure* iraspa_structure = dynamic_cast<iRASPAStructure*>(item))
+    {
+      std::shared_ptr<iRASPAStructure> iraspaStructure = iraspa_structure->shared_from_this();
+
+      _sceneList->setSelectedFrameIndices(current.row());
+      emit setSelectedFrame(iraspaStructure);
+
+      emit updateRenderer();
+    }
+  }
+
+  _movie->selectedFramesSet().clear();
+  for(QModelIndex index : selectedIndexes())
+  {
+    iRASPAStructure *item = static_cast<iRASPAStructure*>(index.internalPointer());
+    std::shared_ptr<iRASPAStructure> iraspa_structure = item->shared_from_this();
+    _movie->selectedFramesSet().insert(iraspa_structure);
+  }
+
+  emit setSelectedRenderFrames(_sceneList->selectediRASPARenderStructures());
+  emit setFlattenedSelectedFrames(_movie->selectedFramesiRASPAStructures());
+}
 
 QSize FrameListView::sizeHint() const
 {
-    return QSize(200, 800);
+  return QSize(200, 800);
 }
 

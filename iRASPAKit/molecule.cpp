@@ -27,8 +27,18 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#include "molecule.h"
 #include <algorithm>
+#include "crystal.h"
+#include "molecule.h"
+#include "molecularcrystal.h"
+#include "proteincrystal.h"
+#include "protein.h"
+#include "ellipsoidprimitive.h"
+#include "cylinderprimitive.h"
+#include "polygonalprismprimitive.h"
+#include "crystalellipsoidprimitive.h"
+#include "crystalcylinderprimitive.h"
+#include "crystalpolygonalprismprimitive.h"
 
 Molecule::Molecule()
 {
@@ -39,6 +49,24 @@ Molecule::Molecule(std::shared_ptr<SKStructure> structure): Structure(structure)
 {
   expandSymmetry();
   _atomsTreeController->setTags();
+}
+
+Molecule::Molecule(std::shared_ptr<Structure> s): Structure(s)
+{
+  _cell = std::make_shared<SKCell>(*s->cell());
+
+  if(dynamic_cast<Crystal*>(s.get()) ||
+     dynamic_cast<CrystalEllipsoidPrimitive*>(s.get()) ||
+     dynamic_cast<CrystalCylinderPrimitive*>(s.get()) ||
+     dynamic_cast<CrystalPolygonalPrismPrimitive*>(s.get()))
+  {
+    convertAsymmetricAtomsToCartesian();
+  }
+
+  expandSymmetry();
+  _atomsTreeController->setTags();
+  reComputeBoundingBox();
+  computeBonds();
 }
 
 // MARK: Rendering
@@ -488,6 +516,12 @@ void Molecule::computeBonds()
   std::vector<std::shared_ptr<SKBond>> filtered_bonds;
   std::copy_if (bonds.begin(), bonds.end(), std::back_inserter(filtered_bonds), [](std::shared_ptr<SKBond> i){return i->atom1()->type() == SKAtomCopy::AtomCopyType::copy && i->atom2()->type() == SKAtomCopy::AtomCopyType::copy;} );
   _bondSetController->setBonds(filtered_bonds);
+}
+
+double3x3 Molecule::unitCell()
+{
+  SKCell boundaryBoxCell = SKCell(_cell->boundingBox());
+  return boundaryBoxCell.unitCell();
 }
 
 QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<Molecule> &molecule)

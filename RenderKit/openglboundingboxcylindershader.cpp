@@ -108,7 +108,6 @@ void OpenGLBoundingBoxCylinderShader::initializeVertexArrayObject()
       }
 
       std::vector<RKInPerInstanceAttributesBonds> unitCellCylinderInstanceData = dataSource->renderBoundingBoxCylinders();
-      qDebug() << "renderBoundingBoxCylinders" << unitCellCylinderInstanceData.size();
       _numberOfUnitCellCylinders = unitCellCylinderInstanceData.size();
 
       glBindBuffer(GL_ARRAY_BUFFER, _vertexInstanceBuffer);

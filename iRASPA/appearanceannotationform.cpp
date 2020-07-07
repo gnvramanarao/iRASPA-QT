@@ -30,14 +30,11 @@
 #include "appearanceannotationform.h"
 #include "ui_appearanceannotationform.h"
 
-AppearanceAnnotationForm::AppearanceAnnotationForm(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::AppearanceAnnotationForm)
+AppearanceAnnotationForm::AppearanceAnnotationForm(QWidget *parent) : QWidget(parent)
 {
-    ui->setupUi(this);
+  setupUi(this);
 }
 
 AppearanceAnnotationForm::~AppearanceAnnotationForm()
 {
-    delete ui;
 }

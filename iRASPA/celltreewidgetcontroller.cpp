@@ -1736,6 +1736,7 @@ void CellTreeWidgetController::setMaximumReplicasX(int value)
       if (value >= iraspa_structure->structure()->cell()->minimumReplicaX())
       {
         iraspa_structure->structure()->cell()->setMaximumReplicaX(value);
+        iraspa_structure->structure()->reComputeBoundingBox();
       }
     }
 
@@ -1783,6 +1784,7 @@ void CellTreeWidgetController::setMaximumReplicasY(int value)
       if (value >= iraspa_structure->structure()->cell()->minimumReplicaY())
       {
         iraspa_structure->structure()->cell()->setMaximumReplicaY(value);
+        iraspa_structure->structure()->reComputeBoundingBox();
       }
     }
 
@@ -1830,6 +1832,7 @@ void CellTreeWidgetController::setMaximumReplicasZ(int value)
       if (value >= iraspa_structure->structure()->cell()->minimumReplicaZ())
       {
         iraspa_structure->structure()->cell()->setMaximumReplicaZ(value);
+        iraspa_structure->structure()->reComputeBoundingBox();
       }
     }
 
@@ -1877,6 +1880,7 @@ void CellTreeWidgetController::setMinimumReplicasX(int value)
       if (value <= iraspa_structure->structure()->cell()->maximumReplicaX())
       {
         iraspa_structure->structure()->cell()->setMinimumReplicaX(value);
+        iraspa_structure->structure()->reComputeBoundingBox();
       }
     }
 
@@ -1924,6 +1928,7 @@ void CellTreeWidgetController::setMinimumReplicasY(int value)
       if (value <= iraspa_structure->structure()->cell()->maximumReplicaY())
       {
         iraspa_structure->structure()->cell()->setMinimumReplicaY(value);
+        iraspa_structure->structure()->reComputeBoundingBox();
       }
     }
 
@@ -1971,6 +1976,7 @@ void CellTreeWidgetController::setMinimumReplicasZ(int value)
       if (value <= iraspa_structure->structure()->cell()->maximumReplicaZ())
       {
         iraspa_structure->structure()->cell()->setMinimumReplicaZ(value);
+        iraspa_structure->structure()->reComputeBoundingBox();
       }
     }
 

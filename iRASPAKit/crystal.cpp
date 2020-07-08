@@ -1061,8 +1061,6 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<Crystal> &crystal)
   {
     throw InvalidArchiveVersionException(__FILE__, __LINE__, "Crystal");
   }
-  qDebug() << "READING CRYSTAL";
-
 
   return stream;
 }

@@ -208,9 +208,8 @@ void RKCamera::updateCameraForWindowResize(double width, double height)
 
   _distance.z = std::max(_orthoScale * focalPoint + 0.5 * delta.z, 0.25);
 
-  double temp = std::max(delta.x,std::max(delta.y,delta.z));
-  _zNear = std::max(1.0, position().length() - 2.0 * temp);
-  _zFar = position().length() + 2.0 * temp;
+  _zNear = std::max(1.0, position().z - delta.length() * delta.length());
+  _zFar = position().z + delta.length() * delta.length();
 
   // halfHeight  half of frustum height at znear  znear∗tan(fov/2)
   // halfWidth   half of frustum width at znear   halfHeight×aspect
@@ -245,9 +244,8 @@ void RKCamera::setCameraToOrthographic()
   double inverseFocalPoint = tan(_angleOfView * 0.5);
   _orthoScale = std::max(_distance.z - 0.5 * delta.z, 0.25) * inverseFocalPoint;
 
-  double temp = std::max(delta.x,std::max(delta.y,delta.z));
-  _zNear = std::max(1.0, position().length() - 2.0 * temp);
-  _zFar = position().length() + 2.0 * temp;
+  _zNear = std::max(1.0, position().z - delta.length() * delta.length());
+  _zFar = position().z + delta.length() * delta.length();
 
   if (_aspectRatio > _boundingBoxAspectRatio)
   {

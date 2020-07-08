@@ -1614,7 +1614,6 @@ void GLWidget::reloadAmbientOcclusionData()
 
 void GLWidget::reloadRenderData()
 {
-  qDebug() << "GLWidget reloadRenderData";
   makeCurrent();
 
   check_gl_error();

@@ -95,35 +95,102 @@ private:
   void reloadOpacity();
   void reloadNumberOfSides();
   void reloadIsCapped();
-  void reloadFrontHDR();
-  void reloadFrontExposure();
-  void reloadFrontAmbientIntensity();
-  void reloadFrontAmbientColor();
-  void reloadFrontDiffuseIntensity();
-  void reloadFrontDiffuseColor();
-  void reloadFrontSpecularIntensity();
-  void reloadFrontSpecularColor();
-  void reloadFrontShininess();
-  void reloadBackHDR();
-  void reloadBackExposure();
-  void reloadBackAmbientIntensity();
-  void reloadBackAmbientColor();
-  void reloadBackDiffuseIntensity();
-  void reloadBackDiffuseColor();
-  void reloadBackSpecularIntensity();
-  void reloadBackSpecularColor();
-  void reloadBackShininess();
+  void reloadFrontPrimitiveHighDynamicRange();
+  void reloadFrontPrimitiveHDRExposure();
+  void reloadFrontPrimitiveAmbientLight();
+  void reloadFrontPrimitiveDiffuseLight();
+  void reloadFrontPrimitiveSpecularLight();
+  void reloadFrontPrimitiveShininess();
+  void reloadBackPrimitiveHighDynamicRange();
+  void reloadBackPrimitiveHDRExposure();
+  void reloadBackPrimitiveAmbientLight();
+  void reloadBackPrimitiveDiffuseLight();
+  void reloadBackPrimitiveSpecularLight();
+  void reloadBackPrimitiveShininess();
 
-  void setRatationAngle(double value);
   std::optional<double> rotationAngle();
+  void setRotationAngle(double angle);
+  void rotateYawPlus();
+  void rotateYawMinus();
+  void rotatePitchPlus();
+  void rotatePitchMinus();
+  void rotateRollPlus();
+  void rotateRollMinus();
 
-  void setEulerAngleX(double value);
+  void setEulerAngleX(double angle);
   std::optional<double> EulerAngleX();
-  void setEulerAngleY(double value);
+  void setEulerAngleY(double angle);
   std::optional<double> EulerAngleY();
-  void setEulerAngleZ(double value);
+  void setEulerAngleZ(double angle);
   std::optional<double> EulerAngleZ();
 
+
+  std::optional<double> transformationMatrixAX();
+  void setTransformationMatrixAX(double value);
+  std::optional<double> transformationMatrixAY();
+  void setTransformationMatrixAY(double value);
+  std::optional<double> transformationMatrixAZ();
+  void setTransformationMatrixAZ(double value);
+
+  std::optional<double> transformationMatrixBX();
+  void setTransformationMatrixBX(double value);
+  std::optional<double> transformationMatrixBY();
+  void setTransformationMatrixBY(double value);
+  std::optional<double> transformationMatrixBZ();
+  void setTransformationMatrixBZ(double value);
+
+  std::optional<double> transformationMatrixCX();
+  void setTransformationMatrixCX(double value);
+  std::optional<double> transformationMatrixCY();
+  void setTransformationMatrixCY(double value);
+  std::optional<double> transformationMatrixCZ();
+  void setTransformationMatrixCZ(double value);
+
+  std::optional<double> primitiveOpacity();
+  void setPrimitiveOpacity(double opacity);
+  std::optional<int> primitiveNumberOfSides();
+  void setPrimitiveNumberOfSides(int numberOfSides);
+
+  std::optional<bool> primitiveIsCapped();
+  void setPrimitiveIsCapped(bool capped);
+
+  void setFrontPrimitiveHighDynamicRange(int value);
+  std::optional<bool> frontPrimitiveHighDynamicRange();
+  void setFrontPrimitiveHDRExposure(double value);
+  std::optional<double> frontPrimitiveHDRExposure();
+  void setFrontPrimitiveAmbientLightIntensity(double value);
+  std::optional<double> frontPrimitiveAmbientLightIntensity();
+  void setFrontPrimitiveAmbientLightColor();
+  std::optional<QColor> frontPrimitiveAmbientLightColor();
+  void setFrontPrimitiveDiffuseLightIntensity(double value);
+  std::optional<double> frontPrimitiveDiffuseLightIntensity();
+  void setFrontPrimitiveDiffuseLightColor();
+  std::optional<QColor> frontPrimitiveDiffuseLightColor();
+  void setFrontPrimitiveSpecularLightIntensity(double value);
+  std::optional<double> frontPrimitiveSpecularLightIntensity();
+  void setFrontPrimitiveSpecularLightColor();
+  std::optional<QColor> frontPrimitiveSpecularLightColor();
+  void setFrontPrimitiveShininess(double value);
+  std::optional<double> frontPrimitiveShininess();
+
+  void setBackPrimitiveHighDynamicRange(int value);
+  std::optional<bool> backPrimitiveHighDynamicRange();
+  void setBackPrimitiveHDRExposure(double value);
+  std::optional<double> backPrimitiveHDRExposure();
+  void setBackPrimitiveAmbientLightIntensity(double value);
+  std::optional<double> backPrimitiveAmbientLightIntensity();
+  void setBackPrimitiveAmbientLightColor();
+  std::optional<QColor> backPrimitiveAmbientLightColor();
+  void setBackPrimitiveDiffuseLightIntensity(double value);
+  std::optional<double> backPrimitiveDiffuseLightIntensity();
+  void setBackPrimitiveDiffuseLightColor();
+  std::optional<QColor> backPrimitiveDiffuseLightColor();
+  void setBackPrimitiveSpecularLightIntensity(double value);
+  std::optional<double> backPrimitiveSpecularLightIntensity();
+  void setBackPrimitiveSpecularLightColor();
+  std::optional<QColor> backPrimitiveSpecularLightColor();
+  void setBackPrimitiveShininess(double value);
+  std::optional<double> backPrimitiveShininess();
 
   // atom properties
 
@@ -194,7 +261,6 @@ private:
   void setAtomAmbientLightIntensity(double value);
   std::optional<double> atomAmbientLightIntensity();
   void setAtomAmbientLightColor();
-
   std::optional<QColor> atomAmbientLightColor();
   void setAtomDiffuseLightIntensity(double value);
   std::optional<double> atomDiffuseLightIntensity();
@@ -205,7 +271,7 @@ private:
   void setAtomSpecularLightColor();
   std::optional<QColor> atomSpecularLightColor();
   void setAtomShininess(double value);
-  std::optional<double> atomShininessy();
+  std::optional<double> atomShininess();
 
   // bond properties
 

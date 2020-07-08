@@ -234,6 +234,56 @@ public:
   // primitive
 
   simd_quatd primitiveOrientation() {return _primitiveOrientation;}
+  void setPrimitiveOrientation(simd_quatd orientation) {_primitiveOrientation = orientation;}
+  double primitiveRotationDelta() {return _primitiveRotationDelta;}
+  void setPrimitiveRotationDelta(double angle) {_primitiveRotationDelta = angle;}
+  double3x3 transformationMatrix() {return _primitiveTransformationMatrix;}
+  void setTransformationMatrix(double3x3 matrix) {_primitiveTransformationMatrix = matrix;}
+  double primitiveOpacity() {return _primitiveOpacity;}
+  void setPrimitiveOpacity(double opacity) {_primitiveOpacity = opacity;}
+  int primitiveNumberOfSides() {return _primitiveNumberOfSides;}
+  void setPrimitiveNumberOfSides(int numberOfSides) {_primitiveNumberOfSides = numberOfSides;}
+  bool primitiveIsCapped() {return _primitiveIsCapped;}
+  void setPrimitiveIsCapped(bool isCapped) {_primitiveIsCapped = isCapped;}
+
+  bool frontPrimitiveHDR() {return _primitiveFrontSideHDR;}
+  void setFrontPrimitiveHDR(bool isHDR) {_primitiveFrontSideHDR = isHDR;}
+  double frontPrimitiveHDRExposure() {return _primitiveFrontSideHDRExposure;}
+  void setFrontPrimitiveHDRExposure(double exposure) {_primitiveFrontSideHDRExposure = exposure;}
+  double frontPrimitiveAmbientIntensity() {return _primitiveFrontSideAmbientIntensity;}
+  void setFrontPrimitiveAmbientIntensity(double intensity) {_primitiveFrontSideAmbientIntensity = intensity;}
+  double frontPrimitiveDiffuseIntensity() {return _primitiveFrontSideDiffuseIntensity;}
+  void setFrontPrimitiveDiffuseIntensity(double intensity) {_primitiveFrontSideDiffuseIntensity = intensity;}
+  double frontPrimitiveSpecularIntensity() {return _primitiveFrontSideSpecularIntensity;}
+  void setFrontPrimitiveSpecularIntensity(double intensity) {_primitiveFrontSideSpecularIntensity = intensity;}
+  QColor frontPrimitiveAmbientColor() {return _primitiveFrontSideAmbientColor;}
+  void setFrontPrimitiveAmbientColor(QColor color) {_primitiveFrontSideAmbientColor = color;}
+  QColor frontPrimitiveDiffuseColor() {return _primitiveFrontSideDiffuseColor;}
+  void setFrontPrimitiveDiffuseColor(QColor color) {_primitiveFrontSideDiffuseColor = color;}
+  QColor frontPrimitiveSpecularColor() {return _primitiveFrontSideSpecularColor;}
+  void setFrontPrimitiveSpecularColor(QColor color) {_primitiveFrontSideSpecularColor = color;}
+  double frontPrimitiveShininess() {return _primitiveFrontSideShininess;}
+  void setFrontPrimitiveShininess(double value) {_primitiveFrontSideShininess = value;}
+
+  bool backPrimitiveHDR() {return _primitiveBackSideHDR;}
+  void setBackPrimitiveHDR(bool isHDR) {_primitiveBackSideHDR = isHDR;}
+  double backPrimitiveHDRExposure() {return _primitiveBackSideHDRExposure;}
+  void setBackPrimitiveHDRExposure(double exposure) {_primitiveBackSideHDRExposure = exposure;}
+  double backPrimitiveAmbientIntensity() {return _primitiveBackSideAmbientIntensity;}
+  void setBackPrimitiveAmbientIntensity(double intensity) {_primitiveBackSideAmbientIntensity = intensity;}
+  double backPrimitiveDiffuseIntensity() {return _primitiveBackSideDiffuseIntensity;}
+  void setBackPrimitiveDiffuseIntensity(double intensity) {_primitiveBackSideDiffuseIntensity = intensity;}
+  double backPrimitiveSpecularIntensity() {return _primitiveBackSideSpecularIntensity;}
+  void setBackPrimitiveSpecularIntensity(double intensity) {_primitiveBackSideSpecularIntensity = intensity;}
+  QColor backPrimitiveAmbientColor() {return _primitiveBackSideAmbientColor;}
+  void setBackPrimitiveAmbientColor(QColor color) {_primitiveBackSideAmbientColor = color;}
+  QColor backPrimitiveDiffuseColor() {return _primitiveBackSideDiffuseColor;}
+  void setBackPrimitiveDiffuseColor(QColor color) {_primitiveBackSideDiffuseColor = color;}
+  QColor backPrimitiveSpecularColor() {return _primitiveBackSideSpecularColor;}
+  void setBackPrimitiveSpecularColor(QColor color) {_primitiveBackSideSpecularColor = color;}
+  double backPrimitiveShininess() {return _primitiveBackSideShininess;}
+  void setBackPrimitiveShininess(double value) {_primitiveBackSideShininess = value;}
+
 
   // material properties
   QColor atomAmbientColor() const override {return _atomAmbientColor;}

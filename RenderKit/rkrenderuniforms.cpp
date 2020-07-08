@@ -164,11 +164,12 @@ RKStructureUniforms::RKStructureUniforms(int sceneIdentifier, int movieIdentifie
     this->transformationMatrix = primitiveModelMatrix * float4x4(source->primitiveTransformationMatrix());
     this->transformationNormalMatrix = primitiveNormalMatrix * float4x4(source->primitiveTransformationMatrix().inverse().transpose()); // tranpose
 
+    this->primitiveOpacity = source->primitiveOpacity();
+
     this->primitiveFrontSideHDR = source->primitiveFrontSideHDR();
     this->primitiveFrontSideHDRExposure = float(source->primitiveFrontSideHDRExposure());
     this->primitiveAmbientFrontSide = float(source->primitiveFrontSideAmbientIntensity()) * float4(source->primitiveFrontSideAmbientColor(), source->primitiveOpacity());
     this->primitiveDiffuseFrontSide = float(source->primitiveFrontSideDiffuseIntensity()) * float4(source->primitiveFrontSideDiffuseColor(), source->primitiveOpacity());
-
     this->primitiveSpecularFrontSide = float(source->primitiveFrontSideSpecularIntensity()) * float4(source->primitiveFrontSideSpecularColor(), source->primitiveOpacity());
     this->primitiveShininessFrontSide = float(source->primitiveFrontSideShininess());
 

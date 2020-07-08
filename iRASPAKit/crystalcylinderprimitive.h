@@ -58,8 +58,8 @@ public:
   QColor primitiveFrontSideAmbientColor() const override  {return _primitiveFrontSideAmbientColor;}
   QColor primitiveFrontSideDiffuseColor() const override  {return _primitiveFrontSideDiffuseColor;}
   QColor primitiveFrontSideSpecularColor() const override  {return _primitiveFrontSideSpecularColor;}
-  double primitiveFrontSideDiffuseIntensity() const override  {return _primitiveFrontSideDiffuseIntensity;}
   double primitiveFrontSideAmbientIntensity() const override  {return _primitiveFrontSideAmbientIntensity;}
+  double primitiveFrontSideDiffuseIntensity() const override  {return _primitiveFrontSideDiffuseIntensity;}
   double primitiveFrontSideSpecularIntensity() const override  {return _primitiveFrontSideSpecularIntensity;}
   double primitiveFrontSideShininess() const override  {return _primitiveFrontSideShininess;}
 
@@ -68,8 +68,8 @@ public:
   QColor primitiveBackSideAmbientColor() const override  {return _primitiveBackSideAmbientColor;}
   QColor primitiveBackSideDiffuseColor() const override  {return _primitiveBackSideDiffuseColor;}
   QColor primitiveBackSideSpecularColor() const override  {return _primitiveBackSideSpecularColor;}
-  double primitiveBackSideDiffuseIntensity() const override  {return _primitiveBackSideDiffuseIntensity;}
   double primitiveBackSideAmbientIntensity() const override  {return _primitiveBackSideAmbientIntensity;}
+  double primitiveBackSideDiffuseIntensity() const override  {return _primitiveBackSideDiffuseIntensity;}
   double primitiveBackSideSpecularIntensity() const override  {return _primitiveBackSideSpecularIntensity;}
   double primitiveBackSideShininess() const override  {return _primitiveBackSideShininess;}
 

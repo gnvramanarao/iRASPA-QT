@@ -397,6 +397,6 @@ void main(void)
   hsv.x = hsv.x * structureUniforms.atomHue;
   hsv.y = hsv.y * structureUniforms.atomSaturation;
   hsv.z = hsv.z * structureUniforms.atomValue;
-  vFragColor = structureUniforms.primitiveDiffuseFrontSide.w * vec4(hsv2rgb(hsv),1.0);
+  vFragColor = structureUniforms.primitiveOpacity * vec4(hsv2rgb(hsv),1.0);
 }
 )foo");

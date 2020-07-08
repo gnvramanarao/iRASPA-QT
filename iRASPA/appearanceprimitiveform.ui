@@ -112,6 +112,9 @@
               <height>32</height>
              </size>
             </property>
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
            </widget>
           </item>
           <item row="1" column="0">
@@ -122,10 +125,16 @@
               <height>32</height>
              </size>
             </property>
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
            </widget>
           </item>
           <item row="3" column="0">
            <widget class="QDoubleSlider" name="EulerAngleYSlider">
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -158,39 +167,12 @@
       </item>
       <item>
        <layout class="QGridLayout" name="gridLayout_6">
-        <item row="0" column="3">
-         <widget class="QLineEdit" name="transformationMatrixCXLineEdit"/>
-        </item>
         <item row="0" column="0">
          <widget class="QLabel" name="label_3">
           <property name="text">
            <string>Transformation</string>
           </property>
          </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="transformationMatrixAXLineEdit"/>
-        </item>
-        <item row="0" column="2">
-         <widget class="QLineEdit" name="transformationMatrixBXLineEdit"/>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="transformationMatrixAYLineEdit"/>
-        </item>
-        <item row="2" column="1">
-         <widget class="QLineEdit" name="transformationMatrixAZLineEdit"/>
-        </item>
-        <item row="1" column="2">
-         <widget class="QLineEdit" name="transformationMatrixBYLineEdit"/>
-        </item>
-        <item row="1" column="3">
-         <widget class="QLineEdit" name="transformationMatrixCYLineEdit"/>
-        </item>
-        <item row="2" column="2">
-         <widget class="QLineEdit" name="transformationMatrixBZLineEdit"/>
-        </item>
-        <item row="2" column="3">
-         <widget class="QLineEdit" name="transformationMatrixCZLineEdit"/>
         </item>
         <item row="1" column="0">
          <spacer name="horizontalSpacer_2">
@@ -218,6 +200,69 @@
           </property>
          </spacer>
         </item>
+        <item row="0" column="1">
+         <widget class="CustomDoubleSpinBox" name="transformationMatrixAXDoubleSpinBox">
+          <property name="decimals">
+           <number>6</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="CustomDoubleSpinBox" name="transformationMatrixAYDoubleSpinBox">
+          <property name="decimals">
+           <number>6</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="CustomDoubleSpinBox" name="transformationMatrixAZDoubleSpinBox">
+          <property name="decimals">
+           <number>6</number>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="CustomDoubleSpinBox" name="transformationMatrixBXDoubleSpinBox">
+          <property name="decimals">
+           <number>6</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="CustomDoubleSpinBox" name="transformationMatrixBYDoubleSpinBox">
+          <property name="decimals">
+           <number>6</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="CustomDoubleSpinBox" name="transformationMatrixBZDoubleSpinBox">
+          <property name="decimals">
+           <number>6</number>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="CustomDoubleSpinBox" name="transformationMatrixCXDoubleSpinBox">
+          <property name="decimals">
+           <number>6</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="CustomDoubleSpinBox" name="transformationMatrixCYDoubleSpinBox">
+          <property name="decimals">
+           <number>6</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="CustomDoubleSpinBox" name="transformationMatrixCZDoubleSpinBox">
+          <property name="decimals">
+           <number>6</number>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>
@@ -226,17 +271,14 @@
    <item>
     <layout class="QGridLayout" name="gridLayout_7">
      <item row="1" column="2">
-      <widget class="QSlider" name="numberOfSidesSlider">
+      <widget class="QSlider" name="primitiveNumberOfSidesSlider">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="opacityLineEdit"/>
-     </item>
      <item row="0" column="2">
-      <widget class="QSlider" name="opacitySlider">
+      <widget class="QDoubleSlider" name="primitiveOpacitySlider">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -256,11 +298,8 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="numberOfSidesLineEdit"/>
-     </item>
      <item row="2" column="1">
-      <widget class="QCheckBox" name="cappedCheckBox">
+      <widget class="QCheckBox" name="primitiveCappedCheckBox">
        <property name="text">
         <string>Capped</string>
        </property>
@@ -292,6 +331,16 @@
        </property>
       </spacer>
      </item>
+     <item row="0" column="1">
+      <widget class="CustomDoubleSpinBox" name="primitiveOpacityDoubleSpinBox">
+       <property name="decimals">
+        <number>6</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="CustomIntSpinBox" name="primitiveNumberOfSidesSpinBox"/>
+     </item>
     </layout>
    </item>
    <item>
@@ -313,76 +362,61 @@
         </property>
        </spacer>
       </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="frontExposureLineEdit"/>
-      </item>
       <item row="1" column="2">
-       <widget class="QSlider" name="frontAmbientIntensitySlider">
+       <widget class="QDoubleSlider" name="frontAmbientIntensitySlider">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
       <item row="2" column="2">
-       <widget class="QSlider" name="frontDiffuseIntensitySlider">
+       <widget class="QDoubleSlider" name="frontDiffuseIntensitySlider">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
       <item row="0" column="2">
-       <widget class="QSlider" name="frontExposureSlider">
+       <widget class="QDoubleSlider" name="frontExposureSlider">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
       <item row="3" column="2">
-       <widget class="QSlider" name="frontSpecularIntensitySlider">
+       <widget class="QDoubleSlider" name="frontSpecularIntensitySlider">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
       <item row="4" column="2">
-       <widget class="QSlider" name="frontShininessSlider">
+       <widget class="QDoubleSlider" name="frontShininessSlider">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
       <item row="1" column="3">
-       <widget class="QPushButton" name="frontAmbientColorPushButton">
+       <widget class="SelectColorButton" name="frontAmbientColorPushButton">
         <property name="text">
          <string>color</string>
         </property>
        </widget>
       </item>
       <item row="2" column="3">
-       <widget class="QPushButton" name="frontDiffuseColorPushButton">
+       <widget class="SelectColorButton" name="frontDiffuseColorPushButton">
         <property name="text">
          <string>color</string>
         </property>
        </widget>
       </item>
       <item row="3" column="3">
-       <widget class="QPushButton" name="frontSpecularColorPushButton">
+       <widget class="SelectColorButton" name="frontSpecularColorPushButton">
         <property name="text">
          <string>color</string>
         </property>
        </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="frontAmbientIntensityLineEdit"/>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="frontDiffuseIntensityLineEdit"/>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLineEdit" name="frontSpecularIntensityLineEdit"/>
-      </item>
-      <item row="4" column="1">
-       <widget class="QLineEdit" name="frontShininessLineEdit"/>
       </item>
       <item row="4" column="0">
        <widget class="QLabel" name="label_6">
@@ -443,6 +477,41 @@
         </property>
        </spacer>
       </item>
+      <item row="0" column="1">
+       <widget class="CustomDoubleSpinBox" name="frontExposureDoubleSpinBox">
+        <property name="decimals">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="CustomDoubleSpinBox" name="frontAmbientIntensityDoubleSpinBox">
+        <property name="decimals">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="CustomDoubleSpinBox" name="frontDiffuseIntensityDoubleSpinBox">
+        <property name="decimals">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="CustomDoubleSpinBox" name="frontSpecularIntensityDoubleSpinBox">
+        <property name="decimals">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="CustomDoubleSpinBox" name="frontShininessDoubleSpinBox">
+        <property name="decimals">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -453,21 +522,21 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_9">
       <item row="3" column="2">
-       <widget class="QSlider" name="backSpecularIntensitySlider">
+       <widget class="QDoubleSlider" name="backSpecularIntensitySlider">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
       <item row="0" column="2">
-       <widget class="QSlider" name="backExposureSlider">
+       <widget class="QDoubleSlider" name="backExposureSlider">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
       <item row="1" column="2">
-       <widget class="QSlider" name="backAmbientIntensitySlider">
+       <widget class="QDoubleSlider" name="backAmbientIntensitySlider">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -487,51 +556,39 @@
        </spacer>
       </item>
       <item row="2" column="2">
-       <widget class="QSlider" name="backDiffuseIntensitySlider">
+       <widget class="QDoubleSlider" name="backDiffuseIntensitySlider">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
       <item row="4" column="2">
-       <widget class="QSlider" name="backShininessSlider">
+       <widget class="QDoubleSlider" name="backShininessSlider">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
       <item row="1" column="3">
-       <widget class="QPushButton" name="backAmbientColorPushButton">
+       <widget class="SelectColorButton" name="backAmbientColorPushButton">
         <property name="text">
          <string>color</string>
         </property>
        </widget>
       </item>
       <item row="2" column="3">
-       <widget class="QPushButton" name="backDiffuseColorPushButton">
+       <widget class="SelectColorButton" name="backDiffuseColorPushButton">
         <property name="text">
          <string>color</string>
         </property>
        </widget>
       </item>
       <item row="3" column="3">
-       <widget class="QPushButton" name="backSpecularColorPushButton">
+       <widget class="SelectColorButton" name="backSpecularColorPushButton">
         <property name="text">
          <string>color</string>
         </property>
        </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="backAmbientIntensityLineEdit"/>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="backDiffuseIntensityLineEdit"/>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLineEdit" name="backSpecularIntensityLineEdit"/>
-      </item>
-      <item row="4" column="1">
-       <widget class="QLineEdit" name="backShininessLineEdit"/>
       </item>
       <item row="4" column="0">
        <widget class="QLabel" name="label_12">
@@ -579,9 +636,6 @@
         </item>
        </layout>
       </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="backExposureLineEdit"/>
-      </item>
       <item row="4" column="3">
        <spacer name="horizontalSpacer_7">
         <property name="orientation">
@@ -594,6 +648,41 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item row="0" column="1">
+       <widget class="CustomDoubleSpinBox" name="backExposureDoubleSpinBox">
+        <property name="decimals">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="CustomDoubleSpinBox" name="backAmbientIntensityDoubleSpinBox">
+        <property name="decimals">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="CustomDoubleSpinBox" name="backDiffuseIntensityDoubleSpinBox">
+        <property name="decimals">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="CustomDoubleSpinBox" name="backSpecularIntensityDoubleSpinBox">
+        <property name="decimals">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="CustomDoubleSpinBox" name="backShininessDoubleSpinBox">
+        <property name="decimals">
+         <number>5</number>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -615,6 +704,16 @@
    <class>QDoubleDial</class>
    <extends>QDial</extends>
    <header>qdoubledial.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CustomIntSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header>customintspinbox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>SelectColorButton</class>
+   <extends>QPushButton</extends>
+   <header>selectcolorbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

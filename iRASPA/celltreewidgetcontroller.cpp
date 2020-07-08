@@ -884,7 +884,6 @@ void CellTreeWidgetController::reloadRotationAngle()
   if(_projectTreeNode)
   {
     _cellCellForm->rotationAngleDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-
   }
 
   if(!_iraspa_structures.empty())

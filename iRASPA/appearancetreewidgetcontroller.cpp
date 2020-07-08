@@ -55,7 +55,7 @@ AppearanceTreeWidgetController::AppearanceTreeWidgetController(QWidget* parent):
   this->setIndentation(0);
   this->setSelectionMode(QAbstractItemView::NoSelection);
 
-  // Primtives
+  // Primitives
   //=========================================================================
   QTreeWidgetItem* PrimitiveItem = new QTreeWidgetItem(this);
   this->addTopLevelItem(PrimitiveItem);
@@ -67,6 +67,182 @@ AppearanceTreeWidgetController::AppearanceTreeWidgetController(QWidget* parent):
 
   QTreeWidgetItem *childPrimitiveItem = new QTreeWidgetItem(PrimitiveItem);
   this->setItemWidget(childPrimitiveItem,0, _appearancePrimitiveForm);
+
+  _appearancePrimitiveForm->EulerAngleXDoubleSpinBox->setMinimum(-180);
+  _appearancePrimitiveForm->EulerAngleXDoubleSpinBox->setMaximum(180);
+  _appearancePrimitiveForm->EulerAngleXDial->setDoubleMinimum(-180);
+  _appearancePrimitiveForm->EulerAngleXDial->setDoubleMaximum(180);
+
+  _appearancePrimitiveForm->EulerAngleYDoubleSpinBox->setMinimum(-90.0);
+  _appearancePrimitiveForm->EulerAngleYDoubleSpinBox->setMaximum(90.0);
+  _appearancePrimitiveForm->EulerAngleYSlider->setDoubleMinimum(-90.0);
+  _appearancePrimitiveForm->EulerAngleYSlider->setDoubleMaximum(90.0);
+
+  _appearancePrimitiveForm->EulerAngleZDoubleSpinBox->setMinimum(-180.0);
+  _appearancePrimitiveForm->EulerAngleZDoubleSpinBox->setMaximum(180.0);
+  _appearancePrimitiveForm->EulerAngleZDial->setDoubleMinimum(-180);
+  _appearancePrimitiveForm->EulerAngleZDial->setDoubleMaximum(180);
+
+  _appearancePrimitiveForm->transformationMatrixAXDoubleSpinBox->setMinimum(-1000.0);
+  _appearancePrimitiveForm->transformationMatrixAXDoubleSpinBox->setMaximum(1000.0);
+  _appearancePrimitiveForm->transformationMatrixAXDoubleSpinBox->setSingleStep(0.1);
+  _appearancePrimitiveForm->transformationMatrixAYDoubleSpinBox->setMinimum(-1000.0);
+  _appearancePrimitiveForm->transformationMatrixAYDoubleSpinBox->setMaximum(1000.0);
+  _appearancePrimitiveForm->transformationMatrixAYDoubleSpinBox->setSingleStep(0.1);
+  _appearancePrimitiveForm->transformationMatrixAZDoubleSpinBox->setMinimum(-1000.0);
+  _appearancePrimitiveForm->transformationMatrixAZDoubleSpinBox->setMaximum(1000.0);
+  _appearancePrimitiveForm->transformationMatrixAZDoubleSpinBox->setSingleStep(0.1);
+
+  _appearancePrimitiveForm->transformationMatrixBXDoubleSpinBox->setMinimum(-1000.0);
+  _appearancePrimitiveForm->transformationMatrixBXDoubleSpinBox->setMaximum(1000.0);
+  _appearancePrimitiveForm->transformationMatrixBXDoubleSpinBox->setSingleStep(0.1);
+  _appearancePrimitiveForm->transformationMatrixBYDoubleSpinBox->setMinimum(-1000.0);
+  _appearancePrimitiveForm->transformationMatrixBYDoubleSpinBox->setMaximum(1000.0);
+  _appearancePrimitiveForm->transformationMatrixBYDoubleSpinBox->setSingleStep(0.1);
+  _appearancePrimitiveForm->transformationMatrixBZDoubleSpinBox->setMinimum(-1000.0);
+  _appearancePrimitiveForm->transformationMatrixBZDoubleSpinBox->setMaximum(1000.0);
+  _appearancePrimitiveForm->transformationMatrixBZDoubleSpinBox->setSingleStep(0.1);
+
+  _appearancePrimitiveForm->transformationMatrixCXDoubleSpinBox->setMinimum(-1000.0);
+  _appearancePrimitiveForm->transformationMatrixCXDoubleSpinBox->setMaximum(1000.0);
+  _appearancePrimitiveForm->transformationMatrixCXDoubleSpinBox->setSingleStep(0.1);
+  _appearancePrimitiveForm->transformationMatrixCYDoubleSpinBox->setMinimum(-1000.0);
+  _appearancePrimitiveForm->transformationMatrixCYDoubleSpinBox->setMaximum(1000.0);
+  _appearancePrimitiveForm->transformationMatrixCYDoubleSpinBox->setSingleStep(0.1);
+  _appearancePrimitiveForm->transformationMatrixCZDoubleSpinBox->setMinimum(-1000.0);
+  _appearancePrimitiveForm->transformationMatrixCZDoubleSpinBox->setMaximum(1000.0);
+  _appearancePrimitiveForm->transformationMatrixCZDoubleSpinBox->setSingleStep(0.1);
+
+  _appearancePrimitiveForm->primitiveOpacityDoubleSpinBox->setMinimum(0.0);
+  _appearancePrimitiveForm->primitiveOpacityDoubleSpinBox->setMaximum(1.0);
+  _appearancePrimitiveForm->primitiveOpacityDoubleSpinBox->setSingleStep(0.1);
+  _appearancePrimitiveForm->primitiveOpacitySlider->setDoubleMinimum(0.0);
+  _appearancePrimitiveForm->primitiveOpacitySlider->setDoubleMaximum(1.0);
+  _appearancePrimitiveForm->primitiveNumberOfSidesSpinBox->setMinimum(2);
+  _appearancePrimitiveForm->primitiveNumberOfSidesSpinBox->setMaximum(50);
+  _appearancePrimitiveForm->primitiveNumberOfSidesSlider->setMinimum(2);
+  _appearancePrimitiveForm->primitiveNumberOfSidesSlider->setMaximum(50);
+
+
+  _appearancePrimitiveForm->frontExposureDoubleSpinBox->setMinimum(0.0);
+  _appearancePrimitiveForm->frontExposureDoubleSpinBox->setMaximum(3.0);
+  _appearancePrimitiveForm->frontExposureDoubleSpinBox->setSingleStep(0.1);
+  _appearancePrimitiveForm->frontExposureSlider->setDoubleMinimum(0.0);
+  _appearancePrimitiveForm->frontExposureSlider->setDoubleMaximum(3.0);
+  _appearancePrimitiveForm->frontAmbientIntensityDoubleSpinBox->setMinimum(0.0);
+  _appearancePrimitiveForm->frontAmbientIntensityDoubleSpinBox->setMaximum(1.0);
+  _appearancePrimitiveForm->frontAmbientIntensityDoubleSpinBox->setSingleStep(0.1);
+  _appearancePrimitiveForm->frontAmbientIntensitySlider->setDoubleMinimum(0.0);
+  _appearancePrimitiveForm->frontAmbientIntensitySlider->setDoubleMaximum(1.0);
+  _appearancePrimitiveForm->frontDiffuseIntensityDoubleSpinBox->setMinimum(0.0);
+  _appearancePrimitiveForm->frontDiffuseIntensityDoubleSpinBox->setMaximum(1.0);
+  _appearancePrimitiveForm->frontDiffuseIntensityDoubleSpinBox->setSingleStep(0.1);
+  _appearancePrimitiveForm->frontDiffuseIntensitySlider->setDoubleMinimum(0.0);
+  _appearancePrimitiveForm->frontDiffuseIntensitySlider->setDoubleMaximum(1.0);
+  _appearancePrimitiveForm->frontSpecularIntensityDoubleSpinBox->setMinimum(0.0);
+  _appearancePrimitiveForm->frontSpecularIntensityDoubleSpinBox->setMaximum(1.0);
+  _appearancePrimitiveForm->frontSpecularIntensityDoubleSpinBox->setSingleStep(0.1);
+  _appearancePrimitiveForm->frontSpecularIntensitySlider->setDoubleMinimum(0.0);
+  _appearancePrimitiveForm->frontSpecularIntensitySlider->setDoubleMaximum(1.0);
+  _appearancePrimitiveForm->frontShininessDoubleSpinBox->setMinimum(0.0);
+  _appearancePrimitiveForm->frontShininessDoubleSpinBox->setMaximum(128.0);
+  _appearancePrimitiveForm->frontShininessDoubleSpinBox->setSingleStep(1.0);
+  _appearancePrimitiveForm->frontShininessSlider->setDoubleMinimum(0.0);
+  _appearancePrimitiveForm->frontShininessSlider->setDoubleMaximum(128.0);
+
+  _appearancePrimitiveForm->backExposureDoubleSpinBox->setMinimum(0.0);
+  _appearancePrimitiveForm->backExposureDoubleSpinBox->setMaximum(3.0);
+  _appearancePrimitiveForm->backExposureDoubleSpinBox->setSingleStep(0.1);
+  _appearancePrimitiveForm->backExposureSlider->setDoubleMinimum(0.0);
+  _appearancePrimitiveForm->backExposureSlider->setDoubleMaximum(3.0);
+  _appearancePrimitiveForm->backAmbientIntensityDoubleSpinBox->setMinimum(0.0);
+  _appearancePrimitiveForm->backAmbientIntensityDoubleSpinBox->setMaximum(1.0);
+  _appearancePrimitiveForm->backAmbientIntensityDoubleSpinBox->setSingleStep(0.1);
+  _appearancePrimitiveForm->backAmbientIntensitySlider->setDoubleMinimum(0.0);
+  _appearancePrimitiveForm->backAmbientIntensitySlider->setDoubleMaximum(1.0);
+  _appearancePrimitiveForm->backDiffuseIntensityDoubleSpinBox->setMinimum(0.0);
+  _appearancePrimitiveForm->backDiffuseIntensityDoubleSpinBox->setMaximum(1.0);
+  _appearancePrimitiveForm->backDiffuseIntensityDoubleSpinBox->setSingleStep(0.1);
+  _appearancePrimitiveForm->backDiffuseIntensitySlider->setDoubleMinimum(0.0);
+  _appearancePrimitiveForm->backDiffuseIntensitySlider->setDoubleMaximum(1.0);
+  _appearancePrimitiveForm->backSpecularIntensityDoubleSpinBox->setMinimum(0.0);
+  _appearancePrimitiveForm->backSpecularIntensityDoubleSpinBox->setMaximum(1.0);
+  _appearancePrimitiveForm->backSpecularIntensityDoubleSpinBox->setSingleStep(0.1);
+  _appearancePrimitiveForm->backSpecularIntensitySlider->setDoubleMinimum(0.0);
+  _appearancePrimitiveForm->backSpecularIntensitySlider->setDoubleMaximum(1.0);
+  _appearancePrimitiveForm->backShininessDoubleSpinBox->setMinimum(0.0);
+  _appearancePrimitiveForm->backShininessDoubleSpinBox->setMaximum(128.0);
+  _appearancePrimitiveForm->backShininessDoubleSpinBox->setSingleStep(1.0);
+  _appearancePrimitiveForm->backShininessSlider->setDoubleMinimum(0.0);
+  _appearancePrimitiveForm->backShininessSlider->setDoubleMaximum(128.0);
+
+
+  QObject::connect(_appearancePrimitiveForm->rotationAngleDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &AppearanceTreeWidgetController::setRotationAngle);
+  QObject::connect(_appearancePrimitiveForm->rotatePlusXPushButton, &QPushButton::clicked, this, &AppearanceTreeWidgetController::rotateYawPlus);
+  QObject::connect(_appearancePrimitiveForm->rotatePlusZPushButton, &QPushButton::clicked, this, &AppearanceTreeWidgetController::rotatePitchPlus);
+  QObject::connect(_appearancePrimitiveForm->rotatePlusYPushButton, &QPushButton::clicked, this, &AppearanceTreeWidgetController::rotateRollPlus);
+  QObject::connect(_appearancePrimitiveForm->rotateMinusXPushButton, &QPushButton::clicked, this, &AppearanceTreeWidgetController::rotateYawMinus);
+  QObject::connect(_appearancePrimitiveForm->rotateMinusZPushButton, &QPushButton::clicked, this, &AppearanceTreeWidgetController::rotatePitchMinus);
+  QObject::connect(_appearancePrimitiveForm->rotateMinusYPushButton, &QPushButton::clicked, this, &AppearanceTreeWidgetController::rotateRollMinus);
+
+
+  QObject::connect(_appearancePrimitiveForm->EulerAngleXDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &AppearanceTreeWidgetController::setEulerAngleX);
+  QObject::connect(_appearancePrimitiveForm->EulerAngleYDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &AppearanceTreeWidgetController::setEulerAngleY);
+  QObject::connect(_appearancePrimitiveForm->EulerAngleZDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &AppearanceTreeWidgetController::setEulerAngleZ);
+  QObject::connect(_appearancePrimitiveForm->EulerAngleXDial,static_cast<void (QDoubleDial::*)(double)>(&QDoubleDial::sliderMoved),this,&AppearanceTreeWidgetController::setEulerAngleX);
+  QObject::connect(_appearancePrimitiveForm->EulerAngleYSlider,static_cast<void (QDoubleSlider::*)(double)>(&QDoubleSlider::sliderMoved),this,&AppearanceTreeWidgetController::setEulerAngleY);
+  QObject::connect(_appearancePrimitiveForm->EulerAngleZDial,static_cast<void (QDoubleDial::*)(double)>(&QDoubleDial::sliderMoved),this,&AppearanceTreeWidgetController::setEulerAngleZ);
+
+  QObject::connect(_appearancePrimitiveForm->transformationMatrixAXDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &AppearanceTreeWidgetController::setTransformationMatrixAX);
+  QObject::connect(_appearancePrimitiveForm->transformationMatrixAYDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &AppearanceTreeWidgetController::setTransformationMatrixAY);
+  QObject::connect(_appearancePrimitiveForm->transformationMatrixAZDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &AppearanceTreeWidgetController::setTransformationMatrixAZ);
+  QObject::connect(_appearancePrimitiveForm->transformationMatrixBXDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &AppearanceTreeWidgetController::setTransformationMatrixBX);
+  QObject::connect(_appearancePrimitiveForm->transformationMatrixBYDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &AppearanceTreeWidgetController::setTransformationMatrixBY);
+  QObject::connect(_appearancePrimitiveForm->transformationMatrixBZDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &AppearanceTreeWidgetController::setTransformationMatrixBZ);
+  QObject::connect(_appearancePrimitiveForm->transformationMatrixCXDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &AppearanceTreeWidgetController::setTransformationMatrixCX);
+  QObject::connect(_appearancePrimitiveForm->transformationMatrixCYDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &AppearanceTreeWidgetController::setTransformationMatrixCY);
+  QObject::connect(_appearancePrimitiveForm->transformationMatrixCZDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &AppearanceTreeWidgetController::setTransformationMatrixCZ);
+
+  QObject::connect(_appearancePrimitiveForm->primitiveOpacityDoubleSpinBox,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&AppearanceTreeWidgetController::setPrimitiveOpacity);
+  QObject::connect(_appearancePrimitiveForm->primitiveOpacitySlider,static_cast<void (QDoubleSlider::*)(double)>(&QDoubleSlider::sliderMoved),this,&AppearanceTreeWidgetController::setPrimitiveOpacity);
+  QObject::connect(_appearancePrimitiveForm->primitiveNumberOfSidesSpinBox,static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),this,&AppearanceTreeWidgetController::setPrimitiveNumberOfSides);
+  QObject::connect(_appearancePrimitiveForm->primitiveNumberOfSidesSlider,static_cast<void (QSlider::*)(int)>(&QSlider::valueChanged),this,&AppearanceTreeWidgetController::setPrimitiveNumberOfSides);
+
+  QObject::connect(_appearancePrimitiveForm->primitiveCappedCheckBox,static_cast<void (QCheckBox::*)(int)>(&QCheckBox::stateChanged),this,&AppearanceTreeWidgetController::setPrimitiveIsCapped);
+
+
+  QObject::connect(_appearancePrimitiveForm->frontHDRCheckBox,static_cast<void (QCheckBox::*)(int)>(&QCheckBox::stateChanged),this,&AppearanceTreeWidgetController::setFrontPrimitiveHighDynamicRange);
+  QObject::connect(_appearancePrimitiveForm->frontExposureDoubleSpinBox,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&AppearanceTreeWidgetController::setFrontPrimitiveHDRExposure);
+  QObject::connect(_appearancePrimitiveForm->frontExposureSlider,static_cast<void (QDoubleSlider::*)(double)>(&QDoubleSlider::sliderMoved),this,&AppearanceTreeWidgetController::setFrontPrimitiveHDRExposure);
+  QObject::connect(_appearancePrimitiveForm->frontAmbientIntensityDoubleSpinBox,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&AppearanceTreeWidgetController::setFrontPrimitiveAmbientLightIntensity);
+  QObject::connect(_appearancePrimitiveForm->frontAmbientIntensitySlider,static_cast<void (QDoubleSlider::*)(double)>(&QDoubleSlider::sliderMoved),this,&AppearanceTreeWidgetController::setFrontPrimitiveAmbientLightIntensity);
+  QObject::connect(_appearancePrimitiveForm->frontDiffuseIntensityDoubleSpinBox,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&AppearanceTreeWidgetController::setFrontPrimitiveDiffuseLightIntensity);
+  QObject::connect(_appearancePrimitiveForm->frontDiffuseIntensitySlider,static_cast<void (QDoubleSlider::*)(double)>(&QDoubleSlider::sliderMoved),this,&AppearanceTreeWidgetController::setFrontPrimitiveDiffuseLightIntensity);
+  QObject::connect(_appearancePrimitiveForm->frontSpecularIntensityDoubleSpinBox,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&AppearanceTreeWidgetController::setFrontPrimitiveSpecularLightIntensity);
+  QObject::connect(_appearancePrimitiveForm->frontSpecularIntensitySlider,static_cast<void (QDoubleSlider::*)(double)>(&QDoubleSlider::sliderMoved),this,&AppearanceTreeWidgetController::setFrontPrimitiveSpecularLightIntensity);
+  QObject::connect(_appearancePrimitiveForm->frontShininessDoubleSpinBox,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&AppearanceTreeWidgetController::setFrontPrimitiveShininess);
+  QObject::connect(_appearancePrimitiveForm->frontShininessSlider,static_cast<void (QDoubleSlider::*)(double)>(&QDoubleSlider::sliderMoved),this,&AppearanceTreeWidgetController::setFrontPrimitiveShininess);
+
+  QObject::connect(_appearancePrimitiveForm->frontAmbientColorPushButton,&QPushButton::clicked,this,&AppearanceTreeWidgetController::setFrontPrimitiveAmbientLightColor);
+  QObject::connect(_appearancePrimitiveForm->frontDiffuseColorPushButton,&QPushButton::clicked,this,&AppearanceTreeWidgetController::setFrontPrimitiveDiffuseLightColor);
+  QObject::connect(_appearancePrimitiveForm->frontSpecularColorPushButton,&QPushButton::clicked,this,&AppearanceTreeWidgetController::setFrontPrimitiveSpecularLightColor);
+
+  QObject::connect(_appearancePrimitiveForm->backHDRCheckBox,static_cast<void (QCheckBox::*)(int)>(&QCheckBox::stateChanged),this,&AppearanceTreeWidgetController::setBackPrimitiveHighDynamicRange);
+  QObject::connect(_appearancePrimitiveForm->backExposureDoubleSpinBox,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&AppearanceTreeWidgetController::setBackPrimitiveHDRExposure);
+  QObject::connect(_appearancePrimitiveForm->backExposureSlider,static_cast<void (QDoubleSlider::*)(double)>(&QDoubleSlider::sliderMoved),this,&AppearanceTreeWidgetController::setBackPrimitiveHDRExposure);
+  QObject::connect(_appearancePrimitiveForm->backAmbientIntensityDoubleSpinBox,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&AppearanceTreeWidgetController::setBackPrimitiveAmbientLightIntensity);
+  QObject::connect(_appearancePrimitiveForm->backAmbientIntensitySlider,static_cast<void (QDoubleSlider::*)(double)>(&QDoubleSlider::sliderMoved),this,&AppearanceTreeWidgetController::setBackPrimitiveAmbientLightIntensity);
+  QObject::connect(_appearancePrimitiveForm->backDiffuseIntensityDoubleSpinBox,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&AppearanceTreeWidgetController::setBackPrimitiveDiffuseLightIntensity);
+  QObject::connect(_appearancePrimitiveForm->backDiffuseIntensitySlider,static_cast<void (QDoubleSlider::*)(double)>(&QDoubleSlider::sliderMoved),this,&AppearanceTreeWidgetController::setBackPrimitiveDiffuseLightIntensity);
+  QObject::connect(_appearancePrimitiveForm->backSpecularIntensityDoubleSpinBox,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&AppearanceTreeWidgetController::setBackPrimitiveSpecularLightIntensity);
+  QObject::connect(_appearancePrimitiveForm->backSpecularIntensitySlider,static_cast<void (QDoubleSlider::*)(double)>(&QDoubleSlider::sliderMoved),this,&AppearanceTreeWidgetController::setBackPrimitiveSpecularLightIntensity);
+  QObject::connect(_appearancePrimitiveForm->backShininessDoubleSpinBox,static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&AppearanceTreeWidgetController::setBackPrimitiveShininess);
+  QObject::connect(_appearancePrimitiveForm->backShininessSlider,static_cast<void (QDoubleSlider::*)(double)>(&QDoubleSlider::sliderMoved),this,&AppearanceTreeWidgetController::setBackPrimitiveShininess);
+
+  QObject::connect(_appearancePrimitiveForm->backAmbientColorPushButton,&QPushButton::clicked,this,&AppearanceTreeWidgetController::setBackPrimitiveAmbientLightColor);
+  QObject::connect(_appearancePrimitiveForm->backDiffuseColorPushButton,&QPushButton::clicked,this,&AppearanceTreeWidgetController::setBackPrimitiveDiffuseLightColor);
+  QObject::connect(_appearancePrimitiveForm->backSpecularColorPushButton,&QPushButton::clicked,this,&AppearanceTreeWidgetController::setBackPrimitiveSpecularLightColor);
+
 
   // Atoms
   //=========================================================================
@@ -413,6 +589,21 @@ void AppearanceTreeWidgetController::reloadPrimitiveProperties()
   reloadRotationAngle();
   reloadEulerAngles();
   reloadTransformationMatrix();
+  reloadOpacity();
+  reloadNumberOfSides();
+  reloadIsCapped();
+  reloadFrontPrimitiveHighDynamicRange();
+  reloadFrontPrimitiveHDRExposure();
+  reloadFrontPrimitiveAmbientLight();
+  reloadFrontPrimitiveDiffuseLight();
+  reloadFrontPrimitiveSpecularLight();
+  reloadFrontPrimitiveShininess();
+  reloadBackPrimitiveHighDynamicRange();
+  reloadBackPrimitiveHDRExposure();
+  reloadBackPrimitiveAmbientLight();
+  reloadBackPrimitiveDiffuseLight();
+  reloadBackPrimitiveSpecularLight();
+  reloadBackPrimitiveShininess();
 }
 
 void AppearanceTreeWidgetController::reloadRotationAngle()
@@ -421,26 +612,40 @@ void AppearanceTreeWidgetController::reloadRotationAngle()
   if(_projectTreeNode)
   {
     _appearancePrimitiveForm->rotationAngleDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+
+    _appearancePrimitiveForm->rotatePlusXPushButton->setEnabled(false);
+    _appearancePrimitiveForm->rotatePlusYPushButton->setEnabled(false);
+    _appearancePrimitiveForm->rotatePlusZPushButton->setEnabled(false);
+    _appearancePrimitiveForm->rotateMinusXPushButton->setEnabled(false);
+    _appearancePrimitiveForm->rotateMinusYPushButton->setEnabled(false);
+    _appearancePrimitiveForm->rotateMinusZPushButton->setEnabled(false);
   }
 
   if(!_iraspa_structures.empty())
   {
-    if (std::optional<double> value = rotationAngle())
+    if (std::optional<double> angle = rotationAngle())
     {
-      whileBlocking(_appearancePrimitiveForm->rotationAngleDoubleSpinBox)->setValue(*value);
+      whileBlocking(_appearancePrimitiveForm->rotationAngleDoubleSpinBox)->setValue(*angle);
+
+      _appearancePrimitiveForm->rotatePlusXPushButton->setEnabled(_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->rotatePlusYPushButton->setEnabled(_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->rotatePlusZPushButton->setEnabled(_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->rotateMinusXPushButton->setEnabled(_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->rotateMinusYPushButton->setEnabled(_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->rotateMinusZPushButton->setEnabled(_projectTreeNode->isEditable());
+
+      _appearancePrimitiveForm->rotatePlusXPushButton->setText("Rotate +" + QString::number(*angle));
+      _appearancePrimitiveForm->rotatePlusYPushButton->setText("Rotate +" + QString::number(*angle));
+      _appearancePrimitiveForm->rotatePlusZPushButton->setText("Rotate +" + QString::number(*angle));
+      _appearancePrimitiveForm->rotateMinusXPushButton->setText("Rotate -" + QString::number(*angle));
+      _appearancePrimitiveForm->rotateMinusYPushButton->setText("Rotate -" + QString::number(*angle));
+      _appearancePrimitiveForm->rotateMinusZPushButton->setText("Rotate -" + QString::number(*angle));
     }
     else
     {
       whileBlocking(_appearancePrimitiveForm->rotationAngleDoubleSpinBox)->setText("Mult. Val.");
     }
   }
-
-  _appearancePrimitiveForm->rotatePlusXPushButton->setEnabled(false);
-  _appearancePrimitiveForm->rotatePlusYPushButton->setEnabled(false);
-  _appearancePrimitiveForm->rotatePlusZPushButton->setEnabled(false);
-  _appearancePrimitiveForm->rotateMinusXPushButton->setEnabled(false);
-  _appearancePrimitiveForm->rotateMinusYPushButton->setEnabled(false);
-  _appearancePrimitiveForm->rotateMinusZPushButton->setEnabled(false);
 }
 
 void AppearanceTreeWidgetController::reloadEulerAngles()
@@ -503,149 +708,553 @@ void AppearanceTreeWidgetController::reloadEulerAngles()
 
 void AppearanceTreeWidgetController::reloadTransformationMatrix()
 {
-  _appearancePrimitiveForm->transformationMatrixAXLineEdit->setReadOnly(true);
-  _appearancePrimitiveForm->transformationMatrixAYLineEdit->setReadOnly(true);
-  _appearancePrimitiveForm->transformationMatrixAZLineEdit->setReadOnly(true);
-  _appearancePrimitiveForm->transformationMatrixBXLineEdit->setReadOnly(true);
-  _appearancePrimitiveForm->transformationMatrixBYLineEdit->setReadOnly(true);
-  _appearancePrimitiveForm->transformationMatrixBZLineEdit->setReadOnly(true);
-  _appearancePrimitiveForm->transformationMatrixCXLineEdit->setReadOnly(true);
-  _appearancePrimitiveForm->transformationMatrixCYLineEdit->setReadOnly(true);
-  _appearancePrimitiveForm->transformationMatrixCZLineEdit->setReadOnly(true);
+  _appearancePrimitiveForm->transformationMatrixAXDoubleSpinBox->setReadOnly(true);
+  _appearancePrimitiveForm->transformationMatrixAYDoubleSpinBox->setReadOnly(true);
+  _appearancePrimitiveForm->transformationMatrixAZDoubleSpinBox->setReadOnly(true);
+  _appearancePrimitiveForm->transformationMatrixBXDoubleSpinBox->setReadOnly(true);
+  _appearancePrimitiveForm->transformationMatrixBYDoubleSpinBox->setReadOnly(true);
+  _appearancePrimitiveForm->transformationMatrixBZDoubleSpinBox->setReadOnly(true);
+  _appearancePrimitiveForm->transformationMatrixCXDoubleSpinBox->setReadOnly(true);
+  _appearancePrimitiveForm->transformationMatrixCYDoubleSpinBox->setReadOnly(true);
+  _appearancePrimitiveForm->transformationMatrixCZDoubleSpinBox->setReadOnly(true);
   if(_projectTreeNode)
   {
-    _appearancePrimitiveForm->transformationMatrixAXLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->transformationMatrixAYLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->transformationMatrixAZLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->transformationMatrixBXLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->transformationMatrixBYLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->transformationMatrixBZLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->transformationMatrixCXLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->transformationMatrixCYLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->transformationMatrixCZLineEdit->setReadOnly(!_projectTreeNode->isEditable());
+    _appearancePrimitiveForm->transformationMatrixAXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _appearancePrimitiveForm->transformationMatrixAYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _appearancePrimitiveForm->transformationMatrixAZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _appearancePrimitiveForm->transformationMatrixBXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _appearancePrimitiveForm->transformationMatrixBYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _appearancePrimitiveForm->transformationMatrixBZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _appearancePrimitiveForm->transformationMatrixCXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _appearancePrimitiveForm->transformationMatrixCYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _appearancePrimitiveForm->transformationMatrixCZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+
+    if(!_iraspa_structures.empty())
+    {
+      if (std::optional<double> value = transformationMatrixAX())
+      {
+        whileBlocking(_appearancePrimitiveForm->transformationMatrixAXDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->transformationMatrixAXDoubleSpinBox)->setText("Mult. Val.");
+      }
+
+      if (std::optional<double> value = transformationMatrixAY())
+      {
+        whileBlocking(_appearancePrimitiveForm->transformationMatrixAYDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->transformationMatrixAYDoubleSpinBox)->setText("Mult. Val.");
+      }
+
+      if (std::optional<double> value = transformationMatrixAZ())
+      {
+        whileBlocking(_appearancePrimitiveForm->transformationMatrixAZDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->transformationMatrixAZDoubleSpinBox)->setText("Mult. Val.");
+      }
+
+      if (std::optional<double> value = transformationMatrixBX())
+      {
+        whileBlocking(_appearancePrimitiveForm->transformationMatrixBXDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->transformationMatrixBXDoubleSpinBox)->setText("Mult. Val.");
+      }
+
+      if (std::optional<double> value = transformationMatrixBY())
+      {
+        whileBlocking(_appearancePrimitiveForm->transformationMatrixBYDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->transformationMatrixBYDoubleSpinBox)->setText("Mult. Val.");
+      }
+
+      if (std::optional<double> value = transformationMatrixBZ())
+      {
+        whileBlocking(_appearancePrimitiveForm->transformationMatrixBZDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->transformationMatrixBZDoubleSpinBox)->setText("Mult. Val.");
+      }
+
+      if (std::optional<double> value = transformationMatrixCX())
+      {
+        whileBlocking(_appearancePrimitiveForm->transformationMatrixCXDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->transformationMatrixCXDoubleSpinBox)->setText("Mult. Val.");
+      }
+
+      if (std::optional<double> value = transformationMatrixCY())
+      {
+        whileBlocking(_appearancePrimitiveForm->transformationMatrixCYDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->transformationMatrixCYDoubleSpinBox)->setText("Mult. Val.");
+      }
+
+      if (std::optional<double> value = transformationMatrixCZ())
+      {
+        whileBlocking(_appearancePrimitiveForm->transformationMatrixCZDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->transformationMatrixCZDoubleSpinBox)->setText("Mult. Val.");
+      }
+    }
   }
 }
 
 void AppearanceTreeWidgetController::reloadOpacity()
 {
-  _appearancePrimitiveForm->opacityLineEdit->setReadOnly(true);
-  _appearancePrimitiveForm->opacitySlider->setEnabled(false);
+  _appearancePrimitiveForm->primitiveOpacityDoubleSpinBox->setReadOnly(true);
+  _appearancePrimitiveForm->primitiveOpacitySlider->setEnabled(false);
+  if(_projectTreeNode)
+  {
+    _appearancePrimitiveForm->primitiveOpacityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _appearancePrimitiveForm->primitiveOpacitySlider->setEnabled(_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
+  {
+    if (std::optional<double> value = primitiveOpacity())
+    {
+      whileBlocking(_appearancePrimitiveForm->primitiveOpacityDoubleSpinBox)->setValue(*value);
+      whileBlocking(_appearancePrimitiveForm->primitiveOpacitySlider)->setDoubleValue(*value);
+    }
+    else
+    {
+      whileBlocking(_appearancePrimitiveForm->primitiveOpacityDoubleSpinBox)->setText("Mult. Val.");
+    }
+  }
 }
 
 void AppearanceTreeWidgetController::reloadNumberOfSides()
 {
-  _appearancePrimitiveForm->numberOfSidesLineEdit->setReadOnly(true);
-  _appearancePrimitiveForm->numberOfSidesSlider->setEnabled(false);
+  _appearancePrimitiveForm->primitiveNumberOfSidesSpinBox->setReadOnly(true);
+  _appearancePrimitiveForm->primitiveNumberOfSidesSlider->setEnabled(false);
+  if(_projectTreeNode)
+  {
+    _appearancePrimitiveForm->primitiveNumberOfSidesSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _appearancePrimitiveForm->primitiveNumberOfSidesSlider->setEnabled(_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
+  {
+    if (std::optional<int> value = primitiveNumberOfSides())
+    {
+      whileBlocking(_appearancePrimitiveForm->primitiveNumberOfSidesSpinBox)->setValue(*value);
+      whileBlocking(_appearancePrimitiveForm->primitiveNumberOfSidesSlider)->setValue(*value);
+    }
+    else
+    {
+      whileBlocking(_appearancePrimitiveForm->primitiveNumberOfSidesSpinBox)->setText("Mult. Val.");
+    }
+  }
 }
 
 void AppearanceTreeWidgetController::reloadIsCapped()
-{
-  _appearancePrimitiveForm->cappedCheckBox->setEnabled(false);
+{  
+  _appearancePrimitiveForm->primitiveCappedCheckBox->setEnabled(false);
+  if(_projectTreeNode)
+  {
+    _appearancePrimitiveForm->primitiveCappedCheckBox->setEnabled(_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
+  {
+    if (std::optional<bool> state = primitiveIsCapped())
+    {
+      whileBlocking(_appearancePrimitiveForm->primitiveCappedCheckBox)->setTristate(false);
+      whileBlocking(_appearancePrimitiveForm->primitiveCappedCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
+    }
+    else
+    {
+      whileBlocking(_appearancePrimitiveForm->primitiveCappedCheckBox)->setTristate(true);
+      whileBlocking(_appearancePrimitiveForm->primitiveCappedCheckBox)->setCheckState(Qt::PartiallyChecked);
+    }
+  }
 }
 
-void AppearanceTreeWidgetController::reloadFrontHDR()
+
+void AppearanceTreeWidgetController::reloadFrontPrimitiveHighDynamicRange()
 {
   _appearancePrimitiveForm->frontHDRCheckBox->setEnabled(false);
+  if(_projectTreeNode)
+  {
+    _appearancePrimitiveForm->frontHDRCheckBox->setEnabled(_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
+  {
+    if (std::optional<bool> state = frontPrimitiveHighDynamicRange())
+    {
+      whileBlocking(_appearancePrimitiveForm->frontHDRCheckBox)->setTristate(false);
+      whileBlocking(_appearancePrimitiveForm->frontHDRCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
+    }
+    else
+    {
+      whileBlocking(_appearancePrimitiveForm->frontHDRCheckBox)->setTristate(true);
+      whileBlocking(_appearancePrimitiveForm->frontHDRCheckBox)->setCheckState(Qt::PartiallyChecked);
+    }
+  }
 }
 
-void AppearanceTreeWidgetController::reloadFrontExposure()
+void AppearanceTreeWidgetController::reloadFrontPrimitiveHDRExposure()
 {
-  _appearancePrimitiveForm->frontExposureLineEdit->setReadOnly(true);
+  _appearancePrimitiveForm->frontExposureDoubleSpinBox->setReadOnly(true);
   _appearancePrimitiveForm->frontExposureSlider->setEnabled(false);
+  if(_projectTreeNode)
+  {
+    _appearancePrimitiveForm->frontExposureDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _appearancePrimitiveForm->frontExposureSlider->setEnabled(_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
+  {
+    if (std::optional<double> value = frontPrimitiveHDRExposure())
+    {
+      whileBlocking(_appearancePrimitiveForm->frontExposureDoubleSpinBox)->setValue(*value);
+      whileBlocking(_appearancePrimitiveForm->frontExposureSlider)->setDoubleValue(*value);
+    }
+    else
+    {
+      whileBlocking(_appearancePrimitiveForm->frontExposureDoubleSpinBox)->setText("Mult. Val.");
+    }
+  }
 }
 
-void AppearanceTreeWidgetController::reloadFrontAmbientIntensity()
+
+
+void AppearanceTreeWidgetController::reloadFrontPrimitiveAmbientLight()
 {
-  _appearancePrimitiveForm->frontAmbientIntensityLineEdit->setReadOnly(true);
+  _appearancePrimitiveForm->frontAmbientIntensityDoubleSpinBox->setReadOnly(true);
   _appearancePrimitiveForm->frontAmbientIntensitySlider->setEnabled(false);
+  if(_projectTreeNode)
+  {
+    _appearancePrimitiveForm->frontAmbientIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _appearancePrimitiveForm->frontAmbientIntensitySlider->setEnabled(_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
+  {
+    if (std::optional<double> value = frontPrimitiveAmbientLightIntensity())
+    {
+      whileBlocking(_appearancePrimitiveForm->frontAmbientIntensityDoubleSpinBox)->setValue(*value);
+      whileBlocking(_appearancePrimitiveForm->frontAmbientIntensitySlider)->setDoubleValue(*value);
+    }
+    else
+    {
+      whileBlocking(_appearancePrimitiveForm->frontAmbientIntensityDoubleSpinBox)->setText("Mult. Val.");
+    }
+
+    if (std::optional<QColor> value = frontPrimitiveAmbientLightColor())
+    {
+      whileBlocking(_appearancePrimitiveForm->frontAmbientColorPushButton)->setText("color");
+      whileBlocking(_appearancePrimitiveForm->frontAmbientColorPushButton)->setColor(*value);
+    }
+    else
+    {
+      whileBlocking(_appearancePrimitiveForm->frontAmbientColorPushButton)->setColor(QColor(255,255,255,255));
+      whileBlocking(_appearancePrimitiveForm->frontAmbientColorPushButton)->setText("Mult. Val.");
+    }
+  }
 }
 
-void AppearanceTreeWidgetController::reloadFrontAmbientColor()
+void AppearanceTreeWidgetController::reloadFrontPrimitiveDiffuseLight()
 {
-  _appearancePrimitiveForm->frontAmbientColorPushButton->setEnabled(false);
-}
-
-void AppearanceTreeWidgetController::reloadFrontDiffuseIntensity()
-{
-  _appearancePrimitiveForm->frontDiffuseIntensityLineEdit->setReadOnly(true);
+  _appearancePrimitiveForm->frontDiffuseIntensityDoubleSpinBox->setReadOnly(true);
   _appearancePrimitiveForm->frontDiffuseIntensitySlider->setEnabled(false);
+  if(_projectTreeNode)
+  {
+    _appearancePrimitiveForm->frontDiffuseIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _appearancePrimitiveForm->frontDiffuseIntensitySlider->setEnabled(_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
+  {
+    if (std::optional<double> value = frontPrimitiveDiffuseLightIntensity())
+    {
+      whileBlocking(_appearancePrimitiveForm->frontDiffuseIntensityDoubleSpinBox)->setValue(*value);
+      whileBlocking(_appearancePrimitiveForm->frontDiffuseIntensitySlider)->setDoubleValue(*value);
+    }
+    else
+    {
+      whileBlocking(_appearancePrimitiveForm->frontDiffuseIntensityDoubleSpinBox)->setText("Mult. Val.");
+    }
+
+    if (std::optional<QColor> value = frontPrimitiveDiffuseLightColor())
+    {
+      whileBlocking(_appearancePrimitiveForm->frontDiffuseColorPushButton)->setText("color");
+      whileBlocking(_appearancePrimitiveForm->frontDiffuseColorPushButton)->setColor(*value);
+    }
+    else
+    {
+      whileBlocking(_appearancePrimitiveForm->frontDiffuseColorPushButton)->setColor(QColor(255,255,255,255));
+      whileBlocking(_appearancePrimitiveForm->frontDiffuseColorPushButton)->setText("Mult. Val.");
+    }
+  }
 }
 
-void AppearanceTreeWidgetController::reloadFrontDiffuseColor()
+void AppearanceTreeWidgetController::reloadFrontPrimitiveSpecularLight()
 {
-  _appearancePrimitiveForm->frontDiffuseColorPushButton->setEnabled(false);
-}
-
-void AppearanceTreeWidgetController::reloadFrontSpecularIntensity()
-{
-  _appearancePrimitiveForm->frontSpecularIntensityLineEdit->setReadOnly(true);
+  _appearancePrimitiveForm->frontSpecularIntensityDoubleSpinBox->setReadOnly(true);
   _appearancePrimitiveForm->frontSpecularIntensitySlider->setEnabled(false);
+  if(_projectTreeNode)
+  {
+    _appearancePrimitiveForm->frontSpecularIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _appearancePrimitiveForm->frontSpecularIntensitySlider->setEnabled(_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
+  {
+    if (std::optional<double> value = frontPrimitiveSpecularLightIntensity())
+    {
+      whileBlocking(_appearancePrimitiveForm->frontSpecularIntensityDoubleSpinBox)->setValue(*value);
+      whileBlocking(_appearancePrimitiveForm->frontSpecularIntensitySlider)->setDoubleValue(*value);
+    }
+    else
+    {
+      whileBlocking(_appearancePrimitiveForm->frontSpecularIntensityDoubleSpinBox)->setText("Mult. Val.");
+    }
+
+    if (std::optional<QColor> value = frontPrimitiveSpecularLightColor())
+    {
+      whileBlocking(_appearancePrimitiveForm->frontSpecularColorPushButton)->setText("color");
+      whileBlocking(_appearancePrimitiveForm->frontSpecularColorPushButton)->setColor(*value);
+    }
+    else
+    {
+      whileBlocking(_appearancePrimitiveForm->frontSpecularColorPushButton)->setColor(QColor(255,255,255,255));
+      whileBlocking(_appearancePrimitiveForm->frontSpecularColorPushButton)->setText("Mult. Val.");
+    }
+  }
 }
 
-void AppearanceTreeWidgetController::reloadFrontSpecularColor()
+void AppearanceTreeWidgetController::reloadFrontPrimitiveShininess()
 {
-  _appearancePrimitiveForm->frontSpecularColorPushButton->setEnabled(false);
-}
-
-void AppearanceTreeWidgetController::reloadFrontShininess()
-{
-  _appearancePrimitiveForm->frontShininessLineEdit->setReadOnly(true);
+  _appearancePrimitiveForm->frontShininessDoubleSpinBox->setReadOnly(true);
   _appearancePrimitiveForm->frontShininessSlider->setEnabled(false);
+  if(_projectTreeNode)
+  {
+    _appearancePrimitiveForm->frontShininessDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _appearancePrimitiveForm->frontShininessSlider->setEnabled(_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
+  {
+    if (std::optional<double> value = frontPrimitiveShininess())
+    {
+      whileBlocking(_appearancePrimitiveForm->frontShininessDoubleSpinBox)->setValue(*value);
+      whileBlocking(_appearancePrimitiveForm->frontShininessSlider)->setDoubleValue(*value);
+    }
+    else
+    {
+      whileBlocking(_appearancePrimitiveForm->frontShininessDoubleSpinBox)->setText("Mult. Val.");
+    }
+  }
 }
 
-void AppearanceTreeWidgetController::reloadBackHDR()
+void AppearanceTreeWidgetController::reloadBackPrimitiveHighDynamicRange()
 {
   _appearancePrimitiveForm->backHDRCheckBox->setEnabled(false);
+  if(_projectTreeNode)
+  {
+    _appearancePrimitiveForm->backHDRCheckBox->setEnabled(_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
+  {
+    if (std::optional<bool> state = backPrimitiveHighDynamicRange())
+    {
+      whileBlocking(_appearancePrimitiveForm->backHDRCheckBox)->setTristate(false);
+      whileBlocking(_appearancePrimitiveForm->backHDRCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
+    }
+    else
+    {
+      whileBlocking(_appearancePrimitiveForm->backHDRCheckBox)->setTristate(true);
+      whileBlocking(_appearancePrimitiveForm->backHDRCheckBox)->setCheckState(Qt::PartiallyChecked);
+    }
+  }
 }
 
-void AppearanceTreeWidgetController::reloadBackExposure()
+void AppearanceTreeWidgetController::reloadBackPrimitiveHDRExposure()
 {
-  _appearancePrimitiveForm->backExposureLineEdit->setReadOnly(true);
+  _appearancePrimitiveForm->backExposureDoubleSpinBox->setReadOnly(true);
   _appearancePrimitiveForm->backExposureSlider->setEnabled(false);
+  if(_projectTreeNode)
+  {
+    _appearancePrimitiveForm->backExposureDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _appearancePrimitiveForm->backExposureSlider->setEnabled(_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
+  {
+    if (std::optional<double> value = backPrimitiveHDRExposure())
+    {
+      whileBlocking(_appearancePrimitiveForm->backExposureDoubleSpinBox)->setValue(*value);
+      whileBlocking(_appearancePrimitiveForm->backExposureSlider)->setDoubleValue(*value);
+    }
+    else
+    {
+      whileBlocking(_appearancePrimitiveForm->backExposureDoubleSpinBox)->setText("Mult. Val.");
+    }
+  }
 }
 
-void AppearanceTreeWidgetController::reloadBackAmbientIntensity()
+
+
+void AppearanceTreeWidgetController::reloadBackPrimitiveAmbientLight()
 {
-  _appearancePrimitiveForm->backAmbientIntensityLineEdit->setReadOnly(true);
+  _appearancePrimitiveForm->backAmbientIntensityDoubleSpinBox->setReadOnly(true);
   _appearancePrimitiveForm->backAmbientIntensitySlider->setEnabled(false);
+  if(_projectTreeNode)
+  {
+    _appearancePrimitiveForm->backAmbientIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _appearancePrimitiveForm->backAmbientIntensitySlider->setEnabled(_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
+  {
+    if (std::optional<double> value = backPrimitiveAmbientLightIntensity())
+    {
+      whileBlocking(_appearancePrimitiveForm->backAmbientIntensityDoubleSpinBox)->setValue(*value);
+      whileBlocking(_appearancePrimitiveForm->backAmbientIntensitySlider)->setDoubleValue(*value);
+    }
+    else
+    {
+      whileBlocking(_appearancePrimitiveForm->backAmbientIntensityDoubleSpinBox)->setText("Mult. Val.");
+    }
+
+    if (std::optional<QColor> value = backPrimitiveAmbientLightColor())
+    {
+      whileBlocking(_appearancePrimitiveForm->backAmbientColorPushButton)->setText("color");
+      whileBlocking(_appearancePrimitiveForm->backAmbientColorPushButton)->setColor(*value);
+    }
+    else
+    {
+      whileBlocking(_appearancePrimitiveForm->backAmbientColorPushButton)->setColor(QColor(255,255,255,255));
+      whileBlocking(_appearancePrimitiveForm->backAmbientColorPushButton)->setText("Mult. Val.");
+    }
+  }
 }
 
-void AppearanceTreeWidgetController::reloadBackAmbientColor()
+void AppearanceTreeWidgetController::reloadBackPrimitiveDiffuseLight()
 {
-  _appearancePrimitiveForm->backAmbientColorPushButton->setEnabled(false);
-}
-
-void AppearanceTreeWidgetController::reloadBackDiffuseIntensity()
-{
-  _appearancePrimitiveForm->backDiffuseIntensityLineEdit->setReadOnly(true);
+  _appearancePrimitiveForm->backDiffuseIntensityDoubleSpinBox->setReadOnly(true);
   _appearancePrimitiveForm->backDiffuseIntensitySlider->setEnabled(false);
+  if(_projectTreeNode)
+  {
+    _appearancePrimitiveForm->backDiffuseIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _appearancePrimitiveForm->backDiffuseIntensitySlider->setEnabled(_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
+  {
+    if (std::optional<double> value = backPrimitiveDiffuseLightIntensity())
+    {
+      whileBlocking(_appearancePrimitiveForm->backDiffuseIntensityDoubleSpinBox)->setValue(*value);
+      whileBlocking(_appearancePrimitiveForm->backDiffuseIntensitySlider)->setDoubleValue(*value);
+    }
+    else
+    {
+      whileBlocking(_appearancePrimitiveForm->backDiffuseIntensityDoubleSpinBox)->setText("Mult. Val.");
+    }
+
+    if (std::optional<QColor> value = backPrimitiveDiffuseLightColor())
+    {
+      whileBlocking(_appearancePrimitiveForm->backDiffuseColorPushButton)->setText("color");
+      whileBlocking(_appearancePrimitiveForm->backDiffuseColorPushButton)->setColor(*value);
+    }
+    else
+    {
+      whileBlocking(_appearancePrimitiveForm->frontDiffuseColorPushButton)->setColor(QColor(255,255,255,255));
+      whileBlocking(_appearancePrimitiveForm->backDiffuseColorPushButton)->setText("Mult. Val.");
+    }
+  }
 }
 
-void AppearanceTreeWidgetController::reloadBackDiffuseColor()
+void AppearanceTreeWidgetController::reloadBackPrimitiveSpecularLight()
 {
-  _appearancePrimitiveForm->backDiffuseColorPushButton->setEnabled(false);
-}
-
-void AppearanceTreeWidgetController::reloadBackSpecularIntensity()
-{
-  _appearancePrimitiveForm->backSpecularIntensityLineEdit->setReadOnly(true);
+  _appearancePrimitiveForm->backSpecularIntensityDoubleSpinBox->setReadOnly(true);
   _appearancePrimitiveForm->backSpecularIntensitySlider->setEnabled(false);
+  if(_projectTreeNode)
+  {
+    _appearancePrimitiveForm->backSpecularIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _appearancePrimitiveForm->backSpecularIntensitySlider->setEnabled(_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
+  {
+    if (std::optional<double> value = backPrimitiveSpecularLightIntensity())
+    {
+      whileBlocking(_appearancePrimitiveForm->backSpecularIntensityDoubleSpinBox)->setValue(*value);
+      whileBlocking(_appearancePrimitiveForm->backSpecularIntensitySlider)->setDoubleValue(*value);
+    }
+    else
+    {
+      whileBlocking(_appearancePrimitiveForm->backSpecularIntensityDoubleSpinBox)->setText("Mult. Val.");
+    }
+
+    if (std::optional<QColor> value = backPrimitiveSpecularLightColor())
+    {
+      whileBlocking(_appearancePrimitiveForm->backSpecularColorPushButton)->setText("color");
+      whileBlocking(_appearancePrimitiveForm->backSpecularColorPushButton)->setColor(*value);
+    }
+    else
+    {
+      whileBlocking(_appearancePrimitiveForm->backSpecularColorPushButton)->setColor(QColor(255,255,255,255));
+      whileBlocking(_appearancePrimitiveForm->backSpecularColorPushButton)->setText("Mult. Val.");
+    }
+  }
 }
 
-void AppearanceTreeWidgetController::reloadBackSpecularColor()
+void AppearanceTreeWidgetController::reloadBackPrimitiveShininess()
 {
-  _appearancePrimitiveForm->backSpecularColorPushButton->setEnabled(false);
-}
-
-void AppearanceTreeWidgetController::reloadBackShininess()
-{
-  _appearancePrimitiveForm->backShininessLineEdit->setReadOnly(true);
+  _appearancePrimitiveForm->backShininessDoubleSpinBox->setReadOnly(true);
   _appearancePrimitiveForm->backShininessSlider->setEnabled(false);
+  if(_projectTreeNode)
+  {
+    _appearancePrimitiveForm->backShininessDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+    _appearancePrimitiveForm->backShininessSlider->setEnabled(_projectTreeNode->isEditable());
+  }
+
+  if(!_iraspa_structures.empty())
+  {
+    if (std::optional<double> value = backPrimitiveShininess())
+    {
+      whileBlocking(_appearancePrimitiveForm->backShininessDoubleSpinBox)->setValue(*value);
+      whileBlocking(_appearancePrimitiveForm->backShininessSlider)->setDoubleValue(*value);
+    }
+    else
+    {
+      whileBlocking(_appearancePrimitiveForm->backShininessDoubleSpinBox)->setText("Mult. Val.");
+    }
+  }
 }
 
-void AppearanceTreeWidgetController::setRatationAngle(double value)
-{
 
+
+void AppearanceTreeWidgetController::setRotationAngle(double angle)
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      iraspa_structure->structure()->setPrimitiveRotationDelta(angle);
+    }
+    reloadRotationAngle();
+  }
 }
 
 std::optional<double> AppearanceTreeWidgetController::rotationAngle()
@@ -657,7 +1266,7 @@ std::optional<double> AppearanceTreeWidgetController::rotationAngle()
   std::unordered_set<double> set = std::unordered_set<double>{};
   for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
-    set.insert(iraspa_structure->structure()->rotationDelta());
+    set.insert(iraspa_structure->structure()->primitiveRotationDelta());
   }
 
   if(set.size() == 1)
@@ -667,9 +1276,170 @@ std::optional<double> AppearanceTreeWidgetController::rotationAngle()
   return std::nullopt;
 }
 
-void AppearanceTreeWidgetController::setEulerAngleX(double value)
+void AppearanceTreeWidgetController::rotateYawPlus()
 {
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      double rotationDelta = iraspa_structure->structure()->primitiveRotationDelta();
+      simd_quatd orientation = iraspa_structure->structure()->primitiveOrientation();
+      simd_quatd dq = simd_quatd::yaw(rotationDelta);
+      simd_quatd newOrientation = orientation *dq;
+      iraspa_structure->structure()->setPrimitiveOrientation(newOrientation);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
 
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    emit rendererReloadData();
+
+    reloadEulerAngles();
+  }
+}
+
+void AppearanceTreeWidgetController::rotateYawMinus()
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      double rotationDelta = iraspa_structure->structure()->primitiveRotationDelta();
+      simd_quatd orientation = iraspa_structure->structure()->primitiveOrientation();
+      simd_quatd dq = simd_quatd::yaw(-rotationDelta);
+      simd_quatd newOrientation = orientation *dq;
+      iraspa_structure->structure()->setPrimitiveOrientation(newOrientation);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    emit rendererReloadData();
+
+    reloadEulerAngles();
+  }
+}
+
+void AppearanceTreeWidgetController::rotatePitchPlus()
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      double rotationDelta = iraspa_structure->structure()->primitiveRotationDelta();
+      simd_quatd orientation = iraspa_structure->structure()->primitiveOrientation();
+      simd_quatd dq = simd_quatd::pitch(rotationDelta);
+      simd_quatd newOrientation = orientation *dq;
+      iraspa_structure->structure()->setPrimitiveOrientation(newOrientation);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    emit rendererReloadData();
+
+    reloadEulerAngles();
+  }
+}
+
+void AppearanceTreeWidgetController::rotatePitchMinus()
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      double rotationDelta = iraspa_structure->structure()->primitiveRotationDelta();
+      simd_quatd orientation = iraspa_structure->structure()->primitiveOrientation();
+      simd_quatd dq = simd_quatd::pitch(-rotationDelta);
+      simd_quatd newOrientation = orientation *dq;
+      iraspa_structure->structure()->setPrimitiveOrientation(newOrientation);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    emit rendererReloadData();
+
+    reloadEulerAngles();
+  }
+}
+
+void AppearanceTreeWidgetController::rotateRollPlus()
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      double rotationDelta = iraspa_structure->structure()->primitiveRotationDelta();
+      simd_quatd orientation = iraspa_structure->structure()->primitiveOrientation();
+      simd_quatd dq = simd_quatd::roll(rotationDelta);
+      simd_quatd newOrientation = orientation *dq;
+      iraspa_structure->structure()->setPrimitiveOrientation(newOrientation);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    emit rendererReloadData();
+
+    reloadEulerAngles();
+  }
+}
+
+void AppearanceTreeWidgetController::rotateRollMinus()
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      double rotationDelta = iraspa_structure->structure()->primitiveRotationDelta();
+      simd_quatd orientation = iraspa_structure->structure()->primitiveOrientation();
+      simd_quatd dq = simd_quatd::roll(-rotationDelta);
+      simd_quatd newOrientation = orientation *dq;
+      iraspa_structure->structure()->setPrimitiveOrientation(newOrientation);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    emit rendererReloadData();
+
+    reloadEulerAngles();
+  }
+}
+
+void AppearanceTreeWidgetController::setEulerAngleX(double angle)
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      simd_quatd orientation = iraspa_structure->structure()->primitiveOrientation();
+      double3 EulerAngles = orientation.EulerAngles();
+      EulerAngles.x = angle * M_PI / 180.0;
+      simd_quatd newOrientation = simd_quatd(EulerAngles);
+      iraspa_structure->structure()->setPrimitiveOrientation(newOrientation);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit rendererReloadData();
+
+    reloadEulerAngles();
+  }
 }
 
 std::optional<double> AppearanceTreeWidgetController::EulerAngleX()
@@ -694,9 +1464,32 @@ std::optional<double> AppearanceTreeWidgetController::EulerAngleX()
   return std::nullopt;
 }
 
-void AppearanceTreeWidgetController::setEulerAngleY(double value)
+void AppearanceTreeWidgetController::setEulerAngleY(double angle)
 {
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      simd_quatd orientation = iraspa_structure->structure()->primitiveOrientation();
+      double3 EulerAngles = orientation.EulerAngles();
+      EulerAngles.y = angle * M_PI / 180.0;
+      simd_quatd newOrientation = simd_quatd(EulerAngles);
+      iraspa_structure->structure()->setPrimitiveOrientation(newOrientation);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
 
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit rendererReloadData();
+
+    reloadEulerAngles();
+  }
 }
 
 std::optional<double> AppearanceTreeWidgetController::EulerAngleY()
@@ -722,9 +1515,32 @@ std::optional<double> AppearanceTreeWidgetController::EulerAngleY()
 }
 
 
-void AppearanceTreeWidgetController::setEulerAngleZ(double value)
+void AppearanceTreeWidgetController::setEulerAngleZ(double angle)
 {
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      simd_quatd orientation = iraspa_structure->structure()->primitiveOrientation();
+      double3 EulerAngles = orientation.EulerAngles();
+      EulerAngles.z = angle * M_PI / 180.0;
+      simd_quatd newOrientation = simd_quatd(EulerAngles);
+      iraspa_structure->structure()->setPrimitiveOrientation(newOrientation);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
 
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit rendererReloadData();
+
+    reloadEulerAngles();
+  }
 }
 
 std::optional<double> AppearanceTreeWidgetController::EulerAngleZ()
@@ -749,6 +1565,1081 @@ std::optional<double> AppearanceTreeWidgetController::EulerAngleZ()
   return std::nullopt;
 }
 
+std::optional<double> AppearanceTreeWidgetController::transformationMatrixAX()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<double> set = std::unordered_set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    set.insert(iraspa_structure->structure()->transformationMatrix().ax);
+  }
+
+  if(set.size() == 1)
+  {
+    return *(set.begin());
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setTransformationMatrixAX(double value)
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      double3x3 matrix = iraspa_structure->structure()->transformationMatrix();
+      matrix.ax = value;
+      iraspa_structure->structure()->setTransformationMatrix(matrix);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    //emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit rendererReloadData();
+
+    reloadTransformationMatrix();
+  }
+}
+
+std::optional<double> AppearanceTreeWidgetController::transformationMatrixAY()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<double> set = std::unordered_set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    set.insert(iraspa_structure->structure()->transformationMatrix().ay);
+  }
+
+  if(set.size() == 1)
+  {
+    return *(set.begin());
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setTransformationMatrixAY(double value)
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      double3x3 matrix = iraspa_structure->structure()->transformationMatrix();
+      matrix.ay = value;
+      iraspa_structure->structure()->setTransformationMatrix(matrix);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    //emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit rendererReloadData();
+
+    reloadTransformationMatrix();
+  }
+}
+
+std::optional<double> AppearanceTreeWidgetController::transformationMatrixAZ()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<double> set = std::unordered_set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    set.insert(iraspa_structure->structure()->transformationMatrix().az);
+  }
+
+  if(set.size() == 1)
+  {
+    return *(set.begin());
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setTransformationMatrixAZ(double value)
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      double3x3 matrix = iraspa_structure->structure()->transformationMatrix();
+      matrix.az = value;
+      iraspa_structure->structure()->setTransformationMatrix(matrix);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    //emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit rendererReloadData();
+
+    reloadTransformationMatrix();
+  }
+}
+
+std::optional<double> AppearanceTreeWidgetController::transformationMatrixBX()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<double> set = std::unordered_set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    set.insert(iraspa_structure->structure()->transformationMatrix().bx);
+  }
+
+  if(set.size() == 1)
+  {
+    return *(set.begin());
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setTransformationMatrixBX(double value)
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      double3x3 matrix = iraspa_structure->structure()->transformationMatrix();
+      matrix.bx = value;
+      iraspa_structure->structure()->setTransformationMatrix(matrix);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    //emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit rendererReloadData();
+
+    reloadTransformationMatrix();
+  }
+}
+
+std::optional<double> AppearanceTreeWidgetController::transformationMatrixBY()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<double> set = std::unordered_set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    set.insert(iraspa_structure->structure()->transformationMatrix().by);
+  }
+
+  if(set.size() == 1)
+  {
+    return *(set.begin());
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setTransformationMatrixBY(double value)
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      double3x3 matrix = iraspa_structure->structure()->transformationMatrix();
+      matrix.by = value;
+      iraspa_structure->structure()->setTransformationMatrix(matrix);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    //emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit rendererReloadData();
+
+    reloadTransformationMatrix();
+  }
+}
+
+std::optional<double> AppearanceTreeWidgetController::transformationMatrixBZ()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<double> set = std::unordered_set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    set.insert(iraspa_structure->structure()->transformationMatrix().bz);
+  }
+
+  if(set.size() == 1)
+  {
+    return *(set.begin());
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setTransformationMatrixBZ(double value)
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      double3x3 matrix = iraspa_structure->structure()->transformationMatrix();
+      matrix.bz = value;
+      iraspa_structure->structure()->setTransformationMatrix(matrix);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    //emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit rendererReloadData();
+
+    reloadTransformationMatrix();
+  }
+}
+
+std::optional<double> AppearanceTreeWidgetController::transformationMatrixCX()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<double> set = std::unordered_set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    set.insert(iraspa_structure->structure()->transformationMatrix().cx);
+  }
+
+  if(set.size() == 1)
+  {
+    return *(set.begin());
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setTransformationMatrixCX(double value)
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      double3x3 matrix = iraspa_structure->structure()->transformationMatrix();
+      matrix.cx = value;
+      iraspa_structure->structure()->setTransformationMatrix(matrix);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    //emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit rendererReloadData();
+
+    reloadTransformationMatrix();
+  }
+}
+
+std::optional<double> AppearanceTreeWidgetController::transformationMatrixCY()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<double> set = std::unordered_set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    set.insert(iraspa_structure->structure()->transformationMatrix().cy);
+  }
+
+  if(set.size() == 1)
+  {
+    return *(set.begin());
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setTransformationMatrixCY(double value)
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      double3x3 matrix = iraspa_structure->structure()->transformationMatrix();
+      matrix.cy = value;
+      iraspa_structure->structure()->setTransformationMatrix(matrix);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    //emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit rendererReloadData();
+
+    reloadTransformationMatrix();
+  }
+}
+
+std::optional<double> AppearanceTreeWidgetController::transformationMatrixCZ()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<double> set = std::unordered_set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    set.insert(iraspa_structure->structure()->transformationMatrix().cz);
+  }
+
+  if(set.size() == 1)
+  {
+    return *(set.begin());
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setTransformationMatrixCZ(double value)
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      double3x3 matrix = iraspa_structure->structure()->transformationMatrix();
+      matrix.cz = value;
+      iraspa_structure->structure()->setTransformationMatrix(matrix);
+      iraspa_structure->structure()->reComputeBoundingBox();
+    }
+
+    SKBoundingBox box = _projectStructure->renderBoundingBox();
+    _projectStructure->camera()->resetForNewBoundingBox(box);
+
+    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
+    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
+                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+
+    //emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit rendererReloadData();
+
+    reloadTransformationMatrix();
+  }
+}
+
+
+std::optional<double> AppearanceTreeWidgetController::primitiveOpacity()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<double> set = std::unordered_set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    set.insert(iraspa_structure->structure()->primitiveOpacity());
+  }
+
+  if(set.size() == 1)
+  {
+    return *(set.begin());
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setPrimitiveOpacity(double opacity)
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      iraspa_structure->structure()->setPrimitiveOpacity(opacity);
+    }
+
+    emit rendererReloadData();
+
+    reloadOpacity();
+  }
+}
+std::optional<int> AppearanceTreeWidgetController::primitiveNumberOfSides()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<int> set = std::unordered_set<int>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    set.insert(iraspa_structure->structure()->primitiveNumberOfSides());
+  }
+
+  if(set.size() == 1)
+  {
+    return *(set.begin());
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setPrimitiveNumberOfSides(int numberOfSides)
+{
+  if(!_iraspa_structures.empty())
+  {
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      iraspa_structure->structure()->setPrimitiveNumberOfSides(numberOfSides);
+    }
+
+    emit rendererReloadData();
+
+    reloadNumberOfSides();
+  }
+}
+
+
+
+
+std::optional<bool> AppearanceTreeWidgetController::primitiveIsCapped()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<bool> set = std::unordered_set<bool>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    bool value = iraspa_structure->structure()->primitiveIsCapped();
+    set.insert(value);
+  }
+   if(set.size() == 1)
+  {
+    return *set.begin();
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setPrimitiveIsCapped(bool state)
+{
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    iraspa_structure->structure()->setPrimitiveIsCapped(bool(state));
+   }
+   reloadPrimitiveProperties();
+   emit rendererReloadData();
+}
+
+void AppearanceTreeWidgetController::setFrontPrimitiveHighDynamicRange(int value)
+{
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    iraspa_structure->structure()->setFrontPrimitiveHDR(bool(value));
+  }
+  reloadPrimitiveProperties();
+  emit rendererReloadData();
+}
+
+std::optional<bool> AppearanceTreeWidgetController::frontPrimitiveHighDynamicRange()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<bool> set = std::unordered_set<bool>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    bool value = iraspa_structure->structure()->frontPrimitiveHDR();
+    set.insert(value);
+  }
+
+  if(set.size() == 1)
+  {
+    return *set.begin();
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setFrontPrimitiveHDRExposure(double value)
+{
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    iraspa_structure->structure()->setFrontPrimitiveHDRExposure(value);
+  }
+  reloadPrimitiveProperties();
+  emit rendererReloadData();
+}
+
+std::optional<double> AppearanceTreeWidgetController::frontPrimitiveHDRExposure()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<double> set = std::unordered_set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    double value = iraspa_structure->structure()->frontPrimitiveHDRExposure();
+    set.insert(value);
+  }
+
+  if(set.size() == 1)
+  {
+    return *set.begin();
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setFrontPrimitiveAmbientLightIntensity(double value)
+{
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    iraspa_structure->structure()->setFrontPrimitiveAmbientIntensity(value);
+   }
+   reloadPrimitiveProperties();
+   emit rendererReloadData();
+}
+
+std::optional<double> AppearanceTreeWidgetController::frontPrimitiveAmbientLightIntensity()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<double> set = std::unordered_set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    double value = iraspa_structure->structure()->frontPrimitiveAmbientIntensity();
+    set.insert(value);
+  }
+
+  if(set.size() == 1)
+  {
+    return *set.begin();
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setFrontPrimitiveAmbientLightColor()
+{
+  QColor color = QColorDialog::getColor(Qt::white,this,"Choose Color");
+  if(color.isValid())
+  {
+    _appearanceAtomsForm->atomAmbientColorPushButton->setColor(color);
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      iraspa_structure->structure()->setFrontPrimitiveAmbientColor(color);
+    }
+    reloadPrimitiveProperties();
+    emit rendererReloadData();
+  }
+}
+
+std::optional<QColor> AppearanceTreeWidgetController::frontPrimitiveAmbientLightColor()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<QColor> set = std::unordered_set<QColor>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    QColor value = iraspa_structure->structure()->frontPrimitiveAmbientColor();
+    set.insert(value);
+  }
+
+  if(set.size() == 1)
+  {
+    return *set.begin();
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setFrontPrimitiveDiffuseLightIntensity(double value)
+{
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    iraspa_structure->structure()->setFrontPrimitiveDiffuseIntensity(value);
+   }
+   reloadPrimitiveProperties();
+   emit rendererReloadData();
+}
+
+std::optional<double> AppearanceTreeWidgetController::frontPrimitiveDiffuseLightIntensity()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<double> set = std::unordered_set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    double value = iraspa_structure->structure()->frontPrimitiveDiffuseIntensity();
+    set.insert(value);
+  }
+
+  if(set.size() == 1)
+  {
+    return *set.begin();
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setFrontPrimitiveDiffuseLightColor()
+{
+  QColor color = QColorDialog::getColor(Qt::white,this,"Choose Color");
+  if(color.isValid())
+  {
+    _appearanceAtomsForm->atomDiffuseColorPushButton->setColor(color);
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      iraspa_structure->structure()->setFrontPrimitiveDiffuseColor(color);
+    }
+    reloadPrimitiveProperties();
+    emit rendererReloadData();
+  }
+}
+
+std::optional<QColor> AppearanceTreeWidgetController::frontPrimitiveDiffuseLightColor()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<QColor> set = std::unordered_set<QColor>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    QColor value = iraspa_structure->structure()->frontPrimitiveDiffuseColor();
+    set.insert(value);
+  }
+
+  if(set.size() == 1)
+  {
+    return *set.begin();
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setFrontPrimitiveSpecularLightIntensity(double value)
+{
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    iraspa_structure->structure()->setFrontPrimitiveSpecularIntensity(value);
+   }
+   reloadPrimitiveProperties();
+   emit rendererReloadData();
+}
+
+std::optional<double> AppearanceTreeWidgetController::frontPrimitiveSpecularLightIntensity()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<double> set = std::unordered_set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    double value = iraspa_structure->structure()->frontPrimitiveSpecularIntensity();
+    set.insert(value);
+  }
+
+  if(set.size() == 1)
+  {
+    return *set.begin();
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setFrontPrimitiveSpecularLightColor()
+{
+  QColor color = QColorDialog::getColor(Qt::white,this,"Choose Color");
+  if(color.isValid())
+  {
+    _appearanceAtomsForm->atomSpecularColorPushButton->setColor(color);
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      iraspa_structure->structure()->setFrontPrimitiveSpecularColor(color);
+    }
+    reloadPrimitiveProperties();
+    emit rendererReloadData();
+  }
+}
+
+std::optional<QColor> AppearanceTreeWidgetController::frontPrimitiveSpecularLightColor()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<QColor> set = std::unordered_set<QColor>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    QColor value = iraspa_structure->structure()->frontPrimitiveSpecularColor();
+    set.insert(value);
+  }
+
+  if(set.size() == 1)
+  {
+    return *set.begin();
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setFrontPrimitiveShininess(double value)
+{
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    iraspa_structure->structure()->setFrontPrimitiveShininess(value);
+   }
+   reloadPrimitiveProperties();
+   emit rendererReloadData();
+}
+
+std::optional<double> AppearanceTreeWidgetController::frontPrimitiveShininess()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<double> set = std::unordered_set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    double value = iraspa_structure->structure()->frontPrimitiveShininess();
+    set.insert(value);
+  }
+
+  if(set.size() == 1)
+  {
+    return *set.begin();
+  }
+  return std::nullopt;
+}
+
+
+void AppearanceTreeWidgetController::setBackPrimitiveHighDynamicRange(int value)
+{
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    iraspa_structure->structure()->setBackPrimitiveHDR(bool(value));
+  }
+  reloadPrimitiveProperties();
+  emit rendererReloadData();
+}
+
+std::optional<bool> AppearanceTreeWidgetController::backPrimitiveHighDynamicRange()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<bool> set = std::unordered_set<bool>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    bool value = iraspa_structure->structure()->backPrimitiveHDR();
+    set.insert(value);
+  }
+
+  if(set.size() == 1)
+  {
+    return *set.begin();
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setBackPrimitiveHDRExposure(double value)
+{
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    iraspa_structure->structure()->setBackPrimitiveHDRExposure(value);
+  }
+  reloadPrimitiveProperties();
+  emit rendererReloadData();
+}
+
+std::optional<double> AppearanceTreeWidgetController::backPrimitiveHDRExposure()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<double> set = std::unordered_set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    double value = iraspa_structure->structure()->backPrimitiveHDRExposure();
+    set.insert(value);
+  }
+
+  if(set.size() == 1)
+  {
+    return *set.begin();
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setBackPrimitiveAmbientLightIntensity(double value)
+{
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    iraspa_structure->structure()->setBackPrimitiveAmbientIntensity(value);
+   }
+   reloadPrimitiveProperties();
+   emit rendererReloadData();
+}
+
+std::optional<double> AppearanceTreeWidgetController::backPrimitiveAmbientLightIntensity()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<double> set = std::unordered_set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    double value = iraspa_structure->structure()->backPrimitiveAmbientIntensity();
+    set.insert(value);
+  }
+
+  if(set.size() == 1)
+  {
+    return *set.begin();
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setBackPrimitiveAmbientLightColor()
+{
+  QColor color = QColorDialog::getColor(Qt::white,this,"Choose Color");
+  if(color.isValid())
+  {
+    _appearanceAtomsForm->atomAmbientColorPushButton->setColor(color);
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      iraspa_structure->structure()->setBackPrimitiveAmbientColor(color);
+    }
+    reloadPrimitiveProperties();
+    emit rendererReloadData();
+  }
+}
+
+std::optional<QColor> AppearanceTreeWidgetController::backPrimitiveAmbientLightColor()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<QColor> set = std::unordered_set<QColor>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    QColor value = iraspa_structure->structure()->backPrimitiveAmbientColor();
+    set.insert(value);
+  }
+
+  if(set.size() == 1)
+  {
+    return *set.begin();
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setBackPrimitiveDiffuseLightIntensity(double value)
+{
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    iraspa_structure->structure()->setBackPrimitiveDiffuseIntensity(value);
+   }
+   reloadPrimitiveProperties();
+   emit rendererReloadData();
+}
+
+std::optional<double> AppearanceTreeWidgetController::backPrimitiveDiffuseLightIntensity()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<double> set = std::unordered_set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    double value = iraspa_structure->structure()->backPrimitiveDiffuseIntensity();
+    set.insert(value);
+  }
+
+  if(set.size() == 1)
+  {
+    return *set.begin();
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setBackPrimitiveDiffuseLightColor()
+{
+  QColor color = QColorDialog::getColor(Qt::white,this,"Choose Color");
+  if(color.isValid())
+  {
+    _appearanceAtomsForm->atomDiffuseColorPushButton->setColor(color);
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      iraspa_structure->structure()->setBackPrimitiveDiffuseColor(color);
+    }
+    reloadPrimitiveProperties();
+    emit rendererReloadData();
+  }
+}
+
+std::optional<QColor> AppearanceTreeWidgetController::backPrimitiveDiffuseLightColor()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<QColor> set = std::unordered_set<QColor>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    QColor value = iraspa_structure->structure()->backPrimitiveDiffuseColor();
+    set.insert(value);
+  }
+
+  if(set.size() == 1)
+  {
+    return *set.begin();
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setBackPrimitiveSpecularLightIntensity(double value)
+{
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    iraspa_structure->structure()->setBackPrimitiveSpecularIntensity(value);
+   }
+   reloadPrimitiveProperties();
+   emit rendererReloadData();
+}
+
+std::optional<double> AppearanceTreeWidgetController::backPrimitiveSpecularLightIntensity()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<double> set = std::unordered_set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    double value = iraspa_structure->structure()->backPrimitiveSpecularIntensity();
+    set.insert(value);
+  }
+
+  if(set.size() == 1)
+  {
+    return *set.begin();
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setBackPrimitiveSpecularLightColor()
+{
+  QColor color = QColorDialog::getColor(Qt::white,this,"Choose Color");
+  if(color.isValid())
+  {
+    _appearanceAtomsForm->atomSpecularColorPushButton->setColor(color);
+    for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+    {
+      iraspa_structure->structure()->setBackPrimitiveSpecularColor(color);
+    }
+    reloadPrimitiveProperties();
+    emit rendererReloadData();
+  }
+}
+
+std::optional<QColor> AppearanceTreeWidgetController::backPrimitiveSpecularLightColor()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<QColor> set = std::unordered_set<QColor>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    QColor value = iraspa_structure->structure()->backPrimitiveSpecularColor();
+    set.insert(value);
+  }
+
+  if(set.size() == 1)
+  {
+    return *set.begin();
+  }
+  return std::nullopt;
+}
+
+void AppearanceTreeWidgetController::setBackPrimitiveShininess(double value)
+{
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    iraspa_structure->structure()->setBackPrimitiveShininess(value);
+   }
+   reloadPrimitiveProperties();
+   emit rendererReloadData();
+}
+
+std::optional<double> AppearanceTreeWidgetController::backPrimitiveShininess()
+{
+  if(_iraspa_structures.empty())
+  {
+    return std::nullopt;
+  }
+  std::unordered_set<double> set = std::unordered_set<double>{};
+  for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
+  {
+    double value = iraspa_structure->structure()->backPrimitiveShininess();
+    set.insert(value);
+  }
+
+  if(set.size() == 1)
+  {
+    return *set.begin();
+  }
+  return std::nullopt;
+}
 
 
 // atom properties
@@ -1495,7 +3386,7 @@ void AppearanceTreeWidgetController::reloadAtomShininess()
 
   if(!_iraspa_structures.empty())
   {
-    if (std::optional<double> value = atomShininessy())
+    if (std::optional<double> value = atomShininess())
     {
       whileBlocking(_appearanceAtomsForm->atomShininessDoubleSpinBox)->setValue(*value);
       whileBlocking(_appearanceAtomsForm->atomShininessDoubleSlider)->setDoubleValue(*value);
@@ -2380,7 +4271,7 @@ void AppearanceTreeWidgetController::setAtomShininess(double value)
    emit rendererReloadData();
 }
 
-std::optional<double> AppearanceTreeWidgetController::atomShininessy()
+std::optional<double> AppearanceTreeWidgetController::atomShininess()
 {
   if(_iraspa_structures.empty())
   {

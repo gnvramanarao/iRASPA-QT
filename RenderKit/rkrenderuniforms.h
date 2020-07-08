@@ -238,7 +238,7 @@ struct RKStructureUniforms
   float4 primitiveSpecularFrontSide = float4(0.0,0.0,0.0,1.0);
   int32_t primitiveFrontSideHDR = GL_TRUE;
   float primitiveFrontSideHDRExposure = 1.5;
-  float pad3 = 0.0;
+  float primitiveOpacity = 1.0;
   float primitiveShininessFrontSide = 4.0;
 
   float4 primitiveAmbientBackSide = float4(0.0,0.0,0.0,1.0);
@@ -355,7 +355,7 @@ layout (std140) uniform StructureUniformBlock
     vec4 primitiveSpecularFrontSide;
     bool primitiveFrontSideHDR;
     float primitiveFrontSideHDRExposure;
-    float pad3;
+    float primitiveOpacity;
     float primitiveShininessFrontSide;
 
     vec4 primitiveAmbientBackSide;

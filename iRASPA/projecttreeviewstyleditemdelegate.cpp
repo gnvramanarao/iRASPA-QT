@@ -24,14 +24,24 @@ void ProjectTreeViewStyledItemDelegate::paint(QPainter *painter, const QStyleOpt
   QStyleOptionViewItem opt = option;
   QStyledItemDelegate::initStyleOption(&opt, index);
   QRect rect = opt.rect;
-  rect.setX(0);
+
+  #if defined(Q_OS_MAC)
+    rect.setX(0);
+  #endif
 
   // handle selection
   if(option.state & QStyle::State_Selected)
   {
     painter->save();
 
-    painter->setPen(Qt::white);
+    #if defined(Q_OS_WIN)
+      painter->setPen(Qt::blue);
+    #elif defined(Q_OS_MAC)
+      painter->setPen(Qt::white);
+    #elif defined(Q_OS_LINUX)
+      painter->setPen(Qt::white);
+    #endif
+
     painter->drawRoundedRect(rect.adjusted(1,1,-1,-1), 5, 5);
 
     painter->restore();

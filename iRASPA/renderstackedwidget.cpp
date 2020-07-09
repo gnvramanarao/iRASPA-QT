@@ -34,6 +34,7 @@
 #include <QAction>
 #include <QtDebug>
 #include <iraspakit.h>
+#include "moviemaker.h"
 #include "fixedaspectratiolayoutitem.h"
 #include "renderviewdeleteselectioncommand.h"
 #include "atomchangeselectioncommand.h"
@@ -649,6 +650,31 @@ void RenderStackedWidget::createPicture(QUrl fileURL, int width, int height)
     image.save(fileURL.toLocalFile());
   }
 }
+
+
+void RenderStackedWidget::createMovie(QUrl fileURL, int width, int height)
+{
+  if (RKRenderViewController* widget = dynamic_cast<RKRenderViewController*>(currentWidget()))
+  {
+    if (std::shared_ptr<ProjectStructure> project = _project.lock())
+    {
+      MovieWriter movie(fileURL.toLocalFile().toStdString(), width, height, project->movieFramesPerSecond());
+
+      std::vector<uint8_t> pixels(4 * width * height);
+      int numberOfFrames = project->maxNumberOfMoviesFrames();
+      for (int iframe = 0; iframe < numberOfFrames; iframe++)
+      {
+        project->setMovieFrameIndex(iframe);
+        _mainWindow->propagateProject(_projectTreeNode.lock(), _mainWindow);
+        widget->reloadData();
+        QImage image = widget->renderSceneToImage(width, height);
+
+        movie.addFrame(image.bits(), iframe);
+      }
+    }
+  }
+}
+
 
 void RenderStackedWidget::redraw()
 {

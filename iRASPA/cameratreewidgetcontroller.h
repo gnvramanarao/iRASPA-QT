@@ -167,6 +167,7 @@ signals:
   void rendererReloadBackgroundImage();
   void updateRenderer();
   void rendererCreatePicture(QUrl filenName, int width, int height);
+  void rendererCreateMovie(QUrl filenName, int width, int height);
 };
 
 

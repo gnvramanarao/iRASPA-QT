@@ -13,6 +13,7 @@ SOURCES += \
     $$PWD/importfiledialog.cpp \
     $$PWD/main.cpp \
     $$PWD/mainwindow.cpp \
+    $$PWD/moviemaker.cpp \
     $$PWD/projecttreeview.cpp \
     $$PWD/projecttreeviewstyleditemdelegate.cpp \
     $$PWD/qdoubledial.cpp \
@@ -79,6 +80,7 @@ HEADERS += \
     $$PWD/frameliststyleditemdelegate.h \
     $$PWD/importfiledialog.h \
     $$PWD/mainwindow.h \
+    $$PWD/moviemaker.h \
     $$PWD/projecttreeview.h \
     $$PWD/projecttreeviewstyleditemdelegate.h \
     $$PWD/qdoubledial.h \

@@ -81,6 +81,7 @@ public slots:
   void reloadSelectionData();
   void reloadBackgroundImage();
   void createPicture(QUrl fileURL, int width, int height);
+  void createMovie(QUrl fileURL, int width, int height);
   void resizeEvent(QResizeEvent *event) override final;
   void redrawWithLowQuality();
   void redrawWithMediumQuality();

@@ -36,7 +36,7 @@ macx{
   #QMAKE_CXXFLAGS += -Wl,--stack,4194304
   INCLUDEPATH += /System/Library/Frameworks/Python.framework/Versions/Current/include/python2.7 /usr/local/include/freetype2/
   QMAKE_LFLAGS += -framework OpenCL -framework Python
-  LIBS += /usr/local/lib/libfreetype.a -llzma -lz
+  LIBS += -L/usr/local/lib /usr/local/lib/libfreetype.a -lx264 -lswscale -lavutil -lavformat -lavcodec -llzma -lz
 }
 
 win32{

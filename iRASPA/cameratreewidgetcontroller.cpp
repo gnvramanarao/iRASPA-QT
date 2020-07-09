@@ -36,7 +36,8 @@
 #include <mathkit.h>
 #include <renderkit.h>
 #include <foundationkit.h>
-#include "textfield.h"
+#include <textfield.h>
+#include "moviemaker.h"
 
 CameraTreeWidgetController::CameraTreeWidgetController(QWidget* parent): QTreeWidget(parent ),
     _cameraCameraForm(new CameraCameraForm),
@@ -1210,7 +1211,24 @@ void CameraTreeWidgetController::savePicture()
 
 void CameraTreeWidgetController::saveMovie()
 {
+  QDir docsDir(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
+  QUrl pName = QUrl::fromLocalFile(docsDir.filePath("movie.mp4"));
+  QUrl fileURL = QFileDialog::getSaveFileUrl(this,tr("Save File"), pName,
+        tr("Movies (*.mp4)"));
 
+  if(!fileURL.isValid())
+  {
+    return;
+  }
+  else
+  {
+    if(_project)
+    {
+      int width = _project->renderImageNumberOfPixels();
+      int height = _project->renderImageNumberOfPixels() / _project->imageAspectRatio();
+      emit rendererCreateMovie(fileURL, width, height);
+    }
+  }
 }
 
 // Background properties

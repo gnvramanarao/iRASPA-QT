@@ -118,6 +118,9 @@ public:
   void setMovieFramesPerSecond(int fps) {_movieFramesPerSecond = fps;}
   double imageDotsPerInchValue();
 
+  int maxNumberOfMoviesFrames();
+  int setMovieFrameIndex(int index);
+
   void setShowBoundingBox(bool show) {_showBoundingBox = show;}
   SKBoundingBox renderBoundingBox() const override final;
   bool showBoundingBox() const override final;

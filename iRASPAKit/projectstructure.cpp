@@ -31,6 +31,7 @@
 #include <cfloat>
 #include <QSize>
 #include <array>
+#include <algorithm>
 
 ProjectStructure::ProjectStructure(): _camera(std::make_shared<RKCamera>())
 {
@@ -680,6 +681,30 @@ double ProjectStructure::imageDotsPerInchValue()
     return 600.0;
   case RKImageDPI::dpi_1200:
     return 1200.0;
+  }
+}
+
+int ProjectStructure::maxNumberOfMoviesFrames()
+{
+  size_t maxNumberOfFrames=0;
+  for(std::shared_ptr<Scene> scene : _sceneList->scenes())
+  {
+    for(std::shared_ptr<Movie> movie : scene->movies())
+    {
+      maxNumberOfFrames = std::max(movie->frames().size(), maxNumberOfFrames);
+    }
+  }
+  return maxNumberOfFrames;
+}
+
+int ProjectStructure::setMovieFrameIndex(int index)
+{
+  for(std::shared_ptr<Scene> scene : _sceneList->scenes())
+  {
+    for(std::shared_ptr<Movie> movie : scene->movies())
+    {
+      movie->setSelectedFrameIndex(index);
+    }
   }
 }
 

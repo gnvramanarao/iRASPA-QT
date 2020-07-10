@@ -63,7 +63,7 @@ win32{
   LIBS += "C:/vcpkg/installed/x64-windows-static/lib/zlib.lib"
   LIBS += "C:/vcpkg/installed/x64-windows-static/lib/OpenCL.lib"
 
-  LIBS += kernel32.lib cfgmgr32.lib user32.lib ole32.lib advapi32.lib
+  LIBS += secur32.lib ws2_32.lib bcrypt.lib kernel32.lib cfgmgr32.lib user32.lib ole32.lib advapi32.lib
 }
 
 unix:!macx{

@@ -99,7 +99,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>C:\vcpkg\installed\x64-windows-static\lib\python27.lib;C:\vcpkg\installed\x64-windows-static\lib\lzma.lib;C:\vcpkg\installed\x64-windows-static\lib\zlib.lib;C:\vcpkg\installed\x64-windows-static\lib\OpenCL.lib;kernel32.lib;cfgmgr32.lib;user32.lib;ole32.lib;advapi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>C:\vcpkg\installed\x64-windows-static\lib\avutil.lib;C:\vcpkg\installed\x64-windows-static\lib\avfilter.lib;C:\vcpkg\installed\x64-windows-static\lib\avformat.lib;C:\vcpkg\installed\x64-windows-static\lib\avresample.lib;C:\vcpkg\installed\x64-windows-static\lib\avdevice.lib;C:\vcpkg\installed\x64-windows-static\lib\avcodec.lib;C:\vcpkg\installed\x64-windows-static\lib\swresample.lib;C:\vcpkg\installed\x64-windows-static\lib\swscale.lib;C:\vcpkg\installed\x64-windows-static\lib\x265-static.lib;C:\vcpkg\installed\x64-windows-static\lib\python27.lib;C:\vcpkg\installed\x64-windows-static\lib\lzma.lib;C:\vcpkg\installed\x64-windows-static\lib\zlib.lib;C:\vcpkg\installed\x64-windows-static\lib\OpenCL.lib;secur32.lib;ws2_32.lib;bcrypt.lib;kernel32.lib;cfgmgr32.lib;user32.lib;ole32.lib;advapi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\openssl\lib;C:\Utils\my_sql\mysql-5.6.11-winx64\lib;C:\Utils\postgresql\pgsql\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -162,7 +162,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>C:\vcpkg\installed\x64-windows-static\lib\python27.lib;C:\vcpkg\installed\x64-windows-static\lib\lzma.lib;C:\vcpkg\installed\x64-windows-static\lib\zlib.lib;C:\vcpkg\installed\x64-windows-static\lib\OpenCL.lib;kernel32.lib;cfgmgr32.lib;user32.lib;ole32.lib;advapi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>C:\vcpkg\installed\x64-windows-static\lib\avutil.lib;C:\vcpkg\installed\x64-windows-static\lib\avfilter.lib;C:\vcpkg\installed\x64-windows-static\lib\avformat.lib;C:\vcpkg\installed\x64-windows-static\lib\avresample.lib;C:\vcpkg\installed\x64-windows-static\lib\avdevice.lib;C:\vcpkg\installed\x64-windows-static\lib\avcodec.lib;C:\vcpkg\installed\x64-windows-static\lib\swresample.lib;C:\vcpkg\installed\x64-windows-static\lib\swscale.lib;C:\vcpkg\installed\x64-windows-static\lib\x265-static.lib;C:\vcpkg\installed\x64-windows-static\lib\python27.lib;C:\vcpkg\installed\x64-windows-static\lib\lzma.lib;C:\vcpkg\installed\x64-windows-static\lib\zlib.lib;C:\vcpkg\installed\x64-windows-static\lib\OpenCL.lib;secur32.lib;ws2_32.lib;bcrypt.lib;kernel32.lib;cfgmgr32.lib;user32.lib;ole32.lib;advapi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\openssl\lib;C:\Utils\my_sql\mysql-5.6.11-winx64\lib;C:\Utils\postgresql\pgsql\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -302,6 +302,7 @@
     <ClCompile Include="iRASPAKit\molecularcrystal.cpp" />
     <ClCompile Include="iRASPAKit\molecule.cpp" />
     <ClCompile Include="iRASPAKit\movie.cpp" />
+    <ClCompile Include="iRASPA\moviemaker.cpp" />
     <ClCompile Include="RenderKit\nsidedprismgeometry.cpp" />
     <ClCompile Include="MathKit\nsrect.cpp" />
     <ClCompile Include="MathKit\nssize.cpp" />
@@ -569,6 +570,7 @@
     <ClInclude Include="iRASPAKit\molecularcrystal.h" />
     <ClInclude Include="iRASPAKit\molecule.h" />
     <ClInclude Include="iRASPAKit\movie.h" />
+    <ClInclude Include="iRASPA\moviemaker.h" />
     <ClInclude Include="RenderKit\nsidedprismgeometry.h" />
     <ClInclude Include="MathKit\nsrect.h" />
     <ClInclude Include="MathKit\nssize.h" />

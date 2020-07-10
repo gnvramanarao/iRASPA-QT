@@ -119,7 +119,7 @@ public:
   double imageDotsPerInchValue();
 
   int maxNumberOfMoviesFrames();
-  int setMovieFrameIndex(int index);
+  void setMovieFrameIndex(int index);
 
   void setShowBoundingBox(bool show) {_showBoundingBox = show;}
   SKBoundingBox renderBoundingBox() const override final;

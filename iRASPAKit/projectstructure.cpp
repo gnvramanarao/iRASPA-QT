@@ -697,7 +697,7 @@ int ProjectStructure::maxNumberOfMoviesFrames()
   return maxNumberOfFrames;
 }
 
-int ProjectStructure::setMovieFrameIndex(int index)
+void ProjectStructure::setMovieFrameIndex(int index)
 {
   for(std::shared_ptr<Scene> scene : _sceneList->scenes())
   {

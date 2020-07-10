@@ -663,7 +663,12 @@ void RenderStackedWidget::createMovie(QUrl fileURL, int width, int height)
   {
     if (std::shared_ptr<ProjectStructure> project = _project.lock())
     {
-      MovieWriter movie(fileURL.toLocalFile().toStdString(), width, height, project->movieFramesPerSecond(), _logReporter);
+      MovieWriter movie(width, height, project->movieFramesPerSecond(), _logReporter);
+      int ret = movie.initialize(fileURL.toLocalFile().toStdString());
+      if (ret < 0)
+      {
+          return;
+      }
 
       std::vector<uint8_t> pixels(4 * width * height);
       int numberOfFrames = project->maxNumberOfMoviesFrames();
@@ -676,6 +681,7 @@ void RenderStackedWidget::createMovie(QUrl fileURL, int width, int height)
 
         movie.addFrame(image.bits(), iframe);
       }
+      movie.finalize();
     }
   }
 }

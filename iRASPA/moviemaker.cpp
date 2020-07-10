@@ -2,14 +2,20 @@
 #include <QDebug>
 #include <iostream>
 
-MovieWriter::MovieWriter(const std::string& filename, const unsigned int width, const unsigned int height, int fps, LogReporting *logReporter):
-   _logReporter(logReporter), _width(width), _height(height),  _fps(fps), _pixels(4 * width * height)
+MovieWriter::MovieWriter(const unsigned int width, const unsigned int height, int fps, LogReporting* logReporter) :
+    _logReporter(logReporter), _width(width), _height(height), _fps(fps), _pixels(4 * width * height)
 {
+}
+
+int MovieWriter::initialize(const std::string& filename)
+{
+    avcodec_register_all();
+
   _oformat = av_guess_format(nullptr, filename.c_str(), nullptr);
   if (!_oformat)
   {
-    std::cout << "can't create output format" << std::endl;
-    return;
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, "ffmpeg could not guess output format");
+    return -1;
   }
   //_oformat->video_codec = AV_CODEC_ID_H264;
   //_oformat->video_codec = AV_CODEC_ID_AV1;
@@ -19,35 +25,36 @@ MovieWriter::MovieWriter(const std::string& filename, const unsigned int width, 
   if (err)
   {
     _logReporter->logMessage(LogReporting::ErrorLevel::error, "failed to create ffmpeg output context");
-    return;
+    return -1;
   }
+
 
   _codec = avcodec_find_encoder(_oformat->video_codec);
   if (!_codec)
   {
     _logReporter->logMessage(LogReporting::ErrorLevel::error, "failed to create ffmpeg codec");
-    return;
+    return -1;
   }
 
   _videoStream = avformat_new_stream(_ofctx, _codec);
   if (!_videoStream)
   {
     _logReporter->logMessage(LogReporting::ErrorLevel::error, "failed to create ffmpeg stream");
-    return;
+    return -1;
   }
 
   _cctx = avcodec_alloc_context3(_codec);
   if (!_cctx)
   {
     _logReporter->logMessage(LogReporting::ErrorLevel::error, "failed to create ffmpeg codec context");
-    return;
+    return -1;
   }
 
   _pkt = av_packet_alloc();
   if (!_pkt)
   {
     _logReporter->logMessage(LogReporting::ErrorLevel::error, "failed to create ffmpeg packet");
-    return;
+    return -1;
   }
 
   _videoStream->codecpar->codec_id = _oformat->video_codec;
@@ -56,6 +63,7 @@ MovieWriter::MovieWriter(const std::string& filename, const unsigned int width, 
   _videoStream->codecpar->height = _height;
   _videoStream->codecpar->format = AV_PIX_FMT_YUV420P;
   _videoStream->codecpar->bit_rate = 5000000;
+  //_videoStream->codecpar->codec_tag = 0;
   _videoStream->codecpar->codec_tag = MKTAG('h', 'v', 'c', '1'); // for h265
   avcodec_parameters_to_context(_cctx, _videoStream->codecpar);
   _cctx->time_base = { 1, _fps };
@@ -83,24 +91,28 @@ MovieWriter::MovieWriter(const std::string& filename, const unsigned int width, 
   if ((err = avcodec_open2(_cctx, _codec, NULL)) < 0)
   {
     _logReporter->logMessage(LogReporting::ErrorLevel::error, "failed to open codec");
-    return;
+    return -1;
   }
-
-  //avcodec_parameters_from_context(videoStream->codecpar, cctx);
+  if (_ofctx->oformat->flags & AVFMT_GLOBALHEADER) 
+  {
+      _cctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+  }
+  avcodec_parameters_from_context(_videoStream->codecpar, _cctx);
 
   if (!(_oformat->flags & AVFMT_NOFILE))
   {
     if ((err = avio_open(&_ofctx->pb, filename.c_str(), AVIO_FLAG_WRITE)) < 0)
     {
       _logReporter->logMessage(LogReporting::ErrorLevel::error, "failed to open file");
-      return;
+      return -1;
     }
+    _logReporter->logMessage(LogReporting::ErrorLevel::verbose, "file opened " + QString::fromStdString(filename));
   }
 
   if ((err = avformat_write_header(_ofctx, NULL)) < 0)
   {
-    _logReporter->logMessage(LogReporting::ErrorLevel::error, "failed to write header");
-    return;
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, "failed to write header " + QString::number(err));
+    return -1;
   }
 
   _swsCtx = sws_getContext(_width, _height, AV_PIX_FMT_RGB24, _width, _height, AV_PIX_FMT_YUV420P, SWS_FAST_BILINEAR, NULL, NULL, NULL);
@@ -115,7 +127,7 @@ MovieWriter::MovieWriter(const std::string& filename, const unsigned int width, 
   if (ret < 0)
   {
     _logReporter->logMessage(LogReporting::ErrorLevel::error, "ffmpeg could not allocate the video frame data");
-    return;
+    return -1;
   }
 
   // Allocating memory for each conversion output YUV frame.
@@ -127,20 +139,16 @@ MovieWriter::MovieWriter(const std::string& filename, const unsigned int width, 
   if (ret < 0)
   {
     _logReporter->logMessage(LogReporting::ErrorLevel::error, "ffmpeg could not allocate the video frame data");
-    return;
+    return -1;
   }
+
+  _logReporter->logMessage(LogReporting::ErrorLevel::verbose, "ffmpeg initialized");
+  return 0;
 }
 
 void MovieWriter::addFrame(const uint8_t* pixels, int iframe)
 {
   int ret;
-
-  ret = av_frame_make_writable(_frame);
-  if (ret < 0)
-  {
-    std::cout << "Frame not writable" << ret << std::endl;
-    return;
-  }
 
   // The AVFrame data will be stored as RGBRGBRGB... row-wise,
   // from left to right and from top to bottom.
@@ -191,7 +199,13 @@ void MovieWriter::addFrame(const uint8_t* pixels, int iframe)
 
 MovieWriter::~MovieWriter()
 {
+
+}
+
+int MovieWriter::finalize()
+{
   _logReporter->logMessage(LogReporting::ErrorLevel::verbose, "ffmpeg finalizing movie");
+  
   for (;;)
   {
     avcodec_send_frame(_cctx, NULL);
@@ -230,4 +244,5 @@ MovieWriter::~MovieWriter()
   avformat_free_context(_ofctx);
 
   sws_freeContext(_swsCtx);
+  return 0;
 }

@@ -81,6 +81,11 @@ void RenderStackedWidget::setProject(std::shared_ptr<ProjectTreeNode> projectTre
   }
 }
 
+void RenderStackedWidget::setLogReportingWidget(LogReporting *logReporting)
+{
+  _logReporter = logReporting;
+}
+
 void RenderStackedWidget::setSelectedRenderFrames(std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> iraspa_structures)
 {
   std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> renderStructures{};
@@ -658,7 +663,7 @@ void RenderStackedWidget::createMovie(QUrl fileURL, int width, int height)
   {
     if (std::shared_ptr<ProjectStructure> project = _project.lock())
     {
-      MovieWriter movie(fileURL.toLocalFile().toStdString(), width, height, project->movieFramesPerSecond());
+      MovieWriter movie(fileURL.toLocalFile().toStdString(), width, height, project->movieFramesPerSecond(), _logReporter);
 
       std::vector<uint8_t> pixels(4 * width * height);
       int numberOfFrames = project->maxNumberOfMoviesFrames();

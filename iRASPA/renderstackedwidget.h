@@ -40,8 +40,9 @@
 #include "atomtreeviewmodel.h"
 #include "bondlistviewmodel.h"
 #include "symmetrykit.h"
+#include "logreporting.h"
 
-class RenderStackedWidget : public QStackedWidget, public ProjectConsumer, public MainWindowConsumer
+class RenderStackedWidget : public QStackedWidget, public ProjectConsumer, public MainWindowConsumer, public LogReportingConsumer
 {
   Q_OBJECT
 
@@ -51,8 +52,10 @@ public:
   void setMainWindow(MainWindow *mainWindow) override final {_mainWindow = mainWindow;}
   void setAtomModel(std::shared_ptr<AtomTreeViewModel> atomModel);
   void setBondModel(std::shared_ptr<BondListViewModel> bondModel);
+  void setLogReportingWidget(LogReporting *logReporting) override final;
 private:
   MainWindow *_mainWindow;
+  LogReporting* _logReporter = nullptr;
   std::shared_ptr<AtomTreeViewModel> _atomModel;
   std::shared_ptr<BondListViewModel> _bondModel;
   std::weak_ptr<ProjectTreeNode> _projectTreeNode;

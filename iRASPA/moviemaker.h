@@ -34,7 +34,7 @@
 #include <vector>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include "logreporting.h"
 
 // based on: https://stackoverflow.com/questions/34511312/how-to-encode-a-video-from-several-images-generated-in-a-c-program-without-wri
 //      and: https://github.com/apc-llc/moviemaker-cpp
@@ -52,10 +52,11 @@ extern "C"
 class MovieWriter
 {
 public :
-  MovieWriter(const std::string& filename, const unsigned int width, const unsigned int height, int fps);
+  MovieWriter(const std::string& filename, const unsigned int width, const unsigned int height, int fps, LogReporting *logReporting);
    ~MovieWriter();
   void addFrame(const uint8_t* pixels, int iframe);
 private:
+  LogReporting *_logReporter = nullptr;
   const unsigned int _width, _height;
   int _fps;
   SwsContext* _swsCtx;

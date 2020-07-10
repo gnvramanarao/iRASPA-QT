@@ -2,7 +2,8 @@
 #include <QDebug>
 #include <iostream>
 
-MovieWriter::MovieWriter(const std::string& filename, const unsigned int width, const unsigned int height, int fps): _width(width), _height(height),  _fps(fps), _pixels(4 * width * height)
+MovieWriter::MovieWriter(const std::string& filename, const unsigned int width, const unsigned int height, int fps, LogReporting *logReporter):
+   _logReporter(logReporter), _width(width), _height(height),  _fps(fps), _pixels(4 * width * height)
 {
   _oformat = av_guess_format(nullptr, filename.c_str(), nullptr);
   if (!_oformat)
@@ -17,35 +18,35 @@ MovieWriter::MovieWriter(const std::string& filename, const unsigned int width, 
   int err = avformat_alloc_output_context2(&_ofctx, _oformat, NULL, filename.c_str());
   if (err)
   {
-    std::cout << "Failure to create output context" << std::endl;
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, "failed to create ffmpeg output context");
     return;
   }
 
   _codec = avcodec_find_encoder(_oformat->video_codec);
   if (!_codec)
   {
-    std::cout << "Failure to create codec" << std::endl;
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, "failed to create ffmpeg codec");
     return;
   }
 
   _videoStream = avformat_new_stream(_ofctx, _codec);
   if (!_videoStream)
   {
-    std::cout << "Failure to find format" << std::endl;
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, "failed to create ffmpeg stream");
     return;
   }
 
   _cctx = avcodec_alloc_context3(_codec);
   if (!_cctx)
   {
-    std::cout << "Failure to create codec context" << std::endl;
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, "failed to create ffmpeg codec context");
     return;
   }
 
   _pkt = av_packet_alloc();
   if (!_pkt)
   {
-    std::cout << "Failure to create pkt" << std::endl;
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, "failed to create ffmpeg packet");
     return;
   }
 
@@ -57,8 +58,8 @@ MovieWriter::MovieWriter(const std::string& filename, const unsigned int width, 
   _videoStream->codecpar->bit_rate = 5000000;
   _videoStream->codecpar->codec_tag = MKTAG('h', 'v', 'c', '1'); // for h265
   avcodec_parameters_to_context(_cctx, _videoStream->codecpar);
-  _cctx->time_base = (AVRational){ 1, _fps };
-  _cctx->framerate = (AVRational){_fps, 1};
+  _cctx->time_base = { 1, _fps };
+  _cctx->framerate = {_fps, 1};
   _cctx->max_b_frames = 1;
   _cctx->gop_size = 10;
 
@@ -81,7 +82,7 @@ MovieWriter::MovieWriter(const std::string& filename, const unsigned int width, 
 
   if ((err = avcodec_open2(_cctx, _codec, NULL)) < 0)
   {
-    std::cout << "Failure to open codec" << err << std::endl;
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, "failed to open codec");
     return;
   }
 
@@ -91,14 +92,14 @@ MovieWriter::MovieWriter(const std::string& filename, const unsigned int width, 
   {
     if ((err = avio_open(&_ofctx->pb, filename.c_str(), AVIO_FLAG_WRITE)) < 0)
     {
-      std::cout << "Failure to open file" << err << std::endl;
+      _logReporter->logMessage(LogReporting::ErrorLevel::error, "failed to open file");
       return;
     }
   }
 
   if ((err = avformat_write_header(_ofctx, NULL)) < 0)
   {
-    std::cout << "Failure to write header" << err << std::endl;
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, "failed to write header");
     return;
   }
 
@@ -110,10 +111,10 @@ MovieWriter::MovieWriter(const std::string& filename, const unsigned int width, 
   _rgbpic->format = AV_PIX_FMT_RGB24;
   _rgbpic->width = _width;
   _rgbpic->height = _height;
-  ret = av_frame_get_buffer(_rgbpic, 1);
+  ret = av_frame_get_buffer(_rgbpic, 0);
   if (ret < 0)
   {
-    std::cout << "Could not allocate the video frame data" << ret << std::endl;
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, "ffmpeg could not allocate the video frame data");
     return;
   }
 
@@ -122,10 +123,10 @@ MovieWriter::MovieWriter(const std::string& filename, const unsigned int width, 
   _frame->format = AV_PIX_FMT_YUV420P;
   _frame->width = _width;
   _frame->height = _height;
-  ret = av_frame_get_buffer(_frame, 1);
+  ret = av_frame_get_buffer(_frame, 0);
   if (ret < 0)
   {
-    std::cout << "Could not allocate the video frame data" << ret << std::endl;
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, "ffmpeg could not allocate the video frame data");
     return;
   }
 }
@@ -163,9 +164,9 @@ void MovieWriter::addFrame(const uint8_t* pixels, int iframe)
   // for instance, as the corresponding frame number.
   _frame->pts = iframe;
 
-  if (ret = avcodec_send_frame(_cctx, _frame) < 0)
+  if ((ret = avcodec_send_frame(_cctx, _frame)) < 0)
   {
-    std::cout << "Failed to send frame" << ret <<std::endl;
+    _logReporter->logMessage(LogReporting::ErrorLevel::error, "ffmpeg failed to send frame");
     return;
   }
 
@@ -176,14 +177,13 @@ void MovieWriter::addFrame(const uint8_t* pixels, int iframe)
       return;
     else if (ret < 0)
     {
-      fprintf(stderr, "Error during encoding\n");
-      exit(1);
+      _logReporter->logMessage(LogReporting::ErrorLevel::error, "ffmpeg error during encoding");
+      return;
     }
 
-    av_packet_rescale_ts(_pkt, (AVRational){1, _fps}, _videoStream->time_base);
+    av_packet_rescale_ts(_pkt, {1, _fps}, _videoStream->time_base);
     _pkt->stream_index = _videoStream->index;
 
-    std::cout << "Write packet " << _pkt->size << std::endl;
     av_write_frame(_ofctx, _pkt);
     av_packet_unref(_pkt);
   }
@@ -191,12 +191,13 @@ void MovieWriter::addFrame(const uint8_t* pixels, int iframe)
 
 MovieWriter::~MovieWriter()
 {
+  _logReporter->logMessage(LogReporting::ErrorLevel::verbose, "ffmpeg finalizing movie");
   for (;;)
   {
     avcodec_send_frame(_cctx, NULL);
     if (avcodec_receive_packet(_cctx, _pkt) == 0)
     {
-      av_packet_rescale_ts(_pkt, (AVRational){1, _fps}, _videoStream->time_base);
+      av_packet_rescale_ts(_pkt, {1, _fps}, _videoStream->time_base);
       _pkt->stream_index = _videoStream->index;
 
       av_write_frame(_ofctx, _pkt);
@@ -216,7 +217,7 @@ MovieWriter::~MovieWriter()
     int err = avio_close(_ofctx->pb);
     if (err < 0)
     {
-      std::cout << "Failed to close file" << err <<std::endl;
+      _logReporter->logMessage(LogReporting::ErrorLevel::error, "ffmpeg failed to close file");
     }
   }
 

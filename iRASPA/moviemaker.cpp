@@ -10,40 +10,42 @@ MovieWriter::MovieWriter(const std::string& filename, const unsigned int width, 
     std::cout << "can't create output format" << std::endl;
     return;
   }
-  _oformat->video_codec = AV_CODEC_ID_H264;
+  //_oformat->video_codec = AV_CODEC_ID_H264;
+  //_oformat->video_codec = AV_CODEC_ID_AV1;
+  _oformat->video_codec = AV_CODEC_ID_HEVC;
 
   int err = avformat_alloc_output_context2(&_ofctx, _oformat, NULL, filename.c_str());
   if (err)
   {
-    std::cout << "can't create output context" << std::endl;
+    std::cout << "Failure to create output context" << std::endl;
     return;
   }
 
   _codec = avcodec_find_encoder(_oformat->video_codec);
   if (!_codec)
   {
-    std::cout << "can't create codec" << std::endl;
+    std::cout << "Failure to create codec" << std::endl;
     return;
   }
 
   _videoStream = avformat_new_stream(_ofctx, _codec);
   if (!_videoStream)
   {
-    std::cout << "can't find format" << std::endl;
+    std::cout << "Failure to find format" << std::endl;
     return;
   }
 
   _cctx = avcodec_alloc_context3(_codec);
   if (!_cctx)
   {
-    std::cout << "can't create codec context" << std::endl;
+    std::cout << "Failure to create codec context" << std::endl;
     return;
   }
 
   _pkt = av_packet_alloc();
   if (!_pkt)
   {
-    std::cout << "can't create pkt" << std::endl;
+    std::cout << "Failure to create pkt" << std::endl;
     return;
   }
 
@@ -52,7 +54,8 @@ MovieWriter::MovieWriter(const std::string& filename, const unsigned int width, 
   _videoStream->codecpar->width = _width;
   _videoStream->codecpar->height = _height;
   _videoStream->codecpar->format = AV_PIX_FMT_YUV420P;
-  _videoStream->codecpar->bit_rate = 2000000;
+  _videoStream->codecpar->bit_rate = 5000000;
+  _videoStream->codecpar->codec_tag = MKTAG('h', 'v', 'c', '1'); // for h265
   avcodec_parameters_to_context(_cctx, _videoStream->codecpar);
   _cctx->time_base = (AVRational){ 1, _fps };
   _cctx->framerate = (AVRational){_fps, 1};
@@ -68,12 +71,17 @@ MovieWriter::MovieWriter(const std::string& filename, const unsigned int width, 
   {
     av_opt_set(_cctx, "preset", "ultrafast", 0);
   }
+  else
+  {
+    av_opt_set(_cctx, "preset", "ultrafast", 0);
+  }
+
 
   av_dump_format(_ofctx, 0, filename.c_str(), 1);
 
   if ((err = avcodec_open2(_cctx, _codec, NULL)) < 0)
   {
-    std::cout << "Failed to open codec" << err << std::endl;
+    std::cout << "Failure to open codec" << err << std::endl;
     return;
   }
 
@@ -83,24 +91,20 @@ MovieWriter::MovieWriter(const std::string& filename, const unsigned int width, 
   {
     if ((err = avio_open(&_ofctx->pb, filename.c_str(), AVIO_FLAG_WRITE)) < 0)
     {
-      std::cout << "Failed to open file" << err << std::endl;
+      std::cout << "Failure to open file" << err << std::endl;
       return;
     }
   }
 
   if ((err = avformat_write_header(_ofctx, NULL)) < 0)
   {
-    std::cout << "Failed to write header" << err << std::endl;
+    std::cout << "Failure to write header" << err << std::endl;
     return;
   }
 
-
-  // Preparing to convert my generated RGB images to YUV frames.
   _swsCtx = sws_getContext(_width, _height, AV_PIX_FMT_RGB24, _width, _height, AV_PIX_FMT_YUV420P, SWS_FAST_BILINEAR, NULL, NULL, NULL);
 
 
-  // Preparing the containers of the frame data:
-  // Allocating memory for each RGB frame, which will be lately converted to YUV.
   int ret;
   _rgbpic = av_frame_alloc();
   _rgbpic->format = AV_PIX_FMT_RGB24;

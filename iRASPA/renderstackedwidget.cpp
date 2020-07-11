@@ -663,14 +663,14 @@ void RenderStackedWidget::createMovie(QUrl fileURL, int width, int height)
   {
     if (std::shared_ptr<ProjectStructure> project = _project.lock())
     {
-      MovieWriter movie(width, height, project->movieFramesPerSecond(), _logReporter);
+      MovieWriter movie(width, height, project->movieFramesPerSecond(), _logReporter, MovieWriter::Type::h265);
       int ret = movie.initialize(fileURL.toLocalFile().toStdString());
       if (ret < 0)
       {
-          return;
+        _logReporter->logMessage(LogReporting::ErrorLevel::error, "failed to create movie");
+        return;
       }
 
-      std::vector<uint8_t> pixels(4 * width * height);
       int numberOfFrames = project->maxNumberOfMoviesFrames();
       for (int iframe = 0; iframe < numberOfFrames; iframe++)
       {

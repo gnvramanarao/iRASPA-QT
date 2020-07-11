@@ -41,7 +41,6 @@
 
 extern "C"
 {
-  #include <x265.h>
   #include <libswscale/swscale.h>
   #include <libavcodec/avcodec.h>
   #include <libavutil/mathematics.h>
@@ -52,13 +51,24 @@ extern "C"
 class MovieWriter
 {
 public :
-  MovieWriter(const unsigned int width, const unsigned int height, int fps, LogReporting *logReporting);
+  enum class Type: qint64
+  {
+    h265 = 0, h264 = 1, vp9 = 2, av1 = 3
+  };
+
+  MovieWriter(const unsigned int width, const unsigned int height, int fps, LogReporting *logReporting, Type type);
    ~MovieWriter();
    int initialize(const std::string& filename);
    int finalize();
   void addFrame(const uint8_t* pixels, int iframe);
+
+
 private:
   LogReporting *_logReporter = nullptr;
+  Type _type;
+
+  void encodeFrame(AVFrame *frame);
+
   const unsigned int _width, _height;
   int _fps;
   SwsContext* _swsCtx;
@@ -71,7 +81,5 @@ private:
 
   AVFrame *_rgbpic;
   AVFrame *_frame;
-
-  std::vector<uint8_t> _pixels;
 };
 

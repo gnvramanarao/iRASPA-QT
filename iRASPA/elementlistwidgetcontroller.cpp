@@ -59,11 +59,11 @@ void ElementListWidgetController::setColorComboBoxIndex(size_t type)
     SKColorSet& currentColorSet = colorSets[_selectedColorSetIndex];
     if(type>=colorSets.colorSets().size())
     {
-      QString newName = _mainWindow->mainWindowUI()->colorComboBox->itemText(type);
+      QString newName = _mainWindow->mainWindowUI()->colorComboBox->itemText(static_cast<int>(type));
       SKColorSet colorSetCopy =  SKColorSet(newName, currentColorSet, true);
       colorSets.append(colorSetCopy);
     }
-    _selectedColorSetIndex = type;
+    _selectedColorSetIndex = static_cast<int>(type);
     reloadColorData();
   }
 }
@@ -535,7 +535,7 @@ void ElementListWidgetController::setEpsilonParameter(double parameter)
       ForceFieldSets& forceFieldSets = _mainWindow->forceFieldSets();
       ForceFieldSet& forceFieldSet = forceFieldSets[_selectedForceFieldSetIndex];
       std::vector<ForceFieldType>& atomTypeList = forceFieldSet.atomTypeList();
-      ForceFieldType& forceFieldType = atomTypeList[*row];
+      //ForceFieldType& forceFieldType = atomTypeList[*row];
 
       atomTypeList[*row].setEpsilonPotentialParameter(parameter);
 
@@ -563,7 +563,7 @@ void ElementListWidgetController::setSigmaParameter(double parameter)
       ForceFieldSets& forceFieldSets = _mainWindow->forceFieldSets();
       ForceFieldSet& forceFieldSet = forceFieldSets[_selectedForceFieldSetIndex];
       std::vector<ForceFieldType>& atomTypeList = forceFieldSet.atomTypeList();
-      ForceFieldType& forceFieldType = atomTypeList[*row];
+      //ForceFieldType& forceFieldType = atomTypeList[*row];
 
       atomTypeList[*row].setSigmaPotentialParameter(parameter);
 
@@ -590,7 +590,7 @@ void ElementListWidgetController::setMass(double mass)
       ForceFieldSets& forceFieldSets = _mainWindow->forceFieldSets();
       ForceFieldSet& forceFieldSet = forceFieldSets[_selectedForceFieldSetIndex];
       std::vector<ForceFieldType>& atomTypeList = forceFieldSet.atomTypeList();
-      ForceFieldType& forceFieldType = atomTypeList[*row];
+      //ForceFieldType& forceFieldType = atomTypeList[*row];
 
       atomTypeList[*row].setMass(mass);
 

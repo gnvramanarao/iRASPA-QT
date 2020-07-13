@@ -51,7 +51,7 @@ public:
 
     std::shared_ptr<ProjectTreeNode> getChildNode(int index) {return _childNodes[index];}
     int row() const;
-    int childCount() {return _childNodes.size();}
+    size_t childCount() {return _childNodes.size();}
 
     inline  std::vector<std::shared_ptr<ProjectTreeNode>> childNodes() const {return this->_childNodes;}
     inline  std::vector<std::shared_ptr<ProjectTreeNode>> filteredChildNodes() const {return this->_filteredAndSortedNodes;}

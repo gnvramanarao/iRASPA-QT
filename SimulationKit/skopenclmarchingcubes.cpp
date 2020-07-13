@@ -336,14 +336,14 @@ int SKOpenCLMarchingCubes::computeIsosurface(size_t size, std::vector<cl_float> 
 
   if(numberOfTriangles>0)
   {
-    int i = 0;
+    size_t i = 0;
     cl_int clSum = cl_int(numberOfTriangles);
 
     for(int i=0; i<images.size(); i++)
     {
       clSetKernelArg(_traverseHPKernel, i, sizeof(cl_mem), &images[i]);
     }
-    clSetKernelArg(_traverseHPKernel, images.size(), sizeof(cl_mem), &rawData);
+    clSetKernelArg(_traverseHPKernel, static_cast<cl_uint>(images.size()), sizeof(cl_mem), &rawData);
     i = images.size() + 1;
 
     cl_mem VBOBuffer;
@@ -361,9 +361,9 @@ int SKOpenCLMarchingCubes::computeIsosurface(size_t size, std::vector<cl_float> 
       _logReporter->logMessage(LogReporting::ErrorLevel::warning, message);
     }
 
-    clSetKernelArg(_traverseHPKernel, i, sizeof(cl_mem), &VBOBuffer);  // CHECK, was &v[0]
-    clSetKernelArg(_traverseHPKernel, i+1, sizeof(cl_float), &clIsoValue);
-    clSetKernelArg(_traverseHPKernel, i+2, sizeof(cl_int), &clSum);
+    clSetKernelArg(_traverseHPKernel, static_cast<cl_uint>(i), sizeof(cl_mem), &VBOBuffer);  // CHECK, was &v[0]
+    clSetKernelArg(_traverseHPKernel, static_cast<cl_uint>(i+1), sizeof(cl_float), &clIsoValue);
+    clSetKernelArg(_traverseHPKernel, static_cast<cl_uint>(i+2), sizeof(cl_int), &clSum);
 
 
     if(_glInteroperability)

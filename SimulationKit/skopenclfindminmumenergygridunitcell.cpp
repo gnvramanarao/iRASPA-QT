@@ -145,7 +145,7 @@ double SKOpenCLFindMinmumEnergyGridUnitCell::findMinimumEnergy(std::vector<cl_fl
   }
 
   // make sure the the global work size is an multiple of the work group size
-  int temp = voxels->size();
+  size_t temp = voxels->size();
   size_t numberOfGridPoints = (temp  + _workGroupSize-1) & ~(_workGroupSize-1);
   size_t global_work_size = numberOfGridPoints;
 
@@ -157,7 +157,7 @@ double SKOpenCLFindMinmumEnergyGridUnitCell::findMinimumEnergy(std::vector<cl_fl
     return 0;
   }
 
-  int nWorkGroups = numberOfGridPoints/_workGroupSize;
+  size_t nWorkGroups = numberOfGridPoints/_workGroupSize;
 
   float* sumReduction = new float[nWorkGroups];
   cl_mem reductionBuffer = clCreateBuffer(_clContext, CL_MEM_READ_ONLY, nWorkGroups*sizeof(float), nullptr, &err);

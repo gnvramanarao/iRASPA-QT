@@ -38,13 +38,13 @@ class IndexPath
 public:
     IndexPath();
     IndexPath(const int index);
-    int& operator[] (const int index);
-    const int& operator[] (const int index) const;
+    int& operator[] (const size_t index);
+    const int& operator[] (const size_t index) const;
     inline int lastIndex() {if (!_path.empty()) return _path.back(); return 0;}
     const IndexPath operator+(const IndexPath& rhs);
     void increaseValueAtLastIndex();
     void decreaseValueAtLastIndex();
-    int count();
+    size_t count();
     IndexPath appending(int index);
     IndexPath removingLastIndex();
 

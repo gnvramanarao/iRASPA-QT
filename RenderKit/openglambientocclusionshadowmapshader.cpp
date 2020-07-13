@@ -79,10 +79,10 @@ void OpenGLAmbientOcclusionShadowMapShader::deleteBuffers()
 {
   for(size_t i=0;i<_renderStructures.size();i++)
   {
-    glDeleteTextures(_renderStructures[i].size(), _generatedAmbientOcclusionTexture[i].data());
-    glDeleteFramebuffers(_renderStructures[i].size(), _ambientOcclusionFrameBufferObject[i].data());
-    glDeleteVertexArrays(_renderStructures[i].size(), _atomShadowMapVertexArrayObject[i].data());
-    glDeleteVertexArrays(_renderStructures[i].size(), _atomAmbientOcclusionMapVertexArrayObject[i].data());
+    glDeleteTextures(static_cast<GLsizei>(_renderStructures[i].size()), _generatedAmbientOcclusionTexture[i].data());
+    glDeleteFramebuffers(static_cast<GLsizei>(_renderStructures[i].size()), _ambientOcclusionFrameBufferObject[i].data());
+    glDeleteVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _atomShadowMapVertexArrayObject[i].data());
+    glDeleteVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _atomAmbientOcclusionMapVertexArrayObject[i].data());
   }
 }
 
@@ -104,10 +104,10 @@ void OpenGLAmbientOcclusionShadowMapShader::generateBuffers()
 
   for(size_t i=0;i<_renderStructures.size();i++)
   {
-    glGenTextures(_renderStructures[i].size(), _generatedAmbientOcclusionTexture[i].data());
-    glGenFramebuffers(_renderStructures[i].size(), _ambientOcclusionFrameBufferObject[i].data());
-    glGenVertexArrays(_renderStructures[i].size(), _atomShadowMapVertexArrayObject[i].data());
-    glGenVertexArrays(_renderStructures[i].size(), _atomAmbientOcclusionMapVertexArrayObject[i].data());
+    glGenTextures(static_cast<GLsizei>(_renderStructures[i].size()), _generatedAmbientOcclusionTexture[i].data());
+    glGenFramebuffers(static_cast<GLsizei>(_renderStructures[i].size()), _ambientOcclusionFrameBufferObject[i].data());
+    glGenVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _atomShadowMapVertexArrayObject[i].data());
+    glGenVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _atomAmbientOcclusionMapVertexArrayObject[i].data());
   }
 }
 
@@ -272,7 +272,7 @@ void OpenGLAmbientOcclusionShadowMapShader::adjustAmbientOcclusionTextureSize()
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxSize);
         for(size_t j=0;j<_renderStructures[i].size();j++)
         {
-          int numberOfAtoms = _renderStructures[i][j]->renderAtoms().size();
+          size_t numberOfAtoms = _renderStructures[i][j]->renderAtoms().size();
 
           /*
           switch(numberOfAtoms)
@@ -405,7 +405,7 @@ void  OpenGLAmbientOcclusionShadowMapShader::updateAmbientOcclusionTextures(std:
 
           for(size_t k=0; k < _renderStructures[i].size(); k++)
           {
-            RKStructureUniforms structureUniform = RKStructureUniforms(i, int(k), _renderStructures[i][k], double4x4::inverse(modelMatrix));
+            RKStructureUniforms structureUniform = RKStructureUniforms(i, static_cast<int>(k), _renderStructures[i][k], double4x4::inverse(modelMatrix));
             structureUniforms.push_back(structureUniform);
           }
 
@@ -512,7 +512,7 @@ void  OpenGLAmbientOcclusionShadowMapShader::updateAmbientOcclusionTextures(std:
 
                 glBindBufferRange(GL_UNIFORM_BUFFER, 1, structureAmbientOcclusionUniformBuffer, l * sizeof(RKStructureUniforms), sizeof(RKStructureUniforms));
 
-                glDrawElementsInstanced(GL_TRIANGLE_STRIP, GLsizei(4),GLenum(GL_UNSIGNED_SHORT), nullptr, _atomShader._numberOfDrawnAtoms[i][l]);
+                glDrawElementsInstanced(GL_TRIANGLE_STRIP, GLsizei(4),GLenum(GL_UNSIGNED_SHORT), nullptr, static_cast<GLsizei>(_atomShader._numberOfDrawnAtoms[i][l]));
 
                 glBindVertexArray(0);
               }
@@ -550,7 +550,7 @@ void  OpenGLAmbientOcclusionShadowMapShader::updateAmbientOcclusionTextures(std:
               glUniform1i(_atomAmbientOcclusionMapUniformLocation, 0);
               glUniform1f(_atomAmbientOcclusionMapWeightUniformLocation, float(4.0*weights[k]/360.0));
 
-              glDrawElementsInstanced(GL_TRIANGLE_STRIP, 4,GL_UNSIGNED_SHORT, nullptr, _atomShader._numberOfDrawnAtoms[i][j]);
+              glDrawElementsInstanced(GL_TRIANGLE_STRIP, 4,GL_UNSIGNED_SHORT, nullptr, static_cast<GLsizei>(_atomShader._numberOfDrawnAtoms[i][j]));
 
               glBindVertexArray(0);
             }

@@ -59,7 +59,7 @@ public:
     bool isRootNode(SKAtomTreeNode *node);
     bool nodeIsChildOfItem(std::shared_ptr<SKAtomTreeNode> node, std::shared_ptr<SKAtomTreeNode> item);
     bool isDescendantOfNode(std::shared_ptr<SKAtomTreeNode> item, std::shared_ptr<SKAtomTreeNode> parentNode);
-    int filteredChildIndexOfItem(std::shared_ptr<SKAtomTreeNode> parentItem, int index);
+    size_t filteredChildIndexOfItem(std::shared_ptr<SKAtomTreeNode> parentItem, size_t index);
     std::vector<std::shared_ptr<SKAtomTreeNode>> childrenForItem(std::shared_ptr<SKAtomTreeNode> item);
     std::shared_ptr<SKAtomTreeNode> nodeAtIndexPath(IndexPath indexpath);
     void appendToRootnodes(std::shared_ptr<SKAtomTreeNode> item);

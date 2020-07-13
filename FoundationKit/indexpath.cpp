@@ -41,12 +41,12 @@ IndexPath::IndexPath(const int index)
   _path.push_back(index);
 }
 
-int& IndexPath::operator[] (const int index) // for non-const objects: can be used for assignment
+int& IndexPath::operator[] (const size_t index) // for non-const objects: can be used for assignment
 {
   return _path[index];
 }
 
-const int& IndexPath::operator[] (const int index) const // for const objects: can only be used for access
+const int& IndexPath::operator[] (const size_t index) const // for const objects: can only be used for access
 {
   return _path[index];
 }
@@ -67,7 +67,7 @@ void IndexPath::decreaseValueAtLastIndex()
   }
 }
 
-int IndexPath::count()
+size_t IndexPath::count()
 {
   return _path.size();
 }
@@ -98,9 +98,9 @@ const IndexPath IndexPath::operator+(const IndexPath& rhs)
 
 bool IndexPath::operator<( const IndexPath& otherObject ) const
 {
-  int l1 = _path.size();
-  int l2 = otherObject._path.size();
-  for(int pos=0;pos<std::min(l1,l2); pos++)
+  size_t l1 = _path.size();
+  size_t l2 = otherObject._path.size();
+  for(size_t pos=0;pos<std::min(l1,l2); pos++)
   {
     int i1 = _path[pos];
     int i2 = otherObject._path[pos];
@@ -122,9 +122,9 @@ bool IndexPath::operator<( const IndexPath& otherObject ) const
 
 bool IndexPath::operator>( const IndexPath& otherObject ) const
 {
-  int l1 = _path.size();
-  int l2 = otherObject._path.size();
-  for(int pos=0;pos<std::min(l1,l2); pos++)
+  size_t l1 = _path.size();
+  size_t l2 = otherObject._path.size();
+  for(size_t pos=0;pos<std::min(l1,l2); pos++)
   {
     int i1 = _path[pos];
     int i2 = otherObject._path[pos];
@@ -146,9 +146,9 @@ bool IndexPath::operator>( const IndexPath& otherObject ) const
 
 bool IndexPath::operator=( const IndexPath& otherObject ) const
 {
-  int l1 = _path.size();
-  int l2 = otherObject._path.size();
-  for(int pos=0;pos<std::min(l1,l2); pos++)
+  size_t l1 = _path.size();
+  size_t l2 = otherObject._path.size();
+  for(size_t pos=0;pos<std::min(l1,l2); pos++)
   {
     int i1 = _path[pos];
     int i2 = otherObject._path[pos];

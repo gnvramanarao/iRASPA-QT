@@ -128,7 +128,7 @@ void BondListView::reloadData()
     {
       _bondModel->setStructure(structure);
 
-      if(bondSetController->getNumberOfBands() > 0)
+      if(bondSetController->getNumberOfBonds() > 0)
       {
         this->header()->setStretchLastSection(false);
         this->setColumnWidth(0,25);

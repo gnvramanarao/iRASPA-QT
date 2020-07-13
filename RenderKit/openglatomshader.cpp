@@ -89,7 +89,7 @@ void OpenGLAtomShader::paintGL(std::vector<std::vector<GLuint>>& atomTextures, G
         glBindTexture(GL_TEXTURE_2D, atomTextures[i][j]);
         glUniform1i(_ambientOcclusionTextureUniformLocation,0);
 
-        glDrawElementsInstanced(GL_TRIANGLE_STRIP, _numberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr,_numberOfDrawnAtoms[i][j]);
+        glDrawElementsInstanced(GL_TRIANGLE_STRIP, static_cast<GLsizei>(_numberOfIndices[i][j]), GL_UNSIGNED_SHORT, nullptr, static_cast<GLsizei>(_numberOfDrawnAtoms[i][j]));
         check_gl_error();
         glBindVertexArray(0);
       }

@@ -348,7 +348,7 @@ class RKRenderDataSource
 {
 public:
   virtual std::shared_ptr<RKCamera> camera() const = 0;
-  virtual std::vector<int> numberOfScenes() const = 0;
+  virtual std::vector<size_t> numberOfScenes() const = 0;
   virtual int numberOfMovies(int sceneIndex) const = 0;
 
   virtual std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> renderStructures() const = 0;

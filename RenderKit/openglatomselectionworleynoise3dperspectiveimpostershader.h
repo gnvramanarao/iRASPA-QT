@@ -57,7 +57,7 @@ private:
   OpenGLAtomSelectionWorleyNoise3DShader& _atomSelectionShader;
   std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> _renderStructures;
 
-  std::vector<std::vector<int>> _numberOfIndices;
+  std::vector<std::vector<size_t>> _numberOfIndices;
 
   std::vector<std::vector<GLuint>> _vertexBuffer;
   std::vector<std::vector<GLuint>> _indexBuffer;

@@ -28,7 +28,6 @@
  *************************************************************************************************************/
 
 #include "qdoubledial.h"
-#define _USE_MATH_DEFINES
 #include <cmath>
 
 QDoubleDial::QDoubleDial(QWidget *parent) : QDial(parent)

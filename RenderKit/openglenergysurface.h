@@ -79,8 +79,8 @@ private:
   GLuint _atomSurfaceVertexPositionAttributeLocation;
   GLuint _atomSurfaceInstancePositionAttributeLocation;
 
-  std::vector<std::vector<int>> _surfaceNumberOfIndices;
-  std::vector<std::vector<int>> _surfaceNumberOfInstances;
+  std::vector<std::vector<size_t>> _surfaceNumberOfIndices;
+  std::vector<std::vector<size_t>> _surfaceNumberOfInstances;
   std::vector<std::vector<GLuint>> _surfaceVertexArrayObject;
   std::vector<std::vector<GLuint>> _surfaceVertexBuffer;
   std::vector<std::vector<GLuint>> _surfaceIndexBuffer;

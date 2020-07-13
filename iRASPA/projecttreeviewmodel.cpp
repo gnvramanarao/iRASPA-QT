@@ -224,7 +224,7 @@ int ProjectTreeViewModel::rowCount(const QModelIndex &parent) const
   else
     parentItem = static_cast<ProjectTreeNode*>(parent.internalPointer());
 
-  return parentItem->childCount();
+  return static_cast<int>(parentItem->childCount());
 }
 
 QVariant ProjectTreeViewModel::data(const QModelIndex &index, int role) const

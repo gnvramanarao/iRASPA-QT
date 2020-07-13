@@ -59,8 +59,8 @@ private:
   GLint _instancePositionAttributeLocation;
   GLint _scaleAttributeLocation;
 
-  std::vector<std::vector<int>> _numberOfIndices;
-  std::vector<std::vector<int>> _numberOfUnitCellSpheres;
+  std::vector<std::vector<size_t>> _numberOfIndices;
+  std::vector<std::vector<size_t>> _numberOfUnitCellSpheres;
 
   std::vector<std::vector<GLuint>> _vertexBuffer;
   std::vector<std::vector<GLuint>> _indexBuffer;

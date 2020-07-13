@@ -119,10 +119,10 @@ const IndexPath ProjectTreeNode::indexPath()
 
 std::shared_ptr<ProjectTreeNode> ProjectTreeNode::descendantNodeAtIndexPath(IndexPath indexPath)
 {
-  int length = indexPath.count();
+  size_t length = indexPath.count();
   std::shared_ptr<ProjectTreeNode> node = shared_from_this();
 
-  for(int i=0; i < length; i++)
+  for(size_t i=0; i < length; i++)
   {
     int index = indexPath[i];
     if(index<node->_childNodes.size())

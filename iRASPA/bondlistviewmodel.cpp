@@ -85,7 +85,7 @@ int BondListViewModel::columnCount(const QModelIndex &parent) const
 
 int BondListViewModel::rowCount(const QModelIndex &parent) const
 {
-   return _bondSetController->arrangedObjects().size();
+   return static_cast<int>(_bondSetController->arrangedObjects().size());
 }
 
 QVariant BondListViewModel::data(const QModelIndex &index, int role) const

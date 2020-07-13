@@ -63,7 +63,7 @@ void OpenGLUnitCellSphereShader::paintGL(GLuint structureUniformBuffer)
         glBindVertexArray(_vertexArrayObject[i][j]);
         check_gl_error();
 
-        glDrawElementsInstanced(GL_TRIANGLE_STRIP, _numberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr,(GLsizei)_numberOfUnitCellSpheres[i][j]);
+        glDrawElementsInstanced(GL_TRIANGLE_STRIP, static_cast<GLsizei>(_numberOfIndices[i][j]), GL_UNSIGNED_SHORT, nullptr, static_cast<GLsizei>(_numberOfUnitCellSpheres[i][j]));
         check_gl_error();
         glBindVertexArray(0);
       }
@@ -140,11 +140,11 @@ void OpenGLUnitCellSphereShader::deleteBuffers()
 {
   for(size_t i=0;i<_renderStructures.size();i++)
   {
-    glDeleteBuffers(_renderStructures[i].size(), _vertexBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _indexBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _vertexInstanceBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _indexBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexInstanceBuffer[i].data());
 
-    glDeleteVertexArrays(_renderStructures[i].size(), _vertexArrayObject[i].data());
+    glDeleteVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _vertexArrayObject[i].data());
   }
 }
 
@@ -173,10 +173,10 @@ void OpenGLUnitCellSphereShader::generateBuffers()
 
   for(size_t i=0;i<_renderStructures.size();i++)
   {
-    glGenBuffers(_renderStructures[i].size(), _vertexBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _indexBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _vertexInstanceBuffer[i].data());
-    glGenVertexArrays(_renderStructures[i].size(), _vertexArrayObject[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _indexBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexInstanceBuffer[i].data());
+    glGenVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _vertexArrayObject[i].data());
   }
 }
 

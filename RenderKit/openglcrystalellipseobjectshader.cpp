@@ -67,7 +67,7 @@ void OpenGLCrystalEllipseObjectShader::paintGLOpaque(GLuint structureUniformBuff
           glBindVertexArray(_vertexArrayObject[i][j]);
           check_gl_error();
 
-          glDrawElementsInstanced(GL_TRIANGLE_STRIP, _numberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr,_numberOfDrawnAtoms[i][j]);
+          glDrawElementsInstanced(GL_TRIANGLE_STRIP, static_cast<GLsizei>(_numberOfIndices[i][j]), GL_UNSIGNED_SHORT, nullptr, static_cast<GLsizei>(_numberOfDrawnAtoms[i][j]));
           check_gl_error();
           glBindVertexArray(0);
         }
@@ -105,7 +105,7 @@ void OpenGLCrystalEllipseObjectShader::paintGLTransparent(GLuint structureUnifor
           glBindVertexArray(_vertexArrayObject[i][j]);
           check_gl_error();
 
-          glDrawElementsInstanced(GL_TRIANGLE_STRIP, _numberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr,_numberOfDrawnAtoms[i][j]);
+          glDrawElementsInstanced(GL_TRIANGLE_STRIP, static_cast<GLsizei>(_numberOfIndices[i][j]), GL_UNSIGNED_SHORT, nullptr, static_cast<GLsizei>(_numberOfDrawnAtoms[i][j]));
           check_gl_error();
           glBindVertexArray(0);
         }

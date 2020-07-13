@@ -62,40 +62,40 @@ private:
   GLuint _programBox;
   std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> _renderStructures;
 
-  std::vector<std::vector<int>> _numberOfAllExternalBonds;
-  std::vector<std::vector<int>> _externalAllBondNumberOfIndices;
+  std::vector<std::vector<size_t>> _numberOfAllExternalBonds;
+  std::vector<std::vector<size_t>> _externalAllBondNumberOfIndices;
   std::vector<std::vector<GLuint>> _vertexAllBondsArrayObject;
   std::vector<std::vector<GLuint>> _vertexAllBondsStencilArrayObject;
   std::vector<std::vector<GLuint>> _vertexAllBondsInstanceBuffer;
   std::vector<std::vector<GLuint>> _vertexAllBondsBuffer;
   std::vector<std::vector<GLuint>> _indexAllBondsBuffer;
 
-  std::vector<std::vector<int>> _numberOfSingleExternalBonds;
-  std::vector<std::vector<int>> _externalSingleBondNumberOfIndices;
+  std::vector<std::vector<size_t>> _numberOfSingleExternalBonds;
+  std::vector<std::vector<size_t>> _externalSingleBondNumberOfIndices;
   std::vector<std::vector<GLuint>> _vertexSingleBondsInstanceBuffer;
   std::vector<std::vector<GLuint>> _vertexSingleBondsArrayObject;
   std::vector<std::vector<GLuint>> _vertexSingleBondsStencilArrayObject;
   std::vector<std::vector<GLuint>> _vertexSingleBondsBuffer;
   std::vector<std::vector<GLuint>> _indexSingleBondsBuffer;
 
-  std::vector<std::vector<int>> _numberOfDoubleExternalBonds;
-  std::vector<std::vector<int>> _externalDoubleBondNumberOfIndices;
+  std::vector<std::vector<size_t>> _numberOfDoubleExternalBonds;
+  std::vector<std::vector<size_t>> _externalDoubleBondNumberOfIndices;
   std::vector<std::vector<GLuint>> _vertexDoubleBondsInstanceBuffer;
   std::vector<std::vector<GLuint>> _vertexDoubleBondsArrayObject;
   std::vector<std::vector<GLuint>> _vertexDoubleBondsStencilArrayObject;
   std::vector<std::vector<GLuint>> _vertexDoubleBondsBuffer;
   std::vector<std::vector<GLuint>> _indexDoubleBondsBuffer;
 
-  std::vector<std::vector<int>> _numberOfPartialDoubleExternalBonds;
-  std::vector<std::vector<int>> _externalPartialDoubleBondNumberOfIndices;
+  std::vector<std::vector<size_t>> _numberOfPartialDoubleExternalBonds;
+  std::vector<std::vector<size_t>> _externalPartialDoubleBondNumberOfIndices;
   std::vector<std::vector<GLuint>> _vertexPartialDoubleBondsInstanceBuffer;
   std::vector<std::vector<GLuint>> _vertexPartialDoubleBondsArrayObject;
   std::vector<std::vector<GLuint>> _vertexPartialDoubleBondsStencilArrayObject;
   std::vector<std::vector<GLuint>> _vertexPartialDoubleBondsBuffer;
   std::vector<std::vector<GLuint>> _indexPartialDoubleBondsBuffer;
 
-  std::vector<std::vector<int>> _numberOfTripleExternalBonds;
-  std::vector<std::vector<int>> _externalTripleBondNumberOfIndices;
+  std::vector<std::vector<size_t>> _numberOfTripleExternalBonds;
+  std::vector<std::vector<size_t>> _externalTripleBondNumberOfIndices;
   std::vector<std::vector<GLuint>> _vertexTripleBondsInstanceBuffer;
   std::vector<std::vector<GLuint>> _vertexTripleBondsArrayObject;
   std::vector<std::vector<GLuint>> _vertexTripleBondsStencilArrayObject;

@@ -163,7 +163,7 @@ QWidget * BondListViewComboBoxStyledItemDelegate::createEditor(QWidget *parent,
   return nullptr;
 }
 
-void BondListViewComboBoxStyledItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+void BondListViewComboBoxStyledItemDelegate::setEditorData([[maybe_unused]] QWidget *editor, const QModelIndex &index) const
 {
   //qDebug() << "setEditorData " << index.row();
     ////setup the editor - your data are in index.data(Qt::DataRoles) - stored in a QVariant;

@@ -57,7 +57,7 @@ void OpenGLBoundingBoxCylinderShader::paintGL()
       glBindVertexArray(_vertexArrayObject);
       check_gl_error();
 
-      glDrawElementsInstanced(GL_TRIANGLE_STRIP, _numberOfIndices, GL_UNSIGNED_SHORT, nullptr,(GLsizei)_numberOfUnitCellCylinders);
+      glDrawElementsInstanced(GL_TRIANGLE_STRIP, static_cast<GLsizei>(_numberOfIndices), GL_UNSIGNED_SHORT, nullptr, static_cast<GLsizei>(_numberOfUnitCellCylinders));
       check_gl_error();
       glBindVertexArray(0);
       glUseProgram(0);

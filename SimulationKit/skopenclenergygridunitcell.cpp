@@ -132,7 +132,7 @@ std::vector<cl_float>* SKOpenCLEnergyGridUnitCell::ComputeEnergyGrid(int sizeX, 
                                                               std::vector<double3> positions, std::vector<double2> potentialParameters,
                                                               double3x3 unitCell, int3 numberOfReplicas)
 {
-  int numberOfAtoms = positions.size();
+  size_t numberOfAtoms = positions.size();
   int temp = sizeX*sizeY*sizeZ;
   cl_int err = 0;
 
@@ -151,7 +151,7 @@ std::vector<cl_float>* SKOpenCLEnergyGridUnitCell::ComputeEnergyGrid(int sizeX, 
 
   // make sure the the global work size is an multiple of the work group size
   // (detected on NVIDIA)
-  int numberOfGridPoints = (temp  + _workGroupSize-1) & ~(_workGroupSize-1);
+  size_t numberOfGridPoints = (temp  + _workGroupSize-1) & ~(_workGroupSize-1);
   size_t global_work_size = numberOfGridPoints;
 
   std::vector<cl_float4> pos(numberOfAtoms);

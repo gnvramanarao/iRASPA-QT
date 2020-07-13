@@ -68,7 +68,7 @@ int FrameListViewModel::rowCount(const QModelIndex &parent) const
 {
   if(parent == QModelIndex())
   {
-    return _movie->frames().size();
+    return static_cast<int>(_movie->frames().size());
   }
   return 0;
 }

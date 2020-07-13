@@ -260,9 +260,9 @@ std::shared_ptr<iRASPAStructure> ProjectStructure::selectedFrame()
 
 
 
-std::vector<int> ProjectStructure::numberOfScenes() const
+std::vector<size_t> ProjectStructure::numberOfScenes() const
 {
-  std::vector<int> v = std::vector<int>(_sceneList->scenes().size());
+  std::vector<size_t> v = std::vector<size_t>(_sceneList->scenes().size());
 
   for(size_t i=0;i<_sceneList->scenes().size();i++)
   {
@@ -684,7 +684,7 @@ double ProjectStructure::imageDotsPerInchValue()
   }
 }
 
-int ProjectStructure::maxNumberOfMoviesFrames()
+size_t ProjectStructure::maxNumberOfMoviesFrames()
 {
   size_t maxNumberOfFrames=0;
   for(std::shared_ptr<Scene> scene : _sceneList->scenes())

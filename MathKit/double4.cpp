@@ -29,7 +29,6 @@
 
 #include "double4.h"
 
-#define _USE_MATH_DEFINES
 #include <cmath>
 
 /*

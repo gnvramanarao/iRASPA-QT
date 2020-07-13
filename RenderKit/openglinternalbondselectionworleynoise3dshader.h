@@ -58,36 +58,36 @@ private:
   GLuint _program;
   std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> _renderStructures;
 
-  std::vector<std::vector<int>> _numberOfAllBonds;
-  std::vector<std::vector<int>> _allBondNumberOfIndices;
+  std::vector<std::vector<size_t>> _numberOfAllBonds;
+  std::vector<std::vector<size_t>> _allBondNumberOfIndices;
   std::vector<std::vector<GLuint>> _vertexAllBondsInstanceBuffer;
   std::vector<std::vector<GLuint>> _vertexAllBondsArrayObject;
   std::vector<std::vector<GLuint>> _vertexAllBondsBuffer;
   std::vector<std::vector<GLuint>> _indexAllBondsBuffer;
 
-  std::vector<std::vector<int>> _numberOfSingleBonds;
-  std::vector<std::vector<int>> _singleBondNumberOfIndices;
+  std::vector<std::vector<size_t>> _numberOfSingleBonds;
+  std::vector<std::vector<size_t>> _singleBondNumberOfIndices;
   std::vector<std::vector<GLuint>> _vertexSingleBondsInstanceBuffer;
   std::vector<std::vector<GLuint>> _vertexSingleBondsArrayObject;
   std::vector<std::vector<GLuint>> _vertexSingleBondsBuffer;
   std::vector<std::vector<GLuint>> _indexSingleBondsBuffer;
 
-  std::vector<std::vector<int>> _numberOfDoubleBonds;
-  std::vector<std::vector<int>> _doubleBondNumberOfIndices;
+  std::vector<std::vector<size_t>> _numberOfDoubleBonds;
+  std::vector<std::vector<size_t>> _doubleBondNumberOfIndices;
   std::vector<std::vector<GLuint>> _vertexDoubleBondsInstanceBuffer;
   std::vector<std::vector<GLuint>> _vertexDoubleBondsArrayObject;
   std::vector<std::vector<GLuint>> _vertexDoubleBondsBuffer;
   std::vector<std::vector<GLuint>> _indexDoubleBondsBuffer;
 
-  std::vector<std::vector<int>> _numberOfPartialDoubleBonds;
-  std::vector<std::vector<int>> _partialDoubleBondNumberOfIndices;
+  std::vector<std::vector<size_t>> _numberOfPartialDoubleBonds;
+  std::vector<std::vector<size_t>> _partialDoubleBondNumberOfIndices;
   std::vector<std::vector<GLuint>> _vertexPartialDoubleBondsInstanceBuffer;
   std::vector<std::vector<GLuint>> _vertexPartialDoubleBondsArrayObject;
   std::vector<std::vector<GLuint>> _vertexPartialDoubleBondsBuffer;
   std::vector<std::vector<GLuint>> _indexPartialDoubleBondsBuffer;
 
-  std::vector<std::vector<int>> _numberOfTripleBonds;
-  std::vector<std::vector<int>> _tripleBondNumberOfIndices;
+  std::vector<std::vector<size_t>> _numberOfTripleBonds;
+  std::vector<std::vector<size_t>> _tripleBondNumberOfIndices;
   std::vector<std::vector<GLuint>> _vertexTripleBondsInstanceBuffer;
   std::vector<std::vector<GLuint>> _vertexTripleBondsArrayObject;
   std::vector<std::vector<GLuint>> _vertexTripleBondsBuffer;

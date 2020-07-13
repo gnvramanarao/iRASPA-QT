@@ -516,6 +516,7 @@ double2 Structure::adsorptionSurfaceProbeParameters() const
     case ProbeMolecule::multiple_values:
       return double2();
   }
+  return double2();
 }
 
 double2 Structure::frameworkProbeParameters() const
@@ -546,6 +547,7 @@ double2 Structure::frameworkProbeParameters() const
     case ProbeMolecule::multiple_values:
       return double2();
   }
+  return double2();
 }
 
 
@@ -1032,6 +1034,7 @@ double Structure::atomSelectionFrequency() const
   case RKSelectionStyle::multiple_values:
      return 0.0;
   }
+  return 0.0;
 }
 
 void Structure::setAtomSelectionFrequency(double value)
@@ -1064,6 +1067,7 @@ double Structure::atomSelectionDensity() const
   case RKSelectionStyle::multiple_values:
     return 0.0;
   }
+  return 0.0;
 }
 void Structure::setAtomSelectionDensity(double value)
 {

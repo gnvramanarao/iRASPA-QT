@@ -29,6 +29,8 @@
 
 #include "skpdbparser.h"
 #include <QDebug>
+#include <cmath>
+#include <qmath.h>
 #include "symmetrykitprotocols.h"
 #include "skasymmetricatom.h"
 #include "skelement.h"

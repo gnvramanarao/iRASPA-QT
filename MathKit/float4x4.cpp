@@ -30,7 +30,6 @@
 #include "float4x4.h"
 #include "float3x3.h"
 
-#define _USE_MATH_DEFINES
 #include <cmath>
 
 #include <iostream>
@@ -126,7 +125,7 @@ float4x4 float4x4::operator * (const float4x4& b) const
 bool float4x4::operator==(const float4x4& b) const
 {
   bool equal = true;
-  const float epsilon = 1e-8;
+  const float epsilon = 1e-8f;
 
   for (int i = 0; i < 16 && equal; i++)
     equal = fabs(m[i] - b.m[i]) <= epsilon;

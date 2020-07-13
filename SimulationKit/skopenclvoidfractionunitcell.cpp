@@ -145,7 +145,7 @@ double SKOpenCLVoidFractionUnitCell::computeVoidFraction(std::vector<cl_float>* 
   }
 
   // make sure the the global work size is an multiple of the work group size
-  int temp = voxels->size();
+  size_t temp = voxels->size();
   size_t numberOfGridPoints = (temp  + _workGroupSize-1) & ~(_workGroupSize-1);
   size_t global_work_size = numberOfGridPoints;
 
@@ -159,7 +159,7 @@ double SKOpenCLVoidFractionUnitCell::computeVoidFraction(std::vector<cl_float>* 
     return 0.0;
   }
 
-  int nWorkGroups = numberOfGridPoints/_workGroupSize;
+  size_t nWorkGroups = numberOfGridPoints/_workGroupSize;
 
   // Allocate cumulative error array
   float* sumReduction = new float[nWorkGroups];

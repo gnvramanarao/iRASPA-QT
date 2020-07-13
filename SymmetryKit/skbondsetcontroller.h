@@ -48,7 +48,7 @@ public:
   const std::vector<std::shared_ptr<SKAsymmetricBond>>& arrangedObjects() const {return _arrangedObjects;}
   void append(std::shared_ptr<SKAsymmetricBond> bond) {_arrangedObjects.push_back(bond);}
   void clear() {_arrangedObjects.clear();}
-  int getNumberOfBands();
+  size_t getNumberOfBonds();
   std::vector<std::shared_ptr<SKBond>> getBonds();
   void setBonds(std::vector<std::shared_ptr<SKBond>> &bonds);
   void insertBonds(std::vector<std::shared_ptr<SKAsymmetricBond> > bonds, std::set<int> indexSet);

@@ -55,7 +55,7 @@ public:
     inline const QString displayName() const {return this->_displayName;}
     void setDisplayName(QString name) {_displayName = name;}
 
-    int childCount() {return _childNodes.size();}
+    size_t childCount() {return _childNodes.size();}
     inline bool isLeaf() {return !_isGroup;}
     inline bool isGroup() {return _isGroup;}
     bool insertChild(int row, std::shared_ptr<SKAtomTreeNode> child);
@@ -78,7 +78,7 @@ public:
     void updateFilteredChildren(std::function<bool(std::shared_ptr<SKAtomTreeNode>)> predicate);
     void updateFilteredChildrenRecursively(std::function<bool(std::shared_ptr<SKAtomTreeNode>)> predicate);
     void setFilteredNodesAsMatching();
-    std::optional<int> findChildIndex(std::shared_ptr<SKAtomTreeNode> child);
+    std::optional<size_t> findChildIndex(std::shared_ptr<SKAtomTreeNode> child);
     int row() const;
     void setParent(std::shared_ptr<SKAtomTreeNode> parent) {_parent = parent;}
     void setGroupItem(bool state) {_isGroup = state;}

@@ -246,7 +246,7 @@ private:
   std::optional<bool> symmetryInversion();
   std::optional<QString> symmetryInversionCenterString();
   std::optional<bool> symmetryCentrosymmetric();
-  std::optional<bool> symmetryEnatiomorphic();
+  std::optional<bool> symmetryEnantiomorphic();
   std::optional<int> symmetryPointGroup();
   std::optional<QString> symmetrySymmorphicity();
 

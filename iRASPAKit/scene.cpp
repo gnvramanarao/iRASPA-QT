@@ -138,7 +138,7 @@ Scene::Scene(QUrl url, const SKColorSets& colorSets, ForceFieldSets& forcefieldS
 
         if (log)
         {
-          int numberOfAtoms = structure->atomsTreeController()->flattenedLeafNodes().size();
+          size_t numberOfAtoms = structure->atomsTreeController()->flattenedLeafNodes().size();
           log->logMessage(LogReporting::ErrorLevel::info, "Read " + QString::number(numberOfAtoms) + " atoms");
         }
 

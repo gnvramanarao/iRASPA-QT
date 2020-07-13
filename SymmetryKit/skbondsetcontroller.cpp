@@ -78,7 +78,7 @@ std::vector<std::shared_ptr<SKBond>> SKBondSetController::getBonds()
 {
   std::vector<std::shared_ptr<SKBond>> bonds;
 
-  int count = getNumberOfBands();
+  int count = getNumberOfBonds();
   bonds.reserve(count);
 
   for(std::shared_ptr<SKAsymmetricBond> asymmetricBond: _arrangedObjects)
@@ -90,9 +90,9 @@ std::vector<std::shared_ptr<SKBond>> SKBondSetController::getBonds()
   return bonds;
 }
 
-int SKBondSetController::getNumberOfBands()
+size_t SKBondSetController::getNumberOfBonds()
 {
-  int count = 0;
+  size_t count = 0;
   for(std::shared_ptr<SKAsymmetricBond> asymmetricBond: _arrangedObjects)
   {
      count += asymmetricBond->copies().size();

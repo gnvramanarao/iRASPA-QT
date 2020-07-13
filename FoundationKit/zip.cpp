@@ -513,7 +513,7 @@ void ZipReaderPrivate::scanFiles()
     int num_dir_entries = 0;
     EndOfDirectory eod;
     while (start_of_directory == -1) {
-        int pos = device->size() - sizeof(EndOfDirectory) - i;
+        qint64 pos = device->size() - sizeof(EndOfDirectory) - i;
         if (pos < 0 || i > 65535) {
             qWarning() << "QZip: EndOfDirectory not found";
             return;
@@ -1543,7 +1543,7 @@ QByteArray ZipReader::xzUncompress(QByteArray data)
   uint8_t *in_buf;
   uint8_t out_buf [OUT_BUF_MAX];
   size_t in_len;
-  int out_len;
+  size_t out_len;
   lzma_ret ret_xz;
   QByteArray arr;
 
@@ -1565,7 +1565,7 @@ QByteArray ZipReader::xzUncompress(QByteArray data)
     ret_xz = lzma_code (&strm, LZMA_FINISH);
 
     out_len = OUT_BUF_MAX - strm.avail_out;
-    arr.append(reinterpret_cast<char*>(out_buf), out_len);
+    arr.append(reinterpret_cast<char*>(out_buf), static_cast<int>(out_len));
     out_buf[0] = 0;
   } while (strm.avail_out == 0);
   lzma_end (&strm);

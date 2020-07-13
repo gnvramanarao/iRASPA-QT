@@ -28,7 +28,6 @@
  *************************************************************************************************************/
 
 #include "celltreewidgetcontroller.h"
-#define _USE_MATH_DEFINES
 #include <cmath>
 #include <iostream>
 #include <type_traits>
@@ -3459,7 +3458,7 @@ void CellTreeWidgetController::reloadSpaceGroupEnantiomorphic()
 
   if(!_iraspa_structures.empty())
   {
-    if (std::optional<bool> type = symmetryEnatiomorphic())
+    if (std::optional<bool> type = symmetryEnantiomorphic())
     {
       whileBlocking(_cellSymmetryForm->enantiomorphicLineEdit)->setText(*type ? "yes" : "no");
     }
@@ -3774,7 +3773,7 @@ std::optional<bool> CellTreeWidgetController::symmetryCentrosymmetric()
   {
     int pointGroup = iraspa_structure->structure()->spaceGroup().spaceGroupSetting().pointGroup();
     bool centroSymmetric = SKPointGroup::pointGroupData[pointGroup].centrosymmetric();
-    set.insert(pointGroup);
+    set.insert(centroSymmetric);
   }
 
   if(set.size() == 1)
@@ -3784,7 +3783,7 @@ std::optional<bool> CellTreeWidgetController::symmetryCentrosymmetric()
   return std::nullopt;
 }
 
-std::optional<bool> CellTreeWidgetController::symmetryEnatiomorphic()
+std::optional<bool> CellTreeWidgetController::symmetryEnantiomorphic()
 {
   if(_iraspa_structures.empty())
   {
@@ -3794,8 +3793,8 @@ std::optional<bool> CellTreeWidgetController::symmetryEnatiomorphic()
   for(std::shared_ptr<iRASPAStructure> iraspa_structure: _iraspa_structures)
   {
     int pointGroup = iraspa_structure->structure()->spaceGroup().spaceGroupSetting().pointGroup();
-    bool centroSymmetric = SKPointGroup::pointGroupData[pointGroup].enantiomorphic();
-    set.insert(pointGroup);
+    bool enantiomorphic = SKPointGroup::pointGroupData[pointGroup].enantiomorphic();
+    set.insert(enantiomorphic);
   }
 
   if(set.size() == 1)

@@ -49,15 +49,15 @@ void OpenGLAtomSelectionWorleyNoise3DShader::deleteBuffers()
 {
   for(size_t i=0;i<_renderStructures.size();i++)
   {
-    glDeleteBuffers(_renderStructures[i].size(), _vertexBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _indexBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _instancePositionBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _scaleBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _indexBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _instancePositionBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _scaleBuffer[i].data());
 
-    glDeleteVertexArrays(_renderStructures[i].size(), _vertexArrayObject[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _ambientColorBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _diffuseColorBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _specularColorBuffer[i].data());
+    glDeleteVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _vertexArrayObject[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _ambientColorBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _diffuseColorBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _specularColorBuffer[i].data());
   }
 }
 
@@ -94,15 +94,15 @@ void OpenGLAtomSelectionWorleyNoise3DShader::generateBuffers()
 
   for(size_t i=0;i<_renderStructures.size();i++)
   {
-    glGenBuffers(_renderStructures[i].size(), _vertexBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _indexBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _instancePositionBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _scaleBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _indexBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _instancePositionBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _scaleBuffer[i].data());
 
-    glGenVertexArrays(_renderStructures[i].size(), _vertexArrayObject[i].data());
-    glGenBuffers(_renderStructures[i].size(), _ambientColorBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _diffuseColorBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _specularColorBuffer[i].data());
+    glGenVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _vertexArrayObject[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _ambientColorBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _diffuseColorBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _specularColorBuffer[i].data());
   }
 }
 
@@ -130,7 +130,7 @@ void OpenGLAtomSelectionWorleyNoise3DShader::paintGL(GLuint structureUniformBuff
         glBindVertexArray(_vertexArrayObject[i][j]);
         check_gl_error();
 
-        glDrawElementsInstanced(GL_TRIANGLE_STRIP, _numberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr,(GLsizei)_numberOfDrawnAtoms[i][j]);
+        glDrawElementsInstanced(GL_TRIANGLE_STRIP, static_cast<GLsizei>(_numberOfIndices[i][j]), GL_UNSIGNED_SHORT, nullptr, static_cast<GLsizei>(_numberOfDrawnAtoms[i][j]));
         check_gl_error();
         glBindVertexArray(0);
       }

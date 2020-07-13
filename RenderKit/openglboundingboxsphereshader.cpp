@@ -57,7 +57,7 @@ void OpenGLBoundingBoxSphereShader::paintGL()
       glBindVertexArray(_vertexArrayObject);
       check_gl_error();
 
-      glDrawElementsInstanced(GL_TRIANGLE_STRIP, _numberOfIndices, GL_UNSIGNED_SHORT, nullptr,(GLsizei)_numberOfUnitCellSpheres);
+      glDrawElementsInstanced(GL_TRIANGLE_STRIP, static_cast<GLsizei>(_numberOfIndices), GL_UNSIGNED_SHORT, nullptr,(GLsizei)_numberOfUnitCellSpheres);
       check_gl_error();
       glBindVertexArray(0);
 

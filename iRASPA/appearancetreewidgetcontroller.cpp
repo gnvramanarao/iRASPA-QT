@@ -3470,7 +3470,7 @@ std::optional<Structure::RepresentationStyle> AppearanceTreeWidgetController::re
   return std::nullopt;
 }
 
-void AppearanceTreeWidgetController::setColorSchemeComboBoxIndex(int value)
+void AppearanceTreeWidgetController::setColorSchemeComboBoxIndex([[maybe_unused]]  int value)
 {
   QString stringValue = _appearanceAtomsForm->colorSchemeComboBox->currentText();
   if(QString::compare(stringValue, "Multiple values") != 0)
@@ -3539,7 +3539,7 @@ std::optional<SKColorSet::ColorSchemeOrder> AppearanceTreeWidgetController::colo
   return std::nullopt;
 }
 
-void AppearanceTreeWidgetController::setForcefieldSchemeComboBoxIndex(int value)
+void AppearanceTreeWidgetController::setForcefieldSchemeComboBoxIndex([[maybe_unused]] int value)
 {
   QString stringValue = _appearanceAtomsForm->forceFieldComboBox->currentText();
   if(QString::compare(stringValue, "Multiple values") != 0)

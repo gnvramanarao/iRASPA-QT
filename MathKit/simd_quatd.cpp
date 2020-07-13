@@ -29,8 +29,8 @@
 
 #include "simd_quatd.h"
 
-#define _USE_MATH_DEFINES
 #include <cmath>
+#include <qmath.h>
 #include <cstdlib>
 
 simd_quatd::simd_quatd(double ix, double iy, double iz, double r)

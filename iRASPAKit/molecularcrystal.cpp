@@ -228,10 +228,10 @@ std::vector<RKInPerInstanceAttributesAtoms> MolecularCrystal::renderUnitCellSphe
       for (int k3 = minimumReplicaZ;k3 <= maximumReplicaZ + 1;k3++)
       {
         double3 position = _cell->unitCell() * double3(k1, k2, k3); // + origin();
-        float4 ambient = float4(1.0, 1.0, 1.0, 1.0);
-        float4 diffuse = float4(1.0, 1.0, 1.0, 1.0);
-        float4 specular = float4(1.0, 1.0, 1.0, 1.0);
-        float4 scale = float4(0.1, 0.1, 0.1, 1.0);
+        float4 ambient = float4(1.0f, 1.0f, 1.0f, 1.0f);
+        float4 diffuse = float4(1.0f, 1.0f, 1.0f, 1.0f);
+        float4 specular = float4(1.0f, 1.0f, 1.0f, 1.0f);
+        float4 scale = float4(0.1f, 0.1f, 0.1f, 1.0f);
         RKInPerInstanceAttributesAtoms sphere = RKInPerInstanceAttributesAtoms(float4(position, 1.0), ambient, diffuse, specular, scale, asymmetricBondIndex);
         data.push_back(sphere);
       }
@@ -264,12 +264,12 @@ std::vector<RKInPerInstanceAttributesBonds> MolecularCrystal::renderUnitCellCyli
         {
           double3 position1 = _cell->unitCell() * double3(k1, k2, k3); // + origin();
           double3 position2 = _cell->unitCell() * double3(k1 + 1, k2, k3); // + origin();
-          float4 scale = float4(0.1, 1.0, 0.1, 1.0);
+          float4 scale = float4(0.1f, 1.0f, 0.1f, 1.0f);
           RKInPerInstanceAttributesBonds cylinder =
             RKInPerInstanceAttributesBonds(float4(position1, 1.0),
-              float4(position2, 1.0),
-              float4(1.0, 1.0, 1.0, 1.0),
-              float4(1.0, 1.0, 1.0, 1.0),
+              float4(position2, 1.0f),
+              float4(1.0f, 1.0f, 1.0f, 1.0f),
+              float4(1.0f, 1.0f, 1.0f, 1.0f),
               scale,0,0);
           data.push_back(cylinder);
         }
@@ -278,12 +278,12 @@ std::vector<RKInPerInstanceAttributesBonds> MolecularCrystal::renderUnitCellCyli
         {
           double3 position1 = _cell->unitCell() * double3(k1, k2, k3); // + origin();
           double3 position2 = _cell->unitCell() * double3(k1, k2 + 1, k3); // + origin();
-          float4 scale = float4(0.1, 1.0, 0.1, 1.0);
+          float4 scale = float4(0.1f, 1.0f, 0.1f, 1.0f);
           RKInPerInstanceAttributesBonds cylinder =
             RKInPerInstanceAttributesBonds(float4(position1, 1.0),
               float4(position2, 1.0),
-              float4(1.0, 1.0, 1.0, 1.0),
-              float4(1.0, 1.0, 1.0, 1.0),
+              float4(1.0f, 1.0f, 1.0f, 1.0f),
+              float4(1.0f, 1.0f, 1.0f, 1.0f),
               scale,0,0);
           data.push_back(cylinder);
         }

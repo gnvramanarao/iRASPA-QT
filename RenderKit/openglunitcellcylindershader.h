@@ -58,8 +58,8 @@ private:
   GLint _instancePositionSecondAtomAttributeLocation;
   GLint _instanceScaleAttributeLocation;
 
-  std::vector<std::vector<int>> _numberOfUnitCellCylinders;
-  std::vector<std::vector<int>> _numberOfIndices;
+  std::vector<std::vector<size_t>> _numberOfUnitCellCylinders;
+  std::vector<std::vector<size_t>> _numberOfIndices;
 
   std::vector<std::vector<GLuint>> _vertexArrayObject;
   std::vector<std::vector<GLuint>> _vertexInstanceBuffer;

@@ -86,10 +86,10 @@ void OpenGLEnergySurface::deleteBuffers()
 {
   for(size_t i=0;i<_renderStructures.size();i++)
   {
-    glDeleteVertexArrays(_renderStructures[i].size(), _surfaceVertexArrayObject[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _surfaceVertexBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _surfaceIndexBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _surfaceInstancePositionBuffer[i].data());
+    glDeleteVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _surfaceVertexArrayObject[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _surfaceVertexBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _surfaceIndexBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _surfaceInstancePositionBuffer[i].data());
   }
   check_gl_error();
 }
@@ -117,10 +117,10 @@ void OpenGLEnergySurface::generateBuffers()
 
   for(size_t i=0l;i<_renderStructures.size();i++)
   {
-    glGenVertexArrays(_renderStructures[i].size(), _surfaceVertexArrayObject[i].data());
-    glGenBuffers(_renderStructures[i].size(), _surfaceVertexBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _surfaceIndexBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _surfaceInstancePositionBuffer[i].data());
+    glGenVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _surfaceVertexArrayObject[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _surfaceVertexBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _surfaceIndexBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _surfaceInstancePositionBuffer[i].data());
   }
   check_gl_error();
 }
@@ -154,7 +154,7 @@ void OpenGLEnergySurface::paintGLOpaque(GLuint structureUniformBuffer, GLuint is
         glBindVertexArray(_surfaceVertexArrayObject[i][j]);
 
 
-        glDrawArraysInstanced(GL_TRIANGLES, 0, 3 * _surfaceNumberOfIndices[i][j], _surfaceNumberOfInstances[i][j]);
+        glDrawArraysInstanced(GL_TRIANGLES, 0, static_cast<GLsizei>(3 * _surfaceNumberOfIndices[i][j]), static_cast<GLsizei>(_surfaceNumberOfInstances[i][j]));
 
         glBindVertexArray(0);
       }
@@ -191,11 +191,11 @@ void OpenGLEnergySurface::paintGLTransparent(GLuint structureUniformBuffer, GLui
 
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT);
-        glDrawArraysInstanced(GL_TRIANGLES, 0, 3 * _surfaceNumberOfIndices[i][j], _surfaceNumberOfInstances[i][j]);
+        glDrawArraysInstanced(GL_TRIANGLES, 0, static_cast<GLsizei>(3 * _surfaceNumberOfIndices[i][j]), static_cast<GLsizei>(_surfaceNumberOfInstances[i][j]));
 
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
-        glDrawArraysInstanced(GL_TRIANGLES, 0, 3 * _surfaceNumberOfIndices[i][j], _surfaceNumberOfInstances[i][j]);
+        glDrawArraysInstanced(GL_TRIANGLES, 0, static_cast<GLsizei>(3 * _surfaceNumberOfIndices[i][j]), static_cast<GLsizei>(_surfaceNumberOfInstances[i][j]));
 
         glBindVertexArray(0);
       }

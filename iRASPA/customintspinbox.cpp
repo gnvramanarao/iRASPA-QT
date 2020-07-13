@@ -32,7 +32,6 @@
 #include <QApplication>
 #include <iostream>
 #include <QLineEdit>
-#define _USE_MATH_DEFINES
 #include <cmath>
 #include <iostream>
 
@@ -110,6 +109,7 @@ QString CustomIntSpinBox::textFromValue(int value) const
    case Text:
        return "";
    }
+   return "";
 }
 
 int CustomIntSpinBox::valueFromText(const QString &text) const

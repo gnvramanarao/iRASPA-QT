@@ -59,8 +59,8 @@ private:
   GLint _instancePositionAttributeLocation;
   GLint _scaleAttributeLocation;
 
-  int _numberOfUnitCellSpheres;
-  int _numberOfIndices;
+  size_t _numberOfUnitCellSpheres;
+  size_t _numberOfIndices;
 
   GLuint _vertexArrayObject;
   GLuint _vertexInstanceBuffer;

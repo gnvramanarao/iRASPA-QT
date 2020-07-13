@@ -30,8 +30,8 @@
 #include "double3x3.h"
 #include "double4x4.h"
 
-#define _USE_MATH_DEFINES
 #include <cmath>
+#include <qmath.h>
 
 #define sqr( x ) (( x )*( x ))
 #define SIGN(a,b) ((b)>=0.0?fabs(a):-fabs(a))

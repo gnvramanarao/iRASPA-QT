@@ -105,7 +105,7 @@ bool SKAtomTreeController::nodeIsChildOfItem(std::shared_ptr<SKAtomTreeNode> nod
 }
 
 
-int SKAtomTreeController::filteredChildIndexOfItem(std::shared_ptr<SKAtomTreeNode> parentItem, int index)
+size_t SKAtomTreeController::filteredChildIndexOfItem(std::shared_ptr<SKAtomTreeNode> parentItem, size_t index)
 {
   std::shared_ptr<SKAtomTreeNode> parentNode = parentItem == nullptr ? _hiddenRootNode : parentItem;
 
@@ -113,7 +113,7 @@ int SKAtomTreeController::filteredChildIndexOfItem(std::shared_ptr<SKAtomTreeNod
   {
     std::shared_ptr<SKAtomTreeNode> node = parentNode->_filteredAndSortedNodes[index];
 
-    std::optional<int> filteredIndex = parentNode->findChildIndex(node);
+    std::optional<size_t> filteredIndex = parentNode->findChildIndex(node);
 
     return *filteredIndex;
   }

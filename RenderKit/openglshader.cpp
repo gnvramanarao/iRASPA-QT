@@ -50,7 +50,7 @@ GLuint OpenGLShader::compileShaderOfType(GLenum shaderType,const GLchar * shader
 
   shader = glCreateShader(shaderType);
   check_gl_error();
-  length=strlen(shaderSourceCode);
+  length= static_cast<GLint>(strlen(shaderSourceCode));
   glShaderSource(shader, 1, &shaderSourceCode, &length);
   check_gl_error();
   glCompileShader(shader);

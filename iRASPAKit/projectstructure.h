@@ -61,7 +61,7 @@ public:
   std::vector<std::vector<std::shared_ptr<Structure>>> structures() const;
 
 
-  std::vector<int> numberOfScenes() const override final;
+  std::vector<size_t> numberOfScenes() const override final;
   int numberOfMovies(int sceneIndex) const override final;
   std::vector<std::shared_ptr<RKRenderStructure>> renderStructuresForScene(size_t i) const;
 
@@ -118,7 +118,7 @@ public:
   void setMovieFramesPerSecond(int fps) {_movieFramesPerSecond = fps;}
   double imageDotsPerInchValue();
 
-  int maxNumberOfMoviesFrames();
+  size_t maxNumberOfMoviesFrames();
   void setMovieFrameIndex(int index);
 
   void setShowBoundingBox(bool show) {_showBoundingBox = show;}

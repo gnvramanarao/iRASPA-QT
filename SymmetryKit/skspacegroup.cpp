@@ -114,7 +114,7 @@ std::optional<int> SKSpaceGroup::HallNumberFromHMString(QString string)
 std::vector<double3> SKSpaceGroup::listOfSymmetricPositions(double3 pos)
 {
   std::unordered_set<SKSeitzMatrix> seitzMatrices = _spaceGroupSetting.fullSeitzMatrices().operations();
-  int m = seitzMatrices.size();
+  size_t m = seitzMatrices.size();
 
   std::vector<double3> positions = std::vector<double3>();
   positions.reserve(m);

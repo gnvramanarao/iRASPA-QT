@@ -104,7 +104,7 @@ int AtomTreeViewModel::columnCount(const QModelIndex &parent) const
 int AtomTreeViewModel::rowCount(const QModelIndex &parent) const
 {
   SKAtomTreeNode *parentItem = nodeForIndex(parent);
-  return parentItem->childCount();
+  return static_cast<int>(parentItem->childCount());
 }
 
 QVariant AtomTreeViewModel::data(const QModelIndex &index, int role) const

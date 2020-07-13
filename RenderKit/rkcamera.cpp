@@ -30,6 +30,9 @@
 #include "rkcamera.h"
 #include "QtDebug"
 
+#include <cmath>
+#include <qmath.h>
+
 RKCamera::RKCamera()
 {
   _zNear = 1.0;

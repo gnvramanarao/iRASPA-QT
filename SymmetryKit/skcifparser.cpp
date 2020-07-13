@@ -35,8 +35,8 @@
 #include "skelement.h"
 #include "skspacegroup.h"
 
-#define _USE_MATH_DEFINES
-#include "math.h"
+#include <cmath>
+#include <qmath.h>
 
 //std::map<QString, double> SKCIFParser::SKCIFParser::scene()
 //{

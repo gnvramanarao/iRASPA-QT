@@ -143,17 +143,17 @@ int SceneTreeViewModel::rowCount(const QModelIndex &parent) const
 {
   if(parent == QModelIndex())
   {
-    return _sceneList->scenes().size();
+    return static_cast<int>(_sceneList->scenes().size());
   }
 
   DisplayableProtocol *parentItem = static_cast<DisplayableProtocol*>(parent.internalPointer());
   if(SceneList* parentSceneList = dynamic_cast<SceneList*>(parentItem))
   {
-    return parentSceneList->scenes().size();
+    return static_cast<int>(parentSceneList->scenes().size());
   }
   if(Scene* scene = dynamic_cast<Scene*>(parentItem))
   {
-    return scene->movies().size();
+    return static_cast<int>(scene->movies().size());
   }
   return 0;
 }

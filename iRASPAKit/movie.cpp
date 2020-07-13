@@ -87,7 +87,7 @@ std::set<int> Movie::selectedFramesIndexSet()
   {
     if(std::find(_selectedFramesSet.begin(), _selectedFramesSet.end(), _frames[i]) != _selectedFramesSet.end())
     {
-       selectionIndexSet.insert(i);
+       selectionIndexSet.insert(static_cast<int>(i));
     }
   }
 

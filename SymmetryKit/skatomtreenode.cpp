@@ -65,10 +65,10 @@ const IndexPath SKAtomTreeNode::indexPath()
 
 std::shared_ptr<SKAtomTreeNode> SKAtomTreeNode::descendantNodeAtIndexPath(IndexPath indexPath)
 {
-  int length = indexPath.count();
+  size_t length = indexPath.count();
   std::shared_ptr<SKAtomTreeNode> node = shared_from_this();
 
-  for(int i=0; i < length; i++)
+  for(size_t i=0; i < length; i++)
   {
     int index = indexPath[i];
     if(index<node->_childNodes.size())
@@ -371,7 +371,7 @@ void SKAtomTreeNode::setFilteredNodesAsMatching()
 }
 
 
-std::optional<int> SKAtomTreeNode::findChildIndex(std::shared_ptr<SKAtomTreeNode> child)
+std::optional<size_t> SKAtomTreeNode::findChildIndex(std::shared_ptr<SKAtomTreeNode> child)
 {
   std::vector<std::shared_ptr<SKAtomTreeNode>>::iterator itr = std::find_if(_childNodes.begin(), _childNodes.end(), [=](const std::shared_ptr<SKAtomTreeNode> x) {
       return x == child;

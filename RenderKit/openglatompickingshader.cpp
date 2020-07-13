@@ -102,7 +102,7 @@ void OpenGLAtomPickingShader::deleteBuffers()
 {
   for(size_t i=0;i<_renderStructures.size();i++)
   {
-    glDeleteVertexArrays(_renderStructures[i].size(), _atomPickingVertexArrayObject[i].data());
+    glDeleteVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _atomPickingVertexArrayObject[i].data());
   }
 }
 
@@ -117,7 +117,7 @@ void OpenGLAtomPickingShader::generateBuffers()
 
   for(size_t i=0;i<_renderStructures.size();i++)
   {
-    glGenVertexArrays(_renderStructures[i].size(), _atomPickingVertexArrayObject[i].data());
+    glGenVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _atomPickingVertexArrayObject[i].data());
 
   }
 }
@@ -148,7 +148,7 @@ void OpenGLAtomPickingShader::paintGL(int width,int height,GLuint structureUnifo
         glBindVertexArray(_atomPickingVertexArrayObject[i][j]);
         check_gl_error();
 
-        glDrawElementsInstanced(GL_TRIANGLE_STRIP, _atomOrthographicImposterShader._numberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr,_atomShader._numberOfDrawnAtoms[i][j]);
+        glDrawElementsInstanced(GL_TRIANGLE_STRIP, static_cast<GLsizei>(_atomOrthographicImposterShader._numberOfIndices[i][j]), GL_UNSIGNED_SHORT, nullptr, static_cast<GLsizei>(_atomShader._numberOfDrawnAtoms[i][j]));
         check_gl_error();
         glBindVertexArray(0);
       }

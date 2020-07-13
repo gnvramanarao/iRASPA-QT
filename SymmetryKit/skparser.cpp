@@ -29,6 +29,8 @@
 
 #include "skparser.h"
 
+#include <qmath.h>
+
 SKParser::SKParser(): _a(20.0), _b(20.0), _c(20.0), _alpha(90.0 * M_PI / 180.0), _beta(90.0 * M_PI / 180.0), _gamma(90.0 * M_PI / 180.0)
 {
 

@@ -29,17 +29,17 @@
 
 #include "float3x3.h"
 #include "float4x4.h"
-
-#define _USE_MATH_DEFINES
+ 
 #include <cmath>
+#include <qmath.h>
 
 #define sqr( x ) (( x )*( x ))
 #define SIGN(a,b) ((b)>=0.0?fabs(a):-fabs(a))
 #define MAX(x,y) (((x)>(y))?(x):(y))
 
 // dlambda_limit, below which two lambdas are relatively equal
-float flambda_limit = 1.0E-3;
-float fiszero_limit = 1.0E-20;
+float flambda_limit = 1.0E-3f;
+float fiszero_limit = 1.0E-20f;
 
 
 float3x3::float3x3(float4x4 a)
@@ -210,7 +210,7 @@ float trunc_acos( float x )
 { if( x >= 1.0 )
     return 0.0;
   if( x <= -1.0 )
-    return M_PI;
+    return float(M_PI);
   return acos( x );
 }
 

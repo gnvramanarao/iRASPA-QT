@@ -43,11 +43,11 @@ void OpenGLAtomPerspectiveImposterShader::deleteBuffers()
 {
   for(size_t i=0;i<_renderStructures.size();i++)
   {
-    glDeleteBuffers(_renderStructures[i].size(), _vertexBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _indexBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _scaleBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _indexBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _scaleBuffer[i].data());
 
-    glDeleteVertexArrays(_renderStructures[i].size(), _vertexArrayObject[i].data());
+    glDeleteVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _vertexArrayObject[i].data());
   }
 }
 
@@ -74,11 +74,11 @@ void OpenGLAtomPerspectiveImposterShader::generateBuffers()
 
   for(size_t i=0;i<_renderStructures.size();i++)
   {
-    glGenBuffers(_renderStructures[i].size(), _vertexBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _indexBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _scaleBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _indexBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _scaleBuffer[i].data());
 
-    glGenVertexArrays(_renderStructures[i].size(), _vertexArrayObject[i].data());
+    glGenVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _vertexArrayObject[i].data());
   }
 }
 
@@ -122,7 +122,7 @@ void OpenGLAtomPerspectiveImposterShader::paintGL(std::vector<std::vector<GLuint
         glBindTexture(GL_TEXTURE_2D, atomTextures[i][j]);
         glUniform1i(_ambientOcclusionTextureUniformLocation,0);
 
-        glDrawElementsInstanced(GL_TRIANGLE_STRIP, _numberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr,(GLsizei)_atomShader._numberOfDrawnAtoms[i][j]);
+        glDrawElementsInstanced(GL_TRIANGLE_STRIP, static_cast<GLsizei>(_numberOfIndices[i][j]), GL_UNSIGNED_SHORT, nullptr, static_cast<GLsizei>(_atomShader._numberOfDrawnAtoms[i][j]));
         check_gl_error();
         glBindVertexArray(0);
       }

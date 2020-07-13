@@ -70,7 +70,7 @@ void OpenGLInternalBondPickingShader::paintGL(int width,int height,GLuint struct
           glBindVertexArray(_vertexAllBondsArrayObject[i][j]);
           check_gl_error();
 
-          glDrawElementsInstanced(GL_TRIANGLES, _internalAllBondNumberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr, _numberOfAllInternalBonds[i][j]);
+          glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(_internalAllBondNumberOfIndices[i][j]), GL_UNSIGNED_SHORT, nullptr, static_cast<GLsizei>(_numberOfAllInternalBonds[i][j]));
 
           check_gl_error();
           glBindVertexArray(0);
@@ -83,7 +83,7 @@ void OpenGLInternalBondPickingShader::paintGL(int width,int height,GLuint struct
           glBindVertexArray(_vertexSingleBondsArrayObject[i][j]);
           check_gl_error();
 
-          glDrawElementsInstanced(GL_TRIANGLES, _internalSingleBondNumberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr, _numberOfSingleInternalBonds[i][j]);
+          glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(_internalSingleBondNumberOfIndices[i][j]), GL_UNSIGNED_SHORT, nullptr, static_cast<GLsizei>(_numberOfSingleInternalBonds[i][j]));
 
           check_gl_error();
           glBindVertexArray(0);
@@ -94,7 +94,7 @@ void OpenGLInternalBondPickingShader::paintGL(int width,int height,GLuint struct
           glBindVertexArray(_vertexDoubleBondsArrayObject[i][j]);
           check_gl_error();
 
-          glDrawElementsInstanced(GL_TRIANGLES, _internalDoubleBondNumberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr, _numberOfDoubleInternalBonds[i][j]);
+          glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(_internalDoubleBondNumberOfIndices[i][j]), GL_UNSIGNED_SHORT, nullptr, static_cast<GLsizei>(_numberOfDoubleInternalBonds[i][j]));
 
           check_gl_error();
           glBindVertexArray(0);
@@ -105,7 +105,7 @@ void OpenGLInternalBondPickingShader::paintGL(int width,int height,GLuint struct
           glBindVertexArray(_vertexPartialDoubleBondsArrayObject[i][j]);
           check_gl_error();
 
-          glDrawElementsInstanced(GL_TRIANGLES, _internalPartialDoubleBondNumberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr, _numberOfPartialDoubleInternalBonds[i][j]);
+          glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(_internalPartialDoubleBondNumberOfIndices[i][j]), GL_UNSIGNED_SHORT, nullptr, static_cast<GLsizei>(_numberOfPartialDoubleInternalBonds[i][j]));
 
           check_gl_error();
           glBindVertexArray(0);
@@ -116,7 +116,7 @@ void OpenGLInternalBondPickingShader::paintGL(int width,int height,GLuint struct
           glBindVertexArray(_vertexTripleBondsArrayObject[i][j]);
           check_gl_error();
 
-          glDrawElementsInstanced(GL_TRIANGLES, _internalTripleBondNumberOfIndices[i][j], GL_UNSIGNED_SHORT, nullptr, _numberOfTripleInternalBonds[i][j]);
+          glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(_internalTripleBondNumberOfIndices[i][j]), GL_UNSIGNED_SHORT, nullptr, static_cast<GLsizei>(_numberOfTripleInternalBonds[i][j]));
 
           check_gl_error();
           glBindVertexArray(0);
@@ -436,30 +436,30 @@ void OpenGLInternalBondPickingShader::deleteBuffers()
 {
   for(size_t i=0;i<_renderStructures.size();i++)
   {
-    glDeleteVertexArrays(_renderStructures[i].size(), _vertexAllBondsArrayObject[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _vertexAllBondsInstanceBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _vertexAllBondsBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _indexAllBondsBuffer[i].data());
+    glDeleteVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _vertexAllBondsArrayObject[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexAllBondsInstanceBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexAllBondsBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _indexAllBondsBuffer[i].data());
 
-    glDeleteVertexArrays(_renderStructures[i].size(), _vertexSingleBondsArrayObject[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _vertexSingleBondsInstanceBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _vertexSingleBondsBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _indexSingleBondsBuffer[i].data());
+    glDeleteVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _vertexSingleBondsArrayObject[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexSingleBondsInstanceBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexSingleBondsBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _indexSingleBondsBuffer[i].data());
 
-    glDeleteVertexArrays(_renderStructures[i].size(), _vertexDoubleBondsArrayObject[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _vertexDoubleBondsInstanceBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _vertexDoubleBondsBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _indexDoubleBondsBuffer[i].data());
+    glDeleteVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _vertexDoubleBondsArrayObject[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexDoubleBondsInstanceBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexDoubleBondsBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _indexDoubleBondsBuffer[i].data());
 
-    glDeleteVertexArrays(_renderStructures[i].size(), _vertexPartialDoubleBondsArrayObject[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _vertexPartialDoubleBondsInstanceBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _vertexPartialDoubleBondsBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _indexPartialDoubleBondsBuffer[i].data());
+    glDeleteVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _vertexPartialDoubleBondsArrayObject[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexPartialDoubleBondsInstanceBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexPartialDoubleBondsBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _indexPartialDoubleBondsBuffer[i].data());
 
-    glDeleteVertexArrays(_renderStructures[i].size(), _vertexTripleBondsArrayObject[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _vertexTripleBondsInstanceBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _vertexTripleBondsBuffer[i].data());
-    glDeleteBuffers(_renderStructures[i].size(), _indexTripleBondsBuffer[i].data());
+    glDeleteVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _vertexTripleBondsArrayObject[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexTripleBondsInstanceBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexTripleBondsBuffer[i].data());
+    glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _indexTripleBondsBuffer[i].data());
   }
 }
 
@@ -540,30 +540,30 @@ void OpenGLInternalBondPickingShader::generateBuffers()
 
   for(size_t i=0;i<_renderStructures.size();i++)
   {
-    glGenVertexArrays(_renderStructures[i].size(), _vertexAllBondsArrayObject[i].data());
-    glGenBuffers(_renderStructures[i].size(), _vertexAllBondsInstanceBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _vertexAllBondsBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _indexAllBondsBuffer[i].data());
+    glGenVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _vertexAllBondsArrayObject[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexAllBondsInstanceBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexAllBondsBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _indexAllBondsBuffer[i].data());
 
-    glGenVertexArrays(_renderStructures[i].size(), _vertexSingleBondsArrayObject[i].data());
-    glGenBuffers(_renderStructures[i].size(), _vertexSingleBondsInstanceBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _vertexSingleBondsBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _indexSingleBondsBuffer[i].data());
+    glGenVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _vertexSingleBondsArrayObject[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexSingleBondsInstanceBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexSingleBondsBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _indexSingleBondsBuffer[i].data());
 
-    glGenVertexArrays(_renderStructures[i].size(), _vertexDoubleBondsArrayObject[i].data());
-    glGenBuffers(_renderStructures[i].size(), _vertexDoubleBondsInstanceBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _vertexDoubleBondsBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _indexDoubleBondsBuffer[i].data());
+    glGenVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _vertexDoubleBondsArrayObject[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexDoubleBondsInstanceBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexDoubleBondsBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _indexDoubleBondsBuffer[i].data());
 
-    glGenVertexArrays(_renderStructures[i].size(), _vertexPartialDoubleBondsArrayObject[i].data());
-    glGenBuffers(_renderStructures[i].size(), _vertexPartialDoubleBondsInstanceBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _vertexPartialDoubleBondsBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _indexPartialDoubleBondsBuffer[i].data());
+    glGenVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _vertexPartialDoubleBondsArrayObject[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexPartialDoubleBondsInstanceBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexPartialDoubleBondsBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _indexPartialDoubleBondsBuffer[i].data());
 
-    glGenVertexArrays(_renderStructures[i].size(), _vertexTripleBondsArrayObject[i].data());
-    glGenBuffers(_renderStructures[i].size(), _vertexTripleBondsInstanceBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _vertexTripleBondsBuffer[i].data());
-    glGenBuffers(_renderStructures[i].size(), _indexTripleBondsBuffer[i].data());
+    glGenVertexArrays(static_cast<GLsizei>(_renderStructures[i].size()), _vertexTripleBondsArrayObject[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexTripleBondsInstanceBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexTripleBondsBuffer[i].data());
+    glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _indexTripleBondsBuffer[i].data());
   }
 }
 

@@ -30,7 +30,6 @@
 #include "customdoublespinbox.h"
 #include <iostream>
 #include <QLineEdit>
-#define _USE_MATH_DEFINES
 #include <cmath>
 #include <iostream>
 
@@ -110,6 +109,7 @@ QString CustomDoubleSpinBox::textFromValue(double value) const
    case Text:
        return "";
    }
+   return "";
 }
 
 double CustomDoubleSpinBox::valueFromText(const QString &text) const

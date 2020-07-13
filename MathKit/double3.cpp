@@ -28,7 +28,6 @@
  *************************************************************************************************************/
 
 #include "double3.h"
-#include "drand48.h"
 
 double3 double3::operator + (const double3& right) const
 {
@@ -140,8 +139,8 @@ double3 double3::randomVectorOnUnitSphere()
 
   do
   {
-    ran1=2.0*drand48()-1.0;
-    ran2=2.0*drand48()-1.0;
+    ran1=2.0*(double(rand())/RAND_MAX)-1.0;
+    ran2=2.0*(double(rand())/RAND_MAX)-1.0;
     ransq=ran1*ran1+ran2*ran2;
   }
   while(ransq>=1.0);

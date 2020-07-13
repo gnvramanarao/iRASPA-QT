@@ -85,11 +85,26 @@ int MovieWriter::initialize(const std::string& filename)
   _videoStream->codecpar->width = _width;
   _videoStream->codecpar->height = _height;
   _videoStream->codecpar->format = AV_PIX_FMT_YUV420P;
-  _videoStream->codecpar->bit_rate = 5000000;
+
   _videoStream->codecpar->codec_tag = 0;
-  if (_type == Type::h265)
+  switch(_type)
   {
+  case Type::h265:
     _videoStream->codecpar->codec_tag = MKTAG('h', 'v', 'c', '1'); // for h265
+    _videoStream->codecpar->bit_rate = 5000000;
+    break;
+  case Type::h264:
+    _videoStream->codecpar->bit_rate = 5000000;
+    break;
+  case Type::vp9:
+    _videoStream->codecpar->bit_rate = 5000000;
+    break;
+  case Type::av1:
+    _videoStream->codecpar->bit_rate = 5000000;
+    break;
+  default:
+    _videoStream->codecpar->bit_rate = 5000000;
+    break;
   }
 
   avcodec_parameters_to_context(_cctx, _videoStream->codecpar);

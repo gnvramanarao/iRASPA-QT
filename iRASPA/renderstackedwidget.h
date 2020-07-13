@@ -41,6 +41,7 @@
 #include "bondlistviewmodel.h"
 #include "symmetrykit.h"
 #include "logreporting.h"
+#include "moviemaker.h"
 
 class RenderStackedWidget : public QStackedWidget, public ProjectConsumer, public MainWindowConsumer, public LogReportingConsumer
 {
@@ -84,7 +85,7 @@ public slots:
   void reloadSelectionData();
   void reloadBackgroundImage();
   void createPicture(QUrl fileURL, int width, int height);
-  void createMovie(QUrl fileURL, int width, int height);
+  void createMovie(QUrl fileURL, int width, int height, MovieWriter::Type type);
   void resizeEvent(QResizeEvent *event) override final;
   void redrawWithLowQuality();
   void redrawWithMediumQuality();

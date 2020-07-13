@@ -656,14 +656,18 @@ void RenderStackedWidget::createPicture(QUrl fileURL, int width, int height)
   }
 }
 
+int nearestEvenInt(int to)
+{
+  return (to % 2 == 0) ? to : (to + 1);
+}
 
-void RenderStackedWidget::createMovie(QUrl fileURL, int width, int height)
+void RenderStackedWidget::createMovie(QUrl fileURL, int width, int height, MovieWriter::Type type)
 {
   if (RKRenderViewController* widget = dynamic_cast<RKRenderViewController*>(currentWidget()))
   {
     if (std::shared_ptr<ProjectStructure> project = _project.lock())
     {
-      MovieWriter movie(width, height, project->movieFramesPerSecond(), _logReporter, MovieWriter::Type::h265);
+      MovieWriter movie(nearestEvenInt(width), nearestEvenInt(height), project->movieFramesPerSecond(), _logReporter, type);
       int ret = movie.initialize(fileURL.toLocalFile().toStdString());
       if (ret < 0)
       {
@@ -677,7 +681,7 @@ void RenderStackedWidget::createMovie(QUrl fileURL, int width, int height)
         project->setMovieFrameIndex(iframe);
         _mainWindow->propagateProject(_projectTreeNode.lock(), _mainWindow);
         widget->reloadData();
-        QImage image = widget->renderSceneToImage(width, height);
+        QImage image = widget->renderSceneToImage(nearestEvenInt(width), nearestEvenInt(height));
 
         movie.addFrame(image.bits(), iframe);
       }

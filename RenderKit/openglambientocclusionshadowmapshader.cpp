@@ -451,7 +451,7 @@ void  OpenGLAmbientOcclusionShadowMapShader::updateAmbientOcclusionTextures(std:
           shadowMapFrameUniforms.reserve(360);
 
           // the fixed set of directions are randomly, but deterministically, distorted to remove artifacts
-          srand48(0);
+          //srand48(0);
 
           for(int k=0;k<360;k++)
           {

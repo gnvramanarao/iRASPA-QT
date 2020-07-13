@@ -46,18 +46,20 @@ win32{
   QMAKE_CXXFLAGS += /F 4194304
   QMAKE_LFLAGS   += /STACK:4194304
 
+  INCLUDEPATH += "C:/msys64/home/ddubb/tmp/installed/include"
   INCLUDEPATH += "C:/vcpkg/installed/x64-windows-static/include"
   INCLUDEPATH += "C:/vcpkg/installed/x64-windows-static/include/python2.7"
 
-  LIBS += "C:/vcpkg/installed/x64-windows-static/lib/avutil.lib"
-  LIBS += "C:/vcpkg/installed/x64-windows-static/lib/avfilter.lib"
-  LIBS += "C:/vcpkg/installed/x64-windows-static/lib/avformat.lib"
-  LIBS += "C:/vcpkg/installed/x64-windows-static/lib/avresample.lib"
-  LIBS += "C:/vcpkg/installed/x64-windows-static/lib/avdevice.lib"
-  LIBS += "C:/vcpkg/installed/x64-windows-static/lib/avcodec.lib"
-  LIBS += "C:/vcpkg/installed/x64-windows-static/lib/swresample.lib"
-  LIBS += "C:/vcpkg/installed/x64-windows-static/lib/swscale.lib"
-  LIBS += "C:/vcpkg/installed/x64-windows-static/lib/x265-static.lib"
+  LIBS += "C:/msys64/home/ddubb/tmp/installed/lib/libavutil.a"
+  LIBS += "C:/msys64/home/ddubb/tmp/installed/lib/libavfilter.a"
+  LIBS += "C:/msys64/home/ddubb/tmp/installed/lib/libavformat.a"
+  LIBS += "C:/msys64/home/ddubb/tmp/installed/lib/libavresample.a"
+  LIBS += "C:/msys64/home/ddubb/tmp/installed/lib/libavdevice.a"
+  LIBS += "C:/msys64/home/ddubb/tmp/installed/lib/libavcodec.a"
+  LIBS += "C:/msys64/home/ddubb/tmp/installed/lib/libswresample.a"
+  LIBS += "C:/msys64/home/ddubb/tmp/installed/lib/libswscale.a"
+  LIBS += "C:/msys64/home/ddubb/tmp/installed/lib/libx264.lib"
+  LIBS += "C:/msys64/home/ddubb/tmp/installed/lib/vpx.lib"
   LIBS += "C:/vcpkg/installed/x64-windows-static/lib/python27.lib"
   LIBS += "C:/vcpkg/installed/x64-windows-static/lib/lzma.lib"
   LIBS += "C:/vcpkg/installed/x64-windows-static/lib/zlib.lib"
@@ -65,6 +67,9 @@ win32{
 
   LIBS += secur32.lib ws2_32.lib bcrypt.lib kernel32.lib cfgmgr32.lib user32.lib ole32.lib advapi32.lib
 }
+
+win32:CONFIG(release, debug|release): LIBS += "C:/msys64/home/ddubb/tmp/installed/lib/x265-static.lib"
+else:win32:CONFIG(debug, debug|release): LIBS += "C:/msys64/home/ddubb/tmp/installed/lib/x265-static-debug.lib"
 
 unix:!macx{
   QMAKE_CXXFLAGS += -Wl,--stack,4194304

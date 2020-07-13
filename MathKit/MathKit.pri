@@ -1,7 +1,6 @@
 INCLUDEPATH += $$PWD
 
 SOURCES += \
-    $$PWD/drand48.cpp \
     $$PWD/simd_quatd.cpp \
     $$PWD/bool3.cpp \
     $$PWD/int3.cpp \
@@ -21,7 +20,6 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/mathkit.h \
-    $$PWD/drand48.h \
     $$PWD/simd_quatd.h \
     $$PWD/bool3.h \
     $$PWD/int3.h \

@@ -192,6 +192,10 @@ CameraTreeWidgetController::CameraTreeWidgetController(QWidget* parent): QTreeWi
   _cameraPicturesForm->qualityComboBox->insertItem(2,"8-bits, CMYK");
   _cameraPicturesForm->qualityComboBox->insertItem(3,"16-bits, CMYK");
 
+  _cameraPicturesForm->movieTypeComboBox->insertItem(0,"hevc (h265)");
+  _cameraPicturesForm->movieTypeComboBox->insertItem(1,"h264");
+  _cameraPicturesForm->movieTypeComboBox->insertItem(2,"vp9");
+
   QObject::connect(_cameraPicturesForm->dotsPerInchComboBox,static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),this,&CameraTreeWidgetController::setPictureDotsPerInch);
   QObject::connect(_cameraPicturesForm->qualityComboBox,static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),this,&CameraTreeWidgetController::setPictureQuality);
 
@@ -205,6 +209,8 @@ CameraTreeWidgetController::CameraTreeWidgetController(QWidget* parent): QTreeWi
 
   QObject::connect(_cameraPicturesForm->createPicturePushButton,&QPushButton::clicked,this,&CameraTreeWidgetController::savePicture);
   QObject::connect(_cameraPicturesForm->createMoviePushButton,&QPushButton::clicked,this,&CameraTreeWidgetController::saveMovie);
+
+  QObject::connect(_cameraPicturesForm->movieTypeComboBox,static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),this,&CameraTreeWidgetController::setMovieType);
 
 
   // Background
@@ -1041,7 +1047,7 @@ void CameraTreeWidgetController::reloadPictureProperties()
       break;
     }
 
-    whileBlocking( _cameraPicturesForm->dotsPerInchComboBox)->setCurrentIndex(int(_project->imageDPI()));
+    whileBlocking(_cameraPicturesForm->dotsPerInchComboBox)->setCurrentIndex(int(_project->imageDPI()));
     whileBlocking(_cameraPicturesForm->qualityComboBox)->setCurrentIndex(int(_project->renderImageQuality()));
 
     whileBlocking(_cameraPicturesForm->pixelWidthSpinBox)->setValue(_project->renderImageNumberOfPixels());
@@ -1057,6 +1063,8 @@ void CameraTreeWidgetController::reloadPictureProperties()
       whileBlocking(_cameraPicturesForm->cmRadioButton)->setChecked(true);
       break;
     }
+
+    whileBlocking(_cameraPicturesForm->movieTypeComboBox)->setCurrentIndex(int(_movieType));
 
     whileBlocking(_cameraPicturesForm->framesPerSecondSpinBox)->setValue(_project->movieFramesPerSecond());
   }
@@ -1226,9 +1234,14 @@ void CameraTreeWidgetController::saveMovie()
     {
       int width = _project->renderImageNumberOfPixels();
       int height = _project->renderImageNumberOfPixels() / _project->imageAspectRatio();
-      emit rendererCreateMovie(fileURL, width, height);
+      emit rendererCreateMovie(fileURL, width, height, _movieType);
     }
   }
+}
+
+void CameraTreeWidgetController::setMovieType(int value)
+{
+  _movieType = MovieWriter::Type(value);
 }
 
 // Background properties

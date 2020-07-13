@@ -156,6 +156,9 @@
     <Content Include="iRASPA\Qt5Qml.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="iRASPA\Qt5QmlModels.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="iRASPA\Qt5Quick.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

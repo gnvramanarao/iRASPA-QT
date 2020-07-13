@@ -31,7 +31,7 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
-#include "drand48.h"
+#include <cstdlib>
 
 simd_quatd::simd_quatd(double ix, double iy, double iz, double r)
 {
@@ -52,7 +52,7 @@ simd_quatd::simd_quatd(double real, double3 imag)
 simd_quatd simd_quatd::smallRandomQuaternion(double angleRange)
 {
   double3 randomDirection = double3::randomVectorOnUnitSphere();
-  double angle = angleRange*2.0*(drand48()-0.5);
+  double angle = angleRange*2.0*((double(rand())/RAND_MAX)-0.5);
   return simd_quatd(angle, randomDirection).normalized();
 }
 
@@ -111,11 +111,11 @@ simd_quatd simd_quatd::random()
   double theta1 = 0.0;
   double theta2 = 0.0;
 
-  s=drand48();
+  s=(double(rand())/RAND_MAX);
   sigma1=sqrt(1.0-s);
   sigma2=sqrt(s);
-  theta1=2.0 * M_PI * drand48();
-  theta2=2.0 * M_PI * drand48();
+  theta1=2.0 * M_PI * (double(rand())/RAND_MAX);
+  theta2=2.0 * M_PI * (double(rand())/RAND_MAX);
 
   return simd_quatd(sigma2 * cos(theta2), sigma1 * sin(theta1), sigma1 * cos(theta1), sigma2 * sin(theta2));
 }

@@ -201,6 +201,8 @@ QDataStream &operator<<(QDataStream& stream, const std::shared_ptr<iRASPAProject
   return stream;
 }
 
+
+
 QDataStream &operator>>(QDataStream& stream, std::shared_ptr<iRASPAProject>& node)
 {
   qint64 versionNumber;
@@ -223,6 +225,127 @@ QDataStream &operator>>(QDataStream& stream, std::shared_ptr<iRASPAProject>& nod
   qint64 lazyStatus;
   stream >> lazyStatus;
   node->_lazyStatus = iRASPAProject::LazyStatus(lazyStatus);
+
+  return stream;
+}
+
+QDataStream &operator<<=(QDataStream& stream, const std::shared_ptr<iRASPAProject>& node)
+{
+  node->unwrapIfNeeded();
+
+  stream << node->_versionNumber;
+  stream << static_cast<typename std::underlying_type<iRASPAProject::ProjectType>::type>(node->_projectType);
+  stream << node->_fileNameUUID;
+  stream << static_cast<typename std::underlying_type<iRASPAProject::NodeType>::type>(node->_nodeType);
+  stream << static_cast<typename std::underlying_type<iRASPAProject::StorageType>::type>(node->_storageType);
+  stream << static_cast<typename std::underlying_type<iRASPAProject::LazyStatus>::type>(iRASPAProject::LazyStatus::loaded);
+
+  switch(node->_projectType)
+  {
+  case iRASPAProject::ProjectType::none:
+    break;
+  case iRASPAProject::ProjectType::generic:
+    stream << node->_project;
+    break;
+  case iRASPAProject::ProjectType::group:
+    stream << std::dynamic_pointer_cast<ProjectGroup>(node->_project);
+    stream << node->_project;
+    break;
+  case iRASPAProject::ProjectType::structure:
+    stream << std::dynamic_pointer_cast<ProjectStructure>(node->_project);
+    stream << node->_project;
+    break;
+  case iRASPAProject::ProjectType::VASP:
+    break;
+  case iRASPAProject::ProjectType::RASPA:
+    break;
+  case iRASPAProject::ProjectType::GULP:
+    break;
+  case iRASPAProject::ProjectType::CP2K:
+    break;
+  }
+
+  return stream;
+}
+
+QDataStream &operator>>=(QDataStream& stream, std::shared_ptr<iRASPAProject>& node)
+{
+  qint64 versionNumber;
+  stream >> versionNumber;
+  if(versionNumber > node->_versionNumber)
+  {
+    throw InvalidArchiveVersionException(__FILE__, __LINE__, "iRASPAProject");
+  }
+  qint64 projectType;
+  stream >> projectType;
+  node->_projectType = iRASPAProject::ProjectType(projectType);
+  stream >> node->_fileNameUUID;
+
+  qint64 nodeType;
+  stream >> nodeType;
+  node->_nodeType = iRASPAProject::NodeType(nodeType);
+  qint64 storageType;
+  stream >> storageType;
+  node->_storageType = iRASPAProject::StorageType(storageType);
+  qint64 lazyStatus;
+  stream >> lazyStatus;
+  node->_lazyStatus = iRASPAProject::LazyStatus(lazyStatus);
+
+  try
+  {
+  switch(node->_projectType)
+  {
+  case iRASPAProject::ProjectType::none:
+    break;
+  case iRASPAProject::ProjectType::generic:
+    stream >> node->_project;
+    break;
+  case iRASPAProject::ProjectType::group:
+  {
+    std::shared_ptr<ProjectGroup> groupNode = std::make_shared<ProjectGroup>();
+    stream >> groupNode;
+    node->_project = groupNode;
+    stream >> node->_project;
+    break;
+  }
+  case iRASPAProject::ProjectType::structure:
+  {
+    std::shared_ptr<ProjectStructure> projectNode = std::make_shared<ProjectStructure>();
+    stream >> projectNode;
+    node->_project = projectNode;
+    stream >> node->_project;
+    break;
+  }
+  case iRASPAProject::ProjectType::VASP:
+    break;
+  case iRASPAProject::ProjectType::RASPA:
+    break;
+  case iRASPAProject::ProjectType::GULP:
+    break;
+  case iRASPAProject::ProjectType::CP2K:
+    break;
+  }
+    node->_lazyStatus = iRASPAProject::LazyStatus::loaded;
+  }
+  catch (InvalidArchiveVersionException ex)
+  {
+    std::cout << "Error: " << ex.message().toStdString() << std::endl;
+    std::cout << ex.what() << ex.get_file() << std::endl;
+    std::cout << "Function: " << ex.get_func() << std::endl;
+  }
+  catch(InconsistentArchiveException ex)
+  {
+    std::cout << "Error: " << ex.message().toStdString() << std::endl;
+    std::cout << ex.what() << ex.get_file() << std::endl;
+    std::cout << "Function: " << ex.get_func() << std::endl;
+  }
+  catch(std::exception e)
+  {
+    std::cout << "Error: " << e.what() << std::endl;
+  }
+
+  qDebug() << "correctly read!";
+
 
   return stream;
 }

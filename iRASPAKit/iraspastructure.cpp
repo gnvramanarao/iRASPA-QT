@@ -47,15 +47,19 @@ void iRASPAStructure::swapRepresentedObjects(std::shared_ptr<iRASPAStructure> s1
 
 QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<iRASPAStructure> &iraspa_structure)
 {
+  qDebug() << "writing iRASPAProject " << static_cast<typename std::underlying_type<iRASPAStructureType>::type>(iraspa_structure->_rawValue) <<  ", " << int(iraspa_structure->_rawValue);
+
   stream << static_cast<typename std::underlying_type<iRASPAStructureType>::type>(iraspa_structure->_rawValue);
   switch(iraspa_structure->_rawValue)
   {
   case iRASPAStructureType::none:
     break;
   case iRASPAStructureType::structure:
+    qDebug() << "write structure type";
     stream << iraspa_structure->_structure;
     break;
   case iRASPAStructureType::crystal:
+    qDebug() << "write crystal type";
     stream << std::dynamic_pointer_cast<Crystal>(iraspa_structure->_structure);
     stream << iraspa_structure->_structure;
     break;
@@ -116,12 +120,15 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<iRASPAStructure> &i
   stream >> type;
   iraspa_structure->_rawValue = iRASPAStructureType(type);
 
+  qDebug() << "reading iRASPAProject " << type;
+
   switch(iraspa_structure->_rawValue)
   {
     case iRASPAStructureType::none:
       break;
     case iRASPAStructureType::structure:
     {
+      qDebug() << "read structure type";
       std::shared_ptr<Structure> structure = std::make_shared<Structure>();
       stream >> structure;
       iraspa_structure->_structure = structure;
@@ -130,6 +137,7 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<iRASPAStructure> &i
     }
     case iRASPAStructureType::crystal:
     {
+      qDebug() << "read crystal type";
       std::shared_ptr<Crystal> crystal = std::make_shared<Crystal>();
       stream >> crystal;
       iraspa_structure->_structure = crystal;

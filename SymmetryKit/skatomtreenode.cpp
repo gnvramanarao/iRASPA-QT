@@ -70,7 +70,7 @@ std::shared_ptr<SKAtomTreeNode> SKAtomTreeNode::descendantNodeAtIndexPath(IndexP
 
   for(size_t i=0; i < length; i++)
   {
-    int index = indexPath[i];
+    size_t index = indexPath[i];
     if(index<node->_childNodes.size())
     {
       return nullptr;

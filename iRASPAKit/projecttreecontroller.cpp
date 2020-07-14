@@ -53,6 +53,8 @@ ProjectTreeController::ProjectTreeController(): _hiddenRootNode(std::make_shared
   rootGalleryProjects->insertChild(0,_galleryProjects);
   rootLocalProjects->insertChild(0,_localProjects);
   //rootIcloudProjects->insertChild(0,_icloudProjects);
+
+  _localProjects->setIsDropEnabled(true);
 }
 
 ProjectTreeController::~ProjectTreeController()

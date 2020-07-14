@@ -99,24 +99,25 @@ Scene::Scene(QUrl url, const SKColorSets& colorSets, ForceFieldSets& forcefieldS
       std::shared_ptr<Movie> movie = std::make_shared<Movie>(info.baseName());
       for (std::shared_ptr<SKStructure> frame : movieFrames)
       {
-        std::shared_ptr<Structure> structure;
+        //std::shared_ptr<Structure> structure;
+        std::shared_ptr<iRASPAStructure> iraspastructure;
 
         switch(frame->kind)
         {
         case SKStructure::Kind::crystal:
-          structure = std::make_shared<Crystal>(frame);
+          iraspastructure = std::make_shared<iRASPAStructure>(std::make_shared<Crystal>(frame));
           break;
         case SKStructure::Kind::molecularCrystal:
-          structure = std::make_shared<MolecularCrystal>(frame);
+          iraspastructure = std::make_shared<iRASPAStructure>(std::make_shared<MolecularCrystal>(frame));
           break;
         case SKStructure::Kind::molecule:
-          structure = std::make_shared<Molecule>(frame);
+          iraspastructure = std::make_shared<iRASPAStructure>(std::make_shared<Molecule>(frame));
           break;
         case SKStructure::Kind::protein:
-          structure = std::make_shared<Protein>(frame);
+          iraspastructure = std::make_shared<iRASPAStructure>(std::make_shared<Protein>(frame));
           break;
         case SKStructure::Kind::proteinCrystal:
-          structure = std::make_shared<ProteinCrystal>(frame);
+          iraspastructure = std::make_shared<iRASPAStructure>(std::make_shared<ProteinCrystal>(frame));
           break;
         default:
           if (log)
@@ -126,19 +127,18 @@ Scene::Scene(QUrl url, const SKColorSets& colorSets, ForceFieldSets& forcefieldS
           return;
         }
 
-        structure->setRepresentationStyle(Structure::RepresentationStyle::defaultStyle, colorSets);
-        structure->setAtomForceFieldIdentifier("Default", forcefieldSets);
+        iraspastructure->structure()->setRepresentationStyle(Structure::RepresentationStyle::defaultStyle, colorSets);
+        iraspastructure->structure()->setAtomForceFieldIdentifier("Default", forcefieldSets);
 
-        structure->computeBonds();
+        iraspastructure->structure()->computeBonds();
 
-        structure->reComputeBoundingBox();
-        structure->recomputeDensityProperties();
+        iraspastructure->structure()->reComputeBoundingBox();
+        iraspastructure->structure()->recomputeDensityProperties();
 
-        std::shared_ptr<iRASPAStructure> iraspastructure = std::make_shared<iRASPAStructure>(structure);
 
         if (log)
         {
-          size_t numberOfAtoms = structure->atomsTreeController()->flattenedLeafNodes().size();
+          size_t numberOfAtoms = iraspastructure->structure()->atomsTreeController()->flattenedLeafNodes().size();
           log->logMessage(LogReporting::ErrorLevel::info, "Read " + QString::number(numberOfAtoms) + " atoms");
         }
 
@@ -211,6 +211,7 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<Scene> &scene)
 {
   qint64 versionNumber;
   stream >> versionNumber;
+
   if(versionNumber > scene->_versionNumber)
   {
     throw InvalidArchiveVersionException(__FILE__, __LINE__, "Scene");

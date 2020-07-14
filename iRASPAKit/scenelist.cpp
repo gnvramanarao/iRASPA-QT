@@ -128,6 +128,7 @@ QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<SceneList> &s
   stream << sceneList->_versionNumber;
   stream << sceneList->_displayName;
   stream << sceneList->_scenes;
+
   return stream;
 }
 
@@ -135,11 +136,13 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<SceneList> &sceneLi
 {
   qint64 versionNumber;
   stream >> versionNumber;
+
   if(versionNumber > sceneList->_versionNumber)
   {
     throw InvalidArchiveVersionException(__FILE__, __LINE__, "SceneList");
   }
   stream >> sceneList->_displayName;
   stream >> sceneList->_scenes;
+
   return stream;
 }

@@ -47,6 +47,7 @@ QDataStream &operator>>(QDataStream& stream, std::shared_ptr<Project>& project)
 {
   qint64 versionNumber;
   stream >> versionNumber;
+
   if(versionNumber > project->_versionNumber)
   {
     throw InvalidArchiveVersionException(__FILE__, __LINE__, "Project");

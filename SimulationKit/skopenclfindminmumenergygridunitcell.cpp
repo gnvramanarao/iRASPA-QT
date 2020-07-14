@@ -192,7 +192,7 @@ double SKOpenCLFindMinmumEnergyGridUnitCell::findMinimumEnergy(std::vector<cl_fl
 
   // Final summation with CPU
   double minimumEnergy = 0.0;
-  for (int i=0; i<nWorkGroups; i++)
+  for (size_t i=0; i<nWorkGroups; i++)
     minimumEnergy = std::min(minimumEnergy, double(sumReduction[i]));
 
   clReleaseMemObject(rawData);

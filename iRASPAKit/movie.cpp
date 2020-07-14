@@ -128,5 +128,6 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<Movie> &movie)
   }
   stream >> movie->_displayName;
   stream >> movie->_frames;
+
   return stream;
 }

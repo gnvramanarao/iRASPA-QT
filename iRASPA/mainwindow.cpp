@@ -430,6 +430,7 @@ void MainWindow::readLibraryOfStructures()
 
   for(std::shared_ptr<ProjectTreeNode> galleryProject : _documentData.projectTreeController()->galleryProjects()->descendantNodes())
   {
+    galleryProject->setType(ProjectTreeNode::Type::gallery);
     galleryProject->setIsEditable(false);
   }
 

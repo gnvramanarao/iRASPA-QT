@@ -270,12 +270,8 @@ std::vector<std::shared_ptr<SKAtomTreeNode>> SKAtomTreeController::selectedAtomT
 
 QDataStream &operator<<(QDataStream& stream, const std::shared_ptr<SKAtomTreeController>& controller)
 {
-  qDebug() << " << _atomTreeController 1";
-  std::cout << controller;
   stream << controller->_versionNumber;
-  qDebug() << " << _atomTreeController 2";
   stream << controller->_hiddenRootNode;
-  qDebug() << " << _atomTreeController 3";
   return stream;
 }
 
@@ -288,7 +284,6 @@ QDataStream &operator>>(QDataStream& stream, std::shared_ptr<SKAtomTreeControlle
     throw InvalidArchiveVersionException(__FILE__, __LINE__, "SKAtomTreeController");
   }
 
-  std::cout << "starte decoding from hiddenRootNode" << std::endl;
   stream >> controller->_hiddenRootNode;
   return stream;
 }

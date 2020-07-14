@@ -42,7 +42,7 @@ std::shared_ptr<iRASPAProject> ProjectTreeNode::representedObject()
   return _representedObject;
 }
 
-int ProjectTreeNode::row() const
+size_t ProjectTreeNode::row() const
 {
   if(!_parent.expired())
   {
@@ -59,7 +59,7 @@ int ProjectTreeNode::row() const
 }
 
 
-std::optional<int> ProjectTreeNode::findChildIndex(std::shared_ptr<ProjectTreeNode> child)
+std::optional<size_t> ProjectTreeNode::findChildIndex(std::shared_ptr<ProjectTreeNode> child)
 {
   if (std::shared_ptr<ProjectTreeNode> lockedParent = _parent.lock())
   {
@@ -73,7 +73,7 @@ std::optional<int> ProjectTreeNode::findChildIndex(std::shared_ptr<ProjectTreeNo
   return std::nullopt;
 }
 
-bool ProjectTreeNode::removeChild(int row)
+bool ProjectTreeNode::removeChild(size_t row)
 {
   if (row < 0 || row >= _childNodes.size())
      return false;
@@ -82,7 +82,7 @@ bool ProjectTreeNode::removeChild(int row)
   return true;
 }
 
-bool ProjectTreeNode::insertChild(int row, std::shared_ptr<ProjectTreeNode> child)
+bool ProjectTreeNode::insertChild(size_t row, std::shared_ptr<ProjectTreeNode> child)
 {
   if (row < 0 || row > _childNodes.size())
     return false;
@@ -124,7 +124,7 @@ std::shared_ptr<ProjectTreeNode> ProjectTreeNode::descendantNodeAtIndexPath(Inde
 
   for(size_t i=0; i < length; i++)
   {
-    int index = indexPath[i];
+    size_t index = indexPath[i];
     if(index<node->_childNodes.size())
     {
       return nullptr;
@@ -139,7 +139,7 @@ std::shared_ptr<ProjectTreeNode> ProjectTreeNode::descendantNodeAtIndexPath(Inde
 }
 
 
-void ProjectTreeNode::insertInParent(std::shared_ptr<ProjectTreeNode> parent, int index)
+void ProjectTreeNode::insertInParent(std::shared_ptr<ProjectTreeNode> parent, size_t index)
 {
   this->_parent = parent;
   parent->_childNodes.insert(parent->_childNodes.begin() + index, shared_from_this());
@@ -398,12 +398,12 @@ void ProjectTreeNode::setFilteredNodesAsMatching()
 
 
 
-bool ProjectTreeNode::insertChildren(int position, int count, int columns)
+bool ProjectTreeNode::insertChildren(size_t position, size_t count, size_t columns)
 {
   if (position < 0 || position > _childNodes.size())
     return false;
 
-  for (int row = 0; row < count; ++row)
+  for (size_t row = 0; row < count; ++row)
   {
     std::shared_ptr<ProjectTreeNode> item = std::make_shared<ProjectTreeNode>(QString("tree node"));
     item->_parent = shared_from_this();
@@ -419,12 +419,23 @@ bool ProjectTreeNode::setData(const QVariant &value)
   return true;
 }
 
+std::shared_ptr<ProjectTreeNode> ProjectTreeNode::shallowClone()
+{
+  QByteArray byteArray = QByteArray();
+  QDataStream stream(&byteArray, QIODevice::WriteOnly);
+  stream <<= this->shared_from_this();
+
+  QDataStream streamRead(&byteArray, QIODevice::ReadOnly);
+  std::shared_ptr<ProjectTreeNode> projectTreeNode = std::make_shared<ProjectTreeNode>();
+  streamRead >>= projectTreeNode;
+
+  return projectTreeNode;
+}
+
 QDataStream &operator<<(QDataStream& stream, const std::shared_ptr<ProjectTreeNode>& node)
 {
   stream << node->_versionNumber;
   stream << node->_displayName;
-
-
 
   stream << node->_isEditable;
   stream << node->_isDropEnabled;
@@ -459,3 +470,34 @@ QDataStream &operator>>(QDataStream& stream, std::shared_ptr<ProjectTreeNode>& n
 
   return stream;
 }
+
+QDataStream &operator<<=(QDataStream& stream, const std::shared_ptr<ProjectTreeNode>& node)
+{
+  stream << node->_versionNumber;
+  stream << node->_displayName;
+
+  stream << node->_isEditable;
+  stream << node->_isDropEnabled;
+
+  stream <<= node->_representedObject;
+
+  return stream;
+}
+
+QDataStream &operator>>=(QDataStream& stream, std::shared_ptr<ProjectTreeNode>& node)
+{
+  qint64 versionNumber;
+  stream >> versionNumber;
+  if(versionNumber > node->_versionNumber)
+  {
+    throw InvalidArchiveVersionException(__FILE__, __LINE__, "ProjectTreeNode");
+  }
+  stream >> node->_displayName;
+  stream >> node->_isEditable;
+  stream >> node->_isDropEnabled;
+
+  stream >>= node->_representedObject;
+
+  return stream;
+}
+

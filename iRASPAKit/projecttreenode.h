@@ -41,16 +41,24 @@ class ProjectTreeController;
 class ProjectTreeNode: public std::enable_shared_from_this<ProjectTreeNode>
 {
 public:
-    ProjectTreeNode(QString displayName = "Default", bool isEditable=true, bool isDropEnabled=true): _displayName(displayName), _representedObject(std::make_shared<iRASPAProject>()), _isEditable(isEditable), _isDropEnabled(isDropEnabled) {}
-    ProjectTreeNode(std::shared_ptr<iRASPAProject> representedObject, bool isEditable=true, bool isDropEnabled=true):  _representedObject(representedObject), _isEditable(isEditable), _isDropEnabled(isDropEnabled) {}
-    ProjectTreeNode(QString displayName, std::shared_ptr<iRASPAProject> representedObject, bool isEditable=true, bool isDropEnabled=true): _displayName(displayName), _representedObject(representedObject), _isEditable(isEditable), _isDropEnabled(isDropEnabled) {}
+
+    enum class Type
+    {
+      gallery = 0, user = 1, cloud = 2
+    };
+
+    ProjectTreeNode(QString displayName = "Default", bool isEditable=true, bool isDropEnabled=true): _type(Type::user), _displayName(displayName), _representedObject(std::make_shared<iRASPAProject>()), _isEditable(isEditable), _isDropEnabled(isDropEnabled) {}
+    ProjectTreeNode(std::shared_ptr<iRASPAProject> representedObject, bool isEditable=true, bool isDropEnabled=true): _type(Type::user), _representedObject(representedObject), _isEditable(isEditable), _isDropEnabled(isDropEnabled) {}
+    ProjectTreeNode(QString displayName, std::shared_ptr<iRASPAProject> representedObject, bool isEditable=true, bool isDropEnabled=true): _type(Type::user), _displayName(displayName), _representedObject(representedObject), _isEditable(isEditable), _isDropEnabled(isDropEnabled) {}
     ~ProjectTreeNode();
 
-    bool removeChild(int row);
-    bool insertChild(int row, std::shared_ptr<ProjectTreeNode> child);
+    std::shared_ptr<ProjectTreeNode> shallowClone();
 
-    std::shared_ptr<ProjectTreeNode> getChildNode(int index) {return _childNodes[index];}
-    int row() const;
+    bool removeChild(size_t row);
+    bool insertChild(size_t row, std::shared_ptr<ProjectTreeNode> child);
+
+    std::shared_ptr<ProjectTreeNode> getChildNode(size_t index) {return _childNodes[index];}
+    size_t row() const;
     size_t childCount() {return _childNodes.size();}
 
     inline  std::vector<std::shared_ptr<ProjectTreeNode>> childNodes() const {return this->_childNodes;}
@@ -67,10 +75,10 @@ public:
     void setIsEditable(bool editable) {_isEditable = editable;}
     inline bool isEditable() {return _isEditable;}
     inline bool isDropEnabled() {return _isDropEnabled;}
-    void insertInParent(std::shared_ptr<ProjectTreeNode> parent, int index);
+    void insertInParent(std::shared_ptr<ProjectTreeNode> parent, size_t index);
     void appendToParent(std::shared_ptr<ProjectTreeNode> parent);
     const IndexPath indexPath();
-    std::optional<int> findChildIndex(std::shared_ptr<ProjectTreeNode> child);
+    std::optional<size_t> findChildIndex(std::shared_ptr<ProjectTreeNode> child);
     std::shared_ptr<ProjectTreeNode> descendantNodeAtIndexPath(IndexPath indexPath);
     std::vector<std::shared_ptr<ProjectTreeNode>> flattenedNodes();
     std::vector<std::shared_ptr<ProjectTreeNode>> flattenedLeafNodes();
@@ -85,10 +93,14 @@ public:
     void updateFilteredChildren(std::function<bool(std::shared_ptr<ProjectTreeNode>)> predicate);
     void updateFilteredChildrenRecursively(std::function<bool(std::shared_ptr<ProjectTreeNode>)> predicate);
     void setFilteredNodesAsMatching();
-    bool insertChildren(int position, int count, int columns);
+    bool insertChildren(size_t position, size_t count, size_t columns);
     bool setData(const QVariant &value);
+    Type type() {return _type;}
+    void setType(Type type) {_type = type;}
+    void setIsDropEnabled(bool enabled) {_isDropEnabled = enabled;}
 private:
     qint64 _versionNumber{1};
+    Type _type;
     QString _displayName;
     std::weak_ptr<ProjectTreeNode> _parent{};
     std::shared_ptr<iRASPAProject> _representedObject{};
@@ -104,4 +116,6 @@ private:
     friend ProjectTreeController;
     friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<ProjectTreeNode> &);
     friend QDataStream &operator>>(QDataStream &, std::shared_ptr<ProjectTreeNode> &);
+    friend QDataStream &operator<<=(QDataStream &, const std::shared_ptr<ProjectTreeNode> &);
+    friend QDataStream &operator>>=(QDataStream &, std::shared_ptr<ProjectTreeNode> &);
 };

@@ -35,18 +35,18 @@ IndexPath::IndexPath()
   _path.reserve(10);
 }
 
-IndexPath::IndexPath(const int index)
+IndexPath::IndexPath(const size_t index)
 {
   _path.reserve(10);
   _path.push_back(index);
 }
 
-int& IndexPath::operator[] (const size_t index) // for non-const objects: can be used for assignment
+size_t& IndexPath::operator[] (const size_t index) // for non-const objects: can be used for assignment
 {
   return _path[index];
 }
 
-const int& IndexPath::operator[] (const size_t index) const // for const objects: can only be used for access
+const size_t& IndexPath::operator[] (const size_t index) const // for const objects: can only be used for access
 {
   return _path[index];
 }
@@ -72,7 +72,7 @@ size_t IndexPath::count()
   return _path.size();
 }
 
-IndexPath IndexPath::appending(int index)
+IndexPath IndexPath::appending(size_t index)
 {
   IndexPath indexpath{};
   indexpath._path.insert(indexpath._path.end(), _path.begin(), _path.end());
@@ -84,7 +84,7 @@ IndexPath IndexPath::removingLastIndex()
 {
   IndexPath indexPath{};
   if (_path.size() <= 1) {return indexPath;}
-  indexPath._path = std::vector<int>(_path.begin(),std::prev(_path.end(), 1));
+  indexPath._path = std::vector<size_t>(_path.begin(),std::prev(_path.end(), 1));
   return indexPath;
 }
 
@@ -102,8 +102,8 @@ bool IndexPath::operator<( const IndexPath& otherObject ) const
   size_t l2 = otherObject._path.size();
   for(size_t pos=0;pos<std::min(l1,l2); pos++)
   {
-    int i1 = _path[pos];
-    int i2 = otherObject._path[pos];
+    size_t i1 = _path[pos];
+    size_t i2 = otherObject._path[pos];
     if (i1 < i2)
     {
       return true;
@@ -126,8 +126,8 @@ bool IndexPath::operator>( const IndexPath& otherObject ) const
   size_t l2 = otherObject._path.size();
   for(size_t pos=0;pos<std::min(l1,l2); pos++)
   {
-    int i1 = _path[pos];
-    int i2 = otherObject._path[pos];
+    size_t i1 = _path[pos];
+    size_t i2 = otherObject._path[pos];
     if (i1 < i2)
     {
       return false;
@@ -150,8 +150,8 @@ bool IndexPath::operator=( const IndexPath& otherObject ) const
   size_t l2 = otherObject._path.size();
   for(size_t pos=0;pos<std::min(l1,l2); pos++)
   {
-    int i1 = _path[pos];
-    int i2 = otherObject._path[pos];
+    size_t i1 = _path[pos];
+    size_t i2 = otherObject._path[pos];
     if (i1 < i2)
     {
       return false;
@@ -176,7 +176,7 @@ QDebug operator<<(QDebug debug, const IndexPath &c)
 {
   QDebugStateSaver saver(debug);
   debug.nospace() << '(' << c._path.size() << ") , " << c._path;
-  for(int i: c._path)
+  for(size_t i: c._path)
   {
     qDebug() << "value: " << i;
   }

@@ -75,6 +75,9 @@ private:
 
   friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<iRASPAProject> &);
   friend QDataStream &operator>>(QDataStream &, std::shared_ptr<iRASPAProject> &);
+
+  friend QDataStream &operator<<=(QDataStream &, const std::shared_ptr<iRASPAProject> &);
+  friend QDataStream &operator>>=(QDataStream &, std::shared_ptr<iRASPAProject> &);
 };
 
 

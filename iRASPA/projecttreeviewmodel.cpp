@@ -100,7 +100,7 @@ bool ProjectTreeViewModel::removeRows(int position, int rows, const QModelIndex 
 {
   ProjectTreeNode *parentItem = getItem(parent);
 
-  if (position < 0 || position > parentItem->childNodes().size())
+  if (position < 0 || position > static_cast<int>(parentItem->childNodes().size()))
     return false;
 
   beginRemoveRows(parent, position, position + rows - 1);
@@ -270,12 +270,16 @@ Qt::ItemFlags ProjectTreeViewModel::flags(const QModelIndex &index) const
     flags |= Qt::ItemIsEditable;
   }
 
-  flags |= Qt::ItemIsDragEnabled;
-
-  ProjectTreeNode *node = getItem(index);
-  if(node->representedObject()->isGroup() && node->isDropEnabled())
+  if(ProjectTreeNode *node = getItem(index))
   {
-    flags |= Qt::ItemIsDropEnabled;
+    if(node->representedObject()->isLeaf())
+    {
+      flags |= Qt::ItemIsDragEnabled;
+    }
+    if(node->representedObject()->isGroup() && node->isDropEnabled())
+    {
+      flags |= Qt::ItemIsDropEnabled;
+    }
   }
 
   return flags;
@@ -333,14 +337,16 @@ QMimeData* ProjectTreeViewModel::mimeData(const QModelIndexList &indexes) const
   stream << QCoreApplication::applicationPid();
   stream << indexes2.count();
 
-  for(auto iter = indexes2.constBegin(); iter != indexes2.constEnd(); ++iter)
+  for(const QModelIndex &index: indexes)
   {
-    QModelIndex index = *iter;
     if(index.isValid())
     {
-      ProjectTreeNode *atom = getItem(index);
-      qulonglong ptrval(reinterpret_cast<qulonglong>(atom));
-      stream << ptrval;
+      if(ProjectTreeNode *projectTreeNode = getItem(index))
+      {
+        qulonglong ptrval(reinterpret_cast<qulonglong>(projectTreeNode));
+        stream << ptrval;
+        //stream << projectTreeNode;
+      }
     }
   }
   QMimeData *mimeData = new QMimeData();
@@ -349,9 +355,12 @@ QMimeData* ProjectTreeViewModel::mimeData(const QModelIndexList &indexes) const
   return mimeData;
 }
 
+
 // drops onto existing items have row and column set to -1 and parent set to the current item
 bool ProjectTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
+  Q_UNUSED(column);
+
   if(action == Qt::IgnoreAction)
   {
     return true;
@@ -393,10 +402,31 @@ bool ProjectTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction ac
 
   if(action == Qt::DropAction::CopyAction)
   {
-     insertRows(beginRow,count,parent);
+    qDebug() << "Qt::DropAction::CopyAction";
+    // insertRows(beginRow,count,parent);
+    emit layoutAboutToBeChanged();
+    bool oldState = this->blockSignals(true);
+    while (!stream.atEnd())
+    {
+      int localRow;
+      qlonglong nodePtr;
+      stream >> nodePtr;
+      ProjectTreeNode *node = reinterpret_cast<ProjectTreeNode *>(nodePtr);
+      std::shared_ptr<ProjectTreeNode> copiedProjectTreeNode = node->shallowClone();
+      copiedProjectTreeNode->setIsEditable(true);
+      copiedProjectTreeNode->setIsDropEnabled(true);
+
+      beginInsertRows(parent, beginRow, beginRow);
+      if (!parentNode->insertChild(beginRow, copiedProjectTreeNode))
+        break;
+      endInsertRows();
+      ++beginRow;
+    }
+    this->blockSignals(oldState);
   }
   else
   {
+    qDebug() << "Qt::DropAction::MoveAction";
     emit layoutAboutToBeChanged();
     bool oldState = this->blockSignals(true);
     while (!stream.atEnd())

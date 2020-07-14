@@ -739,9 +739,10 @@ QDataStream &operator<<(QDataStream& stream, const std::shared_ptr<ProjectStruct
   stream << static_cast<typename std::underlying_type<RKImageUnits>::type>(node->_imageUnits);
   stream << static_cast<typename std::underlying_type<RKImageDimensions>::type>(node->_imageDimensions);
   stream << static_cast<typename std::underlying_type<RKImageQuality>::type>(node->_renderImageQuality);
-  stream << node->_movieFramesPerSecond;
 
+  stream << node->_movieFramesPerSecond;
   stream << node->_camera;
+
   stream << node->_sceneList;
 
   return stream;
@@ -796,6 +797,7 @@ QDataStream &operator>>(QDataStream& stream, std::shared_ptr<ProjectStructure>& 
   stream >> node->_movieFramesPerSecond;
 
   stream >> node->_camera;
+
   stream >> node->_sceneList;
 
   return stream;

@@ -208,7 +208,6 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<SKBondSetController
   qint32 versionNumber;
   stream >> versionNumber;
 
-  qDebug() << "versionNumber" << versionNumber;
   if(versionNumber > controller->_versionNumber)
   {
     throw InvalidArchiveVersionException(__FILE__, __LINE__, "SKBondSetController");
@@ -221,8 +220,6 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<SKBondSetController
   {
     qint32 versionNumber2;
     stream >> versionNumber2;
-
-    qDebug() << "versionNumber2" << versionNumber2;
 
     if(versionNumber2 > 1)
     {
@@ -256,7 +253,6 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<SKBondSetController
       qint64 vecSize;
       std::vector<std::shared_ptr<SKBond>> bonds;
       stream >> vecSize;
-      qDebug() << "size: " << vecSize;
       qint64 atomtag1;
       qint64 atomtag2;
       qint64 type;

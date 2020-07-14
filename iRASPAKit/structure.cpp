@@ -1266,6 +1266,7 @@ QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<Structure> &s
 
   stream << structure->_atomsTreeController;
   stream << structure->_drawAtoms;
+
   stream << static_cast<typename std::underlying_type<Structure::RepresentationType>::type>(structure->_atomRepresentationType);
   stream << static_cast<typename std::underlying_type<Structure::RepresentationStyle>::type>(structure->_atomRepresentationStyle);
   stream << structure->_atomForceFieldIdentifier;
@@ -1312,7 +1313,6 @@ QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<Structure> &s
   stream << static_cast<typename std::underlying_type<RKTextEffect>::type>(structure->_atomTextEffect);
   stream << static_cast<typename std::underlying_type<RKTextAlignment>::type>(structure->_atomTextAlignment);
   stream << structure->_atomTextOffset;
-
 
   stream << structure->_bondSetController;
 
@@ -1470,12 +1470,11 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<Structure> &structu
   uint32_t year;
   qint64 versionNumber;
   stream >> versionNumber;
+
   if(versionNumber > structure->_versionNumber)
   {
     throw InvalidArchiveVersionException(__FILE__, __LINE__, "Structure");
   }
-
-  qDebug() << "READING STRUCTURE";
 
   stream >> structure->_displayName;
   stream >> structure->_isVisible;
@@ -1528,7 +1527,6 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<Structure> &structu
     structure->_frameworkProbeMolecule = Structure::ProbeMolecule(probeMolecule);
   }
 
-
   stream >> structure->_minimumGridEnergyValue;
 
   stream >> structure->_atomsTreeController;
@@ -1580,6 +1578,7 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<Structure> &structu
   stream >> structure->_atomDiffuseIntensity;
   stream >> structure->_atomSpecularIntensity;
   stream >> structure->_atomShininess;
+
 
   qint64 atomTextType;
   stream >> atomTextType;

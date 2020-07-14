@@ -44,7 +44,7 @@ ProjectTreeView::ProjectTreeView(QWidget* parent): QTreeView(parent ),
   setDragEnabled(true);
   setAcceptDrops(true);
   setDropIndicatorShown(true);
-  setDragDropMode(DragDropMode::InternalMove);
+  setDragDropMode(DragDropMode::DragDrop);
   setDragDropOverwriteMode(false);
   //setDefaultDropAction(Qt::MoveAction);
 
@@ -142,6 +142,39 @@ QAbstractItemView::DropIndicatorPosition ProjectTreeView::position(QPoint pos, Q
 
 void ProjectTreeView::startDrag(Qt::DropActions supportedActions)
 {
+  qDebug() << "startDrag";
+   QModelIndex index = currentIndex();
+
+   ProjectTreeViewModel* pModel = qobject_cast<ProjectTreeViewModel*>(model());
+   if(ProjectTreeNode* item = pModel->getItem(index))
+   {
+     QModelIndexList selectionIndexes = selectionModel()->selectedRows();
+     QMimeData* mimeData = model()->mimeData(selectionIndexes);
+
+     QDrag* drag = new QDrag(this);
+     drag->setMimeData(mimeData);
+
+     switch(item->type())
+     {
+     case ProjectTreeNode::Type::user:
+       qDebug() << "set as move action";
+       if(drag->exec(Qt::CopyAction))
+       {
+         reloadSelection();
+       }
+       break;
+     default:
+       qDebug() << "set as copy action";
+       if(drag->exec(Qt::CopyAction))
+       {
+         reloadSelection();
+       }
+       break;
+     }
+   }
+
+
+  /*
   QModelIndexList selectionIndexes = selectionModel()->selectedRows();
 
   if(!selectionIndexes.isEmpty())
@@ -158,7 +191,7 @@ void ProjectTreeView::startDrag(Qt::DropActions supportedActions)
     {
       reloadSelection();
     }
-  }
+  }*/
 }
 
 
@@ -170,46 +203,55 @@ void ProjectTreeView::dragMoveEvent(QDragMoveEvent *event)
   //std::cout << "row:" << index.row() << ", " << index.column() << ", " << index.parent().internalPointer() << ", " << index.parent().isValid()  << std::endl;
 
   ProjectTreeViewModel* pModel = qobject_cast<ProjectTreeViewModel*>(model());
-  ProjectTreeNode* item = pModel->getItem(index);
-  if(!item->isDropEnabled())
+  if(ProjectTreeNode* item = pModel->getItem(index))
   {
-    _dropIndicatorRect = QRect();
-    event->ignore();
+    qDebug() << "item->isDropEnabled(): " << item->isDropEnabled() << " for node " << item->displayName();
+    if(!item->isDropEnabled())
+    {
+      _dropIndicatorRect = QRect();
+      event->ignore();
+      viewport()->update();
+      return;
+    }
+
+    int columnCount = model()->columnCount();
+
+    QRect rect = visualRect(index);
+    QRect rect_left = visualRect(index.sibling(index.row(), 0));
+    QRect rect_right = visualRect(index.sibling(index.row(), header()->logicalIndex(columnCount - 1)));
+
+    QAbstractItemView::DropIndicatorPosition dropIndicatorPosition = position(event->pos(), rect, index);
+
+    if (dropIndicatorPosition == AboveItem)
+    {
+      if(item->parent()->isDropEnabled())
+      {
+        _dropIndicatorRect = QRect(rect_left.left(), rect_left.top(), rect_right.right() - rect_left.left(), 0);
+        event->accept();
+      }
+    }
+    else if(dropIndicatorPosition == BelowItem)
+    {
+      if(item->parent()->isDropEnabled())
+      {
+        _dropIndicatorRect = QRect(rect_left.left(), rect_left.bottom(), rect_right.right() - rect_left.left(), 0);
+        event->accept();
+      }
+    }
+    else if(dropIndicatorPosition == OnItem && index.flags() & Qt::ItemIsDropEnabled)
+    {
+      _dropIndicatorRect = QRect(rect_left.left(), rect_left.top(), rect_right.right() - rect_left.left(), rect.height());
+      event->accept();
+    }
+    else
+    {
+      _dropIndicatorRect = QRect();
+    }
+
+    model()->setData(index, dropIndicatorPosition, Qt::UserRole);
+
     viewport()->update();
-    return;
   }
-
-  int columnCount = model()->columnCount();
-
-  QRect rect = visualRect(index);
-  QRect rect_left = visualRect(index.sibling(index.row(), 0));
-  QRect rect_right = visualRect(index.sibling(index.row(), header()->logicalIndex(columnCount - 1)));
-
-  QAbstractItemView::DropIndicatorPosition dropIndicatorPosition = position(event->pos(), rect, index);
-
-  if (dropIndicatorPosition == AboveItem)
-  {
-    _dropIndicatorRect = QRect(rect_left.left(), rect_left.top(), rect_right.right() - rect_left.left(), 0);
-    event->accept();
-  }
-  else if(dropIndicatorPosition == BelowItem)
-  {
-    _dropIndicatorRect = QRect(rect_left.left(), rect_left.bottom(), rect_right.right() - rect_left.left(), 0);
-    event->accept();
-  }
-  else if(dropIndicatorPosition == OnItem && index.flags() & Qt::ItemIsDropEnabled)
-  {
-    _dropIndicatorRect = QRect(rect_left.left(), rect_left.top(), rect_right.right() - rect_left.left(), rect.height());
-    event->accept();
-  }
-  else
-  {
-    _dropIndicatorRect = QRect();
-  }
-
-  model()->setData(index, dropIndicatorPosition, Qt::UserRole);
-
-  viewport()->update();
 }
 
 

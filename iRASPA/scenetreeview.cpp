@@ -29,6 +29,7 @@
 
 #include "scenetreeview.h"
 #include "scenetreeviewstyleditemdelegate.h"
+#include "scenetreeviewproxystyle.h"
 #include <QModelIndexList>
 
 SceneTreeView::SceneTreeView(QWidget* parent): QTreeView(parent ), _model(std::make_shared<SceneTreeViewModel>())
@@ -39,14 +40,14 @@ SceneTreeView::SceneTreeView(QWidget* parent): QTreeView(parent ), _model(std::m
   this->setSelectionMode(QAbstractItemView::ExtendedSelection);
   //this->viewport()->setMouseTracking(true);
 
-  this->setAttribute(Qt::WA_MacShowFocusRect, false);
-
   this->setRootIsDecorated(false);
   this->setItemsExpandable(false);
   this->setHeaderHidden(true);
   this->setIndentation(4);
 
+  this->setAttribute(Qt::WA_MacShowFocusRect, false);
   this->setStyleSheet("background-color:rgb(240, 240, 240);");
+  this->setStyle(new SceneTreeViewProxyStyle());
 
   this->setItemDelegateForColumn(0,new SceneTreeViewStyledItemDelegate(this));
 }
@@ -94,9 +95,17 @@ void SceneTreeView::reloadSelection()
 
         selectionModel()->clearSelection();
         selectionModel()->select(selectedMovie, QItemSelectionModel::Select);
-        update();
       }
     }
+
+    // set currentIndex for keyboard navigation
+    SceneTreeViewModel* pModel = qobject_cast<SceneTreeViewModel*>(model());
+    QModelIndex selectedIndex = pModel->indexOfMainSelected();
+    if (selectedIndex.isValid())
+    {
+      selectionModel()->setCurrentIndex(selectedIndex, QItemSelectionModel::SelectionFlag::Current);
+    }
+    update();
   }
 }
 
@@ -162,9 +171,19 @@ void SceneTreeView::selectionChanged(const QItemSelection &selected, const QItem
     }
   }
 
+  // set currentIndex for keyboard navigation
+  SceneTreeViewModel* pModel = qobject_cast<SceneTreeViewModel*>(model());
+  QModelIndex selectedIndex = pModel->indexOfMainSelected();
+  if (selectedIndex.isValid())
+  {
+    selectionModel()->setCurrentIndex(selectedIndex, QItemSelectionModel::SelectionFlag::Current);
+  }
+
   emit setSelectedRenderFrames(_sceneList->selectediRASPARenderStructures());
   emit setFlattenedSelectedFrames(_sceneList->selectedMoviesiRASPAStructures());
   emit updateRenderer();
+
+  update();
 }
 
 

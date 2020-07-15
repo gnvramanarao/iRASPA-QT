@@ -30,38 +30,16 @@
 #pragma once
 
 #include <QObject>
-#include <QMainWindow>
-#include <QAbstractItemModel>
-#include <QTreeView>
-#include <QModelIndex>
-#include <optional>
-#include <iraspakit.h>
+#include <QProxyStyle>
+#include <QPainter>
+#include <QStyle>
 
-class SceneTreeViewModel: public QAbstractItemModel
+class SceneTreeViewProxyStyle : public QProxyStyle
 {
   Q_OBJECT
-
 public:
-  SceneTreeViewModel();
-
-  void setSceneList(std::shared_ptr<SceneList> sceneList);
-  bool isMainSelectedItem(std::shared_ptr<Movie> movie);
-  QModelIndex indexOfMainSelected() const;
-
-  //QT
-  QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override final;
-  QModelIndex parent(const QModelIndex &index) const override final;
-  int rowCount(const QModelIndex &parent = QModelIndex()) const override final;
-  int columnCount(const QModelIndex &parent = QModelIndex()) const override final;
-  QVariant data(const QModelIndex &index, int role) const override final;
-  bool setData(const QModelIndex &index, const QVariant &value, int role) override final;
-  Qt::ItemFlags flags(const QModelIndex &index) const override final;
-  bool hasChildren(const QModelIndex &parent) const override final;
+  SceneTreeViewProxyStyle();
 private:
-  std::shared_ptr<SceneList> _sceneList;
-  std::shared_ptr<Scene> parentForMovie(const std::shared_ptr<Movie> movie) const;
-signals:
-    void rendererReloadData();
-    void invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>> structures);
+  void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget = nullptr) const override final;
 };
 

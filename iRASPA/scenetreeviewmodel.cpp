@@ -42,6 +42,7 @@ void SceneTreeViewModel::setSceneList(std::shared_ptr<SceneList> sceneList)
   endResetModel();
 }
 
+
 std::shared_ptr<Scene> SceneTreeViewModel::parentForMovie(const std::shared_ptr<Movie> movie) const
 {
   for(std::shared_ptr<Scene> currentScene: _sceneList->scenes())
@@ -67,6 +68,21 @@ bool SceneTreeViewModel::isMainSelectedItem(std::shared_ptr<Movie> movie)
     }
   }
   return false;
+}
+
+QModelIndex SceneTreeViewModel::indexOfMainSelected() const
+{
+  if(std::shared_ptr<Scene> selectedScene = _sceneList->selectedScene())
+  {
+    if(std::shared_ptr<Movie> selectedMovie = selectedScene->selectedMovie())
+    {
+      if (std::optional<int> row = selectedScene->findChildIndex(selectedMovie))
+      {
+        return createIndex(*row, 0, selectedMovie.get());
+      }
+    }
+  }
+  return QModelIndex();
 }
 
 

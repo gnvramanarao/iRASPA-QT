@@ -29,6 +29,8 @@
 
 #include "framelistview.h"
 #include "frameliststyleditemdelegate.h"
+#include "framelistviewproxystyle.h"
+#include <optional>
 
 FrameListView::FrameListView(QWidget* parent): QListView(parent ), _model(std::make_shared<FrameListViewModel>())
 {
@@ -39,7 +41,9 @@ FrameListView::FrameListView(QWidget* parent): QListView(parent ), _model(std::m
   this->setSelectionBehavior (QAbstractItemView::SelectRows);
   this->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
+  this->setAttribute(Qt::WA_MacShowFocusRect, false);
   this->setStyleSheet("background-color:rgb(240, 240, 240);");
+  this->setStyle(new FrameListViewProxyStyle());
 
   this->setItemDelegateForColumn(0,new FrameListViewStyledItemDelegate(this));
 }
@@ -85,13 +89,18 @@ void FrameListView::keyPressEvent(QKeyEvent *event)
 
 void FrameListView::reloadSelection()
 {
-  if(_movie)
+  if (_movie)
   {
     selectionModel()->clearSelection();
-    for(int frameIndex : _movie->selectedFramesIndexSet())
+    for (int frameIndex : _movie->selectedFramesIndexSet())
     {
-      QModelIndex item = model()->index(frameIndex,0,QModelIndex());
-      selectionModel()->select(item,QItemSelectionModel::Select);
+      QModelIndex item = model()->index(frameIndex, 0, QModelIndex());
+      selectionModel()->select(item, QItemSelectionModel::Select);
+    }
+    if (std::optional<int> selectedIndex = _movie->selectedFrameIndex())
+    {
+      QModelIndex item = model()->index(*selectedIndex, 0, QModelIndex());
+      selectionModel()->select(item, QItemSelectionModel::Select);
     }
     update();
   }
@@ -138,8 +147,17 @@ void FrameListView::selectionChanged(const QItemSelection &selected, const QItem
     _movie->selectedFramesSet().insert(iraspa_structure);
   }
 
+  // set currentIndex for keyboard navigation
+  if (std::optional<int> selectedIndex = _movie->selectedFrameIndex())
+  {
+      QModelIndex item = model()->index(*selectedIndex, 0, QModelIndex());
+      selectionModel()->setCurrentIndex(item, QItemSelectionModel::SelectionFlag::Current);
+  }
+
   emit setSelectedRenderFrames(_sceneList->selectediRASPARenderStructures());
   emit setFlattenedSelectedFrames(_movie->selectedFramesiRASPAStructures());
+
+  update();
 }
 
 QSize FrameListView::sizeHint() const

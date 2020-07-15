@@ -29,6 +29,7 @@
 
 #include "projecttreeview.h"
 #include "projecttreeviewstyleditemdelegate.h"
+#include "projecttreeviewproxystyle.h"
 
 ProjectTreeView::ProjectTreeView(QWidget* parent): QTreeView(parent ),
   _model(std::make_shared<ProjectTreeViewModel>()),
@@ -36,7 +37,10 @@ ProjectTreeView::ProjectTreeView(QWidget* parent): QTreeView(parent ),
 {
   this->setModel(_model.get());
   this->setHeaderHidden(true);
+
+  this->setAttribute(Qt::WA_MacShowFocusRect, false);
   this->setStyleSheet("background-color:rgb(240, 240, 240);");
+  this->setStyle(new ProjectTreeViewProxyStyle());
 
   this->setSelectionBehavior (QAbstractItemView::SelectRows);
   this->setSelectionMode(QAbstractItemView::SingleSelection);

@@ -10,11 +10,13 @@ SOURCES += \
     $$PWD/bondlistviewcomboboxstyleditemdelegate.cpp \
     $$PWD/celltransformcontentform.cpp \
     $$PWD/frameliststyleditemdelegate.cpp \
+    $$PWD/framelistviewproxystyle.cpp \
     $$PWD/importfiledialog.cpp \
     $$PWD/main.cpp \
     $$PWD/mainwindow.cpp \
     $$PWD/moviemaker.cpp \
     $$PWD/projecttreeview.cpp \
+    $$PWD/projecttreeviewproxystyle.cpp \
     $$PWD/projecttreeviewstyleditemdelegate.cpp \
     $$PWD/qdoubledial.cpp \
     $$PWD/renderstackedwidget.cpp \
@@ -31,6 +33,7 @@ SOURCES += \
     $$PWD/framelistviewmodel.cpp \
     $$PWD/scenetreeviewmodel.cpp \
     $$PWD/informationpanelview.cpp \
+    $$PWD/scenetreeviewproxystyle.cpp \
     $$PWD/scenetreeviewstyleditemdelegate.cpp \
     $$PWD/textfield.cpp \
     $$PWD/masterstackedwidget.cpp \
@@ -78,10 +81,12 @@ HEADERS += \
     $$PWD/bondlistviewcomboboxstyleditemdelegate.h \
     $$PWD/celltransformcontentform.h \
     $$PWD/frameliststyleditemdelegate.h \
+    $$PWD/framelistviewproxystyle.h \
     $$PWD/importfiledialog.h \
     $$PWD/mainwindow.h \
     $$PWD/moviemaker.h \
     $$PWD/projecttreeview.h \
+    $$PWD/projecttreeviewproxystyle.h \
     $$PWD/projecttreeviewstyleditemdelegate.h \
     $$PWD/qdoubledial.h \
     $$PWD/renderstackedwidget.h \
@@ -99,6 +104,7 @@ HEADERS += \
     $$PWD/framelistviewmodel.h \
     $$PWD/scenetreeviewmodel.h \
     $$PWD/informationpanelview.h \
+    $$PWD/scenetreeviewproxystyle.h \
     $$PWD/scenetreeviewstyleditemdelegate.h \
     $$PWD/textfield.h \
     $$PWD/masterstackedwidget.h \

@@ -55,10 +55,11 @@ QModelIndex ProjectTreeViewModel::indexForItem(std::shared_ptr<ProjectTreeNode> 
     std::shared_ptr<ProjectTreeNode> parent = item->parent();
     if(parent)
     {
-      std::vector<std::shared_ptr<ProjectTreeNode>>::iterator it = std::find(parent->childNodes().begin(), parent->childNodes().end(), item);
-      if (it != parent->childNodes().end())
+      std::vector<std::shared_ptr<ProjectTreeNode>> childNodes =  parent->childNodes();
+      std::vector<std::shared_ptr<ProjectTreeNode>>::iterator it = std::find(childNodes.begin(), childNodes.end(), item);
+      if (it != childNodes.end())
       {
-        int childIndex = std::distance(parent->childNodes().begin(), it);
+        int childIndex = std::distance(childNodes.begin(), it);
         return createIndex(childIndex,0,item.get());
       }
     }

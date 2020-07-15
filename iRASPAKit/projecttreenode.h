@@ -61,8 +61,8 @@ public:
     size_t row() const;
     size_t childCount() {return _childNodes.size();}
 
-    inline  std::vector<std::shared_ptr<ProjectTreeNode>> childNodes() const {return this->_childNodes;}
-    inline  std::vector<std::shared_ptr<ProjectTreeNode>> filteredChildNodes() const {return this->_filteredAndSortedNodes;}
+    inline  std::vector<std::shared_ptr<ProjectTreeNode>> &childNodes() {return this->_childNodes;}
+    inline  std::vector<std::shared_ptr<ProjectTreeNode>> &filteredChildNodes() {return this->_filteredAndSortedNodes;}
     //inline std::weak_ptr<ProjectTreeNode> parent()  {return this->_parent;}
     inline const std::shared_ptr<ProjectTreeNode> parent() const {return _parent.lock();}
     std::shared_ptr<iRASPAProject> representedObject();

@@ -63,7 +63,6 @@ private:
   MainWindow* _mainWindow;
   std::shared_ptr<ProjectTreeController> _projectTreeController;
   std::shared_ptr<ProjectTreeViewModel> _model;
-  void paintDropIndicator(QPainter& painter);
   QAbstractItemView::DropIndicatorPosition position(QPoint pos, QRect rect, QModelIndex index);
   QUndoStack _undoStack;
 public slots:

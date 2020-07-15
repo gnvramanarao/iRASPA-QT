@@ -46,7 +46,6 @@ ProjectTreeView::ProjectTreeView(QWidget* parent): QTreeView(parent ),
   setDropIndicatorShown(true);
   setDragDropMode(DragDropMode::DragDrop);
   setDragDropOverwriteMode(false);
-  //setDefaultDropAction(Qt::MoveAction);
 
   setItemsExpandable(true);
   setRootIsDecorated(false);
@@ -92,37 +91,9 @@ void ProjectTreeView::focusOutEvent( QFocusEvent* )
 
 void ProjectTreeView::paintEvent(QPaintEvent *event)
 {
-  QPainter painter(viewport());
-  drawTree(&painter, event->region());
-  paintDropIndicator(painter);
+  QTreeView:: paintEvent(event);
 }
 
-
-void ProjectTreeView::paintDropIndicator(QPainter& painter)
-{
-  if(state() == QAbstractItemView::DraggingState)
-  {
-    QStyleOption opt = QStyleOption();
-    opt.init(this);
-    opt.rect = _dropIndicatorRect;
-    QRect rect = opt.rect;
-
-    QBrush brush = QBrush(QColor(Qt::black));
-
-    if(rect.height() == 0)
-    {
-      QPen pen = QPen(brush, 2, Qt::SolidLine);
-      painter.setPen(pen);
-      painter.drawLine(rect.topLeft(), rect.topRight());
-    }
-    else
-    {
-      QPen pen = QPen(brush, 2, Qt::SolidLine);
-      painter.setPen(pen);
-      painter.drawRect(rect);
-    }
-  }
-}
 
 QAbstractItemView::DropIndicatorPosition ProjectTreeView::position(QPoint pos, QRect rect, QModelIndex index)
 {
@@ -142,118 +113,56 @@ QAbstractItemView::DropIndicatorPosition ProjectTreeView::position(QPoint pos, Q
 
 void ProjectTreeView::startDrag(Qt::DropActions supportedActions)
 {
-  qDebug() << "startDrag";
-   QModelIndex index = currentIndex();
-
-   ProjectTreeViewModel* pModel = qobject_cast<ProjectTreeViewModel*>(model());
-   if(ProjectTreeNode* item = pModel->getItem(index))
-   {
-     QModelIndexList selectionIndexes = selectionModel()->selectedRows();
-     QMimeData* mimeData = model()->mimeData(selectionIndexes);
-
-     QDrag* drag = new QDrag(this);
-     drag->setMimeData(mimeData);
-
-     switch(item->type())
-     {
-     case ProjectTreeNode::Type::user:
-       qDebug() << "set as move action";
-       if(drag->exec(Qt::CopyAction))
-       {
-         reloadSelection();
-       }
-       break;
-     default:
-       qDebug() << "set as copy action";
-       if(drag->exec(Qt::CopyAction))
-       {
-         reloadSelection();
-       }
-       break;
-     }
-   }
-
-
-  /*
-  QModelIndexList selectionIndexes = selectionModel()->selectedRows();
-
-  if(!selectionIndexes.isEmpty())
-  {
-    QMimeData* mimeData = model()->mimeData(selectionIndexes);
-    QDrag* drag = new QDrag(this);
-    drag->setMimeData(mimeData);
-    Qt::DropAction dropAction = Qt::IgnoreAction;
-    if((supportedActions & Qt::CopyAction) && (dragDropMode() != QAbstractItemView::InternalMove))
-    {
-      dropAction = Qt::CopyAction;
-    }
-    if(drag->exec(supportedActions, dropAction) == Qt::MoveAction)
-    {
-      reloadSelection();
-    }
-  }*/
-}
-
-
-void ProjectTreeView::dragMoveEvent(QDragMoveEvent *event)
-{
-  QPoint pos = event->pos();
-  QModelIndex index = indexAt(mapFromParent(pos));
-
-  //std::cout << "row:" << index.row() << ", " << index.column() << ", " << index.parent().internalPointer() << ", " << index.parent().isValid()  << std::endl;
+  setDropIndicatorShown(true);
+  QModelIndex index = currentIndex();
 
   ProjectTreeViewModel* pModel = qobject_cast<ProjectTreeViewModel*>(model());
   if(ProjectTreeNode* item = pModel->getItem(index))
   {
-    qDebug() << "item->isDropEnabled(): " << item->isDropEnabled() << " for node " << item->displayName();
-    if(!item->isDropEnabled())
+    QModelIndexList selectionIndexes = selectionModel()->selectedRows();
+    QMimeData* mimeData = model()->mimeData(selectionIndexes);
+
+    QDrag* drag = new QDrag(this);
+    drag->setMimeData(mimeData);
+
+    switch(item->type())
     {
-      _dropIndicatorRect = QRect();
-      event->ignore();
-      viewport()->update();
-      return;
-    }
-
-    int columnCount = model()->columnCount();
-
-    QRect rect = visualRect(index);
-    QRect rect_left = visualRect(index.sibling(index.row(), 0));
-    QRect rect_right = visualRect(index.sibling(index.row(), header()->logicalIndex(columnCount - 1)));
-
-    QAbstractItemView::DropIndicatorPosition dropIndicatorPosition = position(event->pos(), rect, index);
-
-    if (dropIndicatorPosition == AboveItem)
-    {
-      if(item->parent()->isDropEnabled())
+    case ProjectTreeNode::Type::user:
+      if(drag->exec(Qt::MoveAction))
       {
-        _dropIndicatorRect = QRect(rect_left.left(), rect_left.top(), rect_right.right() - rect_left.left(), 0);
-        event->accept();
+        reloadSelection();
       }
-    }
-    else if(dropIndicatorPosition == BelowItem)
-    {
-      if(item->parent()->isDropEnabled())
+      break;
+    default:
+      if(drag->exec(Qt::CopyAction))
       {
-        _dropIndicatorRect = QRect(rect_left.left(), rect_left.bottom(), rect_right.right() - rect_left.left(), 0);
-        event->accept();
+        reloadSelection();
       }
+      break;
     }
-    else if(dropIndicatorPosition == OnItem && index.flags() & Qt::ItemIsDropEnabled)
-    {
-      _dropIndicatorRect = QRect(rect_left.left(), rect_left.top(), rect_right.right() - rect_left.left(), rect.height());
-      event->accept();
-    }
-    else
-    {
-      _dropIndicatorRect = QRect();
-    }
-
-    model()->setData(index, dropIndicatorPosition, Qt::UserRole);
-
-    viewport()->update();
   }
 }
 
+void ProjectTreeView::dragMoveEvent(QDragMoveEvent* event)
+{
+  QModelIndex index = indexAt(event->pos());
+
+  // use the visualRect of the index to avoid dropping on the background left to items
+  if (!index.isValid() || !visualRect(index).contains(event->pos()))
+  {
+    setDropIndicatorShown(false);
+    event->ignore();
+    viewport()->update();
+  }
+  else
+  {
+    setDropIndicatorShown(true);
+    viewport()->update();
+    event->accept();
+  }
+
+   QTreeView::dragMoveEvent(event);
+}
 
 
 void ProjectTreeView::reloadSelection()

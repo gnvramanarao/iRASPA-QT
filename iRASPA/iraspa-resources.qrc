@@ -15,5 +15,6 @@
         <file>TripleBond.png</file>
         <file>DoubleBond.png</file>
         <file>PartialDoubleBond.png</file>
+        <file>GenericFolderIcon.png</file>
     </qresource>
 </RCC>

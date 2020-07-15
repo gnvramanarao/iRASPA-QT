@@ -80,5 +80,6 @@ public:
 private:
   std::shared_ptr<ProjectTreeController> _projectTreeController;
 
-
+  QIcon _folderIcon;
+  QFont _font;
 };

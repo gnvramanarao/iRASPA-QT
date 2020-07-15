@@ -33,6 +33,9 @@ char ProjectTreeViewModel::mimeType[] = "application/x-qt-iraspa-project-mime";
 
 ProjectTreeViewModel::ProjectTreeViewModel(): _projectTreeController(std::make_shared<ProjectTreeController>())
 {
+  _folderIcon = QIcon(":/iRASPA/GenericFolderIcon.png");
+  _font.setFamily("Lucida Grande");
+  _font.setBold(true);
 }
 
 void ProjectTreeViewModel::setProjectTreeController(std::shared_ptr<ProjectTreeController> controller)
@@ -93,6 +96,7 @@ bool ProjectTreeViewModel::hasChildren(const QModelIndex &parent) const
   if (!parent.isValid()) return true;
 
   ProjectTreeNode *item = getItem(parent);
+
   return item->representedObject()->isGroup();
 }
 
@@ -165,8 +169,6 @@ bool ProjectTreeViewModel::insertRows(int position, int rows, const QModelIndex 
     }
     endInsertRows();
 
-    std::cout << "CHILDCOUNT: " << parentItem->childCount() << std::endl;
-
     return true;
   }
 
@@ -211,6 +213,7 @@ QModelIndex ProjectTreeViewModel::parent(const QModelIndex &index) const
 
 int ProjectTreeViewModel::columnCount(const QModelIndex &parent) const
 {
+  Q_UNUSED(parent);
   return 1;
 }
 
@@ -244,10 +247,24 @@ QVariant ProjectTreeViewModel::data(const QModelIndex &index, int role) const
   {
     if(index.parent() == QModelIndex())
     {
-      QFont font;// = QFont("Lucida Grande", 12, QFont::Bold, false);
-      font.setFamily("Lucida Grande");
-      font.setBold(true);
-      return font;
+      return _font;
+    }
+  }
+
+  if( role == Qt::DecorationRole )
+  {
+    if(index.parent() != QModelIndex())
+    {
+      if(ProjectTreeNode *item = static_cast<ProjectTreeNode*>(index.internalPointer()))
+      {
+        if(std::shared_ptr<iRASPAProject> iraspa_project = std::dynamic_pointer_cast<iRASPAProject>(item->representedObject()))
+        {
+          if (iraspa_project->isGroup())
+          {
+            return _folderIcon;
+          }
+        }
+      }
     }
   }
 
@@ -265,13 +282,15 @@ Qt::ItemFlags ProjectTreeViewModel::flags(const QModelIndex &index) const
 
   Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
-  if ( index.column() == 0 )
-  {
-    flags |= Qt::ItemIsEditable;
-  }
+
 
   if(ProjectTreeNode *node = getItem(index))
   {
+    if(node->isEditable() && ( index.column() == 0 ))
+    {
+      flags |= Qt::ItemIsEditable;
+    }
+
     if(node->representedObject()->isLeaf())
     {
       flags |= Qt::ItemIsDragEnabled;
@@ -318,7 +337,7 @@ Qt::DropActions ProjectTreeViewModel::supportedDropActions() const
 
 Qt::DropActions ProjectTreeViewModel::supportedDragActions() const
 {
-   return Qt::CopyAction | Qt::MoveAction;
+  return Qt::CopyAction | Qt::MoveAction;
 }
 
 QStringList ProjectTreeViewModel::mimeTypes() const
@@ -345,7 +364,6 @@ QMimeData* ProjectTreeViewModel::mimeData(const QModelIndexList &indexes) const
       {
         qulonglong ptrval(reinterpret_cast<qulonglong>(projectTreeNode));
         stream << ptrval;
-        //stream << projectTreeNode;
       }
     }
   }
@@ -379,7 +397,6 @@ bool ProjectTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction ac
   stream >> senderPid;
   if (senderPid != QCoreApplication::applicationPid())
   {
-    // Let's not cast pointers that come from another process...
     return false;
   }
 
@@ -389,26 +406,18 @@ bool ProjectTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction ac
   int beginRow = row;
   if (beginRow == -1)
   {
-    // valid index means: drop onto item. I chose that this should insert
-    // a child item, because this is the only way to create the first child of an item...
-    // This explains why Qt calls it parent: unless you just support replacing, this
-    // is really the future parent of the dropped items.
     if (parent.isValid())
       beginRow = 0;
     else
-      // invalid index means: append at bottom, after last toplevel
       beginRow = rowCount(parent);
   }
 
   if(action == Qt::DropAction::CopyAction)
   {
-    qDebug() << "Qt::DropAction::CopyAction";
-    // insertRows(beginRow,count,parent);
     emit layoutAboutToBeChanged();
     bool oldState = this->blockSignals(true);
     while (!stream.atEnd())
     {
-      int localRow;
       qlonglong nodePtr;
       stream >> nodePtr;
       ProjectTreeNode *node = reinterpret_cast<ProjectTreeNode *>(nodePtr);
@@ -426,7 +435,6 @@ bool ProjectTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction ac
   }
   else
   {
-    qDebug() << "Qt::DropAction::MoveAction";
     emit layoutAboutToBeChanged();
     bool oldState = this->blockSignals(true);
     while (!stream.atEnd())
@@ -448,7 +456,6 @@ bool ProjectTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction ac
       // Its own removal will reduce the final row number by one.
       if (index.row() < beginRow && (parentNode == atom->parent().get()))
       {
-        std::cout << "Decrease beginRow" << std::endl;
          --beginRow;
       }
 

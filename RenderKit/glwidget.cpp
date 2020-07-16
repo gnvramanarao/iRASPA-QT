@@ -91,6 +91,11 @@ GLWidget::GLWidget(QWidget* parent ): QOpenGLWidget(parent),
   setFocusPolicy(Qt::StrongFocus);
 }
 
+GLWidget::~GLWidget()
+{
+  _externalBondShader.deletePermanentBuffers();
+}
+
 void GLWidget::setLogReportingWidget(LogReporting *logReporting)
 {
   _logReporter = logReporting;
@@ -707,6 +712,8 @@ void GLWidget::initializeGL()
   _ellipseObjectShader.generateBuffers();
   _cylinderObjectShader.generateBuffers();
   _polygonalPrismObjectShader.generateBuffers();
+
+  _externalBondShader.generatePermanentBuffers();
 
   _backgroundShader.initializeVertexArrayObject();
   _atomShader.initializeVertexArrayObject();

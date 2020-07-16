@@ -70,8 +70,6 @@ void ElementListWidgetController::setColorComboBoxIndex(size_t type)
 
 void ElementListWidgetController::setForceFieldComboBoxIndex(int type)
 {
-  std::cout << "setForceFieldComboBoxIndex" << std::endl;
-
   if(_mainWindow)
   {
     ForceFieldSets& forceFieldSets = _mainWindow->forceFieldSets();

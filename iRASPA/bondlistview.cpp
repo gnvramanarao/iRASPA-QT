@@ -42,10 +42,10 @@ BondListView::BondListView(QWidget* parent): QTreeView(parent ), _bondModel(std:
   this->viewport()->setMouseTracking(true);
 
   this->setAlternatingRowColors(true);
-  //this->setSelectionMode(QAbstractItemView::MultiSelection);
   this->setSelectionBehavior (QAbstractItemView::SelectRows);
   this->setSelectionMode(QAbstractItemView::ExtendedSelection);
-  //this->setStyleSheet("background-color:rgb(240, 240, 240);");
+
+  this->setStyleSheet(":disabled { color: dark-grey;  background-color: rgb(255, 255, 255);}");
 
   this->setRootIsDecorated(false);
   this->setItemsExpandable(false);
@@ -69,100 +69,72 @@ void BondListView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 {
   _projectTreeNode = projectTreeNode;
   _iRASPAProject.reset();
-  _iRASPAStructure.reset();
+  _iraspaStructure.reset();
 
   if (projectTreeNode)
   {
+    setEnabled(projectTreeNode->isEditable());
     _iRASPAProject = projectTreeNode->representedObject();
-    if(std::shared_ptr<iRASPAProject> iraspaproject = _iRASPAProject.lock())
+    if(_iRASPAProject)
     {
-      if(std::shared_ptr<Project> project = iraspaproject->project())
+      if(std::shared_ptr<Project> project = _iRASPAProject->project())
       {
         if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
         {
-          _iRASPAStructure = projectStructure->selectedFrame();
+          std::shared_ptr<iRASPAStructure> iraspaStructure = projectStructure->selectedFrame();
+          _iraspaStructure = iraspaStructure;
         }
       }
     }
   }
 
   // reload and resize the columns
+  _bondModel->setFrame(_iraspaStructure.lock());
   this->reloadData();
 }
 
-void BondListView::setSelectedFrame(std::shared_ptr<iRASPAStructure> iraspastructure)
+void BondListView::setSelectedFrame(std::shared_ptr<iRASPAStructure> iraspaStructure)
 {
-  _iRASPAStructure = iraspastructure;
+  _iraspaStructure = iraspaStructure;
 
   if(BondListViewModel* bondModel = qobject_cast<BondListViewModel*>(model()))
   {
-
-    if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iRASPAStructure.lock())
-    {
-      std::shared_ptr<Structure> structure = iraspaStructure->structure();
-      std::shared_ptr<SKBondSetController> bondSetControler = structure->bondSetController();
-      bondModel->setBondSetController(bondSetControler);
-    }
+    bondModel->setFrame(iraspaStructure);
   }
 }
 
 void BondListView::reloadSelection()
 {
-  BondListViewModel* pModel = qobject_cast<BondListViewModel*>(model());
+
   whileBlocking(selectionModel())->clearSelection();
 
-  for(QModelIndex index : pModel->selectedIndexes())
+  if(BondListViewModel* pModel = qobject_cast<BondListViewModel*>(model()))
   {
-    whileBlocking(selectionModel())->select(index, QItemSelectionModel::Select|QItemSelectionModel::Rows);
+    for(QModelIndex index : pModel->selectedIndexes())
+    {
+      whileBlocking(selectionModel())->select(index, QItemSelectionModel::Select|QItemSelectionModel::Rows);
+    }
   }
   viewport()->update();
 }
 
 void BondListView::reloadData()
 {
-  if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iRASPAStructure.lock())
+  if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iraspaStructure.lock())
   {
-    std::shared_ptr<Structure> structure = iraspaStructure->structure();
-    std::shared_ptr<SKBondSetController> bondSetController = structure->bondSetController();
-    if(_bondModel->bondSetController() != bondSetController)
+    if(iraspaStructure->structure()->bondSetController()->getNumberOfBonds() > 0)
     {
-      _bondModel->setStructure(structure);
-
-      if(bondSetController->getNumberOfBonds() > 0)
-      {
-        this->header()->setStretchLastSection(false);
-        this->setColumnWidth(0,25);
-        this->setColumnWidth(1,50);
-        //this->resizeColumnToContents(1);
-        //this->resizeColumnToContents(2);
-        this->setColumnWidth(2,100);
-        this->setColumnWidth(3,50);
-        this->setColumnWidth(4,50);
-        this->setColumnWidth(5,60);
-        this->setColumnWidth(6,60);
-        this->setColumnWidth(7,85);  // 20 left for scroller
-      }
+      this->header()->setStretchLastSection(false);
+      this->setColumnWidth(0,25);
+      this->setColumnWidth(1,50);
+      this->setColumnWidth(2,100);
+      this->setColumnWidth(3,50);
+      this->setColumnWidth(4,50);
+      this->setColumnWidth(5,60);
+      this->setColumnWidth(6,60);
+      this->setColumnWidth(7,85);  // 20 left for scroller
     }
   }
-}
-
-
-/*
-void BondListView::setRootNode(std::shared_ptr<ProjectStructure> structure)
-{
-
-}*/
-
-
-void BondListView::setBondListModel(const QModelIndex &current, const QModelIndex &previous)
-{
-  DisplayableProtocol *item = static_cast<DisplayableProtocol*>(current.internalPointer());
-
-  if(iRASPAStructure* structure = dynamic_cast<iRASPAStructure*>(item))
-  {
-    _bondModel->setStructure(structure->structure());
-  }
-
 }
 
 
@@ -191,15 +163,15 @@ void BondListView::deleteSelection()
   {
     if(projectTreeNode->isEditable())
     {
-      if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iRASPAStructure.lock())
+      if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iraspaStructure.lock())
       {
         std::shared_ptr<Structure> structure = iraspaStructure->structure();
-        if(std::shared_ptr<iRASPAProject> project = _iRASPAProject.lock())
+        if(_iRASPAProject)
         {
           std::vector<std::shared_ptr<SKAsymmetricBond>> bonds = structure->bondSetController()->selectedObjects();
           std::set<int> bondSelection = structure->bondSetController()->selectionIndexSet();
           BondListViewDeleteSelectionCommand *deleteSelectionCommand = new BondListViewDeleteSelectionCommand(_bondModel, _mainWindow, structure, bonds, bondSelection);
-          project->undoManager().push(deleteSelectionCommand);
+          _iRASPAProject->undoManager().push(deleteSelectionCommand);
         }
       }
     }
@@ -221,7 +193,7 @@ SKAsymmetricBond* BondListView::getItem(const QModelIndex &index) const
 }
 void BondListView::setSelectedBonds(const QItemSelection &selected, const QItemSelection &deselected)
 {
-  if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iRASPAStructure.lock())
+  if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iraspaStructure.lock())
   {
     std::shared_ptr<Structure> structure = iraspaStructure->structure();
     std::set<int> previousBondSelection = structure->bondSetController()->selectionIndexSet();
@@ -250,13 +222,13 @@ void BondListView::setSelectedBonds(const QItemSelection &selected, const QItemS
     {
       if(projectTreeNode->isEditable())
       {
-        if(std::shared_ptr<iRASPAProject> project = _iRASPAProject.lock())
+        if(_iRASPAProject)
         {
           std::set<int> bondSelection = structure->bondSetController()->selectionIndexSet();
 
           BondChangeSelectionCommand *changeSelectionCommand = new BondChangeSelectionCommand(structure->bondSetController(), _mainWindow,
                                                                          structure, bondSelection, previousBondSelection);
-          project->undoManager().push(changeSelectionCommand);
+          _iRASPAProject->undoManager().push(changeSelectionCommand);
         }
       }
     }

@@ -47,6 +47,8 @@ public:
   void loadShader(void) override final;
   void deleteBuffers();
   void generateBuffers();
+  void deletePermanentBuffers();
+  void generatePermanentBuffers();
 
   void paintGL(GLuint structureUniformBuffer);
 

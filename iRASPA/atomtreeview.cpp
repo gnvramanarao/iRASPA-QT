@@ -46,10 +46,10 @@ AtomTreeView::AtomTreeView(QWidget* parent): QTreeView(parent ), _atomModel(std:
 
   this->setHeaderHidden(true);
   this->setAlternatingRowColors(true);
-  //this->setSelectionMode(QAbstractItemView::MultiSelection);
   this->setSelectionBehavior (QAbstractItemView::SelectRows);
   this->setSelectionMode(QAbstractItemView::ExtendedSelection);
-  //this->setStyleSheet("background-color:rgb(240, 240, 240);");
+
+  this->setStyleSheet(":disabled { color: dark-grey;  background-color: rgb(255, 255, 255);}");
 
   setDragEnabled(true);
   setAcceptDrops(true);
@@ -80,11 +80,12 @@ void AtomTreeView::setBondModel(std::shared_ptr<BondListViewModel> bondModel)
 void AtomTreeView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 {
   _projectTreeNode = projectTreeNode;
-  _iRASPAProject = nullptr;
+  _iRASPAProject.reset();
   _iraspaStructure.reset();
 
   if (projectTreeNode)
   {
+    setEnabled(projectTreeNode->isEditable());
     _iRASPAProject = projectTreeNode->representedObject();
     if(_iRASPAProject)
     {
@@ -94,11 +95,15 @@ void AtomTreeView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
         {
           _iraspaStructure = projectStructure->selectedFrame();
         }
+
       }
     }
   }
 
+
+
   // reload and resize the columns
+  _atomModel->setFrame(_iraspaStructure.lock());
   this->reloadData();
 }
 
@@ -111,9 +116,7 @@ void AtomTreeView::setSelectedFrame(std::shared_ptr<iRASPAStructure> iraspastruc
 
     if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iraspaStructure.lock())
     {
-      std::shared_ptr<Structure> structure = iraspaStructure->structure();
-      std::shared_ptr<SKAtomTreeController> atomTreeControler = structure->atomsTreeController();
-      atomModel->setAtomTreeController(atomTreeControler);
+      atomModel->setFrame(iraspaStructure);
     }
   }
 }
@@ -326,8 +329,8 @@ void AtomTreeView::reloadSelection()
     {
       whileBlocking(selectionModel())->select(index, QItemSelectionModel::Select|QItemSelectionModel::Rows);
     }
-    viewport()->update();
   }
+  viewport()->update();
 }
 
 void AtomTreeView::reloadData()
@@ -337,33 +340,17 @@ void AtomTreeView::reloadData()
     std::shared_ptr<Structure> structure = iraspaStructure->structure();
     std::shared_ptr<SKAtomTreeController> atomTreeController = structure->atomsTreeController();
 
-    if(_atomModel->atomTreeController() != atomTreeController)
+    if(atomTreeController->rootNodes().size() > 0)
     {
-      _atomModel->setAtomTreeController(atomTreeController);
-
-      if(atomTreeController->rootNodes().size() > 0)
-      {
-        this->header()->setStretchLastSection(true);
-        this->setColumnWidth(0,120);
-        this->resizeColumnToContents(1);
-        this->resizeColumnToContents(2);
-        this->resizeColumnToContents(3);
-        this->resizeColumnToContents(4);
-        this->resizeColumnToContents(5);
-        this->resizeColumnToContents(6);
-      }
+      this->header()->setStretchLastSection(true);
+      this->setColumnWidth(0,120);
+      this->resizeColumnToContents(1);
+      this->resizeColumnToContents(2);
+      this->resizeColumnToContents(3);
+      this->resizeColumnToContents(4);
+      this->resizeColumnToContents(5);
+      this->resizeColumnToContents(6);
     }
-  }
-}
-
-
-void AtomTreeView::setAtomTreeModel(const QModelIndex &current, const QModelIndex &previous)
-{
-  DisplayableProtocol *item = static_cast<DisplayableProtocol*>(current.internalPointer());
-
-  if(iRASPAStructure* structure = dynamic_cast<iRASPAStructure*>(item))
-  {
-    _atomModel->setAtomTreeController(structure->structure()->atomsTreeController());
   }
 }
 
@@ -380,10 +367,6 @@ void AtomTreeView::dropEvent(QDropEvent * event)
   {
      droppedIndex = droppedIndex.sibling(droppedIndex.row() + 1, droppedIndex.column());
   }
-  //selectionModel()->select(droppedIndex, QItemSelectionModel::Select|QItemSelectionModel::Rows);
-
- // viewport()->update();
-
 }
 
 

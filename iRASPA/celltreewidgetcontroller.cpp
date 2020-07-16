@@ -348,6 +348,8 @@ void CellTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode> proje
 {
   _projectTreeNode = projectTreeNode;
   _projectStructure = nullptr;
+  _iraspa_structures = std::vector<std::shared_ptr<iRASPAStructure>>{};
+
   if (projectTreeNode)
   {
     if(std::shared_ptr<iRASPAProject> iraspaProject = projectTreeNode->representedObject())
@@ -358,11 +360,12 @@ void CellTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode> proje
         {
           _projectStructure = projectStructure;
           _iraspa_structures = projectStructure->flattenediRASPAStructures();
-          reloadData();
         }
       }
     }
   }
+
+  reloadData();
 }
 
 
@@ -421,493 +424,557 @@ void CellTreeWidgetController::reloadCellProperties()
 
 void CellTreeWidgetController::reloadStructureType()
 {
+  _cellCellForm->cellStructureTypeComboBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellCellForm->cellStructureTypeComboBox->setEnabled(_projectTreeNode->isEditable());
-  }
-  else
-  {
-    _cellCellForm->cellStructureTypeComboBox->setEnabled(false);
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellCellForm->cellStructureTypeComboBox->setEnabled(_projectTreeNode->isEditable());
 
-  if (!_iraspa_structures.empty())
-	{
-    if (std::optional<iRASPAStructureType> type = structureType())
-		{
-			if (int index = _cellCellForm->cellStructureTypeComboBox->findText("Multiple values"); index >= 0)
-			{
-				whileBlocking(_cellCellForm->cellStructureTypeComboBox)->removeItem(index);
-			}
-			whileBlocking(_cellCellForm->cellStructureTypeComboBox)->setCurrentIndex(int(*type));
-		}
-		else
-		{
-			if (int index = _cellCellForm->cellStructureTypeComboBox->findText("Multiple values"); index < 0)
-			{
-				whileBlocking(_cellCellForm->cellStructureTypeComboBox)->addItem("Multiple values");
-			}
-			whileBlocking(_cellCellForm->cellStructureTypeComboBox)->setCurrentText("Multiple values");
+      if (std::optional<iRASPAStructureType> type = structureType())
+      {
+        if (int index = _cellCellForm->cellStructureTypeComboBox->findText("Multiple values"); index >= 0)
+        {
+          whileBlocking(_cellCellForm->cellStructureTypeComboBox)->removeItem(index);
+        }
+        whileBlocking(_cellCellForm->cellStructureTypeComboBox)->setCurrentIndex(int(*type));
+      }
+      else
+      {
+        if (int index = _cellCellForm->cellStructureTypeComboBox->findText("Multiple values"); index < 0)
+        {
+          whileBlocking(_cellCellForm->cellStructureTypeComboBox)->addItem("Multiple values");
+        }
+        whileBlocking(_cellCellForm->cellStructureTypeComboBox)->setCurrentText("Multiple values");
+      }
 		}
 	}
 }
 
 void CellTreeWidgetController::reloadBoundingBox()
 {
-  _cellCellForm->cellBoundingBoxMaxXDoubleSpinBox->setReadOnly(true);
-  _cellCellForm->cellBoundingBoxMaxYDoubleSpinBox->setReadOnly(true);
-  _cellCellForm->cellBoundingBoxMaxZDoubleSpinBox->setReadOnly(true);
-  _cellCellForm->cellBoundingBoxMinXDoubleSpinBox->setReadOnly(true);
-  _cellCellForm->cellBoundingBoxMinYDoubleSpinBox->setReadOnly(true);
-  _cellCellForm->cellBoundingBoxMinZDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->cellBoundingBoxMaxXDoubleSpinBox->setDisabled(true);
+  _cellCellForm->cellBoundingBoxMaxYDoubleSpinBox->setDisabled(true);
+  _cellCellForm->cellBoundingBoxMaxZDoubleSpinBox->setDisabled(true);
+  _cellCellForm->cellBoundingBoxMinXDoubleSpinBox->setDisabled(true);
+  _cellCellForm->cellBoundingBoxMinYDoubleSpinBox->setDisabled(true);
+  _cellCellForm->cellBoundingBoxMinZDoubleSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellCellForm->cellBoundingBoxMaxXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _cellCellForm->cellBoundingBoxMaxYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _cellCellForm->cellBoundingBoxMaxZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _cellCellForm->cellBoundingBoxMinXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _cellCellForm->cellBoundingBoxMinYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _cellCellForm->cellBoundingBoxMinZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellCellForm->cellBoundingBoxMaxXDoubleSpinBox->setEnabled(true);
+      _cellCellForm->cellBoundingBoxMaxYDoubleSpinBox->setEnabled(true);
+      _cellCellForm->cellBoundingBoxMaxZDoubleSpinBox->setEnabled(true);
+      _cellCellForm->cellBoundingBoxMinXDoubleSpinBox->setEnabled(true);
+      _cellCellForm->cellBoundingBoxMinYDoubleSpinBox->setEnabled(true);
+      _cellCellForm->cellBoundingBoxMinZDoubleSpinBox->setEnabled(true);
 
-  if(!_iraspa_structures.empty())
-  {
-    SKBoundingBox overAllBoundingBox = boundingBox();
+      _cellCellForm->cellBoundingBoxMaxXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _cellCellForm->cellBoundingBoxMaxYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _cellCellForm->cellBoundingBoxMaxZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _cellCellForm->cellBoundingBoxMinXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _cellCellForm->cellBoundingBoxMinYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _cellCellForm->cellBoundingBoxMinZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-    whileBlocking(_cellCellForm->cellBoundingBoxMaxXDoubleSpinBox)->setValue(overAllBoundingBox.maximum().x);
-    whileBlocking(_cellCellForm->cellBoundingBoxMaxYDoubleSpinBox)->setValue(overAllBoundingBox.maximum().y);
-    whileBlocking(_cellCellForm->cellBoundingBoxMaxZDoubleSpinBox)->setValue(overAllBoundingBox.maximum().z);
+      SKBoundingBox overAllBoundingBox = boundingBox();
 
-    whileBlocking(_cellCellForm->cellBoundingBoxMinXDoubleSpinBox)->setValue(overAllBoundingBox.minimum().x);
-    whileBlocking(_cellCellForm->cellBoundingBoxMinYDoubleSpinBox)->setValue(overAllBoundingBox.minimum().y);
-    whileBlocking(_cellCellForm->cellBoundingBoxMinZDoubleSpinBox)->setValue(overAllBoundingBox.minimum().z);
+      whileBlocking(_cellCellForm->cellBoundingBoxMaxXDoubleSpinBox)->setValue(overAllBoundingBox.maximum().x);
+      whileBlocking(_cellCellForm->cellBoundingBoxMaxYDoubleSpinBox)->setValue(overAllBoundingBox.maximum().y);
+      whileBlocking(_cellCellForm->cellBoundingBoxMaxZDoubleSpinBox)->setValue(overAllBoundingBox.maximum().z);
+
+      whileBlocking(_cellCellForm->cellBoundingBoxMinXDoubleSpinBox)->setValue(overAllBoundingBox.minimum().x);
+      whileBlocking(_cellCellForm->cellBoundingBoxMinYDoubleSpinBox)->setValue(overAllBoundingBox.minimum().y);
+      whileBlocking(_cellCellForm->cellBoundingBoxMinZDoubleSpinBox)->setValue(overAllBoundingBox.minimum().z);
+    }
   }
 }
 
 void CellTreeWidgetController::reloadUnitCellLengths()
 {
-  _cellCellForm->unitCellADoubleSpinBox->setReadOnly(true);
-  _cellCellForm->unitCellBDoubleSpinBox->setReadOnly(true);
-  _cellCellForm->unitCellCDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->unitCellADoubleSpinBox->setDisabled(true);
+  _cellCellForm->unitCellBDoubleSpinBox->setDisabled(true);
+  _cellCellForm->unitCellCDoubleSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellCellForm->unitCellADoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _cellCellForm->unitCellBDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _cellCellForm->unitCellCDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellCellForm->unitCellADoubleSpinBox->setEnabled(true);
+      _cellCellForm->unitCellBDoubleSpinBox->setEnabled(true);
+      _cellCellForm->unitCellCDoubleSpinBox->setEnabled(true);
+      _cellCellForm->unitCellADoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _cellCellForm->unitCellBDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _cellCellForm->unitCellCDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = unitCellLengthA())
-    {
-      whileBlocking(_cellCellForm->unitCellADoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->unitCellADoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = unitCellLengthA())
+      {
+        whileBlocking(_cellCellForm->unitCellADoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->unitCellADoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<double> value = unitCellLengthB())
-    {
-      whileBlocking(_cellCellForm->unitCellBDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->unitCellBDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = unitCellLengthB())
+      {
+        whileBlocking(_cellCellForm->unitCellBDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->unitCellBDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<double> value = unitCellLengthC())
-    {
-      whileBlocking(_cellCellForm->unitCellCDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->unitCellCDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = unitCellLengthC())
+      {
+        whileBlocking(_cellCellForm->unitCellCDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->unitCellCDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
+
 void CellTreeWidgetController::reloadUnitCellAngles()
 {
-  _cellCellForm->unitCellAlphaDoubleSpinBox->setReadOnly(true);
-  _cellCellForm->unitCellBetaDoubleSpinBox->setReadOnly(true);
-  _cellCellForm->unitCellGammaDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->unitCellAlphaDoubleSpinBox->setDisabled(true);
+  _cellCellForm->unitCellBetaDoubleSpinBox->setDisabled(true);
+  _cellCellForm->unitCellGammaDoubleSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellCellForm->unitCellAlphaDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _cellCellForm->unitCellBetaDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _cellCellForm->unitCellGammaDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellCellForm->unitCellAlphaDoubleSpinBox->setEnabled(true);
+      _cellCellForm->unitCellBetaDoubleSpinBox->setEnabled(true);
+      _cellCellForm->unitCellGammaDoubleSpinBox->setEnabled(true);
+      _cellCellForm->unitCellAlphaDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _cellCellForm->unitCellBetaDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _cellCellForm->unitCellGammaDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = unitCellAngleAlpha())
-    {
-      whileBlocking(_cellCellForm->unitCellAlphaDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->unitCellAlphaDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = unitCellAngleAlpha())
+      {
+        whileBlocking(_cellCellForm->unitCellAlphaDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->unitCellAlphaDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<double> value = unitCellAngleBeta())
-    {
-      whileBlocking(_cellCellForm->unitCellBetaDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->unitCellBetaDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = unitCellAngleBeta())
+      {
+        whileBlocking(_cellCellForm->unitCellBetaDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->unitCellBetaDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<double> value = unitCellAngleGamma())
-    {
-      whileBlocking(_cellCellForm->unitCellGammaDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->unitCellGammaDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = unitCellAngleGamma())
+      {
+        whileBlocking(_cellCellForm->unitCellGammaDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->unitCellGammaDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadUnitCell()
 {
-  _cellCellForm->unitCellAXDoubleSpinBox->setReadOnly(true);
-  _cellCellForm->unitCellAYDoubleSpinBox->setReadOnly(true);
-  _cellCellForm->unitCellAZDoubleSpinBox->setReadOnly(true);
-  _cellCellForm->unitCellBXDoubleSpinBox->setReadOnly(true);
-  _cellCellForm->unitCellBYDoubleSpinBox->setReadOnly(true);
-  _cellCellForm->unitCellBZDoubleSpinBox->setReadOnly(true);
-  _cellCellForm->unitCellBXDoubleSpinBox->setReadOnly(true);
-  _cellCellForm->unitCellBYDoubleSpinBox->setReadOnly(true);
-  _cellCellForm->unitCellBZDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->unitCellAXDoubleSpinBox->setDisabled(true);
+  _cellCellForm->unitCellAYDoubleSpinBox->setDisabled(true);
+  _cellCellForm->unitCellAZDoubleSpinBox->setDisabled(true);
+  _cellCellForm->unitCellBXDoubleSpinBox->setDisabled(true);
+  _cellCellForm->unitCellBYDoubleSpinBox->setDisabled(true);
+  _cellCellForm->unitCellBZDoubleSpinBox->setDisabled(true);
+  _cellCellForm->unitCellBXDoubleSpinBox->setDisabled(true);
+  _cellCellForm->unitCellBYDoubleSpinBox->setDisabled(true);
+  _cellCellForm->unitCellBZDoubleSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellCellForm->unitCellAXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _cellCellForm->unitCellAYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _cellCellForm->unitCellAZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _cellCellForm->unitCellBXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _cellCellForm->unitCellBYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _cellCellForm->unitCellBZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _cellCellForm->unitCellCXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _cellCellForm->unitCellCYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _cellCellForm->unitCellCZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellCellForm->unitCellAXDoubleSpinBox->setEnabled(true);
+      _cellCellForm->unitCellAYDoubleSpinBox->setEnabled(true);
+      _cellCellForm->unitCellAZDoubleSpinBox->setEnabled(true);
+      _cellCellForm->unitCellBXDoubleSpinBox->setEnabled(true);
+      _cellCellForm->unitCellBYDoubleSpinBox->setEnabled(true);
+      _cellCellForm->unitCellBZDoubleSpinBox->setEnabled(true);
+      _cellCellForm->unitCellBXDoubleSpinBox->setEnabled(true);
+      _cellCellForm->unitCellBYDoubleSpinBox->setEnabled(true);
+      _cellCellForm->unitCellBZDoubleSpinBox->setEnabled(true);
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = unitCellAX())
-    {
-      whileBlocking(_cellCellForm->unitCellAXDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->unitCellAXDoubleSpinBox)->setText("Mult. Val.");
-    }
+      _cellCellForm->unitCellAXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _cellCellForm->unitCellAYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _cellCellForm->unitCellAZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _cellCellForm->unitCellBXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _cellCellForm->unitCellBYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _cellCellForm->unitCellBZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _cellCellForm->unitCellCXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _cellCellForm->unitCellCYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _cellCellForm->unitCellCZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-    if (std::optional<double> value = unitCellAY())
-    {
-      whileBlocking(_cellCellForm->unitCellAYDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->unitCellAYDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = unitCellAX())
+      {
+        whileBlocking(_cellCellForm->unitCellAXDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->unitCellAXDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<double> value = unitCellAZ())
-    {
-      whileBlocking(_cellCellForm->unitCellAZDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->unitCellAZDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = unitCellAY())
+      {
+        whileBlocking(_cellCellForm->unitCellAYDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->unitCellAYDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<double> value = unitCellBX())
-    {
-      whileBlocking(_cellCellForm->unitCellBXDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->unitCellBXDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = unitCellAZ())
+      {
+        whileBlocking(_cellCellForm->unitCellAZDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->unitCellAZDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<double> value = unitCellBY())
-    {
-      whileBlocking(_cellCellForm->unitCellBYDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->unitCellBYDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = unitCellBX())
+      {
+        whileBlocking(_cellCellForm->unitCellBXDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->unitCellBXDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<double> value = unitCellBZ())
-    {
-      whileBlocking(_cellCellForm->unitCellBZDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->unitCellBZDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = unitCellBY())
+      {
+        whileBlocking(_cellCellForm->unitCellBYDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->unitCellBYDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<double> value = unitCellCX())
-    {
-      whileBlocking(_cellCellForm->unitCellCXDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->unitCellCXDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = unitCellBZ())
+      {
+        whileBlocking(_cellCellForm->unitCellBZDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->unitCellBZDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<double> value = unitCellCY())
-    {
-      whileBlocking(_cellCellForm->unitCellCYDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->unitCellCYDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = unitCellCX())
+      {
+        whileBlocking(_cellCellForm->unitCellCXDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->unitCellCXDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<double> value = unitCellCZ())
-    {
-      whileBlocking(_cellCellForm->unitCellCZDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->unitCellCZDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = unitCellCY())
+      {
+        whileBlocking(_cellCellForm->unitCellCYDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->unitCellCYDoubleSpinBox)->setText("Mult. Val.");
+      }
+
+      if (std::optional<double> value = unitCellCZ())
+      {
+        whileBlocking(_cellCellForm->unitCellCZDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->unitCellCZDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadCellVolume()
 {
-  _cellCellForm->volumeDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->volumeDoubleSpinBox->setDisabled(true);
 
-  if(!_iraspa_structures.empty())
+  if(_projectTreeNode)
   {
-    if (std::optional<double> value = unitCellVolume())
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
     {
-      whileBlocking(_cellCellForm->volumeDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->volumeDoubleSpinBox)->setText("Mult. Val.");
+      _cellCellForm->volumeDoubleSpinBox->setEnabled(true);
+      _cellCellForm->volumeDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+
+      if (std::optional<double> value = unitCellVolume())
+      {
+        whileBlocking(_cellCellForm->volumeDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->volumeDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadCellPerpendicularWidthX()
 {
-  _cellCellForm->perpendicularWidthXDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->perpendicularWidthXDoubleSpinBox->setDisabled(true);
 
-  if(!_iraspa_structures.empty())
+  if(_projectTreeNode)
   {
-    if (std::optional<double> value = unitCellPerpendicularWidthX())
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
     {
-      whileBlocking(_cellCellForm->perpendicularWidthXDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->perpendicularWidthXDoubleSpinBox)->setText("Mult. Val.");
+      _cellCellForm->perpendicularWidthXDoubleSpinBox->setEnabled(true);
+      _cellCellForm->perpendicularWidthXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+
+      if (std::optional<double> value = unitCellPerpendicularWidthX())
+      {
+        whileBlocking(_cellCellForm->perpendicularWidthXDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->perpendicularWidthXDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadCellPerpendicularWidthY()
 {
-  _cellCellForm->perpendicularWidthYDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->perpendicularWidthYDoubleSpinBox->setDisabled(true);
 
-  if(!_iraspa_structures.empty())
+  if(_projectTreeNode)
   {
-    if (std::optional<double> value = unitCellPerpendicularWidthY())
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
     {
-      whileBlocking(_cellCellForm->perpendicularWidthYDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->perpendicularWidthYDoubleSpinBox)->setText("Mult. Val.");
+      _cellCellForm->perpendicularWidthYDoubleSpinBox->setEnabled(true);
+      _cellCellForm->perpendicularWidthYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+
+      if (std::optional<double> value = unitCellPerpendicularWidthY())
+      {
+        whileBlocking(_cellCellForm->perpendicularWidthYDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->perpendicularWidthYDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadCellPerpendicularWidthZ()
 {
-  _cellCellForm->perpendicularWidthZDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->perpendicularWidthZDoubleSpinBox->setDisabled(true);
 
-  if(!_iraspa_structures.empty())
+  if(_projectTreeNode)
   {
-    if (std::optional<double> value = unitCellPerpendicularWidthZ())
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
     {
-      whileBlocking(_cellCellForm->perpendicularWidthZDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->perpendicularWidthZDoubleSpinBox)->setText("Mult. Val.");
+      _cellCellForm->perpendicularWidthZDoubleSpinBox->setEnabled(true);
+      _cellCellForm->perpendicularWidthZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+
+      if (std::optional<double> value = unitCellPerpendicularWidthZ())
+      {
+        whileBlocking(_cellCellForm->perpendicularWidthZDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->perpendicularWidthZDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadCellMaximumReplicasX()
 {
-  _cellCellForm->cellMaximumReplicaX->setReadOnly(true);
+  _cellCellForm->cellMaximumReplicaX->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellCellForm->cellMaximumReplicaX->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellCellForm->cellMaximumReplicaX->setEnabled(true);
+      _cellCellForm->cellMaximumReplicaX->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<int> value = maximumReplicasX())
-    {
-      whileBlocking(_cellCellForm->cellMaximumReplicaX)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->cellMaximumReplicaX)->setText("Mult. Val.");
+      if (std::optional<int> value = maximumReplicasX())
+      {
+        whileBlocking(_cellCellForm->cellMaximumReplicaX)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->cellMaximumReplicaX)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadCellMinimumReplicasX()
 {
-  _cellCellForm->cellMinimumReplicaX->setReadOnly(true);
+  _cellCellForm->cellMinimumReplicaX->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellCellForm->cellMinimumReplicaX->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellCellForm->cellMinimumReplicaX->setEnabled(true);
+      _cellCellForm->cellMinimumReplicaX->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<int> value = minimumReplicasX())
-    {
-      whileBlocking(_cellCellForm->cellMinimumReplicaX)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->cellMinimumReplicaX)->setText("Mult. Val.");
+      if (std::optional<int> value = minimumReplicasX())
+      {
+        whileBlocking(_cellCellForm->cellMinimumReplicaX)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->cellMinimumReplicaX)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadCellMaximumReplicasY()
 {
-  _cellCellForm->cellMaximumReplicaY->setReadOnly(true);
+  _cellCellForm->cellMaximumReplicaY->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellCellForm->cellMaximumReplicaY->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellCellForm->cellMaximumReplicaY->setEnabled(true);
+      _cellCellForm->cellMaximumReplicaY->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<int> value = maximumReplicasY())
-    {
-      whileBlocking(_cellCellForm->cellMaximumReplicaY)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->cellMaximumReplicaY)->setText("Mult. Val.");
+      if (std::optional<int> value = maximumReplicasY())
+      {
+        whileBlocking(_cellCellForm->cellMaximumReplicaY)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->cellMaximumReplicaY)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadCellMinimumReplicasY()
 {
-  _cellCellForm->cellMinimumReplicaY->setReadOnly(true);
+  _cellCellForm->cellMinimumReplicaY->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellCellForm->cellMinimumReplicaY->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellCellForm->cellMinimumReplicaY->setEnabled(true);
+      _cellCellForm->cellMinimumReplicaY->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<int> value = minimumReplicasY())
-    {
-      whileBlocking(_cellCellForm->cellMinimumReplicaY)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->cellMinimumReplicaY)->setText("Mult. Val.");
+      if (std::optional<int> value = minimumReplicasY())
+      {
+        whileBlocking(_cellCellForm->cellMinimumReplicaY)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->cellMinimumReplicaY)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadCellMaximumReplicasZ()
 {
-  _cellCellForm->cellMaximumReplicaZ->setReadOnly(true);
+  _cellCellForm->cellMaximumReplicaZ->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellCellForm->cellMaximumReplicaZ->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellCellForm->cellMaximumReplicaZ->setEnabled(true);
+      _cellCellForm->cellMaximumReplicaZ->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<int> value = maximumReplicasZ())
-    {
-      whileBlocking(_cellCellForm->cellMaximumReplicaZ)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->cellMaximumReplicaZ)->setText("Mult. Val.");
+      if (std::optional<int> value = maximumReplicasZ())
+      {
+        whileBlocking(_cellCellForm->cellMaximumReplicaZ)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->cellMaximumReplicaZ)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadCellMinimumReplicasZ()
 {
-  _cellCellForm->cellMinimumReplicaZ->setReadOnly(true);
+  _cellCellForm->cellMinimumReplicaZ->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellCellForm->cellMinimumReplicaZ->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellCellForm->cellMinimumReplicaZ->setEnabled(true);
+      _cellCellForm->cellMinimumReplicaZ->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<int> value = minimumReplicasZ())
-    {
-      whileBlocking(_cellCellForm->cellMinimumReplicaZ)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->cellMinimumReplicaZ)->setText("Mult. Val.");
+      if (std::optional<int> value = minimumReplicasZ())
+      {
+        whileBlocking(_cellCellForm->cellMinimumReplicaZ)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->cellMinimumReplicaZ)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadRotationAngle()
 {
-  _cellCellForm->rotationAngleDoubleSpinBox->setReadOnly(true);
-  _cellCellForm->rotatePlusXPushButton->setEnabled(false);
-  _cellCellForm->rotatePlusYPushButton->setEnabled(false);
-  _cellCellForm->rotatePlusZPushButton->setEnabled(false);
-  _cellCellForm->rotateMinusXPushButton->setEnabled(false);
-  _cellCellForm->rotateMinusYPushButton->setEnabled(false);
-  _cellCellForm->rotateMinusZPushButton->setEnabled(false);
+  _cellCellForm->rotationAngleDoubleSpinBox->setDisabled(true);
+  _cellCellForm->rotatePlusXPushButton->setDisabled(true);
+  _cellCellForm->rotatePlusYPushButton->setDisabled(true);
+  _cellCellForm->rotatePlusZPushButton->setDisabled(true);
+  _cellCellForm->rotateMinusXPushButton->setDisabled(true);
+  _cellCellForm->rotateMinusYPushButton->setDisabled(true);
+  _cellCellForm->rotateMinusZPushButton->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellCellForm->rotationAngleDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
-
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> angle = rotationAngle())
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
     {
-      whileBlocking(_cellCellForm->rotationAngleDoubleSpinBox)->setValue(*angle);
+      _cellCellForm->rotationAngleDoubleSpinBox->setEnabled(true);
+      _cellCellForm->rotationAngleDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-      _cellCellForm->rotatePlusXPushButton->setEnabled(_projectTreeNode->isEditable());
-      _cellCellForm->rotatePlusYPushButton->setEnabled(_projectTreeNode->isEditable());
-      _cellCellForm->rotatePlusZPushButton->setEnabled(_projectTreeNode->isEditable());
-      _cellCellForm->rotateMinusXPushButton->setEnabled(_projectTreeNode->isEditable());
-      _cellCellForm->rotateMinusYPushButton->setEnabled(_projectTreeNode->isEditable());
-      _cellCellForm->rotateMinusZPushButton->setEnabled(_projectTreeNode->isEditable());
+      if (std::optional<double> angle = rotationAngle())
+      {
+        whileBlocking(_cellCellForm->rotationAngleDoubleSpinBox)->setValue(*angle);
 
-      _cellCellForm->rotatePlusXPushButton->setText("Rotate +" + QString::number(*angle));
-      _cellCellForm->rotatePlusYPushButton->setText("Rotate +" + QString::number(*angle));
-      _cellCellForm->rotatePlusZPushButton->setText("Rotate +" + QString::number(*angle));
-      _cellCellForm->rotateMinusXPushButton->setText("Rotate -" + QString::number(*angle));
-      _cellCellForm->rotateMinusYPushButton->setText("Rotate -" + QString::number(*angle));
-      _cellCellForm->rotateMinusZPushButton->setText("Rotate -" + QString::number(*angle));
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->rotationAngleDoubleSpinBox)->setText("Mult. Val.");
+        _cellCellForm->rotatePlusXPushButton->setEnabled(_projectTreeNode->isEditable());
+        _cellCellForm->rotatePlusYPushButton->setEnabled(_projectTreeNode->isEditable());
+        _cellCellForm->rotatePlusZPushButton->setEnabled(_projectTreeNode->isEditable());
+        _cellCellForm->rotateMinusXPushButton->setEnabled(_projectTreeNode->isEditable());
+        _cellCellForm->rotateMinusYPushButton->setEnabled(_projectTreeNode->isEditable());
+        _cellCellForm->rotateMinusZPushButton->setEnabled(_projectTreeNode->isEditable());
+
+        _cellCellForm->rotatePlusXPushButton->setText("Rotate +" + QString::number(*angle));
+        _cellCellForm->rotatePlusYPushButton->setText("Rotate +" + QString::number(*angle));
+        _cellCellForm->rotatePlusZPushButton->setText("Rotate +" + QString::number(*angle));
+        _cellCellForm->rotateMinusXPushButton->setText("Rotate -" + QString::number(*angle));
+        _cellCellForm->rotateMinusYPushButton->setText("Rotate -" + QString::number(*angle));
+        _cellCellForm->rotateMinusZPushButton->setText("Rotate -" + QString::number(*angle));
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->rotationAngleDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
@@ -915,52 +982,58 @@ void CellTreeWidgetController::reloadRotationAngle()
 // QT-bug: disabling and re-enabling does not work for QDial and 'sliderMoved'
 void CellTreeWidgetController::reloadEulerAngles()
 {
-  _cellCellForm->EulerAngleXDoubleSpinBox->setReadOnly(true);
-  _cellCellForm->EulerAngleXDial->setEnabled(false);
-  _cellCellForm->EulerAngleYDoubleSpinBox->setReadOnly(true);
-  _cellCellForm->EulerAngleYSlider->setEnabled(false);
-  _cellCellForm->EulerAngleZDoubleSpinBox->setReadOnly(true);
-  _cellCellForm->EulerAngleZDial->setEnabled(false);
+  _cellCellForm->EulerAngleXDoubleSpinBox->setDisabled(true);
+  _cellCellForm->EulerAngleXDial->setDisabled(true);
+  _cellCellForm->EulerAngleYDoubleSpinBox->setDisabled(true);
+  _cellCellForm->EulerAngleYSlider->setDisabled(true);
+  _cellCellForm->EulerAngleZDoubleSpinBox->setDisabled(true);
+  _cellCellForm->EulerAngleZDial->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellCellForm->EulerAngleXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _cellCellForm->EulerAngleXDial->setEnabled(_projectTreeNode->isEditable());
-    _cellCellForm->EulerAngleYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _cellCellForm->EulerAngleYSlider->setEnabled(_projectTreeNode->isEditable());
-    _cellCellForm->EulerAngleZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _cellCellForm->EulerAngleZDial->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellCellForm->EulerAngleXDoubleSpinBox->setEnabled(true);
+      _cellCellForm->EulerAngleXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _cellCellForm->EulerAngleXDial->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> angle = EulerAngleX())
-    {
-      whileBlocking(_cellCellForm->EulerAngleXDial)->setDoubleValue(*angle);
-      whileBlocking(_cellCellForm->EulerAngleXDoubleSpinBox)->setValue(*angle);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->EulerAngleXDoubleSpinBox)->setText("Mult. Val.");
-    }
+      _cellCellForm->EulerAngleYDoubleSpinBox->setEnabled(true);
+      _cellCellForm->EulerAngleYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _cellCellForm->EulerAngleYSlider->setEnabled(_projectTreeNode->isEditable());
 
-    if (std::optional<double> angle = EulerAngleY())
-    {
-      whileBlocking(_cellCellForm->EulerAngleYDoubleSpinBox)->setValue(*angle);
-      whileBlocking(_cellCellForm->EulerAngleYSlider)->setDoubleValue(*angle);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->EulerAngleYDoubleSpinBox)->setText("Mult. Val.");
-    }
+      _cellCellForm->EulerAngleZDoubleSpinBox->setEnabled(true);
+      _cellCellForm->EulerAngleZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _cellCellForm->EulerAngleZDial->setEnabled(_projectTreeNode->isEditable());
 
-    if (std::optional<double> angle = EulerAngleZ())
-    {
-      whileBlocking(_cellCellForm->EulerAngleZDoubleSpinBox)->setValue(*angle);
-      whileBlocking(_cellCellForm->EulerAngleZDial)->setDoubleValue(*angle);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->EulerAngleZDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> angle = EulerAngleX())
+      {
+        whileBlocking(_cellCellForm->EulerAngleXDial)->setDoubleValue(*angle);
+        whileBlocking(_cellCellForm->EulerAngleXDoubleSpinBox)->setValue(*angle);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->EulerAngleXDoubleSpinBox)->setText("Mult. Val.");
+      }
+
+      if (std::optional<double> angle = EulerAngleY())
+      {
+        whileBlocking(_cellCellForm->EulerAngleYDoubleSpinBox)->setValue(*angle);
+        whileBlocking(_cellCellForm->EulerAngleYSlider)->setDoubleValue(*angle);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->EulerAngleYDoubleSpinBox)->setText("Mult. Val.");
+      }
+
+      if (std::optional<double> angle = EulerAngleZ())
+      {
+        whileBlocking(_cellCellForm->EulerAngleZDoubleSpinBox)->setValue(*angle);
+        whileBlocking(_cellCellForm->EulerAngleZDial)->setDoubleValue(*angle);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->EulerAngleZDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
@@ -968,63 +1041,69 @@ void CellTreeWidgetController::reloadEulerAngles()
 
 void CellTreeWidgetController::reloadCellOriginX()
 {
-  _cellCellForm->originXDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->originXDoubleSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellCellForm->originXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellCellForm->originXDoubleSpinBox->setEnabled(true);
+      _cellCellForm->originXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = originX())
-    {
-      whileBlocking(_cellCellForm->originXDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->originXDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = originX())
+      {
+        whileBlocking(_cellCellForm->originXDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->originXDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadCellOriginY()
 {
-  _cellCellForm->originYDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->originYDoubleSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellCellForm->originYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellCellForm->originYDoubleSpinBox->setEnabled(true);
+      _cellCellForm->originYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = originY())
-    {
-      whileBlocking(_cellCellForm->originYDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->originYDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = originY())
+      {
+        whileBlocking(_cellCellForm->originYDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->originYDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadCellOriginZ()
 {
-  _cellCellForm->originZDoubleSpinBox->setReadOnly(true);
+  _cellCellForm->originZDoubleSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellCellForm->originZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellCellForm->originZDoubleSpinBox->setEnabled(true);
+      _cellCellForm->originZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = originZ())
-    {
-      whileBlocking(_cellCellForm->originZDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellCellForm->originZDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = originZ())
+      {
+        whileBlocking(_cellCellForm->originZDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellCellForm->originZDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
@@ -2464,21 +2543,21 @@ void CellTreeWidgetController::reloadTransformContentProperties()
   reloadFlipAxesProperties();
   reloadShiftAxesProperties();
 
-  _cellTransformContentForm->applyPushButton->setEnabled(false);
+  _cellTransformContentForm->applyPushButton->setDisabled(true);
 }
 
 void CellTreeWidgetController::reloadFlipAxesProperties()
 {
-  _cellTransformContentForm->flipAxisACheckBox->setEnabled(false);
-  _cellTransformContentForm->flipAxisBCheckBox->setEnabled(false);
-  _cellTransformContentForm->flipAxisCCheckBox->setEnabled(false);
+  _cellTransformContentForm->flipAxisACheckBox->setDisabled(true);
+  _cellTransformContentForm->flipAxisBCheckBox->setDisabled(true);
+  _cellTransformContentForm->flipAxisCCheckBox->setDisabled(true);
 }
 
 void CellTreeWidgetController::reloadShiftAxesProperties()
 {
-  _cellTransformContentForm->shiftAxisADoubleSpinBox->setEnabled(false);
-  _cellTransformContentForm->shiftAxisBDoubleSpinBox->setEnabled(false);
-  _cellTransformContentForm->shiftAxisCDoubleSpinBox->setEnabled(false);
+  _cellTransformContentForm->shiftAxisADoubleSpinBox->setDisabled(true);
+  _cellTransformContentForm->shiftAxisBDoubleSpinBox->setDisabled(true);
+  _cellTransformContentForm->shiftAxisCDoubleSpinBox->setDisabled(true);
 }
 
 // Structural properties
@@ -2502,335 +2581,366 @@ void CellTreeWidgetController::reloadStructureProperties()
   reloadStructuralRestrictingPoreDiameter();
   reloadStructuralLargestDiamtereAlongAViablePath();
 
-  _cellStructuralForm->computeGravimetricSurfaceAreaPushButton->setEnabled(false);
-  _cellStructuralForm->computeVolumetricSurfaceAreaPushButton->setEnabled(false);
-  _cellStructuralForm->computeHeliumVoidFractionPushButton->setEnabled(false);
+  _cellStructuralForm->computeGravimetricSurfaceAreaPushButton->setDisabled(true);
+  _cellStructuralForm->computeVolumetricSurfaceAreaPushButton->setDisabled(true);
+  _cellStructuralForm->computeHeliumVoidFractionPushButton->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellStructuralForm->computeGravimetricSurfaceAreaPushButton->setEnabled(_projectTreeNode->isEditable());
-    _cellStructuralForm->computeVolumetricSurfaceAreaPushButton->setEnabled(_projectTreeNode->isEditable());
-    _cellStructuralForm->computeHeliumVoidFractionPushButton->setEnabled(_projectTreeNode->isEditable());
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellStructuralForm->computeGravimetricSurfaceAreaPushButton->setEnabled(_projectTreeNode->isEditable());
+      _cellStructuralForm->computeVolumetricSurfaceAreaPushButton->setEnabled(_projectTreeNode->isEditable());
+      _cellStructuralForm->computeHeliumVoidFractionPushButton->setEnabled(_projectTreeNode->isEditable());
+    }
   }
 }
 
 void CellTreeWidgetController::reloadStructuralMaterialType()
 {
-  _cellStructuralForm->materialTypeComboBox->setEnabled(false);
+  _cellStructuralForm->materialTypeComboBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellStructuralForm->materialTypeComboBox->setEnabled(_projectTreeNode->isEditable());
-  }
-  if(!_iraspa_structures.empty())
-  {
-
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellStructuralForm->materialTypeComboBox->setEnabled(_projectTreeNode->isEditable());
+    }
   }
 }
 
 void CellTreeWidgetController::reloadStructuralMass()
 {
-  _cellStructuralForm->massDoubleSpinBox->setReadOnly(true);
+  _cellStructuralForm->massDoubleSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellStructuralForm->massDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellStructuralForm->massDoubleSpinBox->setEnabled(true);
+      _cellStructuralForm->massDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = structuralMass())
-    {
-      whileBlocking(_cellStructuralForm->massDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellStructuralForm->massDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = structuralMass())
+      {
+        whileBlocking(_cellStructuralForm->massDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellStructuralForm->massDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadStructuralDensity()
 {
-  _cellStructuralForm->densityDoubleSpinBox->setReadOnly(true);
+  _cellStructuralForm->densityDoubleSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellStructuralForm->densityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellStructuralForm->densityDoubleSpinBox->setEnabled(true);
+      _cellStructuralForm->densityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = structuralDensity())
-    {
-      whileBlocking(_cellStructuralForm->densityDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellStructuralForm->densityDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = structuralDensity())
+      {
+        whileBlocking(_cellStructuralForm->densityDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellStructuralForm->densityDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadStructuralHeliumVoidFraction()
 {
-  _cellStructuralForm->heliumVoidFractionDoubleSpinBox->setReadOnly(true);
+  _cellStructuralForm->heliumVoidFractionDoubleSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellStructuralForm->heliumVoidFractionDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellStructuralForm->heliumVoidFractionDoubleSpinBox->setEnabled(true);
+      _cellStructuralForm->heliumVoidFractionDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = structureHeliumVoidFraction())
-    {
-      whileBlocking(_cellStructuralForm->heliumVoidFractionDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellStructuralForm->heliumVoidFractionDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = structureHeliumVoidFraction())
+      {
+        whileBlocking(_cellStructuralForm->heliumVoidFractionDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellStructuralForm->heliumVoidFractionDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadStructuralSpecificVolume()
 {
-  _cellStructuralForm->specificVolumeDoubleSpinBox->setReadOnly(true);
+  _cellStructuralForm->specificVolumeDoubleSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellStructuralForm->specificVolumeDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellStructuralForm->specificVolumeDoubleSpinBox->setEnabled(true);
+      _cellStructuralForm->specificVolumeDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = structureSpecificVolume())
-    {
-      whileBlocking(_cellStructuralForm->specificVolumeDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellStructuralForm->specificVolumeDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = structureSpecificVolume())
+      {
+        whileBlocking(_cellStructuralForm->specificVolumeDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellStructuralForm->specificVolumeDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadStructuralAccessiblePoreVolume()
 {
-  _cellStructuralForm->accessiblePoreVolumeDoubleSpinBox->setReadOnly(true);
+  _cellStructuralForm->accessiblePoreVolumeDoubleSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellStructuralForm->accessiblePoreVolumeDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellStructuralForm->accessiblePoreVolumeDoubleSpinBox->setEnabled(true);
+      _cellStructuralForm->accessiblePoreVolumeDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = structureAccessiblePoreVolume())
-    {
-      whileBlocking(_cellStructuralForm->accessiblePoreVolumeDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellStructuralForm->accessiblePoreVolumeDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = structureAccessiblePoreVolume())
+      {
+        whileBlocking(_cellStructuralForm->accessiblePoreVolumeDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellStructuralForm->accessiblePoreVolumeDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadFrameworkProbeMoleculePopupBox()
 {
-  _cellStructuralForm->probeMoleculeComboBox->setEnabled(false);
+  _cellStructuralForm->probeMoleculeComboBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellStructuralForm->probeMoleculeComboBox->setEnabled(_projectTreeNode->isEditable());
-  }
-
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<Structure::ProbeMolecule> type=frameworkProbeMolecule())
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
     {
-      if(int index = _cellStructuralForm->probeMoleculeComboBox->findText("Mult. Val."); index>=0)
+      _cellStructuralForm->probeMoleculeComboBox->setEnabled(_projectTreeNode->isEditable());
+
+      if (std::optional<Structure::ProbeMolecule> type=frameworkProbeMolecule())
       {
-        whileBlocking(_cellStructuralForm->probeMoleculeComboBox)->removeItem(index);
-      }
-      if(int(*type)<0)
-      {
-       whileBlocking(_cellStructuralForm->probeMoleculeComboBox)->setCurrentIndex(int(Structure::ProbeMolecule::multiple_values));
+        if(int index = _cellStructuralForm->probeMoleculeComboBox->findText("Mult. Val."); index>=0)
+        {
+          whileBlocking(_cellStructuralForm->probeMoleculeComboBox)->removeItem(index);
+        }
+        if(int(*type)<0)
+        {
+         whileBlocking(_cellStructuralForm->probeMoleculeComboBox)->setCurrentIndex(int(Structure::ProbeMolecule::multiple_values));
+        }
+        else
+        {
+          whileBlocking(_cellStructuralForm->probeMoleculeComboBox)->setCurrentIndex(int(*type));
+        }
       }
       else
       {
-        whileBlocking(_cellStructuralForm->probeMoleculeComboBox)->setCurrentIndex(int(*type));
+        if(int index = _cellStructuralForm->probeMoleculeComboBox->findText("Mult. Val."); index<0)
+        {
+          whileBlocking(_cellStructuralForm->probeMoleculeComboBox)->addItem("Mult. Val.");
+        }
+        whileBlocking(_cellStructuralForm->probeMoleculeComboBox)->setCurrentText("Mult. Val.");
       }
-    }
-    else
-    {
-      if(int index = _cellStructuralForm->probeMoleculeComboBox->findText("Mult. Val."); index<0)
-      {
-        whileBlocking(_cellStructuralForm->probeMoleculeComboBox)->addItem("Mult. Val.");
-      }
-      whileBlocking(_cellStructuralForm->probeMoleculeComboBox)->setCurrentText("Mult. Val.");
     }
   }
 }
 
 void CellTreeWidgetController::reloadStructuralVolumetricSurfaceArea()
 {
-  _cellStructuralForm->volumetricSurfaceAreaDoubleSpinBox->setReadOnly(true);
+  _cellStructuralForm->volumetricSurfaceAreaDoubleSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellStructuralForm->volumetricSurfaceAreaDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellStructuralForm->volumetricSurfaceAreaDoubleSpinBox->setEnabled(true);
+      _cellStructuralForm->volumetricSurfaceAreaDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = structureVolumetricNitrogenSurfaceArea())
-    {
-      whileBlocking(_cellStructuralForm->volumetricSurfaceAreaDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellStructuralForm->volumetricSurfaceAreaDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = structureVolumetricNitrogenSurfaceArea())
+      {
+        whileBlocking(_cellStructuralForm->volumetricSurfaceAreaDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellStructuralForm->volumetricSurfaceAreaDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadStructuralGravimetricSurfaceArea()
 {
-  _cellStructuralForm->gravimetricSurfaceAreaDoubleSpinBox->setReadOnly(true);
+  _cellStructuralForm->gravimetricSurfaceAreaDoubleSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellStructuralForm->gravimetricSurfaceAreaDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellStructuralForm->gravimetricSurfaceAreaDoubleSpinBox->setEnabled(true);
+      _cellStructuralForm->gravimetricSurfaceAreaDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = structureGravimetricNitrogenSurfaceArea())
-    {
-      whileBlocking(_cellStructuralForm->gravimetricSurfaceAreaDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellStructuralForm->gravimetricSurfaceAreaDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = structureGravimetricNitrogenSurfaceArea())
+      {
+        whileBlocking(_cellStructuralForm->gravimetricSurfaceAreaDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellStructuralForm->gravimetricSurfaceAreaDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadStructuralNumberOfChannelSystems()
 {
-  _cellStructuralForm->numberOfChannelSystemsSpinBox->setReadOnly(true);
+  _cellStructuralForm->numberOfChannelSystemsSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellStructuralForm->numberOfChannelSystemsSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellStructuralForm->numberOfChannelSystemsSpinBox->setEnabled(true);
+      _cellStructuralForm->numberOfChannelSystemsSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<int> value = structureNumberOfChannelSystems())
-    {
-      whileBlocking(_cellStructuralForm->numberOfChannelSystemsSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellStructuralForm->numberOfChannelSystemsSpinBox)->setText("Mult. Val.");
+      if (std::optional<int> value = structureNumberOfChannelSystems())
+      {
+        whileBlocking(_cellStructuralForm->numberOfChannelSystemsSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellStructuralForm->numberOfChannelSystemsSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadStructuralNumberOfInaccessiblePockets()
 {
-  _cellStructuralForm->numberOfInaccessiblePocketsSpinBox->setReadOnly(true);
+  _cellStructuralForm->numberOfInaccessiblePocketsSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellStructuralForm->numberOfInaccessiblePocketsSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellStructuralForm->numberOfInaccessiblePocketsSpinBox->setEnabled(true);
+      _cellStructuralForm->numberOfInaccessiblePocketsSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<int> value = structureNumberOfInaccessiblePockets())
-    {
-      whileBlocking(_cellStructuralForm->numberOfInaccessiblePocketsSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellStructuralForm->numberOfInaccessiblePocketsSpinBox)->setText("Mult. Val.");
+      if (std::optional<int> value = structureNumberOfInaccessiblePockets())
+      {
+        whileBlocking(_cellStructuralForm->numberOfInaccessiblePocketsSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellStructuralForm->numberOfInaccessiblePocketsSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadStructuralDimensionalityOfPoreSystem()
 {
-  _cellStructuralForm->dimensionalityOfPoreSystemSpinBox->setReadOnly(true);
+  _cellStructuralForm->dimensionalityOfPoreSystemSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellStructuralForm->dimensionalityOfPoreSystemSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellStructuralForm->dimensionalityOfPoreSystemSpinBox->setEnabled(true);
+      _cellStructuralForm->dimensionalityOfPoreSystemSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<int> value = structureDimensionalityOfPoreSystem())
-    {
-      whileBlocking(_cellStructuralForm->dimensionalityOfPoreSystemSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellStructuralForm->dimensionalityOfPoreSystemSpinBox)->setText("Mult. Val.");
+      if (std::optional<int> value = structureDimensionalityOfPoreSystem())
+      {
+        whileBlocking(_cellStructuralForm->dimensionalityOfPoreSystemSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellStructuralForm->dimensionalityOfPoreSystemSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadStructuralLargestOverallCavityDiameter()
 {
-  _cellStructuralForm->largestOverallCavityDiameterDoubleSpinBox->setReadOnly(true);
+  _cellStructuralForm->largestOverallCavityDiameterDoubleSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellStructuralForm->largestOverallCavityDiameterDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellStructuralForm->largestOverallCavityDiameterDoubleSpinBox->setEnabled(true);
+      _cellStructuralForm->largestOverallCavityDiameterDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = structureLargestCavityDiameter())
-    {
-      whileBlocking(_cellStructuralForm->largestOverallCavityDiameterDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellStructuralForm->largestOverallCavityDiameterDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = structureLargestCavityDiameter())
+      {
+        whileBlocking(_cellStructuralForm->largestOverallCavityDiameterDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellStructuralForm->largestOverallCavityDiameterDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadStructuralRestrictingPoreDiameter()
 {
-  _cellStructuralForm->restrictingPoreDiameterDoubleSpinBox->setReadOnly(true);
+  _cellStructuralForm->restrictingPoreDiameterDoubleSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellStructuralForm->restrictingPoreDiameterDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellStructuralForm->restrictingPoreDiameterDoubleSpinBox->setEnabled(true);
+      _cellStructuralForm->restrictingPoreDiameterDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = structureRestrictingPoreLimitingDiameter())
-    {
-      whileBlocking(_cellStructuralForm->restrictingPoreDiameterDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellStructuralForm->restrictingPoreDiameterDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = structureRestrictingPoreLimitingDiameter())
+      {
+        whileBlocking(_cellStructuralForm->restrictingPoreDiameterDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellStructuralForm->restrictingPoreDiameterDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadStructuralLargestDiamtereAlongAViablePath()
 {
-  _cellStructuralForm->largestDiameterAlongAViablePathDoubleSpinBox->setReadOnly(true);
+  _cellStructuralForm->largestDiameterAlongAViablePathDoubleSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellStructuralForm->largestDiameterAlongAViablePathDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellStructuralForm->largestDiameterAlongAViablePathDoubleSpinBox->setEnabled(true);
+      _cellStructuralForm->largestDiameterAlongAViablePathDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = structureLargestCavityDiameterAlongAviablePath())
-    {
-      whileBlocking(_cellStructuralForm->largestDiameterAlongAViablePathDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellStructuralForm->largestDiameterAlongAViablePathDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = structureLargestCavityDiameterAlongAviablePath())
+      {
+        whileBlocking(_cellStructuralForm->largestDiameterAlongAViablePathDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellStructuralForm->largestDiameterAlongAViablePathDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
@@ -3211,347 +3321,378 @@ void CellTreeWidgetController::reloadSymmetryProperties()
 
 void CellTreeWidgetController::reloadSpaceGroupHallName()
 {
-  _cellSymmetryForm->spaceGroupHallNamecomboBox->setEnabled(false);
+  _cellSymmetryForm->spaceGroupHallNamecomboBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellSymmetryForm->spaceGroupHallNamecomboBox->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellSymmetryForm->spaceGroupHallNamecomboBox->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<int> type = symmetrySpaceGroupHallNumber())
-    {
-      if(int index = _cellSymmetryForm->spaceGroupHallNamecomboBox->findText("Multiple values"); index>=0)
+      if (std::optional<int> type = symmetrySpaceGroupHallNumber())
       {
-        whileBlocking(_cellSymmetryForm->spaceGroupHallNamecomboBox)->removeItem(index);
+        if(int index = _cellSymmetryForm->spaceGroupHallNamecomboBox->findText("Multiple values"); index>=0)
+        {
+          whileBlocking(_cellSymmetryForm->spaceGroupHallNamecomboBox)->removeItem(index);
+        }
+        whileBlocking(_cellSymmetryForm->spaceGroupHallNamecomboBox)->setCurrentIndex(int(*type));
       }
-      whileBlocking(_cellSymmetryForm->spaceGroupHallNamecomboBox)->setCurrentIndex(int(*type));
-    }
-    else
-    {
-      if(int index = _cellSymmetryForm->spaceGroupHallNamecomboBox->findText("Multiple values"); index<0)
+      else
       {
-        whileBlocking(_cellSymmetryForm->spaceGroupHallNamecomboBox)->addItem("Multiple values");
+        if(int index = _cellSymmetryForm->spaceGroupHallNamecomboBox->findText("Multiple values"); index<0)
+        {
+          whileBlocking(_cellSymmetryForm->spaceGroupHallNamecomboBox)->addItem("Multiple values");
+        }
+        whileBlocking(_cellSymmetryForm->spaceGroupHallNamecomboBox)->setCurrentText("Multiple values");
       }
-      whileBlocking(_cellSymmetryForm->spaceGroupHallNamecomboBox)->setCurrentText("Multiple values");
     }
   }
 }
 
 void CellTreeWidgetController::reloadSpaceGroupITNumber()
 {
-  _cellSymmetryForm->spaceGroupITNumberComboBox->setEnabled(false);
+  _cellSymmetryForm->spaceGroupITNumberComboBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellSymmetryForm->spaceGroupITNumberComboBox->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellSymmetryForm->spaceGroupITNumberComboBox->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<int> type = symmetrySpaceGroupStamdardNumber())
-    {
-      if(int index = _cellSymmetryForm->spaceGroupITNumberComboBox->findText("Multiple values"); index>=0)
+      if (std::optional<int> type = symmetrySpaceGroupStamdardNumber())
       {
-        whileBlocking(_cellSymmetryForm->spaceGroupITNumberComboBox)->removeItem(index);
+        if(int index = _cellSymmetryForm->spaceGroupITNumberComboBox->findText("Multiple values"); index>=0)
+        {
+          whileBlocking(_cellSymmetryForm->spaceGroupITNumberComboBox)->removeItem(index);
+        }
+        whileBlocking(_cellSymmetryForm->spaceGroupITNumberComboBox)->setCurrentIndex(int(*type));
       }
-      whileBlocking(_cellSymmetryForm->spaceGroupITNumberComboBox)->setCurrentIndex(int(*type));
-    }
-    else
-    {
-      if(int index = _cellSymmetryForm->spaceGroupITNumberComboBox->findText("Multiple values"); index<0)
+      else
       {
-        whileBlocking(_cellSymmetryForm->spaceGroupITNumberComboBox)->addItem("Multiple values");
+        if(int index = _cellSymmetryForm->spaceGroupITNumberComboBox->findText("Multiple values"); index<0)
+        {
+          whileBlocking(_cellSymmetryForm->spaceGroupITNumberComboBox)->addItem("Multiple values");
+        }
+        whileBlocking(_cellSymmetryForm->spaceGroupITNumberComboBox)->setCurrentText("Multiple values");
       }
-      whileBlocking(_cellSymmetryForm->spaceGroupITNumberComboBox)->setCurrentText("Multiple values");
     }
   }
 }
 
 void CellTreeWidgetController::reloadSpaceGroupHolohedry()
 {
-  _cellSymmetryForm->holohedryLineEdit->setReadOnly(true);
+  _cellSymmetryForm->holohedryLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellSymmetryForm->holohedryLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellSymmetryForm->holohedryLineEdit->setEnabled(true);
+      _cellSymmetryForm->holohedryLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<QString> string = symmetryHolohedryString())
-    {
-      whileBlocking(_cellSymmetryForm->holohedryLineEdit)->setText(*string);
-    }
-    else
-    {
-      whileBlocking(_cellSymmetryForm->holohedryLineEdit)->setText("Mult. Val.");
+      if (std::optional<QString> string = symmetryHolohedryString())
+      {
+        whileBlocking(_cellSymmetryForm->holohedryLineEdit)->setText(*string);
+      }
+      else
+      {
+        whileBlocking(_cellSymmetryForm->holohedryLineEdit)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadSpaceGroupQualifier()
 {
-  _cellSymmetryForm->qualifierLineEdit->setReadOnly(true);
+  _cellSymmetryForm->qualifierLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellSymmetryForm->qualifierLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellSymmetryForm->qualifierLineEdit->setEnabled(true);
+      _cellSymmetryForm->qualifierLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<QString> string = symmetryQualifierString())
-    {
-      whileBlocking(_cellSymmetryForm->qualifierLineEdit)->setText(*string);
-    }
-    else
-    {
-      whileBlocking(_cellSymmetryForm->qualifierLineEdit)->setText("Mult. Val.");
+      if (std::optional<QString> string = symmetryQualifierString())
+      {
+        whileBlocking(_cellSymmetryForm->qualifierLineEdit)->setText(*string);
+      }
+      else
+      {
+        whileBlocking(_cellSymmetryForm->qualifierLineEdit)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadSpaceGroupPrecision()
 {
-  _cellSymmetryForm->precisionDoubleSpinBox->setReadOnly(true);
+  _cellSymmetryForm->precisionDoubleSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellSymmetryForm->precisionDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellSymmetryForm->precisionDoubleSpinBox->setEnabled(true);
+      _cellSymmetryForm->precisionDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = symmetryPrecision())
-    {
-      whileBlocking(_cellSymmetryForm->precisionDoubleSpinBox)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_cellSymmetryForm->precisionDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = symmetryPrecision())
+      {
+        whileBlocking(_cellSymmetryForm->precisionDoubleSpinBox)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_cellSymmetryForm->precisionDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadSpaceGroupCenteringType()
 {
-  _cellSymmetryForm->centeringLineEdit->setReadOnly(true);
+  _cellSymmetryForm->centeringLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellSymmetryForm->centeringLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellSymmetryForm->centeringLineEdit->setEnabled(true);
+      _cellSymmetryForm->centeringLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<QString> value = symmetryCenteringString())
-    {
-      whileBlocking(_cellSymmetryForm->centeringLineEdit)->setText(*value);
-    }
-    else
-    {
-      whileBlocking(_cellSymmetryForm->centeringLineEdit)->setText("Mult. Val.");
+      if (std::optional<QString> value = symmetryCenteringString())
+      {
+        whileBlocking(_cellSymmetryForm->centeringLineEdit)->setText(*value);
+      }
+      else
+      {
+        whileBlocking(_cellSymmetryForm->centeringLineEdit)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadSpaceGroupCenteringVectors()
 {
-  _cellSymmetryForm->centerintVector1LineEdit->setReadOnly(true);
-  _cellSymmetryForm->centerintVector2LineEdit->setReadOnly(true);
-  _cellSymmetryForm->centerintVector3LineEdit->setReadOnly(true);
-  _cellSymmetryForm->centerintVector4LineEdit->setReadOnly(true);
+  _cellSymmetryForm->centerintVector1LineEdit->setDisabled(true);
+  _cellSymmetryForm->centerintVector2LineEdit->setDisabled(true);
+  _cellSymmetryForm->centerintVector3LineEdit->setDisabled(true);
+  _cellSymmetryForm->centerintVector4LineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellSymmetryForm->centerintVector1LineEdit->setReadOnly(!_projectTreeNode->isEditable());
-    _cellSymmetryForm->centerintVector2LineEdit->setReadOnly(!_projectTreeNode->isEditable());
-    _cellSymmetryForm->centerintVector3LineEdit->setReadOnly(!_projectTreeNode->isEditable());
-    _cellSymmetryForm->centerintVector4LineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellSymmetryForm->centerintVector1LineEdit->setEnabled(true);
+      _cellSymmetryForm->centerintVector2LineEdit->setEnabled(true);
+      _cellSymmetryForm->centerintVector3LineEdit->setEnabled(true);
+      _cellSymmetryForm->centerintVector4LineEdit->setEnabled(true);
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<int> value = symmetrySpaceGroupHallNumber())
-    {
-      std::vector<QString> latticeVector =  SKSpaceGroup::latticeTranslationStrings(*value);
-      whileBlocking(_cellSymmetryForm->centerintVector1LineEdit)->setText(latticeVector[0]);
-      whileBlocking(_cellSymmetryForm->centerintVector2LineEdit)->setText(latticeVector[1]);
-      whileBlocking(_cellSymmetryForm->centerintVector3LineEdit)->setText(latticeVector[2]);
-      whileBlocking(_cellSymmetryForm->centerintVector4LineEdit)->setText(latticeVector[3]);
-    }
-    else
-    {
-      whileBlocking(_cellSymmetryForm->centerintVector1LineEdit)->setText("Mult. Val.");
-      whileBlocking(_cellSymmetryForm->centerintVector2LineEdit)->setText("Mult. Val.");
-      whileBlocking(_cellSymmetryForm->centerintVector3LineEdit)->setText("Mult. Val.");
-      whileBlocking(_cellSymmetryForm->centerintVector4LineEdit)->setText("Mult. Val.");
+      _cellSymmetryForm->centerintVector1LineEdit->setReadOnly(!_projectTreeNode->isEditable());
+      _cellSymmetryForm->centerintVector2LineEdit->setReadOnly(!_projectTreeNode->isEditable());
+      _cellSymmetryForm->centerintVector3LineEdit->setReadOnly(!_projectTreeNode->isEditable());
+      _cellSymmetryForm->centerintVector4LineEdit->setReadOnly(!_projectTreeNode->isEditable());
+
+      if (std::optional<int> value = symmetrySpaceGroupHallNumber())
+      {
+        std::vector<QString> latticeVector =  SKSpaceGroup::latticeTranslationStrings(*value);
+        whileBlocking(_cellSymmetryForm->centerintVector1LineEdit)->setText(latticeVector[0]);
+        whileBlocking(_cellSymmetryForm->centerintVector2LineEdit)->setText(latticeVector[1]);
+        whileBlocking(_cellSymmetryForm->centerintVector3LineEdit)->setText(latticeVector[2]);
+        whileBlocking(_cellSymmetryForm->centerintVector4LineEdit)->setText(latticeVector[3]);
+      }
+      else
+      {
+        whileBlocking(_cellSymmetryForm->centerintVector1LineEdit)->setText("Mult. Val.");
+        whileBlocking(_cellSymmetryForm->centerintVector2LineEdit)->setText("Mult. Val.");
+        whileBlocking(_cellSymmetryForm->centerintVector3LineEdit)->setText("Mult. Val.");
+        whileBlocking(_cellSymmetryForm->centerintVector4LineEdit)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadSpaceGroupInversion()
 {
-  _cellSymmetryForm->inversionLineEdit->setReadOnly(true);
+  _cellSymmetryForm->inversionLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellSymmetryForm->inversionLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellSymmetryForm->inversionLineEdit->setEnabled(true);
+      _cellSymmetryForm->inversionLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<bool> type = symmetryInversion())
-    {
-      whileBlocking(_cellSymmetryForm->inversionLineEdit)->setText(*type ? "yes" : "no");
-    }
-    else
-    {
-      whileBlocking(_cellSymmetryForm->inversionLineEdit)->setText("Multiple values");
+      if (std::optional<bool> type = symmetryInversion())
+      {
+        whileBlocking(_cellSymmetryForm->inversionLineEdit)->setText(*type ? "yes" : "no");
+      }
+      else
+      {
+        whileBlocking(_cellSymmetryForm->inversionLineEdit)->setText("Multiple values");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadSpaceGroupInversionCenter()
 {
-  _cellSymmetryForm->inversionCenterLineEdit->setReadOnly(true);
+  _cellSymmetryForm->inversionCenterLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellSymmetryForm->inversionCenterLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellSymmetryForm->inversionCenterLineEdit->setEnabled(true);
+      _cellSymmetryForm->inversionCenterLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<QString> value = symmetryInversionCenterString())
-    {
-      whileBlocking(_cellSymmetryForm->inversionCenterLineEdit)->setText(*value);
-    }
-    else
-    {
-      whileBlocking(_cellSymmetryForm->inversionCenterLineEdit)->setText("Mult. Val.");
+      if (std::optional<QString> value = symmetryInversionCenterString())
+      {
+        whileBlocking(_cellSymmetryForm->inversionCenterLineEdit)->setText(*value);
+      }
+      else
+      {
+        whileBlocking(_cellSymmetryForm->inversionCenterLineEdit)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadSpaceGroupCentroSymmetric()
 {
-  _cellSymmetryForm->centrosymmetricLineEdit->setReadOnly(true);
+  _cellSymmetryForm->centrosymmetricLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellSymmetryForm->centrosymmetricLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellSymmetryForm->centrosymmetricLineEdit->setEnabled(true);
+      _cellSymmetryForm->centrosymmetricLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<bool> type = symmetryCentrosymmetric())
-    {
-      whileBlocking(_cellSymmetryForm->centrosymmetricLineEdit)->setText(*type ? "yes" : "no");
-    }
-    else
-    {
-      whileBlocking(_cellSymmetryForm->centrosymmetricLineEdit)->setText("Multiple values");
+      if (std::optional<bool> type = symmetryCentrosymmetric())
+      {
+        whileBlocking(_cellSymmetryForm->centrosymmetricLineEdit)->setText(*type ? "yes" : "no");
+      }
+      else
+      {
+        whileBlocking(_cellSymmetryForm->centrosymmetricLineEdit)->setText("Multiple values");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadSpaceGroupEnantiomorphic()
 {
-  _cellSymmetryForm->enantiomorphicLineEdit->setReadOnly(true);
+  _cellSymmetryForm->enantiomorphicLineEdit->setDisabled(true);
   if(_projectTreeNode)
   {
-    _cellSymmetryForm->enantiomorphicLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellSymmetryForm->enantiomorphicLineEdit->setEnabled(true);
+      _cellSymmetryForm->enantiomorphicLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<bool> type = symmetryEnantiomorphic())
-    {
-      whileBlocking(_cellSymmetryForm->enantiomorphicLineEdit)->setText(*type ? "yes" : "no");
-    }
-    else
-    {
-      whileBlocking(_cellSymmetryForm->enantiomorphicLineEdit)->setText("Multiple values");
+      if (std::optional<bool> type = symmetryEnantiomorphic())
+      {
+        whileBlocking(_cellSymmetryForm->enantiomorphicLineEdit)->setText(*type ? "yes" : "no");
+      }
+      else
+      {
+        whileBlocking(_cellSymmetryForm->enantiomorphicLineEdit)->setText("Multiple values");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadSpaceGroupLaueGroup()
 {
-  _cellSymmetryForm->LaueGroupLineEdit->setReadOnly(true);
+  _cellSymmetryForm->LaueGroupLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellSymmetryForm->LaueGroupLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellSymmetryForm->LaueGroupLineEdit->setEnabled(true);
+      _cellSymmetryForm->LaueGroupLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<int> type = symmetryPointGroup())
-    {
-      QString name = SKPointGroup::pointGroupData[*type].LaueString();
-      whileBlocking(_cellSymmetryForm->LaueGroupLineEdit)->setText(name);
-    }
-    else
-    {
-      whileBlocking(_cellSymmetryForm->LaueGroupLineEdit)->setText("Multiple values");
+      if (std::optional<int> type = symmetryPointGroup())
+      {
+        QString name = SKPointGroup::pointGroupData[*type].LaueString();
+        whileBlocking(_cellSymmetryForm->LaueGroupLineEdit)->setText(name);
+      }
+      else
+      {
+        whileBlocking(_cellSymmetryForm->LaueGroupLineEdit)->setText("Multiple values");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadSpaceGroupPointGroup()
 {
-  _cellSymmetryForm->pointGroupLineEdit->setReadOnly(true);
+  _cellSymmetryForm->pointGroupLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellSymmetryForm->pointGroupLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellSymmetryForm->pointGroupLineEdit->setEnabled(true);
+      _cellSymmetryForm->pointGroupLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<int> type = symmetryPointGroup())
-    {
-      QString name = SKPointGroup::pointGroupData[*type].symbol();
-      whileBlocking(_cellSymmetryForm->pointGroupLineEdit)->setText(name);
-    }
-    else
-    {
-      whileBlocking(_cellSymmetryForm->pointGroupLineEdit)->setText("Multiple values");
+      if (std::optional<int> type = symmetryPointGroup())
+      {
+        QString name = SKPointGroup::pointGroupData[*type].symbol();
+        whileBlocking(_cellSymmetryForm->pointGroupLineEdit)->setText(name);
+      }
+      else
+      {
+        whileBlocking(_cellSymmetryForm->pointGroupLineEdit)->setText("Multiple values");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadSpaceGroupSchoenfliesSymbol()
 {
-  _cellSymmetryForm->SchoenfliesLineEdit->setReadOnly(true);
+  _cellSymmetryForm->SchoenfliesLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellSymmetryForm->SchoenfliesLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellSymmetryForm->SchoenfliesLineEdit->setEnabled(true);
+      _cellSymmetryForm->SchoenfliesLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<int> type = symmetryPointGroup())
-    {
-      QString name = SKPointGroup::pointGroupData[*type].schoenflies();
-      whileBlocking(_cellSymmetryForm->SchoenfliesLineEdit)->setText(name);
-    }
-    else
-    {
-      whileBlocking(_cellSymmetryForm->SchoenfliesLineEdit)->setText("Multiple values");
+      if (std::optional<int> type = symmetryPointGroup())
+      {
+        QString name = SKPointGroup::pointGroupData[*type].schoenflies();
+        whileBlocking(_cellSymmetryForm->SchoenfliesLineEdit)->setText(name);
+      }
+      else
+      {
+        whileBlocking(_cellSymmetryForm->SchoenfliesLineEdit)->setText("Multiple values");
+      }
     }
   }
 }
 
 void CellTreeWidgetController::reloadSpaceGroupSymmorphicity()
 {
-  _cellSymmetryForm->symmorphicityLineEdit->setReadOnly(true);
+  _cellSymmetryForm->symmorphicityLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _cellSymmetryForm->symmorphicityLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _cellSymmetryForm->symmorphicityLineEdit->setEnabled(true);
+      _cellSymmetryForm->symmorphicityLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<QString> string = symmetrySymmorphicity())
-    {
-      whileBlocking(_cellSymmetryForm->symmorphicityLineEdit)->setText(*string);
-    }
-    else
-    {
-      whileBlocking(_cellSymmetryForm->symmorphicityLineEdit)->setText("Multiple values");
+      if (std::optional<QString> string = symmetrySymmorphicity())
+      {
+        whileBlocking(_cellSymmetryForm->symmorphicityLineEdit)->setText(*string);
+      }
+      else
+      {
+        whileBlocking(_cellSymmetryForm->symmorphicityLineEdit)->setText("Multiple values");
+      }
     }
   }
 }

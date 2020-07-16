@@ -65,9 +65,9 @@ public:
 private:
   MainWindow* _mainWindow;
   std::shared_ptr<BondListViewModel> _bondModel;
-  std::weak_ptr<iRASPAStructure> _iRASPAStructure;
+  std::weak_ptr<iRASPAStructure> _iraspaStructure;
   std::weak_ptr<ProjectTreeNode> _projectTreeNode;
-  std::weak_ptr<iRASPAProject> _iRASPAProject;
+  std::shared_ptr<iRASPAProject> _iRASPAProject;
 
   BondListPushButtonStyledItemDelegate *pushButtonDelegate;
   BondListViewComboBoxStyledItemDelegate *comboBoxDelegate;
@@ -77,8 +77,6 @@ private:
   void deleteSelection();
 protected:
   void keyPressEvent(QKeyEvent *event) override final;
-public slots:
-  void setBondListModel(const QModelIndex &current, const QModelIndex &previous);
 signals:
   void rendererReloadData();
 };

@@ -237,7 +237,9 @@ InfoTreeWidgetController::InfoTreeWidgetController(QWidget* parent): QTreeWidget
 void InfoTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 {
   _projectTreeNode = projectTreeNode;
-   _projectStructure = nullptr;
+  _projectStructure = nullptr;
+  _iraspa_structures = std::vector<std::shared_ptr<iRASPAStructure>>{};
+
   if (projectTreeNode)
   {
     if(std::shared_ptr<iRASPAProject> iraspaProject = projectTreeNode->representedObject())
@@ -248,12 +250,12 @@ void InfoTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode> proje
         {
           _projectStructure = projectStructure;
           _iraspa_structures = projectStructure->flattenediRASPAStructures();
-          reloadData();
         }
       }
     }
   }
 
+  reloadData();
 }
 
 void InfoTreeWidgetController::setFlattenedSelectedFrames(std::vector<std::shared_ptr<iRASPAStructure>> iraspa_structures)
@@ -350,7 +352,6 @@ void InfoTreeWidgetController::reloadCreatorData()
 
 void InfoTreeWidgetController::reloadCreationData()
 {
-  std::cout << "reloadCreationData" << std::endl;
   reloadCreationDate();
   reloadCreationTemperature();
   reloadCreationPressure();
@@ -392,189 +393,207 @@ void InfoTreeWidgetController::reloadCitationData()
 
 void InfoTreeWidgetController::reloadAuthorFirstName()
 {
-  _infoCreatorForm->firstNameLineEdit->setReadOnly(true);
+  _infoCreatorForm->firstNameLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _infoCreatorForm->firstNameLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _infoCreatorForm->firstNameLineEdit->setEnabled(true);
+      _infoCreatorForm->firstNameLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if ( std::optional<QString> value = authorFirstName())
-    {
-      whileBlocking(_infoCreatorForm->firstNameLineEdit)->setText(*value);
-    }
-    else
-    {
-      whileBlocking(_infoCreatorForm->firstNameLineEdit)->setText("Mult. Val.");
+      if ( std::optional<QString> value = authorFirstName())
+      {
+        whileBlocking(_infoCreatorForm->firstNameLineEdit)->setText(*value);
+      }
+      else
+      {
+        whileBlocking(_infoCreatorForm->firstNameLineEdit)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void InfoTreeWidgetController::reloadAuthorMiddleName()
 {
-  _infoCreatorForm->middleNameLineEdit->setReadOnly(true);
+  _infoCreatorForm->middleNameLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _infoCreatorForm->middleNameLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _infoCreatorForm->middleNameLineEdit->setEnabled(true);
+      _infoCreatorForm->middleNameLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if ( std::optional<QString> value = authorMiddleName())
-    {
-      whileBlocking(_infoCreatorForm->middleNameLineEdit)->setText(*value);
-    }
-    else
-    {
-      whileBlocking(_infoCreatorForm->middleNameLineEdit)->setText("Mult. Val.");
+      if ( std::optional<QString> value = authorMiddleName())
+      {
+        whileBlocking(_infoCreatorForm->middleNameLineEdit)->setText(*value);
+      }
+      else
+      {
+        whileBlocking(_infoCreatorForm->middleNameLineEdit)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void InfoTreeWidgetController::reloadAuthorLastName()
 {
-  _infoCreatorForm->lastNameLineEdit->setReadOnly(true);
+  _infoCreatorForm->lastNameLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _infoCreatorForm->lastNameLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _infoCreatorForm->lastNameLineEdit->setEnabled(true);
+      _infoCreatorForm->lastNameLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if ( std::optional<QString> value = authorLastName())
-    {
-      whileBlocking(_infoCreatorForm->lastNameLineEdit)->setText(*value);
-    }
-    else
-    {
-      whileBlocking(_infoCreatorForm->lastNameLineEdit)->setText("Mult. Val.");
+      if ( std::optional<QString> value = authorLastName())
+      {
+        whileBlocking(_infoCreatorForm->lastNameLineEdit)->setText(*value);
+      }
+      else
+      {
+        whileBlocking(_infoCreatorForm->lastNameLineEdit)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void InfoTreeWidgetController::reloadAuthorOrchidID()
 {
-  _infoCreatorForm->orchidLineEdit->setReadOnly(true);
+  _infoCreatorForm->orchidLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _infoCreatorForm->orchidLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _infoCreatorForm->orchidLineEdit->setEnabled(true);
+      _infoCreatorForm->orchidLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if ( std::optional<QString> value = authorOrchidID())
-    {
-      whileBlocking(_infoCreatorForm->orchidLineEdit)->setText(*value);
-    }
-    else
-    {
-      whileBlocking(_infoCreatorForm->orchidLineEdit)->setText("Mult. Val.");
+      if ( std::optional<QString> value = authorOrchidID())
+      {
+        whileBlocking(_infoCreatorForm->orchidLineEdit)->setText(*value);
+      }
+      else
+      {
+        whileBlocking(_infoCreatorForm->orchidLineEdit)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void InfoTreeWidgetController::reloadAuthorResearcherID()
 {
-  _infoCreatorForm->researcherIDLineEdit->setReadOnly(true);
+  _infoCreatorForm->researcherIDLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _infoCreatorForm->researcherIDLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _infoCreatorForm->researcherIDLineEdit->setEnabled(true);
+      _infoCreatorForm->researcherIDLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if ( std::optional<QString> value = authorResearcherID())
-    {
-      whileBlocking(_infoCreatorForm->researcherIDLineEdit)->setText(*value);
-    }
-    else
-    {
-      whileBlocking(_infoCreatorForm->researcherIDLineEdit)->setText("Mult. Val.");
+      if ( std::optional<QString> value = authorResearcherID())
+      {
+        whileBlocking(_infoCreatorForm->researcherIDLineEdit)->setText(*value);
+      }
+      else
+      {
+        whileBlocking(_infoCreatorForm->researcherIDLineEdit)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void InfoTreeWidgetController::reloadAuthorAffiliationUniversityName()
 {
-  _infoCreatorForm->universityNameLineEdit->setReadOnly(true);
+  _infoCreatorForm->universityNameLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _infoCreatorForm->universityNameLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _infoCreatorForm->universityNameLineEdit->setEnabled(true);
+      _infoCreatorForm->universityNameLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if ( std::optional<QString> value = authorAffiliationUniversityName())
-    {
-      whileBlocking(_infoCreatorForm->universityNameLineEdit)->setText(*value);
-    }
-    else
-    {
-      whileBlocking(_infoCreatorForm->universityNameLineEdit)->setText("Mult. Val.");
+      if ( std::optional<QString> value = authorAffiliationUniversityName())
+      {
+        whileBlocking(_infoCreatorForm->universityNameLineEdit)->setText(*value);
+      }
+      else
+      {
+        whileBlocking(_infoCreatorForm->universityNameLineEdit)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void InfoTreeWidgetController::reloadAuthorAffiliationFacultyName()
 {
-  _infoCreatorForm->facultyNameLineEdit->setReadOnly(true);
+  _infoCreatorForm->facultyNameLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _infoCreatorForm->facultyNameLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _infoCreatorForm->facultyNameLineEdit->setEnabled(true);
+      _infoCreatorForm->facultyNameLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if ( std::optional<QString> value = authorAffiliationFacultyName())
-    {
-      whileBlocking(_infoCreatorForm->facultyNameLineEdit)->setText(*value);
-    }
-    else
-    {
-      whileBlocking(_infoCreatorForm->facultyNameLineEdit)->setText("Mult. Val.");
+      if ( std::optional<QString> value = authorAffiliationFacultyName())
+      {
+        whileBlocking(_infoCreatorForm->facultyNameLineEdit)->setText(*value);
+      }
+      else
+      {
+        whileBlocking(_infoCreatorForm->facultyNameLineEdit)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void InfoTreeWidgetController::reloadAuthorAffiliationInstituteName()
 {
-  _infoCreatorForm->instituteNameLineEdit->setReadOnly(true);
+  _infoCreatorForm->instituteNameLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _infoCreatorForm->instituteNameLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _infoCreatorForm->instituteNameLineEdit->setEnabled(true);
+      _infoCreatorForm->instituteNameLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if ( std::optional<QString> value = authorAffiliationInstituteName())
-    {
-      whileBlocking(_infoCreatorForm->instituteNameLineEdit)->setText(*value);
-    }
-    else
-    {
-      whileBlocking(_infoCreatorForm->instituteNameLineEdit)->setText("Mult. Val.");
+      if ( std::optional<QString> value = authorAffiliationInstituteName())
+      {
+        whileBlocking(_infoCreatorForm->instituteNameLineEdit)->setText(*value);
+      }
+      else
+      {
+        whileBlocking(_infoCreatorForm->instituteNameLineEdit)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void InfoTreeWidgetController::reloadAuthorAffiliationCityName()
 {
-  _infoCreatorForm->cityNameLineEdit->setReadOnly(true);
+  _infoCreatorForm->cityNameLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _infoCreatorForm->cityNameLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _infoCreatorForm->cityNameLineEdit->setEnabled(true);
+      _infoCreatorForm->cityNameLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if ( std::optional<QString> value = authorAffiliationCityName())
-    {
-      whileBlocking(_infoCreatorForm->cityNameLineEdit)->setText(*value);
-    }
-    else
-    {
-      whileBlocking(_infoCreatorForm->cityNameLineEdit)->setText("Mult. Val.");
+      if ( std::optional<QString> value = authorAffiliationCityName())
+      {
+        whileBlocking(_infoCreatorForm->cityNameLineEdit)->setText(*value);
+      }
+      else
+      {
+        whileBlocking(_infoCreatorForm->cityNameLineEdit)->setText("Mult. Val.");
+      }
     }
   }
 }
@@ -844,64 +863,69 @@ void InfoTreeWidgetController::setAuthorAffiliationCityName(QString name)
 
 void InfoTreeWidgetController::reloadCreationDate()
 {
-  _infoCreationForm->creationDateEdit->setReadOnly(true);
+  _infoCreationForm->creationDateEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _infoCreationForm->creationDateEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _infoCreationForm->creationDateEdit->setEnabled(true);
+      _infoCreationForm->creationDateEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if ( std::optional<QDate> value = creationDate())
-    {
-      whileBlocking(_infoCreationForm->creationDateEdit)->setDate(*value);
-    }
-    else
-    {
-      whileBlocking(_infoCreationForm->creationDateEdit)->setDate(QDate());
+      if ( std::optional<QDate> value = creationDate())
+      {
+        whileBlocking(_infoCreationForm->creationDateEdit)->setDate(*value);
+      }
+      else
+      {
+        whileBlocking(_infoCreationForm->creationDateEdit)->setDate(QDate());
+      }
     }
   }
 }
 
 void InfoTreeWidgetController::reloadCreationTemperature()
 {
-  _infoCreationForm->temperatureLineEdit->setReadOnly(true);
+  _infoCreationForm->temperatureLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _infoCreationForm->temperatureLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _infoCreationForm->temperatureLineEdit->setEnabled(true);
+      _infoCreationForm->temperatureLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if ( std::optional<QString> value = creationTemperature())
-    {
-       whileBlocking(_infoCreationForm->temperatureLineEdit)->setText(*value);
-    }
-    else
-    {
-      std::cout << "Setting text temperature to: Mult. Val." << std::endl;
-      whileBlocking(_infoCreationForm->temperatureLineEdit)->setText("Mult. Val.");
+      if ( std::optional<QString> value = creationTemperature())
+      {
+         whileBlocking(_infoCreationForm->temperatureLineEdit)->setText(*value);
+      }
+      else
+      {
+        whileBlocking(_infoCreationForm->temperatureLineEdit)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void InfoTreeWidgetController::reloadCreationPressure()
 {
-  _infoCreationForm->pressureLineEdit->setReadOnly(true);
+  _infoCreationForm->pressureLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _infoCreationForm->pressureLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _infoCreationForm->pressureLineEdit->setEnabled(true);
+      _infoCreationForm->pressureLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if ( std::optional<QString> value = creationPressure())
-    {
-       whileBlocking(_infoCreationForm->pressureLineEdit)->setText(*value);
-    }
-    else
-    {
-      whileBlocking(_infoCreationForm->pressureLineEdit)->setText("Mult. Val.");
+      if ( std::optional<QString> value = creationPressure())
+      {
+        whileBlocking(_infoCreationForm->pressureLineEdit)->setText(*value);
+      }
+      else
+      {
+        whileBlocking(_infoCreationForm->pressureLineEdit)->setText("Mult. Val.");
+      }
     }
   }
 }
@@ -1190,63 +1214,69 @@ void InfoTreeWidgetController::setCreationAtomicChargesForceFieldDetails(QString
 
 void InfoTreeWidgetController::reloadChemicalFormulaMoiety()
 {
-  _infoChemicalForm->moietyLineEdit->setReadOnly(true);
+  _infoChemicalForm->moietyLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _infoChemicalForm->moietyLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _infoChemicalForm->moietyLineEdit->setEnabled(true);
+      _infoChemicalForm->moietyLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if ( std::optional<QString> value = chemicalFormulaMoiety())
-    {
-      whileBlocking(_infoChemicalForm->moietyLineEdit)->setText(*value);
-    }
-    else
-    {
-      whileBlocking(_infoChemicalForm->moietyLineEdit)->setText("Mult. Val.");
+      if ( std::optional<QString> value = chemicalFormulaMoiety())
+      {
+        whileBlocking(_infoChemicalForm->moietyLineEdit)->setText(*value);
+      }
+      else
+      {
+        whileBlocking(_infoChemicalForm->moietyLineEdit)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void InfoTreeWidgetController::reloadChemicalFormulaSum()
 {
-  _infoChemicalForm->sumLineEdit->setReadOnly(true);
+  _infoChemicalForm->sumLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _infoChemicalForm->sumLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _infoChemicalForm->sumLineEdit->setEnabled(true);
+      _infoChemicalForm->sumLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if ( std::optional<QString> value = chemicalFormulaSum())
-    {
-      whileBlocking(_infoChemicalForm->sumLineEdit)->setText(*value);
-    }
-    else
-    {
-      whileBlocking(_infoChemicalForm->sumLineEdit)->setText("Mult. Val.");
+      if ( std::optional<QString> value = chemicalFormulaSum())
+      {
+        whileBlocking(_infoChemicalForm->sumLineEdit)->setText(*value);
+      }
+      else
+      {
+        whileBlocking(_infoChemicalForm->sumLineEdit)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void InfoTreeWidgetController::reloadChemicalNameSystematic()
 {
-  _infoChemicalForm->sytematicLineEdit->setReadOnly(true);
+  _infoChemicalForm->sytematicLineEdit->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _infoChemicalForm->sytematicLineEdit->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _infoChemicalForm->sytematicLineEdit->setEnabled(true);
+      _infoChemicalForm->sytematicLineEdit->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if ( std::optional<QString> value = chemicalNameSystematic())
-    {
-      whileBlocking(_infoChemicalForm->sytematicLineEdit)->setText(*value);
-    }
-    else
-    {
-      whileBlocking(_infoChemicalForm->sytematicLineEdit)->setText("Mult. Val.");
+      if ( std::optional<QString> value = chemicalNameSystematic())
+      {
+        whileBlocking(_infoChemicalForm->sytematicLineEdit)->setText(*value);
+      }
+      else
+      {
+        whileBlocking(_infoChemicalForm->sytematicLineEdit)->setText("Mult. Val.");
+      }
     }
   }
 }

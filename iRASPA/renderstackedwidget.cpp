@@ -54,11 +54,12 @@ void RenderStackedWidget::setProject(std::shared_ptr<ProjectTreeNode> projectTre
   this->_projectTreeNode = projectTreeNode;
   this->_project.reset();
 
+
+  std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> render_structures{};
   if (projectTreeNode)
   {
     if(std::shared_ptr<iRASPAProject> iraspaProject = projectTreeNode->representedObject())
     {
-      //QObject::connect(&iraspaProject->undoManager(),&QUndoStack::indexChanged, this, &RenderStackedWidget::reloadData, Qt::UniqueConnection);
       if(std::shared_ptr<Project> project = iraspaProject->project())
       {
         if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
@@ -71,13 +72,15 @@ void RenderStackedWidget::setProject(std::shared_ptr<ProjectTreeNode> projectTre
           this->_project = projectStructure;
           this->_camera = projectStructure->camera();
           _iraspa_structures = projectStructure->iRASPAstructures();
-          if (RKRenderViewController* widget = dynamic_cast<RKRenderViewController*>(currentWidget()))
-          {
-            widget->setRenderStructures(projectStructure->renderStructures());
-          }
+          render_structures = projectStructure->renderStructures();
         }
       }
     }
+  }
+
+  if (RKRenderViewController* widget = dynamic_cast<RKRenderViewController*>(currentWidget()))
+  {
+    widget->setRenderStructures(render_structures);
   }
 }
 

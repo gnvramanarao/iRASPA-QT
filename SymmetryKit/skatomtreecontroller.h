@@ -77,7 +77,7 @@ public:
     std::vector<std::shared_ptr<SKAtomTreeNode>> selectedAtomTreeNodes();
 private:
     qint64 _versionNumber{1};
-    std::shared_ptr<SKAtomTreeNode> _hiddenRootNode;
+    std::shared_ptr<SKAtomTreeNode> _hiddenRootNode{nullptr};
     std::shared_ptr<SKAtomTreeNode> _selectedTreeNode{nullptr};
     std::unordered_set<std::shared_ptr<SKAtomTreeNode>> _selectedTreeNodes{};
     std::function<bool(std::shared_ptr<SKAtomTreeNode>)> _filterPredicate = [](std::shared_ptr<SKAtomTreeNode>) { return true; };

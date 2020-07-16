@@ -242,10 +242,19 @@ void ProjectTreeView::selectionChanged(const QItemSelection &selected, const QIt
         }
       }
 
-      _mainWindow->propagateProject(selectedTreeNode->shared_from_this(),_mainWindow);
+      if(std::shared_ptr<iRASPAProject> iraspa_project = std::dynamic_pointer_cast<iRASPAProject>(selectedTreeNode->representedObject()))
+      {
+        //if(std::shared_ptr<ProjectStructure> project = std::dynamic_pointer_cast<ProjectStructure>(iraspa_project->project()))
+       // {
+       //   qDebug() << "yes";
+          _mainWindow->propagateProject(selectedTreeNode->shared_from_this(), _mainWindow);
+          return;
+       // }
+      }
     }
   }
-
+  qDebug() << "no";
+  _mainWindow->propagateProject(nullptr, _mainWindow);
 }
 
 QSize ProjectTreeView::sizeHint() const

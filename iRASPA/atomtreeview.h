@@ -93,7 +93,6 @@ private:
 protected:
   void keyPressEvent(QKeyEvent *event) override final;
 public slots:
-  void setAtomTreeModel(const QModelIndex &current, const QModelIndex &previous);
   void ShowContextMenu(const QPoint &pos);
 signals:
   void rendererReloadData();

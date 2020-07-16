@@ -875,7 +875,10 @@ void OpenGLExternalBondShader::deleteBuffers()
     glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _vertexTripleBondsBuffer[i].data());
     glDeleteBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _indexTripleBondsBuffer[i].data());
   }
+}
 
+void OpenGLExternalBondShader::deletePermanentBuffers()
+{
   glDeleteVertexArrays(1, &_boxVertexArray);
   glDeleteBuffers(1, &_boxVertexBuffer);
   glDeleteBuffers(1, &_boxIndexBuffer);
@@ -1000,6 +1003,11 @@ void OpenGLExternalBondShader::generateBuffers()
     glGenBuffers(static_cast<GLsizei>(_renderStructures[i].size()), _indexTripleBondsBuffer[i].data());
   }
 
+
+}
+
+void OpenGLExternalBondShader::generatePermanentBuffers()
+{
   glGenVertexArrays(1, &_boxVertexArray);
   glGenBuffers(1, &_boxVertexBuffer);
   glGenBuffers(1, &_boxIndexBuffer);

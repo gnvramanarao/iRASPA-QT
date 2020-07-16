@@ -30,7 +30,7 @@
 #include "bondlistviewmodel.h"
 #include "bondlistpushbuttonstyleditemdelegate.h"
 
-BondListViewModel::BondListViewModel(): _bondSetController(std::make_shared<SKBondSetController>(std::make_shared<SKAtomTreeController>()))
+BondListViewModel::BondListViewModel(): _iraspaStructure(std::make_shared<iRASPAStructure>())
 {
   //this->setItemDelegateForColumn(2, new BondListPushButtonStyledItemDelegate() );
 }
@@ -40,11 +40,15 @@ QModelIndex BondListViewModel::index(int row, int column, const QModelIndex &par
   if (!hasIndex(row, column, parent))
     return QModelIndex();
 
-  const std::vector<std::shared_ptr<SKAsymmetricBond>> bonds = _bondSetController->arrangedObjects();
-  if(bonds.empty())
-    return QModelIndex();
+  if(_iraspaStructure)
+  {
+    const std::vector<std::shared_ptr<SKAsymmetricBond>> bonds = _iraspaStructure->structure()->bondSetController()->arrangedObjects();
+    if(bonds.empty())
+      return QModelIndex();
 
-  return createIndex(row, column, bonds[row].get());
+    return createIndex(row, column, bonds[row].get());
+  }
+  return QModelIndex();
 }
 
 QModelIndex BondListViewModel::parent(const QModelIndex &index) const
@@ -52,28 +56,13 @@ QModelIndex BondListViewModel::parent(const QModelIndex &index) const
   return QModelIndex();
 }
 
-void BondListViewModel::setBondSetController(std::shared_ptr<SKBondSetController> controller)
+void BondListViewModel::setFrame(std::shared_ptr<iRASPAStructure> frame)
 {
-  if(_bondSetController != controller)
+  if(_iraspaStructure != frame)
   {
     beginResetModel();
-    _bondSetController = controller;
+    _iraspaStructure = frame;
     endResetModel();
-  }
-}
-
-void BondListViewModel::setStructure(std::shared_ptr<Structure> structure)
-{
-  _structure = structure;
-  if(_structure)
-  {
-    std::shared_ptr<SKBondSetController>  controller = structure->bondSetController();
-    if(_bondSetController != controller)
-    {
-      beginResetModel();
-      _bondSetController = controller;
-      endResetModel();
-    }
   }
 }
 
@@ -85,7 +74,10 @@ int BondListViewModel::columnCount(const QModelIndex &parent) const
 
 int BondListViewModel::rowCount(const QModelIndex &parent) const
 {
-   return static_cast<int>(_bondSetController->arrangedObjects().size());
+  if(_iraspaStructure)
+     return static_cast<int>(_iraspaStructure->structure()->bondSetController()->arrangedObjects().size());
+  else
+    return 0;
 }
 
 QVariant BondListViewModel::data(const QModelIndex &index, int role) const
@@ -134,8 +126,15 @@ QVariant BondListViewModel::data(const QModelIndex &index, int role) const
       if(asymmetricBond->copies().size()>0)
       {
         std::shared_ptr<SKBond> bond = asymmetricBond->copies().front();
-        double bondLength = _structure->bondLength(bond);
-        return QString::asprintf("%5.4f", bondLength);
+        if(_iraspaStructure)
+        {
+          double bondLength = _iraspaStructure->structure()->bondLength(bond);
+          return QString::asprintf("%5.4f", bondLength);
+        }
+        else
+        {
+          return QString();
+        }
       }
       return  0.0;
     case 7:
@@ -247,11 +246,14 @@ bool BondListViewModel::setData(const QModelIndex &index, const QVariant &value,
 QModelIndexList BondListViewModel::selectedIndexes()
 {
   QModelIndexList list = QModelIndexList();
-  for(int localRow : _bondSetController->selectionIndexSet())
+  if(_iraspaStructure)
   {
-    std::shared_ptr<SKAsymmetricBond> node = _bondSetController->arrangedObjects()[localRow];
-    QModelIndex index = createIndex(localRow,0,node.get());
-    list.push_back(index);
+    for(int localRow : _iraspaStructure->structure()->bondSetController()->selectionIndexSet())
+    {
+      std::shared_ptr<SKAsymmetricBond> node = _iraspaStructure->structure()->bondSetController()->arrangedObjects()[localRow];
+      QModelIndex index = createIndex(localRow,0,node.get());
+      list.push_back(index);
+    }
   }
   return list;
 }

@@ -98,11 +98,11 @@ CameraTreeWidgetController::CameraTreeWidgetController(QWidget* parent): QTreeWi
   QObject::connect(_cameraCameraForm->rotateMinusZPushButton,&QPushButton::clicked,this,&CameraTreeWidgetController::rotateRollPlus);
   QObject::connect(_cameraCameraForm->rotatePlusZPushButton,&QPushButton::clicked,this,&CameraTreeWidgetController::rotateRollMinus);
 
-  QObject::connect(_cameraCameraForm->EulerAngleXDial, &QDial::sliderMoved,this,static_cast<void (CameraTreeWidgetController::*)(int)>(&CameraTreeWidgetController::setEulerAngleX));
+  QObject::connect(_cameraCameraForm->EulerAngleXDial, &QDial::valueChanged,this,static_cast<void (CameraTreeWidgetController::*)(int)>(&CameraTreeWidgetController::setEulerAngleX));
   QObject::connect(_cameraCameraForm->EulerAngleXLineEdit, &TextField::textEditedOnEnter,this,static_cast<void (CameraTreeWidgetController::*)(const QString &)>(&CameraTreeWidgetController::setEulerAngleX));
-  QObject::connect(_cameraCameraForm->EulerAngleZDial, &QDial::sliderMoved,this,static_cast<void (CameraTreeWidgetController::*)(int)>(&CameraTreeWidgetController::setEulerAngleZ));
+  QObject::connect(_cameraCameraForm->EulerAngleZDial, &QDial::valueChanged,this,static_cast<void (CameraTreeWidgetController::*)(int)>(&CameraTreeWidgetController::setEulerAngleZ));
   QObject::connect(_cameraCameraForm->EulerAngleZLineEdit, &TextField::textEditedOnEnter,this,static_cast<void (CameraTreeWidgetController::*)(const QString &)>(&CameraTreeWidgetController::setEulerAngleZ));
-  QObject::connect(_cameraCameraForm->EulerAngleYSlider, &QDial::sliderMoved,this,static_cast<void (CameraTreeWidgetController::*)(int)>(&CameraTreeWidgetController::setEulerAngleY));
+  QObject::connect(_cameraCameraForm->EulerAngleYSlider, &QDial::valueChanged,this,static_cast<void (CameraTreeWidgetController::*)(int)>(&CameraTreeWidgetController::setEulerAngleY));
   QObject::connect(_cameraCameraForm->EulerAngleYLineEdit, &TextField::textEditedOnEnter,this,static_cast<void (CameraTreeWidgetController::*)(const QString &)>(&CameraTreeWidgetController::setEulerAngleY));
 
   // Selection
@@ -266,6 +266,7 @@ void CameraTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode> pro
 {
   _camera.reset();
   _project.reset();
+
   if (projectTreeNode)
   {
     if(std::shared_ptr<iRASPAProject> iraspaProject = projectTreeNode->representedObject())
@@ -276,13 +277,13 @@ void CameraTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode> pro
         {
           _camera = projectStructure->camera();
           _project = projectStructure;
-
-          reloadCameraData();
-          update();
         }
       }
     }
   }
+
+  reloadCameraData();
+  update();
 }
 
 void CameraTreeWidgetController::expandCameraItem()
@@ -367,7 +368,8 @@ void CameraTreeWidgetController::renderWidgetResize(QSize size)
 
 
 void CameraTreeWidgetController::reloadData()
-{reloadCameraProperties();
+{
+  reloadCameraProperties();
   reloadCameraProjection();
   reloadCameraResetDirection();
   reloadCameraEulerAngles();
@@ -414,8 +416,16 @@ void CameraTreeWidgetController::reloadCameraResetDirection()
 
 void CameraTreeWidgetController::reloadCameraProjection()
 {
+  _cameraCameraForm->resetPercentageLineEdit->setDisabled(true);
+  _cameraCameraForm->orthographicCameraRadioButton->setDisabled(true);
+  _cameraCameraForm->perspectiveCameraRadioButton->setDisabled(true);
+
   if(std::shared_ptr<RKCamera> camera = _camera.lock())
   {
+    _cameraCameraForm->resetPercentageLineEdit->setEnabled(true);
+    _cameraCameraForm->orthographicCameraRadioButton->setEnabled(true);
+    _cameraCameraForm->perspectiveCameraRadioButton->setEnabled(true);
+
     whileBlocking(_cameraCameraForm->resetPercentageLineEdit)->setText(QString::number(100.0*camera->resetFraction()));
     if(camera->isOrthographic()) whileBlocking(_cameraCameraForm->orthographicCameraRadioButton)->setChecked(true);
     if(camera->isPerspective()) whileBlocking(_cameraCameraForm->perspectiveCameraRadioButton)->setChecked(true);
@@ -424,8 +434,46 @@ void CameraTreeWidgetController::reloadCameraProjection()
 
 void CameraTreeWidgetController::reloadCameraProperties()
 {
+  _cameraCameraForm->resetCameraToMinusXRadioButton->setDisabled(true);
+  _cameraCameraForm->resetCameraToMinusYRadioButton->setDisabled(true);
+  _cameraCameraForm->resetCameraToMinusZRadioButton->setDisabled(true);
+  _cameraCameraForm->resetCameraToPlusXRadioButton->setDisabled(true);
+  _cameraCameraForm->resetCameraToPlusYRadioButton->setDisabled(true);
+  _cameraCameraForm->resetCameraToPlusZRadioButton->setDisabled(true);
+  _cameraCameraForm->angleOfViewSpinBox->setDisabled(true);
+  _cameraCameraForm->centerOfSceneXLineEdit->setDisabled(true);
+  _cameraCameraForm->centerOfSceneYLineEdit->setDisabled(true);
+  _cameraCameraForm->centerOfSceneZLineEdit->setDisabled(true);
+
+  _cameraCameraForm->rotateAngleLineEdit->setDisabled(true);
+  _cameraCameraForm->rotatePlusXPushButton->setDisabled(true);
+  _cameraCameraForm->rotatePlusYPushButton->setDisabled(true);
+  _cameraCameraForm->rotatePlusZPushButton->setDisabled(true);
+  _cameraCameraForm->rotateMinusXPushButton->setDisabled(true);
+  _cameraCameraForm->rotateMinusYPushButton->setDisabled(true);
+  _cameraCameraForm->rotateMinusZPushButton->setDisabled(true);
+
   if(std::shared_ptr<RKCamera> camera = _camera.lock())
   {
+    _cameraCameraForm->resetCameraToMinusXRadioButton->setEnabled(true);
+    _cameraCameraForm->resetCameraToMinusYRadioButton->setEnabled(true);
+    _cameraCameraForm->resetCameraToMinusZRadioButton->setEnabled(true);
+    _cameraCameraForm->resetCameraToPlusXRadioButton->setEnabled(true);
+    _cameraCameraForm->resetCameraToPlusYRadioButton->setEnabled(true);
+    _cameraCameraForm->resetCameraToPlusZRadioButton->setEnabled(true);
+    _cameraCameraForm->angleOfViewSpinBox->setEnabled(true);
+    _cameraCameraForm->centerOfSceneXLineEdit->setEnabled(true);
+    _cameraCameraForm->centerOfSceneYLineEdit->setEnabled(true);
+    _cameraCameraForm->centerOfSceneZLineEdit->setEnabled(true);
+
+    _cameraCameraForm->rotateAngleLineEdit->setEnabled(true);
+    _cameraCameraForm->rotatePlusXPushButton->setEnabled(true);
+    _cameraCameraForm->rotatePlusYPushButton->setEnabled(true);
+    _cameraCameraForm->rotatePlusZPushButton->setEnabled(true);
+    _cameraCameraForm->rotateMinusXPushButton->setEnabled(true);
+    _cameraCameraForm->rotateMinusYPushButton->setEnabled(true);
+    _cameraCameraForm->rotateMinusZPushButton->setEnabled(true);
+
     switch(camera->resetCameraDirection())
     {
       case ResetDirectionType::minus_X:
@@ -468,8 +516,36 @@ void CameraTreeWidgetController::reloadCameraProperties()
 
 void CameraTreeWidgetController::reloadCameraEulerAngles()
 {
+  _cameraCameraForm->EulerAngleXDial->setDisabled(true);
+  _cameraCameraForm->EulerAngleXDial->setDisabled(true);
+  _cameraCameraForm->EulerAngleXDial->setDisabled(true);
+  _cameraCameraForm->EulerAngleZDial->setDisabled(true);
+  _cameraCameraForm->EulerAngleZDial->setDisabled(true);
+  _cameraCameraForm->EulerAngleZDial->setDisabled(true);
+  _cameraCameraForm->EulerAngleYSlider->setDisabled(true);
+  _cameraCameraForm->EulerAngleYSlider->setDisabled(true);
+  _cameraCameraForm->EulerAngleYSlider->setDisabled(true);
+
+  _cameraCameraForm->EulerAngleXLineEdit->setDisabled(true);
+  _cameraCameraForm->EulerAngleZLineEdit->setDisabled(true);
+  _cameraCameraForm->EulerAngleYLineEdit->setDisabled(true);
+
   if(std::shared_ptr<RKCamera> camera = _camera.lock())
   {
+    _cameraCameraForm->EulerAngleXDial->setEnabled(true);
+    _cameraCameraForm->EulerAngleXDial->setEnabled(true);
+    _cameraCameraForm->EulerAngleXDial->setEnabled(true);
+    _cameraCameraForm->EulerAngleZDial->setEnabled(true);
+    _cameraCameraForm->EulerAngleZDial->setEnabled(true);
+    _cameraCameraForm->EulerAngleZDial->setEnabled(true);
+    _cameraCameraForm->EulerAngleYSlider->setEnabled(true);
+    _cameraCameraForm->EulerAngleYSlider->setEnabled(true);
+    _cameraCameraForm->EulerAngleYSlider->setEnabled(true);
+
+    _cameraCameraForm->EulerAngleXLineEdit->setEnabled(true);
+    _cameraCameraForm->EulerAngleZLineEdit->setEnabled(true);
+    _cameraCameraForm->EulerAngleYLineEdit->setEnabled(true);
+
     double3 EulerAngles = camera->EulerAngles();
     whileBlocking(_cameraCameraForm->EulerAngleXDial)->setMinimum(-180);
     whileBlocking(_cameraCameraForm->EulerAngleXDial)->setMaximum(180);
@@ -489,8 +565,58 @@ void CameraTreeWidgetController::reloadCameraEulerAngles()
 
 void CameraTreeWidgetController::reloadCameraModelViewMatrix()
 {
+  _cameraCameraForm->viewMatrixM11->setDisabled(true);
+  _cameraCameraForm->viewMatrixM12->setDisabled(true);
+  _cameraCameraForm->viewMatrixM13->setDisabled(true);
+  _cameraCameraForm->viewMatrixM14->setDisabled(true);
+
+  _cameraCameraForm->viewMatrixM21->setDisabled(true);
+  _cameraCameraForm->viewMatrixM22->setDisabled(true);
+  _cameraCameraForm->viewMatrixM23->setDisabled(true);
+  _cameraCameraForm->viewMatrixM24->setDisabled(true);
+
+  _cameraCameraForm->viewMatrixM31->setDisabled(true);
+  _cameraCameraForm->viewMatrixM32->setDisabled(true);
+  _cameraCameraForm->viewMatrixM33->setDisabled(true);
+  _cameraCameraForm->viewMatrixM34->setDisabled(true);
+
+  _cameraCameraForm->viewMatrixM41->setDisabled(true);
+  _cameraCameraForm->viewMatrixM42->setDisabled(true);
+  _cameraCameraForm->viewMatrixM43->setDisabled(true);
+  _cameraCameraForm->viewMatrixM44->setDisabled(true);
+
+  _cameraCameraForm->cameraPositionXLineEdit->setDisabled(true);
+  _cameraCameraForm->cameraPositionYLineEdit->setDisabled(true);
+  _cameraCameraForm->cameraPositionZLineEdit->setDisabled(true);
+  _cameraCameraForm->cameraDistanceLineEdit->setDisabled(true);
+
   if(std::shared_ptr<RKCamera> camera = _camera.lock())
   {
+    _cameraCameraForm->viewMatrixM11->setEnabled(true);
+    _cameraCameraForm->viewMatrixM12->setEnabled(true);
+    _cameraCameraForm->viewMatrixM13->setEnabled(true);
+    _cameraCameraForm->viewMatrixM14->setEnabled(true);
+
+    _cameraCameraForm->viewMatrixM21->setEnabled(true);
+    _cameraCameraForm->viewMatrixM22->setEnabled(true);
+    _cameraCameraForm->viewMatrixM23->setEnabled(true);
+    _cameraCameraForm->viewMatrixM24->setEnabled(true);
+
+    _cameraCameraForm->viewMatrixM31->setEnabled(true);
+    _cameraCameraForm->viewMatrixM32->setEnabled(true);
+    _cameraCameraForm->viewMatrixM33->setEnabled(true);
+    _cameraCameraForm->viewMatrixM34->setEnabled(true);
+
+    _cameraCameraForm->viewMatrixM41->setEnabled(true);
+    _cameraCameraForm->viewMatrixM42->setEnabled(true);
+    _cameraCameraForm->viewMatrixM43->setEnabled(true);
+    _cameraCameraForm->viewMatrixM44->setEnabled(true);
+
+    _cameraCameraForm->cameraPositionXLineEdit->setEnabled(true);
+    _cameraCameraForm->cameraPositionYLineEdit->setEnabled(true);
+    _cameraCameraForm->cameraPositionZLineEdit->setEnabled(true);
+    _cameraCameraForm->cameraDistanceLineEdit->setEnabled(true);
+
     double4x4 viewMatrix = camera->modelViewMatrix();
     whileBlocking(_cameraCameraForm->viewMatrixM11)->setText(QString::number(viewMatrix.m11, 'f', 5));
     whileBlocking(_cameraCameraForm->viewMatrixM12)->setText(QString::number(viewMatrix.m12, 'f', 5));
@@ -894,8 +1020,14 @@ void CameraTreeWidgetController::setEulerAngleY(const QString &angleString)
 
 void CameraTreeWidgetController::reloadSelectionProperties()
 {
+  _cameraSelectionForm->selectionIntensityDoubleSpinBox->setDisabled(true);
+  _cameraSelectionForm->selectionIntensityDoubleSlider->setDisabled(true);
+
   if(std::shared_ptr<RKCamera> camera = _camera.lock())
   {
+    _cameraSelectionForm->selectionIntensityDoubleSpinBox->setEnabled(true);
+    _cameraSelectionForm->selectionIntensityDoubleSlider->setEnabled(true);
+
     whileBlocking(_cameraSelectionForm->selectionIntensityDoubleSpinBox)->setValue(camera->bloomLevel());
     whileBlocking(_cameraSelectionForm->selectionIntensityDoubleSlider)->setDoubleValue(camera->bloomLevel());
   }
@@ -903,8 +1035,14 @@ void CameraTreeWidgetController::reloadSelectionProperties()
 
 void CameraTreeWidgetController::setSelectionIntensity(double level)
 {
+  _cameraSelectionForm->selectionIntensityDoubleSpinBox->setDisabled(true);
+  _cameraSelectionForm->selectionIntensityDoubleSlider->setDisabled(true);
+
   if (std::shared_ptr<RKCamera> camera = _camera.lock())
   {
+    _cameraSelectionForm->selectionIntensityDoubleSpinBox->setEnabled(true);
+    _cameraSelectionForm->selectionIntensityDoubleSlider->setEnabled(true);
+
     camera->setBloomLevel(level);
     whileBlocking(_cameraSelectionForm->selectionIntensityDoubleSpinBox)->setValue(level);
     whileBlocking(_cameraSelectionForm->selectionIntensityDoubleSlider)->setDoubleValue(level);
@@ -918,9 +1056,32 @@ void CameraTreeWidgetController::setSelectionIntensity(double level)
 
 void CameraTreeWidgetController::reloadLightsProperties()
 {
+  _cameraLightsForm->ambientLightIntensityDoubleSpinBox->setDisabled(true);
+  _cameraLightsForm->ambientLightIntensityDoubleSlider->setDisabled(true);
+  _cameraLightsForm->ambientLightPushButton->setDisabled(true);
+
+  _cameraLightsForm->diffuseLightIntensityDoubleSpinBox->setDisabled(true);
+  _cameraLightsForm->diffuseLightIntensityDoubleSlider->setDisabled(true);
+  _cameraLightsForm->diffuseLightPushButton->setDisabled(true);
+
+  _cameraLightsForm->specularLightIntensityDoubleSpinBox->setDisabled(true);
+  _cameraLightsForm->specularLightIntensityDoubleSlider->setDisabled(true);
+  _cameraLightsForm->specularLightPushButton->setDisabled(true);
+
   if(_project)
   {
-    std::cout << "TEST: " << _project->renderLights().front()->ambientIntensity() << std::endl;
+    _cameraLightsForm->ambientLightIntensityDoubleSpinBox->setEnabled(true);
+    _cameraLightsForm->ambientLightIntensityDoubleSlider->setEnabled(true);
+    _cameraLightsForm->ambientLightPushButton->setEnabled(true);
+
+    _cameraLightsForm->diffuseLightIntensityDoubleSpinBox->setEnabled(true);
+    _cameraLightsForm->diffuseLightIntensityDoubleSlider->setEnabled(true);
+    _cameraLightsForm->diffuseLightPushButton->setEnabled(true);
+
+    _cameraLightsForm->specularLightIntensityDoubleSpinBox->setEnabled(true);
+    _cameraLightsForm->specularLightIntensityDoubleSlider->setEnabled(true);
+    _cameraLightsForm->specularLightPushButton->setEnabled(true);
+
     whileBlocking(_cameraLightsForm->ambientLightIntensityDoubleSpinBox)->setValue(_project->renderLights().front()->ambientIntensity());
     whileBlocking(_cameraLightsForm->ambientLightIntensityDoubleSlider)->setDoubleValue(_project->renderLights().front()->ambientIntensity());
     whileBlocking(_cameraLightsForm->ambientLightPushButton)->setColor(_project->renderLights().front()->ambientColor());
@@ -932,7 +1093,6 @@ void CameraTreeWidgetController::reloadLightsProperties()
     whileBlocking(_cameraLightsForm->specularLightIntensityDoubleSpinBox)->setValue(_project->renderLights().front()->specularIntensity());
     whileBlocking(_cameraLightsForm->specularLightIntensityDoubleSlider)->setDoubleValue(_project->renderLights().front()->specularIntensity());
     whileBlocking(_cameraLightsForm->specularLightPushButton)->setColor(_project->renderLights().front()->specularColor());
-
   }
 }
 
@@ -1016,8 +1176,61 @@ void CameraTreeWidgetController::setSpecularColor()
 
 void CameraTreeWidgetController::reloadPictureProperties()
 {
+  _cameraPicturesForm->inchRadioButton->setDisabled(true);
+  _cameraPicturesForm->physicalWidthDoubleSpinBox->setDisabled(true);
+  _cameraPicturesForm->physicalHeightDoubleSpinBox->setDisabled(true);
+  _cameraPicturesForm->cmRadioButton->setDisabled(true);
+  _cameraPicturesForm->physicalWidthDoubleSpinBox->setDisabled(true);
+  _cameraPicturesForm->physicalHeightDoubleSpinBox->setDisabled(true);
+
+  _cameraPicturesForm->physicalDimensionsRadioButton->setDisabled(true);
+  _cameraPicturesForm->physicalWidthDoubleSpinBox->setDisabled(true);
+  _cameraPicturesForm->pixelWidthSpinBox->setDisabled(true);
+
+  _cameraPicturesForm->pixelDimensionsRadioButton->setDisabled(true);
+  _cameraPicturesForm->pixelWidthSpinBox->setDisabled(true);
+  _cameraPicturesForm->physicalWidthDoubleSpinBox->setDisabled(true);
+
+  _cameraPicturesForm->dotsPerInchComboBox->setDisabled(true);
+  _cameraPicturesForm->qualityComboBox->setDisabled(true);
+
+  _cameraPicturesForm->pixelWidthSpinBox->setDisabled(true);
+  _cameraPicturesForm->pixelHeightSpinBox->setDisabled(true);
+
+  _cameraPicturesForm->inchRadioButton->setDisabled(true);
+  _cameraPicturesForm->cmRadioButton->setDisabled(true);
+  _cameraPicturesForm->movieTypeComboBox->setDisabled(true);
+  _cameraPicturesForm->framesPerSecondSpinBox->setDisabled(true);
+
+  _cameraPicturesForm->createPicturePushButton->setDisabled(true);
+  _cameraPicturesForm->createMoviePushButton->setDisabled(true);
+
   if(_project)
   {
+    _cameraPicturesForm->inchRadioButton->setEnabled(true);
+    _cameraPicturesForm->physicalWidthDoubleSpinBox->setEnabled(true);
+    _cameraPicturesForm->physicalHeightDoubleSpinBox->setEnabled(true);
+    _cameraPicturesForm->cmRadioButton->setEnabled(true);
+    _cameraPicturesForm->physicalWidthDoubleSpinBox->setEnabled(true);
+    _cameraPicturesForm->physicalHeightDoubleSpinBox->setEnabled(true);
+
+    _cameraPicturesForm->physicalDimensionsRadioButton->setEnabled(true);
+    _cameraPicturesForm->pixelDimensionsRadioButton->setEnabled(true);
+
+    _cameraPicturesForm->dotsPerInchComboBox->setEnabled(true);
+    _cameraPicturesForm->qualityComboBox->setEnabled(true);
+
+    _cameraPicturesForm->pixelWidthSpinBox->setEnabled(true);
+    _cameraPicturesForm->pixelHeightSpinBox->setEnabled(true);
+
+    _cameraPicturesForm->inchRadioButton->setEnabled(true);
+    _cameraPicturesForm->cmRadioButton->setEnabled(true);
+    _cameraPicturesForm->movieTypeComboBox->setEnabled(true);
+    _cameraPicturesForm->framesPerSecondSpinBox->setEnabled(true);
+
+    _cameraPicturesForm->createPicturePushButton->setEnabled(true);
+    _cameraPicturesForm->createMoviePushButton->setEnabled(true);
+
     switch(_project->imageUnits())
     {
     case RKImageUnits::inch:
@@ -1248,8 +1461,52 @@ void CameraTreeWidgetController::setMovieType(int value)
 
 void CameraTreeWidgetController::reloadBackgroundProperties()
 {
+  _cameraBackgroundForm->colorRadioButton->setDisabled(true);
+  _cameraBackgroundForm->imageRadioButton->setDisabled(true);
+  _cameraBackgroundForm->linearGradientRadioButton->setDisabled(true);
+  _cameraBackgroundForm->radialGradientRadioButton->setDisabled(true);
+
+  _cameraBackgroundForm->backgroundColorPushButton->setDisabled(true);
+
+  _cameraBackgroundForm->selectImagePushButton->setDisabled(true);
+  _cameraBackgroundForm->imagePlaceholderQLabel->setDisabled(true);
+
+  _cameraBackgroundForm->linearGradientAngleDoubleSlider->setDisabled(true);
+  _cameraBackgroundForm->linearGradientAngleDoubleSpinBox->setDisabled(true);
+
+  _cameraBackgroundForm->linearGradientFromColorPushButton->setDisabled(true);
+  _cameraBackgroundForm->linearGradientToColorPushButton->setDisabled(true);
+
+  _cameraBackgroundForm->radialGradientRoundnessDoubleSlider->setDisabled(true);
+  _cameraBackgroundForm->radialGradientRoundnessDoubleSpinBox->setDisabled(true);
+
+  _cameraBackgroundForm->radialGradientFromColorPushButton->setDisabled(true);
+  _cameraBackgroundForm->radialGradientToColorPushButton->setDisabled(true);
+
   if(_project)
   {
+    _cameraBackgroundForm->colorRadioButton->setEnabled(true);
+    _cameraBackgroundForm->imageRadioButton->setEnabled(true);
+    _cameraBackgroundForm->linearGradientRadioButton->setEnabled(true);
+    _cameraBackgroundForm->radialGradientRadioButton->setEnabled(true);
+
+    _cameraBackgroundForm->backgroundColorPushButton->setEnabled(true);
+
+    _cameraBackgroundForm->selectImagePushButton->setEnabled(true);
+    _cameraBackgroundForm->imagePlaceholderQLabel->setEnabled(true);
+
+    _cameraBackgroundForm->linearGradientAngleDoubleSlider->setEnabled(true);
+    _cameraBackgroundForm->linearGradientAngleDoubleSpinBox->setEnabled(true);
+
+    _cameraBackgroundForm->linearGradientFromColorPushButton->setEnabled(true);
+    _cameraBackgroundForm->linearGradientToColorPushButton->setEnabled(true);
+
+    _cameraBackgroundForm->radialGradientRoundnessDoubleSlider->setEnabled(true);
+    _cameraBackgroundForm->radialGradientRoundnessDoubleSpinBox->setEnabled(true);
+
+    _cameraBackgroundForm->radialGradientFromColorPushButton->setEnabled(true);
+    _cameraBackgroundForm->radialGradientToColorPushButton->setEnabled(true);
+
     QString fileName = _project->backgroundImageFilename();
 
 
@@ -1312,7 +1569,6 @@ void CameraTreeWidgetController::setLinearGradientFromColor()
     {
       _project->setLinearGradientFromColor(color);
       whileBlocking(_cameraBackgroundForm->linearGradientFromColorPushButton)->setColor(color);
-      std::cout << "Drawbackground image!!!" << std::endl;
     }
     emit rendererReloadBackgroundImage();
     emit updateRenderer();

@@ -99,6 +99,7 @@ class GLWidget : public QOpenGLWidget, public RKRenderViewController, public Ope
 
 public:
   GLWidget(QWidget* parent = nullptr );
+  ~GLWidget();
   void redraw() override final;
   void redrawWithLowQuality() override final;
   void redrawWithMediumQuality() override final;

@@ -44,9 +44,8 @@ class BondListViewModel: public QAbstractItemModel
 public:
   BondListViewModel();
 
-  void setBondSetController(std::shared_ptr<SKBondSetController> controller);
-  void setStructure(std::shared_ptr<Structure> structure);
-  std::shared_ptr<SKBondSetController> bondSetController() {return _bondSetController;}
+  void setFrame(std::shared_ptr<iRASPAStructure> frame);
+  std::shared_ptr<iRASPAStructure> frame() {return _iraspaStructure;}
 
   //QT
   QModelIndex index(int row, int column, const QModelIndex &parent) const override final;
@@ -64,8 +63,7 @@ public:
   void deleteSelection(std::shared_ptr<Structure> structure, std::set<int> indexSet);
   void insertSelection(std::shared_ptr<Structure> structure, std::vector<std::shared_ptr<SKAsymmetricBond>> bonds, std::set<int> indexSet);
 private:
-  std::shared_ptr<SKBondSetController> _bondSetController;
-  std::shared_ptr<Structure> _structure;
+  std::shared_ptr<iRASPAStructure> _iraspaStructure;
 signals:
     void reloadRenderDataRenderer();
     void rendererReloadData();

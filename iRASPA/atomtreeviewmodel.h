@@ -45,8 +45,8 @@ public:
   AtomTreeViewModel();
 
   static char mimeType[];
-  void setAtomTreeController(std::shared_ptr<SKAtomTreeController> controller);
-  std::shared_ptr<SKAtomTreeController> atomTreeController() {return _atomTreeController;}
+  void setFrame(std::shared_ptr<iRASPAStructure> frame);
+  std::shared_ptr<iRASPAStructure> frame() {return _iraspaStructure;}
 
   SKAtomTreeNode* getItem(const QModelIndex &index) const;
 
@@ -84,7 +84,7 @@ public:
   void deleteSelection(std::shared_ptr<Structure> structure, std::vector<std::shared_ptr<SKAtomTreeNode>> atoms);
   void insertSelection(std::shared_ptr<Structure> structure, std::vector<std::shared_ptr<SKAtomTreeNode>> atoms, std::vector<IndexPath> indexPaths);
 private:
-  std::shared_ptr<SKAtomTreeController> _atomTreeController;
+  std::shared_ptr<iRASPAStructure> _iraspaStructure;
 signals:
     void rendererReloadData();
 };

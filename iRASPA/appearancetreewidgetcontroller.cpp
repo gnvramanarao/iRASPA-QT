@@ -34,6 +34,7 @@
 #include <QComboBox>
 #include <QColorDialog>
 #include <QColor>
+#include <memory>
 #include "qcolorhash.h"
 #include "qdoubleslider.h"
 #include <foundationkit.h>
@@ -523,7 +524,9 @@ AppearanceTreeWidgetController::AppearanceTreeWidgetController(QWidget* parent):
 void AppearanceTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 {
   _projectTreeNode = projectTreeNode;
-   _projectStructure = nullptr;
+  _projectStructure = nullptr;
+  _iraspa_structures = std::vector<std::shared_ptr<iRASPAStructure>>{};
+
   if (projectTreeNode)
   {
     if(std::shared_ptr<iRASPAProject> iraspaProject = projectTreeNode->representedObject())
@@ -534,11 +537,12 @@ void AppearanceTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode>
         {
           _projectStructure = projectStructure;
           _iraspa_structures = projectStructure->flattenediRASPAStructures();
-          reloadData();
         }
       }
     }
   }
+
+  reloadData();
 }
 
 void AppearanceTreeWidgetController::setFlattenedSelectedFrames(std::vector<std::shared_ptr<iRASPAStructure>> iraspa_structures)
@@ -604,103 +608,122 @@ void AppearanceTreeWidgetController::reloadPrimitiveProperties()
   reloadBackPrimitiveDiffuseLight();
   reloadBackPrimitiveSpecularLight();
   reloadBackPrimitiveShininess();
+
+  _appearancePrimitiveForm->frontAmbientColorPushButton->setDisabled(true);
+  _appearancePrimitiveForm->frontDiffuseColorPushButton->setDisabled(true);
+  _appearancePrimitiveForm->frontSpecularColorPushButton->setDisabled(true);
+  _appearancePrimitiveForm->backAmbientColorPushButton->setDisabled(true);
+  _appearancePrimitiveForm->backDiffuseColorPushButton->setDisabled(true);
+  _appearancePrimitiveForm->backSpecularColorPushButton->setDisabled(true);
+  if(_projectTreeNode)
+  {
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearancePrimitiveForm->frontAmbientColorPushButton->setEnabled(_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->frontDiffuseColorPushButton->setEnabled(_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->frontSpecularColorPushButton->setEnabled(_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->backAmbientColorPushButton->setEnabled(_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->backDiffuseColorPushButton->setEnabled(_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->backSpecularColorPushButton->setEnabled(_projectTreeNode->isEditable());
+    }
+  }
+
 }
 
 void AppearanceTreeWidgetController::reloadRotationAngle()
 {
-  _appearancePrimitiveForm->rotationAngleDoubleSpinBox->setReadOnly(true);
+  _appearancePrimitiveForm->rotationAngleDoubleSpinBox->setDisabled(true);
+  _appearancePrimitiveForm->rotatePlusXPushButton->setDisabled(true);
+  _appearancePrimitiveForm->rotatePlusYPushButton->setDisabled(true);
+  _appearancePrimitiveForm->rotatePlusZPushButton->setDisabled(true);
+  _appearancePrimitiveForm->rotateMinusXPushButton->setDisabled(true);
+  _appearancePrimitiveForm->rotateMinusYPushButton->setDisabled(true);
+  _appearancePrimitiveForm->rotateMinusZPushButton->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearancePrimitiveForm->rotationAngleDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-
-    _appearancePrimitiveForm->rotatePlusXPushButton->setEnabled(false);
-    _appearancePrimitiveForm->rotatePlusYPushButton->setEnabled(false);
-    _appearancePrimitiveForm->rotatePlusZPushButton->setEnabled(false);
-    _appearancePrimitiveForm->rotateMinusXPushButton->setEnabled(false);
-    _appearancePrimitiveForm->rotateMinusYPushButton->setEnabled(false);
-    _appearancePrimitiveForm->rotateMinusZPushButton->setEnabled(false);
-  }
-
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> angle = rotationAngle())
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
     {
-      whileBlocking(_appearancePrimitiveForm->rotationAngleDoubleSpinBox)->setValue(*angle);
+      _appearancePrimitiveForm->rotationAngleDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->rotationAngleDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-      _appearancePrimitiveForm->rotatePlusXPushButton->setEnabled(_projectTreeNode->isEditable());
-      _appearancePrimitiveForm->rotatePlusYPushButton->setEnabled(_projectTreeNode->isEditable());
-      _appearancePrimitiveForm->rotatePlusZPushButton->setEnabled(_projectTreeNode->isEditable());
-      _appearancePrimitiveForm->rotateMinusXPushButton->setEnabled(_projectTreeNode->isEditable());
-      _appearancePrimitiveForm->rotateMinusYPushButton->setEnabled(_projectTreeNode->isEditable());
-      _appearancePrimitiveForm->rotateMinusZPushButton->setEnabled(_projectTreeNode->isEditable());
+      if (std::optional<double> angle = rotationAngle())
+      {
+        whileBlocking(_appearancePrimitiveForm->rotationAngleDoubleSpinBox)->setValue(*angle);
 
-      _appearancePrimitiveForm->rotatePlusXPushButton->setText("Rotate +" + QString::number(*angle));
-      _appearancePrimitiveForm->rotatePlusYPushButton->setText("Rotate +" + QString::number(*angle));
-      _appearancePrimitiveForm->rotatePlusZPushButton->setText("Rotate +" + QString::number(*angle));
-      _appearancePrimitiveForm->rotateMinusXPushButton->setText("Rotate -" + QString::number(*angle));
-      _appearancePrimitiveForm->rotateMinusYPushButton->setText("Rotate -" + QString::number(*angle));
-      _appearancePrimitiveForm->rotateMinusZPushButton->setText("Rotate -" + QString::number(*angle));
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->rotationAngleDoubleSpinBox)->setText("Mult. Val.");
+        _appearancePrimitiveForm->rotatePlusXPushButton->setEnabled(_projectTreeNode->isEditable());
+        _appearancePrimitiveForm->rotatePlusYPushButton->setEnabled(_projectTreeNode->isEditable());
+        _appearancePrimitiveForm->rotatePlusZPushButton->setEnabled(_projectTreeNode->isEditable());
+        _appearancePrimitiveForm->rotateMinusXPushButton->setEnabled(_projectTreeNode->isEditable());
+        _appearancePrimitiveForm->rotateMinusYPushButton->setEnabled(_projectTreeNode->isEditable());
+        _appearancePrimitiveForm->rotateMinusZPushButton->setEnabled(_projectTreeNode->isEditable());
+
+        _appearancePrimitiveForm->rotatePlusXPushButton->setText("Rotate +" + QString::number(*angle));
+        _appearancePrimitiveForm->rotatePlusYPushButton->setText("Rotate +" + QString::number(*angle));
+        _appearancePrimitiveForm->rotatePlusZPushButton->setText("Rotate +" + QString::number(*angle));
+        _appearancePrimitiveForm->rotateMinusXPushButton->setText("Rotate -" + QString::number(*angle));
+        _appearancePrimitiveForm->rotateMinusYPushButton->setText("Rotate -" + QString::number(*angle));
+        _appearancePrimitiveForm->rotateMinusZPushButton->setText("Rotate -" + QString::number(*angle));
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->rotationAngleDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadEulerAngles()
 {
-  _appearancePrimitiveForm->EulerAngleXDoubleSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->EulerAngleXDial->setEnabled(false);
-
-  _appearancePrimitiveForm->EulerAngleYDoubleSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->EulerAngleYSlider->setEnabled(false);
-
-  _appearancePrimitiveForm->EulerAngleZDoubleSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->EulerAngleZDial->setEnabled(false);
+  _appearancePrimitiveForm->EulerAngleXDial->setDisabled(true);
+  _appearancePrimitiveForm->EulerAngleYSlider->setDisabled(true);
+  _appearancePrimitiveForm->EulerAngleZDial->setDisabled(true);
 
   if(_projectTreeNode)
   {
-    _appearancePrimitiveForm->EulerAngleXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->EulerAngleXDial->setEnabled(_projectTreeNode->isEditable());
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearancePrimitiveForm->EulerAngleXDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->EulerAngleXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->EulerAngleXDial->setEnabled(_projectTreeNode->isEditable());
 
-    _appearancePrimitiveForm->EulerAngleYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->EulerAngleYSlider->setEnabled(_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->EulerAngleYDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->EulerAngleYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->EulerAngleYSlider->setEnabled(_projectTreeNode->isEditable());
 
-    _appearancePrimitiveForm->EulerAngleZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->EulerAngleZDial->setEnabled(_projectTreeNode->isEditable());
-  }
+      _appearancePrimitiveForm->EulerAngleZDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->EulerAngleZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->EulerAngleZDial->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> size = EulerAngleX())
-    {
-      whileBlocking(_appearancePrimitiveForm->EulerAngleXDoubleSpinBox)->setValue(*size);
-      whileBlocking(_appearancePrimitiveForm->EulerAngleXDial)->setDoubleValue(*size);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->EulerAngleXDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> size = EulerAngleX())
+      {
+        whileBlocking(_appearancePrimitiveForm->EulerAngleXDoubleSpinBox)->setValue(*size);
+        whileBlocking(_appearancePrimitiveForm->EulerAngleXDial)->setDoubleValue(*size);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->EulerAngleXDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<double> size = EulerAngleY())
-    {
-      whileBlocking(_appearancePrimitiveForm->EulerAngleYDoubleSpinBox)->setValue(*size);
-      whileBlocking(_appearancePrimitiveForm->EulerAngleYSlider)->setDoubleValue(*size);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->EulerAngleYDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> size = EulerAngleY())
+      {
+        whileBlocking(_appearancePrimitiveForm->EulerAngleYDoubleSpinBox)->setValue(*size);
+        whileBlocking(_appearancePrimitiveForm->EulerAngleYSlider)->setDoubleValue(*size);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->EulerAngleYDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<double> size = EulerAngleZ())
-    {
-      whileBlocking(_appearancePrimitiveForm->EulerAngleZDoubleSpinBox)->setValue(*size);
-      whileBlocking(_appearancePrimitiveForm->EulerAngleZDial)->setDoubleValue(*size);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->EulerAngleZDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> size = EulerAngleZ())
+      {
+        whileBlocking(_appearancePrimitiveForm->EulerAngleZDoubleSpinBox)->setValue(*size);
+        whileBlocking(_appearancePrimitiveForm->EulerAngleZDial)->setDoubleValue(*size);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->EulerAngleZDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
@@ -708,108 +731,122 @@ void AppearanceTreeWidgetController::reloadEulerAngles()
 
 void AppearanceTreeWidgetController::reloadTransformationMatrix()
 {
-  _appearancePrimitiveForm->transformationMatrixAXDoubleSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->transformationMatrixAYDoubleSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->transformationMatrixAZDoubleSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->transformationMatrixBXDoubleSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->transformationMatrixBYDoubleSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->transformationMatrixBZDoubleSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->transformationMatrixCXDoubleSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->transformationMatrixCYDoubleSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->transformationMatrixCZDoubleSpinBox->setReadOnly(true);
+  _appearancePrimitiveForm->transformationMatrixAXDoubleSpinBox->setDisabled(true);
+  _appearancePrimitiveForm->transformationMatrixAYDoubleSpinBox->setDisabled(true);
+  _appearancePrimitiveForm->transformationMatrixAZDoubleSpinBox->setDisabled(true);
+  _appearancePrimitiveForm->transformationMatrixBXDoubleSpinBox->setDisabled(true);
+  _appearancePrimitiveForm->transformationMatrixBYDoubleSpinBox->setDisabled(true);
+  _appearancePrimitiveForm->transformationMatrixBZDoubleSpinBox->setDisabled(true);
+  _appearancePrimitiveForm->transformationMatrixCXDoubleSpinBox->setDisabled(true);
+  _appearancePrimitiveForm->transformationMatrixCYDoubleSpinBox->setDisabled(true);
+  _appearancePrimitiveForm->transformationMatrixCZDoubleSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearancePrimitiveForm->transformationMatrixAXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->transformationMatrixAYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->transformationMatrixAZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->transformationMatrixBXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->transformationMatrixBYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->transformationMatrixBZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->transformationMatrixCXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->transformationMatrixCYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->transformationMatrixCZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-
-    if(!_iraspa_structures.empty())
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
     {
-      if (std::optional<double> value = transformationMatrixAX())
-      {
-        whileBlocking(_appearancePrimitiveForm->transformationMatrixAXDoubleSpinBox)->setValue(*value);
-      }
-      else
-      {
-        whileBlocking(_appearancePrimitiveForm->transformationMatrixAXDoubleSpinBox)->setText("Mult. Val.");
-      }
+      _appearancePrimitiveForm->transformationMatrixAXDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->transformationMatrixAYDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->transformationMatrixAZDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->transformationMatrixBXDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->transformationMatrixBYDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->transformationMatrixBZDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->transformationMatrixCXDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->transformationMatrixCYDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->transformationMatrixCZDoubleSpinBox->setEnabled(true);
 
-      if (std::optional<double> value = transformationMatrixAY())
-      {
-        whileBlocking(_appearancePrimitiveForm->transformationMatrixAYDoubleSpinBox)->setValue(*value);
-      }
-      else
-      {
-        whileBlocking(_appearancePrimitiveForm->transformationMatrixAYDoubleSpinBox)->setText("Mult. Val.");
-      }
+      _appearancePrimitiveForm->transformationMatrixAXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->transformationMatrixAYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->transformationMatrixAZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->transformationMatrixBXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->transformationMatrixBYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->transformationMatrixBZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->transformationMatrixCXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->transformationMatrixCYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->transformationMatrixCZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-      if (std::optional<double> value = transformationMatrixAZ())
+      if(!_iraspa_structures.empty())
       {
-        whileBlocking(_appearancePrimitiveForm->transformationMatrixAZDoubleSpinBox)->setValue(*value);
-      }
-      else
-      {
-        whileBlocking(_appearancePrimitiveForm->transformationMatrixAZDoubleSpinBox)->setText("Mult. Val.");
-      }
+        if (std::optional<double> value = transformationMatrixAX())
+        {
+          whileBlocking(_appearancePrimitiveForm->transformationMatrixAXDoubleSpinBox)->setValue(*value);
+        }
+        else
+        {
+          whileBlocking(_appearancePrimitiveForm->transformationMatrixAXDoubleSpinBox)->setText("Mult. Val.");
+        }
 
-      if (std::optional<double> value = transformationMatrixBX())
-      {
-        whileBlocking(_appearancePrimitiveForm->transformationMatrixBXDoubleSpinBox)->setValue(*value);
-      }
-      else
-      {
-        whileBlocking(_appearancePrimitiveForm->transformationMatrixBXDoubleSpinBox)->setText("Mult. Val.");
-      }
+        if (std::optional<double> value = transformationMatrixAY())
+        {
+          whileBlocking(_appearancePrimitiveForm->transformationMatrixAYDoubleSpinBox)->setValue(*value);
+        }
+        else
+        {
+          whileBlocking(_appearancePrimitiveForm->transformationMatrixAYDoubleSpinBox)->setText("Mult. Val.");
+        }
 
-      if (std::optional<double> value = transformationMatrixBY())
-      {
-        whileBlocking(_appearancePrimitiveForm->transformationMatrixBYDoubleSpinBox)->setValue(*value);
-      }
-      else
-      {
-        whileBlocking(_appearancePrimitiveForm->transformationMatrixBYDoubleSpinBox)->setText("Mult. Val.");
-      }
+        if (std::optional<double> value = transformationMatrixAZ())
+        {
+          whileBlocking(_appearancePrimitiveForm->transformationMatrixAZDoubleSpinBox)->setValue(*value);
+        }
+        else
+        {
+          whileBlocking(_appearancePrimitiveForm->transformationMatrixAZDoubleSpinBox)->setText("Mult. Val.");
+        }
 
-      if (std::optional<double> value = transformationMatrixBZ())
-      {
-        whileBlocking(_appearancePrimitiveForm->transformationMatrixBZDoubleSpinBox)->setValue(*value);
-      }
-      else
-      {
-        whileBlocking(_appearancePrimitiveForm->transformationMatrixBZDoubleSpinBox)->setText("Mult. Val.");
-      }
+        if (std::optional<double> value = transformationMatrixBX())
+        {
+          whileBlocking(_appearancePrimitiveForm->transformationMatrixBXDoubleSpinBox)->setValue(*value);
+        }
+        else
+        {
+          whileBlocking(_appearancePrimitiveForm->transformationMatrixBXDoubleSpinBox)->setText("Mult. Val.");
+        }
 
-      if (std::optional<double> value = transformationMatrixCX())
-      {
-        whileBlocking(_appearancePrimitiveForm->transformationMatrixCXDoubleSpinBox)->setValue(*value);
-      }
-      else
-      {
-        whileBlocking(_appearancePrimitiveForm->transformationMatrixCXDoubleSpinBox)->setText("Mult. Val.");
-      }
+        if (std::optional<double> value = transformationMatrixBY())
+        {
+          whileBlocking(_appearancePrimitiveForm->transformationMatrixBYDoubleSpinBox)->setValue(*value);
+        }
+        else
+        {
+          whileBlocking(_appearancePrimitiveForm->transformationMatrixBYDoubleSpinBox)->setText("Mult. Val.");
+        }
 
-      if (std::optional<double> value = transformationMatrixCY())
-      {
-        whileBlocking(_appearancePrimitiveForm->transformationMatrixCYDoubleSpinBox)->setValue(*value);
-      }
-      else
-      {
-        whileBlocking(_appearancePrimitiveForm->transformationMatrixCYDoubleSpinBox)->setText("Mult. Val.");
-      }
+        if (std::optional<double> value = transformationMatrixBZ())
+        {
+          whileBlocking(_appearancePrimitiveForm->transformationMatrixBZDoubleSpinBox)->setValue(*value);
+        }
+        else
+        {
+          whileBlocking(_appearancePrimitiveForm->transformationMatrixBZDoubleSpinBox)->setText("Mult. Val.");
+        }
 
-      if (std::optional<double> value = transformationMatrixCZ())
-      {
-        whileBlocking(_appearancePrimitiveForm->transformationMatrixCZDoubleSpinBox)->setValue(*value);
-      }
-      else
-      {
-        whileBlocking(_appearancePrimitiveForm->transformationMatrixCZDoubleSpinBox)->setText("Mult. Val.");
+        if (std::optional<double> value = transformationMatrixCX())
+        {
+          whileBlocking(_appearancePrimitiveForm->transformationMatrixCXDoubleSpinBox)->setValue(*value);
+        }
+        else
+        {
+          whileBlocking(_appearancePrimitiveForm->transformationMatrixCXDoubleSpinBox)->setText("Mult. Val.");
+        }
+
+        if (std::optional<double> value = transformationMatrixCY())
+        {
+          whileBlocking(_appearancePrimitiveForm->transformationMatrixCYDoubleSpinBox)->setValue(*value);
+        }
+        else
+        {
+          whileBlocking(_appearancePrimitiveForm->transformationMatrixCYDoubleSpinBox)->setText("Mult. Val.");
+        }
+
+        if (std::optional<double> value = transformationMatrixCZ())
+        {
+          whileBlocking(_appearancePrimitiveForm->transformationMatrixCZDoubleSpinBox)->setValue(*value);
+        }
+        else
+        {
+          whileBlocking(_appearancePrimitiveForm->transformationMatrixCZDoubleSpinBox)->setText("Mult. Val.");
+        }
       }
     }
   }
@@ -817,71 +854,76 @@ void AppearanceTreeWidgetController::reloadTransformationMatrix()
 
 void AppearanceTreeWidgetController::reloadOpacity()
 {
-  _appearancePrimitiveForm->primitiveOpacityDoubleSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->primitiveOpacitySlider->setEnabled(false);
+  _appearancePrimitiveForm->primitiveOpacityDoubleSpinBox->setDisabled(true);
+  _appearancePrimitiveForm->primitiveOpacitySlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearancePrimitiveForm->primitiveOpacityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->primitiveOpacitySlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearancePrimitiveForm->primitiveOpacityDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->primitiveOpacityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->primitiveOpacitySlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = primitiveOpacity())
-    {
-      whileBlocking(_appearancePrimitiveForm->primitiveOpacityDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearancePrimitiveForm->primitiveOpacitySlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->primitiveOpacityDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = primitiveOpacity())
+      {
+        whileBlocking(_appearancePrimitiveForm->primitiveOpacityDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearancePrimitiveForm->primitiveOpacitySlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->primitiveOpacityDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadNumberOfSides()
 {
-  _appearancePrimitiveForm->primitiveNumberOfSidesSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->primitiveNumberOfSidesSlider->setEnabled(false);
+  _appearancePrimitiveForm->primitiveNumberOfSidesSpinBox->setDisabled(true);
+  _appearancePrimitiveForm->primitiveNumberOfSidesSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearancePrimitiveForm->primitiveNumberOfSidesSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->primitiveNumberOfSidesSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearancePrimitiveForm->primitiveNumberOfSidesSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->primitiveNumberOfSidesSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->primitiveNumberOfSidesSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<int> value = primitiveNumberOfSides())
-    {
-      whileBlocking(_appearancePrimitiveForm->primitiveNumberOfSidesSpinBox)->setValue(*value);
-      whileBlocking(_appearancePrimitiveForm->primitiveNumberOfSidesSlider)->setValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->primitiveNumberOfSidesSpinBox)->setText("Mult. Val.");
+      if (std::optional<int> value = primitiveNumberOfSides())
+      {
+        whileBlocking(_appearancePrimitiveForm->primitiveNumberOfSidesSpinBox)->setValue(*value);
+        whileBlocking(_appearancePrimitiveForm->primitiveNumberOfSidesSlider)->setValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->primitiveNumberOfSidesSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadIsCapped()
 {  
-  _appearancePrimitiveForm->primitiveCappedCheckBox->setEnabled(false);
+  _appearancePrimitiveForm->primitiveCappedCheckBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearancePrimitiveForm->primitiveCappedCheckBox->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearancePrimitiveForm->primitiveCappedCheckBox->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<bool> state = primitiveIsCapped())
-    {
-      whileBlocking(_appearancePrimitiveForm->primitiveCappedCheckBox)->setTristate(false);
-      whileBlocking(_appearancePrimitiveForm->primitiveCappedCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->primitiveCappedCheckBox)->setTristate(true);
-      whileBlocking(_appearancePrimitiveForm->primitiveCappedCheckBox)->setCheckState(Qt::PartiallyChecked);
+      if (std::optional<bool> state = primitiveIsCapped())
+      {
+        whileBlocking(_appearancePrimitiveForm->primitiveCappedCheckBox)->setTristate(false);
+        whileBlocking(_appearancePrimitiveForm->primitiveCappedCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->primitiveCappedCheckBox)->setTristate(true);
+        whileBlocking(_appearancePrimitiveForm->primitiveCappedCheckBox)->setCheckState(Qt::PartiallyChecked);
+      }
     }
   }
 }
@@ -889,47 +931,50 @@ void AppearanceTreeWidgetController::reloadIsCapped()
 
 void AppearanceTreeWidgetController::reloadFrontPrimitiveHighDynamicRange()
 {
-  _appearancePrimitiveForm->frontHDRCheckBox->setEnabled(false);
+  _appearancePrimitiveForm->frontHDRCheckBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearancePrimitiveForm->frontHDRCheckBox->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearancePrimitiveForm->frontHDRCheckBox->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<bool> state = frontPrimitiveHighDynamicRange())
-    {
-      whileBlocking(_appearancePrimitiveForm->frontHDRCheckBox)->setTristate(false);
-      whileBlocking(_appearancePrimitiveForm->frontHDRCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->frontHDRCheckBox)->setTristate(true);
-      whileBlocking(_appearancePrimitiveForm->frontHDRCheckBox)->setCheckState(Qt::PartiallyChecked);
+      if (std::optional<bool> state = frontPrimitiveHighDynamicRange())
+      {
+        whileBlocking(_appearancePrimitiveForm->frontHDRCheckBox)->setTristate(false);
+        whileBlocking(_appearancePrimitiveForm->frontHDRCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->frontHDRCheckBox)->setTristate(true);
+        whileBlocking(_appearancePrimitiveForm->frontHDRCheckBox)->setCheckState(Qt::PartiallyChecked);
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadFrontPrimitiveHDRExposure()
 {
-  _appearancePrimitiveForm->frontExposureDoubleSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->frontExposureSlider->setEnabled(false);
+  _appearancePrimitiveForm->frontExposureDoubleSpinBox->setDisabled(true);
+  _appearancePrimitiveForm->frontExposureSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearancePrimitiveForm->frontExposureDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->frontExposureSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearancePrimitiveForm->frontExposureDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->frontExposureDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->frontExposureSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = frontPrimitiveHDRExposure())
-    {
-      whileBlocking(_appearancePrimitiveForm->frontExposureDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearancePrimitiveForm->frontExposureSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->frontExposureDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = frontPrimitiveHDRExposure())
+      {
+        whileBlocking(_appearancePrimitiveForm->frontExposureDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearancePrimitiveForm->frontExposureSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->frontExposureDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
@@ -938,176 +983,187 @@ void AppearanceTreeWidgetController::reloadFrontPrimitiveHDRExposure()
 
 void AppearanceTreeWidgetController::reloadFrontPrimitiveAmbientLight()
 {
-  _appearancePrimitiveForm->frontAmbientIntensityDoubleSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->frontAmbientIntensitySlider->setEnabled(false);
+  _appearancePrimitiveForm->frontAmbientIntensityDoubleSpinBox->setDisabled(true);
+  _appearancePrimitiveForm->frontAmbientIntensitySlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearancePrimitiveForm->frontAmbientIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->frontAmbientIntensitySlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearancePrimitiveForm->frontAmbientIntensityDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->frontAmbientIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->frontAmbientIntensitySlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = frontPrimitiveAmbientLightIntensity())
-    {
-      whileBlocking(_appearancePrimitiveForm->frontAmbientIntensityDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearancePrimitiveForm->frontAmbientIntensitySlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->frontAmbientIntensityDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = frontPrimitiveAmbientLightIntensity())
+      {
+        whileBlocking(_appearancePrimitiveForm->frontAmbientIntensityDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearancePrimitiveForm->frontAmbientIntensitySlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->frontAmbientIntensityDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<QColor> value = frontPrimitiveAmbientLightColor())
-    {
-      whileBlocking(_appearancePrimitiveForm->frontAmbientColorPushButton)->setText("color");
-      whileBlocking(_appearancePrimitiveForm->frontAmbientColorPushButton)->setColor(*value);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->frontAmbientColorPushButton)->setColor(QColor(255,255,255,255));
-      whileBlocking(_appearancePrimitiveForm->frontAmbientColorPushButton)->setText("Mult. Val.");
+      if (std::optional<QColor> value = frontPrimitiveAmbientLightColor())
+      {
+        whileBlocking(_appearancePrimitiveForm->frontAmbientColorPushButton)->setText("color");
+        whileBlocking(_appearancePrimitiveForm->frontAmbientColorPushButton)->setColor(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->frontAmbientColorPushButton)->setColor(QColor(255,255,255,255));
+        whileBlocking(_appearancePrimitiveForm->frontAmbientColorPushButton)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadFrontPrimitiveDiffuseLight()
 {
-  _appearancePrimitiveForm->frontDiffuseIntensityDoubleSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->frontDiffuseIntensitySlider->setEnabled(false);
+  _appearancePrimitiveForm->frontDiffuseIntensityDoubleSpinBox->setDisabled(true);
+  _appearancePrimitiveForm->frontDiffuseIntensitySlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearancePrimitiveForm->frontDiffuseIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->frontDiffuseIntensitySlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearancePrimitiveForm->frontDiffuseIntensityDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->frontDiffuseIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->frontDiffuseIntensitySlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = frontPrimitiveDiffuseLightIntensity())
-    {
-      whileBlocking(_appearancePrimitiveForm->frontDiffuseIntensityDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearancePrimitiveForm->frontDiffuseIntensitySlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->frontDiffuseIntensityDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = frontPrimitiveDiffuseLightIntensity())
+      {
+        whileBlocking(_appearancePrimitiveForm->frontDiffuseIntensityDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearancePrimitiveForm->frontDiffuseIntensitySlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->frontDiffuseIntensityDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<QColor> value = frontPrimitiveDiffuseLightColor())
-    {
-      whileBlocking(_appearancePrimitiveForm->frontDiffuseColorPushButton)->setText("color");
-      whileBlocking(_appearancePrimitiveForm->frontDiffuseColorPushButton)->setColor(*value);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->frontDiffuseColorPushButton)->setColor(QColor(255,255,255,255));
-      whileBlocking(_appearancePrimitiveForm->frontDiffuseColorPushButton)->setText("Mult. Val.");
+      if (std::optional<QColor> value = frontPrimitiveDiffuseLightColor())
+      {
+        whileBlocking(_appearancePrimitiveForm->frontDiffuseColorPushButton)->setText("color");
+        whileBlocking(_appearancePrimitiveForm->frontDiffuseColorPushButton)->setColor(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->frontDiffuseColorPushButton)->setColor(QColor(255,255,255,255));
+        whileBlocking(_appearancePrimitiveForm->frontDiffuseColorPushButton)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadFrontPrimitiveSpecularLight()
 {
-  _appearancePrimitiveForm->frontSpecularIntensityDoubleSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->frontSpecularIntensitySlider->setEnabled(false);
+  _appearancePrimitiveForm->frontSpecularIntensityDoubleSpinBox->setDisabled(true);
+  _appearancePrimitiveForm->frontSpecularIntensitySlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearancePrimitiveForm->frontSpecularIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->frontSpecularIntensitySlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearancePrimitiveForm->frontSpecularIntensityDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->frontSpecularIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->frontSpecularIntensitySlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = frontPrimitiveSpecularLightIntensity())
-    {
-      whileBlocking(_appearancePrimitiveForm->frontSpecularIntensityDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearancePrimitiveForm->frontSpecularIntensitySlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->frontSpecularIntensityDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = frontPrimitiveSpecularLightIntensity())
+      {
+        whileBlocking(_appearancePrimitiveForm->frontSpecularIntensityDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearancePrimitiveForm->frontSpecularIntensitySlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->frontSpecularIntensityDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<QColor> value = frontPrimitiveSpecularLightColor())
-    {
-      whileBlocking(_appearancePrimitiveForm->frontSpecularColorPushButton)->setText("color");
-      whileBlocking(_appearancePrimitiveForm->frontSpecularColorPushButton)->setColor(*value);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->frontSpecularColorPushButton)->setColor(QColor(255,255,255,255));
-      whileBlocking(_appearancePrimitiveForm->frontSpecularColorPushButton)->setText("Mult. Val.");
+      if (std::optional<QColor> value = frontPrimitiveSpecularLightColor())
+      {
+        whileBlocking(_appearancePrimitiveForm->frontSpecularColorPushButton)->setText("color");
+        whileBlocking(_appearancePrimitiveForm->frontSpecularColorPushButton)->setColor(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->frontSpecularColorPushButton)->setColor(QColor(255,255,255,255));
+        whileBlocking(_appearancePrimitiveForm->frontSpecularColorPushButton)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadFrontPrimitiveShininess()
 {
-  _appearancePrimitiveForm->frontShininessDoubleSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->frontShininessSlider->setEnabled(false);
+  _appearancePrimitiveForm->frontShininessDoubleSpinBox->setDisabled(true);
+  _appearancePrimitiveForm->frontShininessSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearancePrimitiveForm->frontShininessDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->frontShininessSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearancePrimitiveForm->frontShininessDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->frontShininessDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->frontShininessSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = frontPrimitiveShininess())
-    {
-      whileBlocking(_appearancePrimitiveForm->frontShininessDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearancePrimitiveForm->frontShininessSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->frontShininessDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = frontPrimitiveShininess())
+      {
+        whileBlocking(_appearancePrimitiveForm->frontShininessDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearancePrimitiveForm->frontShininessSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->frontShininessDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadBackPrimitiveHighDynamicRange()
 {
-  _appearancePrimitiveForm->backHDRCheckBox->setEnabled(false);
+  _appearancePrimitiveForm->backHDRCheckBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearancePrimitiveForm->backHDRCheckBox->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearancePrimitiveForm->backHDRCheckBox->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<bool> state = backPrimitiveHighDynamicRange())
-    {
-      whileBlocking(_appearancePrimitiveForm->backHDRCheckBox)->setTristate(false);
-      whileBlocking(_appearancePrimitiveForm->backHDRCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->backHDRCheckBox)->setTristate(true);
-      whileBlocking(_appearancePrimitiveForm->backHDRCheckBox)->setCheckState(Qt::PartiallyChecked);
+      if (std::optional<bool> state = backPrimitiveHighDynamicRange())
+      {
+        whileBlocking(_appearancePrimitiveForm->backHDRCheckBox)->setTristate(false);
+        whileBlocking(_appearancePrimitiveForm->backHDRCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->backHDRCheckBox)->setTristate(true);
+        whileBlocking(_appearancePrimitiveForm->backHDRCheckBox)->setCheckState(Qt::PartiallyChecked);
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadBackPrimitiveHDRExposure()
 {
-  _appearancePrimitiveForm->backExposureDoubleSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->backExposureSlider->setEnabled(false);
+  _appearancePrimitiveForm->backExposureDoubleSpinBox->setDisabled(true);
+  _appearancePrimitiveForm->backExposureSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearancePrimitiveForm->backExposureDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->backExposureSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearancePrimitiveForm->backExposureDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->backExposureDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->backExposureSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = backPrimitiveHDRExposure())
-    {
-      whileBlocking(_appearancePrimitiveForm->backExposureDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearancePrimitiveForm->backExposureSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->backExposureDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = backPrimitiveHDRExposure())
+      {
+        whileBlocking(_appearancePrimitiveForm->backExposureDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearancePrimitiveForm->backExposureSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->backExposureDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
@@ -1116,129 +1172,137 @@ void AppearanceTreeWidgetController::reloadBackPrimitiveHDRExposure()
 
 void AppearanceTreeWidgetController::reloadBackPrimitiveAmbientLight()
 {
-  _appearancePrimitiveForm->backAmbientIntensityDoubleSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->backAmbientIntensitySlider->setEnabled(false);
+  _appearancePrimitiveForm->backAmbientIntensityDoubleSpinBox->setDisabled(true);
+  _appearancePrimitiveForm->backAmbientIntensitySlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearancePrimitiveForm->backAmbientIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->backAmbientIntensitySlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearancePrimitiveForm->backAmbientIntensityDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->backAmbientIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->backAmbientIntensitySlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = backPrimitiveAmbientLightIntensity())
-    {
-      whileBlocking(_appearancePrimitiveForm->backAmbientIntensityDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearancePrimitiveForm->backAmbientIntensitySlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->backAmbientIntensityDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = backPrimitiveAmbientLightIntensity())
+      {
+        whileBlocking(_appearancePrimitiveForm->backAmbientIntensityDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearancePrimitiveForm->backAmbientIntensitySlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->backAmbientIntensityDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<QColor> value = backPrimitiveAmbientLightColor())
-    {
-      whileBlocking(_appearancePrimitiveForm->backAmbientColorPushButton)->setText("color");
-      whileBlocking(_appearancePrimitiveForm->backAmbientColorPushButton)->setColor(*value);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->backAmbientColorPushButton)->setColor(QColor(255,255,255,255));
-      whileBlocking(_appearancePrimitiveForm->backAmbientColorPushButton)->setText("Mult. Val.");
+      if (std::optional<QColor> value = backPrimitiveAmbientLightColor())
+      {
+        whileBlocking(_appearancePrimitiveForm->backAmbientColorPushButton)->setText("color");
+        whileBlocking(_appearancePrimitiveForm->backAmbientColorPushButton)->setColor(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->backAmbientColorPushButton)->setColor(QColor(255,255,255,255));
+        whileBlocking(_appearancePrimitiveForm->backAmbientColorPushButton)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadBackPrimitiveDiffuseLight()
 {
-  _appearancePrimitiveForm->backDiffuseIntensityDoubleSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->backDiffuseIntensitySlider->setEnabled(false);
+  _appearancePrimitiveForm->backDiffuseIntensityDoubleSpinBox->setDisabled(true);
+  _appearancePrimitiveForm->backDiffuseIntensitySlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearancePrimitiveForm->backDiffuseIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->backDiffuseIntensitySlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearancePrimitiveForm->backDiffuseIntensityDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->backDiffuseIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->backDiffuseIntensitySlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = backPrimitiveDiffuseLightIntensity())
-    {
-      whileBlocking(_appearancePrimitiveForm->backDiffuseIntensityDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearancePrimitiveForm->backDiffuseIntensitySlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->backDiffuseIntensityDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = backPrimitiveDiffuseLightIntensity())
+      {
+        whileBlocking(_appearancePrimitiveForm->backDiffuseIntensityDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearancePrimitiveForm->backDiffuseIntensitySlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->backDiffuseIntensityDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<QColor> value = backPrimitiveDiffuseLightColor())
-    {
-      whileBlocking(_appearancePrimitiveForm->backDiffuseColorPushButton)->setText("color");
-      whileBlocking(_appearancePrimitiveForm->backDiffuseColorPushButton)->setColor(*value);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->frontDiffuseColorPushButton)->setColor(QColor(255,255,255,255));
-      whileBlocking(_appearancePrimitiveForm->backDiffuseColorPushButton)->setText("Mult. Val.");
+      if (std::optional<QColor> value = backPrimitiveDiffuseLightColor())
+      {
+        whileBlocking(_appearancePrimitiveForm->backDiffuseColorPushButton)->setText("color");
+        whileBlocking(_appearancePrimitiveForm->backDiffuseColorPushButton)->setColor(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->frontDiffuseColorPushButton)->setColor(QColor(255,255,255,255));
+        whileBlocking(_appearancePrimitiveForm->backDiffuseColorPushButton)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadBackPrimitiveSpecularLight()
 {
-  _appearancePrimitiveForm->backSpecularIntensityDoubleSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->backSpecularIntensitySlider->setEnabled(false);
+  _appearancePrimitiveForm->backSpecularIntensityDoubleSpinBox->setDisabled(true);
+  _appearancePrimitiveForm->backSpecularIntensitySlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearancePrimitiveForm->backSpecularIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->backSpecularIntensitySlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearancePrimitiveForm->backSpecularIntensityDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->backSpecularIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->backSpecularIntensitySlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = backPrimitiveSpecularLightIntensity())
-    {
-      whileBlocking(_appearancePrimitiveForm->backSpecularIntensityDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearancePrimitiveForm->backSpecularIntensitySlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->backSpecularIntensityDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = backPrimitiveSpecularLightIntensity())
+      {
+        whileBlocking(_appearancePrimitiveForm->backSpecularIntensityDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearancePrimitiveForm->backSpecularIntensitySlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->backSpecularIntensityDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<QColor> value = backPrimitiveSpecularLightColor())
-    {
-      whileBlocking(_appearancePrimitiveForm->backSpecularColorPushButton)->setText("color");
-      whileBlocking(_appearancePrimitiveForm->backSpecularColorPushButton)->setColor(*value);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->backSpecularColorPushButton)->setColor(QColor(255,255,255,255));
-      whileBlocking(_appearancePrimitiveForm->backSpecularColorPushButton)->setText("Mult. Val.");
+      if (std::optional<QColor> value = backPrimitiveSpecularLightColor())
+      {
+        whileBlocking(_appearancePrimitiveForm->backSpecularColorPushButton)->setText("color");
+        whileBlocking(_appearancePrimitiveForm->backSpecularColorPushButton)->setColor(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->backSpecularColorPushButton)->setColor(QColor(255,255,255,255));
+        whileBlocking(_appearancePrimitiveForm->backSpecularColorPushButton)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadBackPrimitiveShininess()
 {
-  _appearancePrimitiveForm->backShininessDoubleSpinBox->setReadOnly(true);
-  _appearancePrimitiveForm->backShininessSlider->setEnabled(false);
+  _appearancePrimitiveForm->backShininessDoubleSpinBox->setDisabled(true);
+  _appearancePrimitiveForm->backShininessSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearancePrimitiveForm->backShininessDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearancePrimitiveForm->backShininessSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearancePrimitiveForm->backShininessDoubleSpinBox->setEnabled(true);
+      _appearancePrimitiveForm->backShininessDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearancePrimitiveForm->backShininessSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = backPrimitiveShininess())
-    {
-      whileBlocking(_appearancePrimitiveForm->backShininessDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearancePrimitiveForm->backShininessSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearancePrimitiveForm->backShininessDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = backPrimitiveShininess())
+      {
+        whileBlocking(_appearancePrimitiveForm->backShininessDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearancePrimitiveForm->backShininessSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearancePrimitiveForm->backShininessDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
@@ -2669,14 +2733,17 @@ void AppearanceTreeWidgetController::reloadAtomProperties()
   reloadAtomSpecularLight();
   reloadAtomShininess();
 
-  _appearanceAtomsForm->atomAmbientColorPushButton->setEnabled(false);
-  _appearanceAtomsForm->atomDiffuseColorPushButton->setEnabled(false);
-  _appearanceAtomsForm->atomSpecularColorPushButton->setEnabled(false);
+  _appearanceAtomsForm->atomAmbientColorPushButton->setDisabled(true);
+  _appearanceAtomsForm->atomDiffuseColorPushButton->setDisabled(true);
+  _appearanceAtomsForm->atomSpecularColorPushButton->setDisabled(true);
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->atomAmbientColorPushButton->setEnabled(_projectTreeNode->isEditable());
-    _appearanceAtomsForm->atomDiffuseColorPushButton->setEnabled(_projectTreeNode->isEditable());
-    _appearanceAtomsForm->atomSpecularColorPushButton->setEnabled(_projectTreeNode->isEditable());
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAtomsForm->atomAmbientColorPushButton->setEnabled(_projectTreeNode->isEditable());
+      _appearanceAtomsForm->atomDiffuseColorPushButton->setEnabled(_projectTreeNode->isEditable());
+      _appearanceAtomsForm->atomSpecularColorPushButton->setEnabled(_projectTreeNode->isEditable());
+    }
   }
 }
 
@@ -2698,14 +2765,17 @@ void AppearanceTreeWidgetController::reloadBondProperties()
   reloadBondSpecularLight();
   reloadBondShininess();
 
-  _appearanceBondsForm->bondAmbientColorPushButton->setEnabled(false);
-  _appearanceBondsForm->bondDiffuseColorPushButton->setEnabled(false);
-  _appearanceBondsForm->bondSpecularColorPushButton->setEnabled(false);
+  _appearanceBondsForm->bondAmbientColorPushButton->setDisabled(true);
+  _appearanceBondsForm->bondDiffuseColorPushButton->setDisabled(true);
+  _appearanceBondsForm->bondSpecularColorPushButton->setDisabled(true);
   if(_projectTreeNode)
   {
-    _appearanceBondsForm->bondAmbientColorPushButton->setEnabled(_projectTreeNode->isEditable());
-    _appearanceBondsForm->bondDiffuseColorPushButton->setEnabled(_projectTreeNode->isEditable());
-    _appearanceBondsForm->bondSpecularColorPushButton->setEnabled(_projectTreeNode->isEditable());
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceBondsForm->bondAmbientColorPushButton->setEnabled(_projectTreeNode->isEditable());
+      _appearanceBondsForm->bondDiffuseColorPushButton->setEnabled(_projectTreeNode->isEditable());
+      _appearanceBondsForm->bondSpecularColorPushButton->setEnabled(_projectTreeNode->isEditable());
+    }
   }
 }
 
@@ -2715,10 +2785,13 @@ void AppearanceTreeWidgetController::reloadUnitCellProperties()
   reloadUnitCellSizeScaling();
   reloadUnitCellDiffuseLight();
 
-  _appearanceUnitCellForm->diffuseColorPushButton->setEnabled(false);
+  _appearanceUnitCellForm->diffuseColorPushButton->setDisabled(true);
   if(_projectTreeNode)
   {
-    _appearanceUnitCellForm->diffuseColorPushButton->setEnabled(_projectTreeNode->isEditable());
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceUnitCellForm->diffuseColorPushButton->setEnabled(_projectTreeNode->isEditable());
+    }
   }
 }
 
@@ -2741,20 +2814,24 @@ void AppearanceTreeWidgetController::reloadAdsorptionSurfaceProperties()
   reloadAdsorptionSurfaceOutsideSpecularLight();
   reloadAdsorptionSurfaceOutsideShininess();
 
-  _appearanceAdsorptionSurfaceForm->insideAmbientColorPushButton->setEnabled(false);
-  _appearanceAdsorptionSurfaceForm->insideDiffuseColorPushButton->setEnabled(false);
-  _appearanceAdsorptionSurfaceForm->insideSpecularColorPushButton->setEnabled(false);
-  _appearanceAdsorptionSurfaceForm->outsideAmbientColorPushButton->setEnabled(false);
-  _appearanceAdsorptionSurfaceForm->outsideDiffuseColorPushButton->setEnabled(false);
-  _appearanceAdsorptionSurfaceForm->outsideSpecularColorPushButton->setEnabled(false);
+  _appearanceAdsorptionSurfaceForm->insideAmbientColorPushButton->setDisabled(true);
+  _appearanceAdsorptionSurfaceForm->insideDiffuseColorPushButton->setDisabled(true);
+  _appearanceAdsorptionSurfaceForm->insideSpecularColorPushButton->setDisabled(true);
+  _appearanceAdsorptionSurfaceForm->outsideAmbientColorPushButton->setDisabled(true);
+  _appearanceAdsorptionSurfaceForm->outsideDiffuseColorPushButton->setDisabled(true);
+  _appearanceAdsorptionSurfaceForm->outsideSpecularColorPushButton->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAdsorptionSurfaceForm->insideAmbientColorPushButton->setEnabled(_projectTreeNode->isEditable());
-    _appearanceAdsorptionSurfaceForm->insideDiffuseColorPushButton->setEnabled(_projectTreeNode->isEditable());
-    _appearanceAdsorptionSurfaceForm->insideSpecularColorPushButton->setEnabled(_projectTreeNode->isEditable());
-    _appearanceAdsorptionSurfaceForm->outsideAmbientColorPushButton->setEnabled(_projectTreeNode->isEditable());
-    _appearanceAdsorptionSurfaceForm->outsideDiffuseColorPushButton->setEnabled(_projectTreeNode->isEditable());
-    _appearanceAdsorptionSurfaceForm->outsideSpecularColorPushButton->setEnabled(_projectTreeNode->isEditable());
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAdsorptionSurfaceForm->insideAmbientColorPushButton->setEnabled(_projectTreeNode->isEditable());
+      _appearanceAdsorptionSurfaceForm->insideDiffuseColorPushButton->setEnabled(_projectTreeNode->isEditable());
+      _appearanceAdsorptionSurfaceForm->insideSpecularColorPushButton->setEnabled(_projectTreeNode->isEditable());
+      _appearanceAdsorptionSurfaceForm->outsideAmbientColorPushButton->setEnabled(_projectTreeNode->isEditable());
+      _appearanceAdsorptionSurfaceForm->outsideDiffuseColorPushButton->setEnabled(_projectTreeNode->isEditable());
+      _appearanceAdsorptionSurfaceForm->outsideSpecularColorPushButton->setEnabled(_projectTreeNode->isEditable());
+    }
   }
 }
 
@@ -2778,350 +2855,368 @@ void AppearanceTreeWidgetController::reloadAnnotationProperties()
 
 void AppearanceTreeWidgetController::reloadAtomRepresentationType()
 {
-  _appearanceAtomsForm->atomRepresentationType->setEnabled(false);
+  _appearanceAtomsForm->atomRepresentationType->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->atomRepresentationType->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAtomsForm->atomRepresentationType->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<Structure::RepresentationType> type=representationType())
-    {
-      if(int index = _appearanceAtomsForm->atomRepresentationType->findText("Multiple values"); index>=0)
+      if (std::optional<Structure::RepresentationType> type=representationType())
       {
-        whileBlocking(_appearanceAtomsForm->atomRepresentationType)->removeItem(index);
+        if(int index = _appearanceAtomsForm->atomRepresentationType->findText("Multiple values"); index>=0)
+        {
+          whileBlocking(_appearanceAtomsForm->atomRepresentationType)->removeItem(index);
+        }
+        whileBlocking(_appearanceAtomsForm->atomRepresentationType)->setCurrentIndex(int(*type));
       }
-      whileBlocking(_appearanceAtomsForm->atomRepresentationType)->setCurrentIndex(int(*type));
-    }
-    else
-    {
-      if(int index = _appearanceAtomsForm->atomRepresentationType->findText("Multiple values"); index<0)
+      else
       {
-        whileBlocking(_appearanceAtomsForm->atomRepresentationType)->addItem("Multiple values");
+        if(int index = _appearanceAtomsForm->atomRepresentationType->findText("Multiple values"); index<0)
+        {
+          whileBlocking(_appearanceAtomsForm->atomRepresentationType)->addItem("Multiple values");
+        }
+        whileBlocking(_appearanceAtomsForm->atomRepresentationType)->setCurrentText("Multiple values");
       }
-      whileBlocking(_appearanceAtomsForm->atomRepresentationType)->setCurrentText("Multiple values");
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAtomRepresentationStyle()
 {
-  _appearanceAtomsForm->atomRepresentationStyle->setEnabled(false);
+  _appearanceAtomsForm->atomRepresentationStyle->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->atomRepresentationStyle->setEnabled(_projectTreeNode->isEditable());
-  }
-
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<Structure::RepresentationStyle> type=representationStyle())
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
     {
-      if(int index = _appearanceAtomsForm->atomRepresentationStyle->findText("Multiple values"); index>=0)
+      _appearanceAtomsForm->atomRepresentationStyle->setEnabled(_projectTreeNode->isEditable());
+
+      if (std::optional<Structure::RepresentationStyle> type=representationStyle())
       {
-        whileBlocking(_appearanceAtomsForm->atomRepresentationStyle)->removeItem(index);
-      }
-      if(int index = _appearanceAtomsForm->atomRepresentationStyle->findText("Custom"); index>=0)
-      {
-        whileBlocking(_appearanceAtomsForm->atomRepresentationStyle)->removeItem(index);
-      }
-      if(int(*type)<0)
-      {
-         whileBlocking(_appearanceAtomsForm->atomRepresentationStyle)->insertItem(int(Structure::RepresentationStyle::multiple_values),"Custom");
-         whileBlocking(_appearanceAtomsForm->atomRepresentationStyle)->setCurrentIndex(int(Structure::RepresentationStyle::multiple_values));
+        if(int index = _appearanceAtomsForm->atomRepresentationStyle->findText("Multiple values"); index>=0)
+        {
+          whileBlocking(_appearanceAtomsForm->atomRepresentationStyle)->removeItem(index);
+        }
+        if(int index = _appearanceAtomsForm->atomRepresentationStyle->findText("Custom"); index>=0)
+        {
+          whileBlocking(_appearanceAtomsForm->atomRepresentationStyle)->removeItem(index);
+        }
+        if(int(*type)<0)
+        {
+           whileBlocking(_appearanceAtomsForm->atomRepresentationStyle)->insertItem(int(Structure::RepresentationStyle::multiple_values),"Custom");
+           whileBlocking(_appearanceAtomsForm->atomRepresentationStyle)->setCurrentIndex(int(Structure::RepresentationStyle::multiple_values));
+        }
+        else
+        {
+          whileBlocking(_appearanceAtomsForm->atomRepresentationStyle)->setCurrentIndex(int(*type));
+        }
       }
       else
       {
-        whileBlocking(_appearanceAtomsForm->atomRepresentationStyle)->setCurrentIndex(int(*type));
+        if(int index = _appearanceAtomsForm->atomRepresentationStyle->findText("Custom"); index>=0)
+        {
+          whileBlocking(_appearanceAtomsForm->atomRepresentationStyle)->removeItem(index);
+        }
+        if(int index = _appearanceAtomsForm->atomRepresentationStyle->findText("Multiple values"); index<0)
+        {
+          whileBlocking(_appearanceAtomsForm->atomRepresentationStyle)->addItem("Multiple values");
+        }
+        whileBlocking(_appearanceAtomsForm->atomRepresentationStyle)->setCurrentText("Multiple values");
       }
-    }
-    else
-    {
-      if(int index = _appearanceAtomsForm->atomRepresentationStyle->findText("Custom"); index>=0)
-      {
-        whileBlocking(_appearanceAtomsForm->atomRepresentationStyle)->removeItem(index);
-      }
-      if(int index = _appearanceAtomsForm->atomRepresentationStyle->findText("Multiple values"); index<0)
-      {
-        whileBlocking(_appearanceAtomsForm->atomRepresentationStyle)->addItem("Multiple values");
-      }
-      whileBlocking(_appearanceAtomsForm->atomRepresentationStyle)->setCurrentText("Multiple values");
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAtomColorSet()
 {
-  _appearanceAtomsForm->colorSchemeComboBox->setEnabled(false);
+  _appearanceAtomsForm->colorSchemeComboBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->colorSchemeComboBox->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAtomsForm->colorSchemeComboBox->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<QString> colorSchemName = colorSchemeIdentifier())
-    {
-      if(int index = _appearanceAtomsForm->colorSchemeComboBox->findText("Multiple values"); index>=0)
+      if (std::optional<QString> colorSchemName = colorSchemeIdentifier())
       {
-        whileBlocking(_appearanceAtomsForm->colorSchemeComboBox)->removeItem(index);
+        if(int index = _appearanceAtomsForm->colorSchemeComboBox->findText("Multiple values"); index>=0)
+        {
+          whileBlocking(_appearanceAtomsForm->colorSchemeComboBox)->removeItem(index);
+        }
+        whileBlocking(_appearanceAtomsForm->colorSchemeComboBox)->setCurrentText(*colorSchemName);
       }
-      whileBlocking(_appearanceAtomsForm->colorSchemeComboBox)->setCurrentText(*colorSchemName);
-    }
-    else
-    {
-      if(int index = _appearanceAtomsForm->colorSchemeComboBox->findText("Multiple values"); index<0)
+      else
       {
-        whileBlocking(_appearanceAtomsForm->colorSchemeComboBox)->addItem("Multiple values");
+        if(int index = _appearanceAtomsForm->colorSchemeComboBox->findText("Multiple values"); index<0)
+        {
+          whileBlocking(_appearanceAtomsForm->colorSchemeComboBox)->addItem("Multiple values");
+        }
+        whileBlocking(_appearanceAtomsForm->colorSchemeComboBox)->setCurrentText("Multiple values");
       }
-      whileBlocking(_appearanceAtomsForm->colorSchemeComboBox)->setCurrentText("Multiple values");
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAtomColorSetOrder()
 {
-  _appearanceAtomsForm->colorSchemeOrderComboBox->setEnabled(false);
+  _appearanceAtomsForm->colorSchemeOrderComboBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->colorSchemeOrderComboBox->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAtomsForm->colorSchemeOrderComboBox->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<SKColorSet::ColorSchemeOrder> type = colorSchemeOrder())
-    {
-      if(int index = _appearanceAtomsForm->colorSchemeOrderComboBox->findText("Multiple values"); index>=0)
+      if (std::optional<SKColorSet::ColorSchemeOrder> type = colorSchemeOrder())
       {
-        whileBlocking(_appearanceAtomsForm->colorSchemeOrderComboBox)->removeItem(index);
+        if(int index = _appearanceAtomsForm->colorSchemeOrderComboBox->findText("Multiple values"); index>=0)
+        {
+          whileBlocking(_appearanceAtomsForm->colorSchemeOrderComboBox)->removeItem(index);
+        }
+        whileBlocking(_appearanceAtomsForm->colorSchemeOrderComboBox)->setCurrentIndex(int(*type));
       }
-      whileBlocking(_appearanceAtomsForm->colorSchemeOrderComboBox)->setCurrentIndex(int(*type));
-    }
-    else
-    {
-      if(int index = _appearanceAtomsForm->colorSchemeOrderComboBox->findText("Multiple values"); index<0)
+      else
       {
-        whileBlocking(_appearanceAtomsForm->colorSchemeOrderComboBox)->addItem("Multiple values");
+        if(int index = _appearanceAtomsForm->colorSchemeOrderComboBox->findText("Multiple values"); index<0)
+        {
+          whileBlocking(_appearanceAtomsForm->colorSchemeOrderComboBox)->addItem("Multiple values");
+        }
+        whileBlocking(_appearanceAtomsForm->colorSchemeOrderComboBox)->setCurrentText("Multiple values");
       }
-      whileBlocking(_appearanceAtomsForm->colorSchemeOrderComboBox)->setCurrentText("Multiple values");
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAtomForceFieldSet()
 {
-  _appearanceAtomsForm->forceFieldComboBox->setEnabled(false);
+  _appearanceAtomsForm->forceFieldComboBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->forceFieldComboBox->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAtomsForm->forceFieldComboBox->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<QString> forceFieldIdentifier = forceFieldSchemeIdentifier())
-    {
-      if(int index = _appearanceAtomsForm->forceFieldComboBox->findText("Multiple values"); index>=0)
+      if (std::optional<QString> forceFieldIdentifier = forceFieldSchemeIdentifier())
       {
-        whileBlocking(_appearanceAtomsForm->forceFieldComboBox)->removeItem(index);
+        if(int index = _appearanceAtomsForm->forceFieldComboBox->findText("Multiple values"); index>=0)
+        {
+          whileBlocking(_appearanceAtomsForm->forceFieldComboBox)->removeItem(index);
+        }
+        whileBlocking(_appearanceAtomsForm->forceFieldComboBox)->setCurrentText(*forceFieldIdentifier);
       }
-      whileBlocking(_appearanceAtomsForm->forceFieldComboBox)->setCurrentText(*forceFieldIdentifier);
-    }
-    else
-    {
-      if(int index = _appearanceAtomsForm->forceFieldComboBox->findText("Multiple values"); index<0)
+      else
       {
-        whileBlocking(_appearanceAtomsForm->forceFieldComboBox)->addItem("Multiple values");
+        if(int index = _appearanceAtomsForm->forceFieldComboBox->findText("Multiple values"); index<0)
+        {
+          whileBlocking(_appearanceAtomsForm->forceFieldComboBox)->addItem("Multiple values");
+        }
+        whileBlocking(_appearanceAtomsForm->forceFieldComboBox)->setCurrentText("Multiple values");
       }
-      whileBlocking(_appearanceAtomsForm->forceFieldComboBox)->setCurrentText("Multiple values");
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAtomForceFieldSetOrder()
 {
-  _appearanceAtomsForm->forceFieldSchemeOrderComboBox->setEnabled(false);
+  _appearanceAtomsForm->forceFieldSchemeOrderComboBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->forceFieldSchemeOrderComboBox->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAtomsForm->forceFieldSchemeOrderComboBox->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<ForceFieldSet::ForceFieldSchemeOrder> type = forceFieldSchemeOrder())
-    {
-      if(int index = _appearanceAtomsForm->forceFieldSchemeOrderComboBox->findText("Multiple values"); index>=0)
+      if (std::optional<ForceFieldSet::ForceFieldSchemeOrder> type = forceFieldSchemeOrder())
       {
-        whileBlocking(_appearanceAtomsForm->forceFieldSchemeOrderComboBox)->removeItem(index);
+        if(int index = _appearanceAtomsForm->forceFieldSchemeOrderComboBox->findText("Multiple values"); index>=0)
+        {
+          whileBlocking(_appearanceAtomsForm->forceFieldSchemeOrderComboBox)->removeItem(index);
+        }
+        whileBlocking(_appearanceAtomsForm->forceFieldSchemeOrderComboBox)->setCurrentIndex(int(*type));
       }
-      whileBlocking(_appearanceAtomsForm->forceFieldSchemeOrderComboBox)->setCurrentIndex(int(*type));
-    }
-    else
-    {
-      if(int index = _appearanceAtomsForm->forceFieldSchemeOrderComboBox->findText("Multiple values"); index<0)
+      else
       {
-        whileBlocking(_appearanceAtomsForm->forceFieldSchemeOrderComboBox)->addItem("Multiple values");
+        if(int index = _appearanceAtomsForm->forceFieldSchemeOrderComboBox->findText("Multiple values"); index<0)
+        {
+          whileBlocking(_appearanceAtomsForm->forceFieldSchemeOrderComboBox)->addItem("Multiple values");
+        }
+        whileBlocking(_appearanceAtomsForm->forceFieldSchemeOrderComboBox)->setCurrentText("Multiple values");
       }
-      whileBlocking(_appearanceAtomsForm->forceFieldSchemeOrderComboBox)->setCurrentText("Multiple values");
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAtomDrawAtoms()
 {
-  _appearanceAtomsForm->atomDrawAtomsCheckBox->setEnabled(false);
+  _appearanceAtomsForm->atomDrawAtomsCheckBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->atomDrawAtomsCheckBox->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAtomsForm->atomDrawAtomsCheckBox->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<bool> state = atomDrawAtoms())
-    {
-      whileBlocking(_appearanceAtomsForm->atomDrawAtomsCheckBox)->setTristate(false);
-      whileBlocking(_appearanceAtomsForm->atomDrawAtomsCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
-    }
-    else
-    {
-      whileBlocking(_appearanceAtomsForm->atomDrawAtomsCheckBox)->setTristate(true);
-      whileBlocking(_appearanceAtomsForm->atomDrawAtomsCheckBox)->setCheckState(Qt::PartiallyChecked);
+      if (std::optional<bool> state = atomDrawAtoms())
+      {
+        whileBlocking(_appearanceAtomsForm->atomDrawAtomsCheckBox)->setTristate(false);
+        whileBlocking(_appearanceAtomsForm->atomDrawAtomsCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
+      }
+      else
+      {
+        whileBlocking(_appearanceAtomsForm->atomDrawAtomsCheckBox)->setTristate(true);
+        whileBlocking(_appearanceAtomsForm->atomDrawAtomsCheckBox)->setCheckState(Qt::PartiallyChecked);
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAtomSelectionStyle()
 {
-  _appearanceAtomsForm->atomSelectionStyleComboBox->setEnabled(false);
-  _appearanceAtomsForm->atomSelectionStyleNuDoubleSpinBox->setReadOnly(true);
-  _appearanceAtomsForm->atomSelectionStyleRhoDoubleSpinBox->setReadOnly(true);
+  _appearanceAtomsForm->atomSelectionStyleComboBox->setDisabled(true);
+  _appearanceAtomsForm->atomSelectionStyleNuDoubleSpinBox->setDisabled(true);
+  _appearanceAtomsForm->atomSelectionStyleRhoDoubleSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->atomSelectionStyleComboBox->setEnabled(_projectTreeNode->isEditable());
-    _appearanceAtomsForm->atomSelectionStyleNuDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAtomsForm->atomSelectionStyleRhoDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
-
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<RKSelectionStyle> type = atomSelectionStyle())
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
     {
-      if(int index = _appearanceAtomsForm->atomSelectionStyleComboBox->findText("Multiple values"); index>=0)
+      _appearanceAtomsForm->atomSelectionStyleComboBox->setEnabled(_projectTreeNode->isEditable());
+
+      _appearanceAtomsForm->atomSelectionStyleNuDoubleSpinBox->setEnabled(true);
+      _appearanceAtomsForm->atomSelectionStyleNuDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAtomsForm->atomSelectionStyleRhoDoubleSpinBox->setEnabled(true);
+      _appearanceAtomsForm->atomSelectionStyleRhoDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+
+      if (std::optional<RKSelectionStyle> type = atomSelectionStyle())
       {
-        whileBlocking(_appearanceAtomsForm->atomSelectionStyleComboBox)->removeItem(index);
+        if(int index = _appearanceAtomsForm->atomSelectionStyleComboBox->findText("Multiple values"); index>=0)
+        {
+          whileBlocking(_appearanceAtomsForm->atomSelectionStyleComboBox)->removeItem(index);
+        }
+        whileBlocking(_appearanceAtomsForm->atomSelectionStyleComboBox)->setCurrentIndex(int(*type));
       }
-      whileBlocking(_appearanceAtomsForm->atomSelectionStyleComboBox)->setCurrentIndex(int(*type));
-    }
-    else
-    {
-      if(int index = _appearanceAtomsForm->atomSelectionStyleComboBox->findText("Multiple values"); index<0)
+      else
       {
-        whileBlocking(_appearanceAtomsForm->atomSelectionStyleComboBox)->addItem("Multiple values");
+        if(int index = _appearanceAtomsForm->atomSelectionStyleComboBox->findText("Multiple values"); index<0)
+        {
+          whileBlocking(_appearanceAtomsForm->atomSelectionStyleComboBox)->addItem("Multiple values");
+        }
+        whileBlocking(_appearanceAtomsForm->atomSelectionStyleComboBox)->setCurrentText("Multiple values");
       }
-      whileBlocking(_appearanceAtomsForm->atomSelectionStyleComboBox)->setCurrentText("Multiple values");
-    }
 
-    if (std::optional<double> size = atomSelectionStyleNu())
-    {
-     whileBlocking(_appearanceAtomsForm->atomSelectionStyleNuDoubleSpinBox)->setValue(*size);
-    }
-    else
-    {
-      whileBlocking(_appearanceAtomsForm->atomSelectionStyleNuDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> size = atomSelectionStyleNu())
+      {
+        whileBlocking(_appearanceAtomsForm->atomSelectionStyleNuDoubleSpinBox)->setValue(*size);
+      }
+      else
+      {
+        whileBlocking(_appearanceAtomsForm->atomSelectionStyleNuDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<double> size = atomSelectionStyleRho())
-    {
-      whileBlocking(_appearanceAtomsForm->atomSelectionStyleRhoDoubleSpinBox)->setValue(*size);
-    }
-    else
-    {
-      whileBlocking(_appearanceAtomsForm->atomSelectionStyleRhoDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> size = atomSelectionStyleRho())
+      {
+        whileBlocking(_appearanceAtomsForm->atomSelectionStyleRhoDoubleSpinBox)->setValue(*size);
+      }
+      else
+      {
+        whileBlocking(_appearanceAtomsForm->atomSelectionStyleRhoDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAtomSelectionIntensity()
 {
-  _appearanceAtomsForm->atomSelectionItensityDoubleSpinBox->setReadOnly(true);
-  _appearanceAtomsForm->atomSelectionItensityDoubleSlider->setEnabled(false);
+  _appearanceAtomsForm->atomSelectionItensityDoubleSpinBox->setDisabled(true);
+  _appearanceAtomsForm->atomSelectionItensityDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->atomSelectionItensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAtomsForm->atomSelectionItensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAtomsForm->atomSelectionItensityDoubleSpinBox->setEnabled(true);
+      _appearanceAtomsForm->atomSelectionItensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAtomsForm->atomSelectionItensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> size = atomSelectionIntensity())
-    {
-      whileBlocking(_appearanceAtomsForm->atomSelectionItensityDoubleSpinBox)->setValue(*size);
-      whileBlocking(_appearanceAtomsForm->atomSelectionItensityDoubleSlider)->setDoubleValue(*size);
-    }
-    else
-    {
-      whileBlocking(_appearanceAtomsForm->atomSelectionItensityDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> size = atomSelectionIntensity())
+      {
+        whileBlocking(_appearanceAtomsForm->atomSelectionItensityDoubleSpinBox)->setValue(*size);
+        whileBlocking(_appearanceAtomsForm->atomSelectionItensityDoubleSlider)->setDoubleValue(*size);
+      }
+      else
+      {
+        whileBlocking(_appearanceAtomsForm->atomSelectionItensityDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAtomSelectionScaling()
 {
-  _appearanceAtomsForm->atomSelectionScalingDoubleSpinBox->setReadOnly(true);
-  _appearanceAtomsForm->atomSelectionScalingDoubleSlider->setEnabled(false);
+  _appearanceAtomsForm->atomSelectionScalingDoubleSpinBox->setDisabled(true);
+  _appearanceAtomsForm->atomSelectionScalingDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->atomSelectionScalingDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAtomsForm->atomSelectionScalingDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAtomsForm->atomSelectionScalingDoubleSpinBox->setEnabled(true);
+      _appearanceAtomsForm->atomSelectionScalingDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAtomsForm->atomSelectionScalingDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> size = atomSelectionScaling())
-    {
-      whileBlocking(_appearanceAtomsForm->atomSelectionScalingDoubleSpinBox)->setValue(*size);
-      whileBlocking(_appearanceAtomsForm->atomSelectionScalingDoubleSlider)->setDoubleValue(*size);
-    }
-    else
-    {
-      whileBlocking(_appearanceAtomsForm->atomSelectionScalingDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> size = atomSelectionScaling())
+      {
+        whileBlocking(_appearanceAtomsForm->atomSelectionScalingDoubleSpinBox)->setValue(*size);
+        whileBlocking(_appearanceAtomsForm->atomSelectionScalingDoubleSlider)->setDoubleValue(*size);
+      }
+      else
+      {
+        whileBlocking(_appearanceAtomsForm->atomSelectionScalingDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAtomSizeScalingDoubleSpinBox()
 {
-  _appearanceAtomsForm->atomSizeScalingSpinBox->setReadOnly(true);
+  _appearanceAtomsForm->atomSizeScalingSpinBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->atomSizeScalingSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAtomsForm->atomSizeScalingSpinBox->setEnabled(true);
+      _appearanceAtomsForm->atomSizeScalingSpinBox->setReadOnly(!_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> size = atomSizeScaling())
-    {
-      whileBlocking(_appearanceAtomsForm->atomSizeScalingSpinBox)->setValue(*size);
-    }
-    else
-    {
-      whileBlocking(_appearanceAtomsForm->atomSizeScalingSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> size = atomSizeScaling())
+      {
+        whileBlocking(_appearanceAtomsForm->atomSizeScalingSpinBox)->setValue(*size);
+      }
+      else
+      {
+        whileBlocking(_appearanceAtomsForm->atomSizeScalingSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAtomSizeScalingDoubleSlider()
 {
-  _appearanceAtomsForm->atomAtomicSizeScalingSlider->setEnabled(false);
+  _appearanceAtomsForm->atomAtomicSizeScalingSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->atomAtomicSizeScalingSlider->setEnabled(_projectTreeNode->isEditable());
-  }
-
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> size = atomSizeScaling())
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
     {
-      whileBlocking(_appearanceAtomsForm->atomAtomicSizeScalingSlider)->setDoubleValue(*size);
+      _appearanceAtomsForm->atomAtomicSizeScalingSlider->setEnabled(_projectTreeNode->isEditable());
+
+      if (std::optional<double> size = atomSizeScaling())
+      {
+        whileBlocking(_appearanceAtomsForm->atomAtomicSizeScalingSlider)->setDoubleValue(*size);
+      }
     }
   }
 }
@@ -3129,119 +3224,128 @@ void AppearanceTreeWidgetController::reloadAtomSizeScalingDoubleSlider()
 
 void AppearanceTreeWidgetController::reloadAtomHighDynamicRange()
 {
-  _appearanceAtomsForm->atomHighDynamicRangeCheckBox->setEnabled(false);
+  _appearanceAtomsForm->atomHighDynamicRangeCheckBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->atomHighDynamicRangeCheckBox->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAtomsForm->atomHighDynamicRangeCheckBox->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<bool> state = atomHighDynamicRange())
-    {
-      whileBlocking(_appearanceAtomsForm->atomHighDynamicRangeCheckBox)->setTristate(false);
-      whileBlocking(_appearanceAtomsForm->atomHighDynamicRangeCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
-    }
-    else
-    {
-      whileBlocking(_appearanceAtomsForm->atomHighDynamicRangeCheckBox)->setTristate(true);
-      whileBlocking(_appearanceAtomsForm->atomHighDynamicRangeCheckBox)->setCheckState(Qt::PartiallyChecked);
+      if (std::optional<bool> state = atomHighDynamicRange())
+      {
+        whileBlocking(_appearanceAtomsForm->atomHighDynamicRangeCheckBox)->setTristate(false);
+        whileBlocking(_appearanceAtomsForm->atomHighDynamicRangeCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
+      }
+      else
+      {
+        whileBlocking(_appearanceAtomsForm->atomHighDynamicRangeCheckBox)->setTristate(true);
+        whileBlocking(_appearanceAtomsForm->atomHighDynamicRangeCheckBox)->setCheckState(Qt::PartiallyChecked);
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAtomHDRExposure()
 {
-  _appearanceAtomsForm->atomHDRExposureDoubleSpinBox->setReadOnly(true);
-  _appearanceAtomsForm->atomHDRExposureDoubleSlider->setEnabled(false);
+  _appearanceAtomsForm->atomHDRExposureDoubleSpinBox->setDisabled(true);
+  _appearanceAtomsForm->atomHDRExposureDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->atomHDRExposureDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAtomsForm->atomHDRExposureDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAtomsForm->atomHDRExposureDoubleSpinBox->setEnabled(true);
+      _appearanceAtomsForm->atomHDRExposureDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAtomsForm->atomHDRExposureDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = atomHDRExposure())
-    {
-      whileBlocking(_appearanceAtomsForm->atomHDRExposureDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceAtomsForm->atomHDRExposureDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAtomsForm->atomHDRExposureDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = atomHDRExposure())
+      {
+        whileBlocking(_appearanceAtomsForm->atomHDRExposureDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceAtomsForm->atomHDRExposureDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAtomsForm->atomHDRExposureDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAtomHue()
 {
-  _appearanceAtomsForm->atomHueDoubleSpinBox->setReadOnly(true);
-  _appearanceAtomsForm->atomHueDoubleSlider->setEnabled(false);
+  _appearanceAtomsForm->atomHueDoubleSpinBox->setDisabled(true);
+  _appearanceAtomsForm->atomHueDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->atomHueDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAtomsForm->atomHueDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAtomsForm->atomHueDoubleSpinBox->setEnabled(true);
+      _appearanceAtomsForm->atomHueDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAtomsForm->atomHueDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = atomHue())
-    {
-      whileBlocking(_appearanceAtomsForm->atomHueDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceAtomsForm->atomHueDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAtomsForm->atomHueDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = atomHue())
+      {
+        whileBlocking(_appearanceAtomsForm->atomHueDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceAtomsForm->atomHueDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAtomsForm->atomHueDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAtomSaturation()
 {
-  _appearanceAtomsForm->atomSaturationDoubleSpinBox->setReadOnly(true);
-  _appearanceAtomsForm->atomSaturationDoubleSlider->setEnabled(false);
+  _appearanceAtomsForm->atomSaturationDoubleSpinBox->setDisabled(true);
+  _appearanceAtomsForm->atomSaturationDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->atomSaturationDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAtomsForm->atomSaturationDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAtomsForm->atomSaturationDoubleSpinBox->setEnabled(true);
+      _appearanceAtomsForm->atomSaturationDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAtomsForm->atomSaturationDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = atomSaturation())
-    {
-      whileBlocking(_appearanceAtomsForm->atomSaturationDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceAtomsForm->atomSaturationDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAtomsForm->atomSaturationDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = atomSaturation())
+      {
+        whileBlocking(_appearanceAtomsForm->atomSaturationDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceAtomsForm->atomSaturationDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAtomsForm->atomSaturationDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAtomValue()
 {
-  _appearanceAtomsForm->atomValueDoubleSpinBox->setReadOnly(true);
-  _appearanceAtomsForm->atomValueDoubleSlider->setEnabled(false);
+  _appearanceAtomsForm->atomValueDoubleSpinBox->setDisabled(true);
+  _appearanceAtomsForm->atomValueDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->atomValueDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAtomsForm->atomValueDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAtomsForm->atomValueDoubleSpinBox->setEnabled(true);
+      _appearanceAtomsForm->atomValueDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAtomsForm->atomValueDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = atomValue())
-    {
-      whileBlocking(_appearanceAtomsForm->atomValueDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceAtomsForm->atomValueDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAtomsForm->atomValueDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = atomValue())
+      {
+        whileBlocking(_appearanceAtomsForm->atomValueDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceAtomsForm->atomValueDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAtomsForm->atomValueDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
@@ -3249,151 +3353,160 @@ void AppearanceTreeWidgetController::reloadAtomValue()
 void AppearanceTreeWidgetController::reloadAtomAmbientOcclusion()
 {
   _appearanceAtomsForm->atomAmbientOcclusionCheckBox->setEnabled(false);
+
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->atomAmbientOcclusionCheckBox->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAtomsForm->atomAmbientOcclusionCheckBox->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<bool> state = atomAmbientOcclusion())
-    {
-      whileBlocking(_appearanceAtomsForm->atomAmbientOcclusionCheckBox)->setTristate(false);
-      whileBlocking(_appearanceAtomsForm->atomAmbientOcclusionCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
-    }
-    else
-    {
-      whileBlocking(_appearanceAtomsForm->atomAmbientOcclusionCheckBox)->setTristate(true);
-      whileBlocking(_appearanceAtomsForm->atomAmbientOcclusionCheckBox)->setCheckState(Qt::PartiallyChecked);
+      if (std::optional<bool> state = atomAmbientOcclusion())
+      {
+        whileBlocking(_appearanceAtomsForm->atomAmbientOcclusionCheckBox)->setTristate(false);
+        whileBlocking(_appearanceAtomsForm->atomAmbientOcclusionCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
+      }
+      else
+      {
+        whileBlocking(_appearanceAtomsForm->atomAmbientOcclusionCheckBox)->setTristate(true);
+        whileBlocking(_appearanceAtomsForm->atomAmbientOcclusionCheckBox)->setCheckState(Qt::PartiallyChecked);
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAtomAmbientLight()
 {
-  _appearanceAtomsForm->atomAmbientIntensityDoubleSpinBox->setReadOnly(true);
-  _appearanceAtomsForm->atomAmbientIntensityDoubleSlider->setEnabled(false);
+  _appearanceAtomsForm->atomAmbientIntensityDoubleSpinBox->setDisabled(true);
+  _appearanceAtomsForm->atomAmbientIntensityDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->atomAmbientIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAtomsForm->atomAmbientIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAtomsForm->atomAmbientIntensityDoubleSpinBox->setEnabled(true);
+      _appearanceAtomsForm->atomAmbientIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAtomsForm->atomAmbientIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = atomAmbientLightIntensity())
-    {
-      whileBlocking(_appearanceAtomsForm->atomAmbientIntensityDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceAtomsForm->atomAmbientIntensityDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAtomsForm->atomAmbientIntensityDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = atomAmbientLightIntensity())
+      {
+        whileBlocking(_appearanceAtomsForm->atomAmbientIntensityDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceAtomsForm->atomAmbientIntensityDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAtomsForm->atomAmbientIntensityDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<QColor> value = atomAmbientLightColor())
-    {
-      whileBlocking(_appearanceAtomsForm->atomAmbientColorPushButton)->setText("color");
-      whileBlocking(_appearanceAtomsForm->atomAmbientColorPushButton)->setColor(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAtomsForm->atomAmbientColorPushButton)->setColor(QColor(255,255,255,255));
-      whileBlocking(_appearanceAtomsForm->atomAmbientColorPushButton)->setText("Mult. Val.");
+      if (std::optional<QColor> value = atomAmbientLightColor())
+      {
+        whileBlocking(_appearanceAtomsForm->atomAmbientColorPushButton)->setText("color");
+        whileBlocking(_appearanceAtomsForm->atomAmbientColorPushButton)->setColor(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAtomsForm->atomAmbientColorPushButton)->setColor(QColor(255,255,255,255));
+        whileBlocking(_appearanceAtomsForm->atomAmbientColorPushButton)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAtomDiffuseLight()
 {
-  _appearanceAtomsForm->atomDiffuseItensityDoubleSpinBox->setReadOnly(true);
-  _appearanceAtomsForm->atomDiffuseIntensityDoubleSlider->setEnabled(false);
+  _appearanceAtomsForm->atomDiffuseItensityDoubleSpinBox->setDisabled(true);
+  _appearanceAtomsForm->atomDiffuseIntensityDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->atomDiffuseItensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAtomsForm->atomDiffuseIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAtomsForm->atomDiffuseItensityDoubleSpinBox->setEnabled(true);
+      _appearanceAtomsForm->atomDiffuseItensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAtomsForm->atomDiffuseIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = atomDiffuseLightIntensity())
-    {
-      whileBlocking(_appearanceAtomsForm->atomDiffuseItensityDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceAtomsForm->atomDiffuseIntensityDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAtomsForm->atomDiffuseItensityDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = atomDiffuseLightIntensity())
+      {
+        whileBlocking(_appearanceAtomsForm->atomDiffuseItensityDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceAtomsForm->atomDiffuseIntensityDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAtomsForm->atomDiffuseItensityDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<QColor> value = atomDiffuseLightColor())
-    {
-      whileBlocking(_appearanceAtomsForm->atomDiffuseColorPushButton)->setText("color");
-      whileBlocking(_appearanceAtomsForm->atomDiffuseColorPushButton)->setColor(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAtomsForm->atomDiffuseColorPushButton)->setColor(QColor(255,255,255,255));
-      whileBlocking(_appearanceAtomsForm->atomDiffuseColorPushButton)->setText("Mult. Val.");
+      if (std::optional<QColor> value = atomDiffuseLightColor())
+      {
+        whileBlocking(_appearanceAtomsForm->atomDiffuseColorPushButton)->setText("color");
+        whileBlocking(_appearanceAtomsForm->atomDiffuseColorPushButton)->setColor(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAtomsForm->atomDiffuseColorPushButton)->setColor(QColor(255,255,255,255));
+        whileBlocking(_appearanceAtomsForm->atomDiffuseColorPushButton)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAtomSpecularLight()
 {
-  _appearanceAtomsForm->atomSpecularIntensityDoubleSpinBoxBox->setReadOnly(true);
-  _appearanceAtomsForm->atomSpecularIntensityDoubleSlider->setEnabled(false);
+  _appearanceAtomsForm->atomSpecularIntensityDoubleSpinBoxBox->setDisabled(true);
+  _appearanceAtomsForm->atomSpecularIntensityDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->atomSpecularIntensityDoubleSpinBoxBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAtomsForm->atomSpecularIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAtomsForm->atomSpecularIntensityDoubleSpinBoxBox->setEnabled(true);
+      _appearanceAtomsForm->atomSpecularIntensityDoubleSpinBoxBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAtomsForm->atomSpecularIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = atomSpecularLightIntensity())
-    {
-      whileBlocking(_appearanceAtomsForm->atomSpecularIntensityDoubleSpinBoxBox)->setValue(*value);
-      whileBlocking(_appearanceAtomsForm->atomSpecularIntensityDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAtomsForm->atomSpecularIntensityDoubleSpinBoxBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = atomSpecularLightIntensity())
+      {
+        whileBlocking(_appearanceAtomsForm->atomSpecularIntensityDoubleSpinBoxBox)->setValue(*value);
+        whileBlocking(_appearanceAtomsForm->atomSpecularIntensityDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAtomsForm->atomSpecularIntensityDoubleSpinBoxBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<QColor> value = atomSpecularLightColor())
-    {
-      whileBlocking(_appearanceAtomsForm->atomSpecularColorPushButton)->setText("color");
-      whileBlocking(_appearanceAtomsForm->atomSpecularColorPushButton)->setColor(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAtomsForm->atomSpecularColorPushButton)->setColor(QColor(255,255,255,255));
-      whileBlocking(_appearanceAtomsForm->atomSpecularColorPushButton)->setText("Mult. Val.");
+      if (std::optional<QColor> value = atomSpecularLightColor())
+      {
+        whileBlocking(_appearanceAtomsForm->atomSpecularColorPushButton)->setText("color");
+        whileBlocking(_appearanceAtomsForm->atomSpecularColorPushButton)->setColor(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAtomsForm->atomSpecularColorPushButton)->setColor(QColor(255,255,255,255));
+        whileBlocking(_appearanceAtomsForm->atomSpecularColorPushButton)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAtomShininess()
 {
-  _appearanceAtomsForm->atomShininessDoubleSpinBox->setReadOnly(true);
-  _appearanceAtomsForm->atomShininessDoubleSlider->setEnabled(false);
+  _appearanceAtomsForm->atomShininessDoubleSpinBox->setDisabled(true);
+  _appearanceAtomsForm->atomShininessDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAtomsForm->atomShininessDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAtomsForm->atomShininessDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAtomsForm->atomShininessDoubleSpinBox->setEnabled(true);
+      _appearanceAtomsForm->atomShininessDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAtomsForm->atomShininessDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = atomShininess())
-    {
-      whileBlocking(_appearanceAtomsForm->atomShininessDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceAtomsForm->atomShininessDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAtomsForm->atomShininessDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = atomShininess())
+      {
+        whileBlocking(_appearanceAtomsForm->atomShininessDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceAtomsForm->atomShininessDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAtomsForm->atomShininessDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
@@ -4298,47 +4411,50 @@ std::optional<double> AppearanceTreeWidgetController::atomShininess()
 
 void AppearanceTreeWidgetController::reloadDrawBondsCheckBox()
 {
-  _appearanceBondsForm->drawBondsCheckBox->setEnabled(false);
+  _appearanceBondsForm->drawBondsCheckBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceBondsForm->drawBondsCheckBox->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceBondsForm->drawBondsCheckBox->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<bool> state = bondDrawBonds())
-    {
-      whileBlocking(_appearanceBondsForm->drawBondsCheckBox)->setTristate(false);
-      whileBlocking(_appearanceBondsForm->drawBondsCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
-    }
-    else
-    {
-      whileBlocking(_appearanceBondsForm->drawBondsCheckBox)->setTristate(true);
-      whileBlocking(_appearanceBondsForm->drawBondsCheckBox)->setCheckState(Qt::PartiallyChecked);
+      if (std::optional<bool> state = bondDrawBonds())
+      {
+        whileBlocking(_appearanceBondsForm->drawBondsCheckBox)->setTristate(false);
+        whileBlocking(_appearanceBondsForm->drawBondsCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
+      }
+      else
+      {
+        whileBlocking(_appearanceBondsForm->drawBondsCheckBox)->setTristate(true);
+        whileBlocking(_appearanceBondsForm->drawBondsCheckBox)->setCheckState(Qt::PartiallyChecked);
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadBondSizeScaling()
 {
-  _appearanceBondsForm->bondSizeScalingDoubleSpinBox->setReadOnly(true);
-  _appearanceBondsForm->bondSizeScalingDoubleSlider->setEnabled(false);
+  _appearanceBondsForm->bondSizeScalingDoubleSpinBox->setDisabled(true);
+  _appearanceBondsForm->bondSizeScalingDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceBondsForm->bondSizeScalingDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceBondsForm->bondSizeScalingDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceBondsForm->bondSizeScalingDoubleSpinBox->setEnabled(true);
+      _appearanceBondsForm->bondSizeScalingDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceBondsForm->bondSizeScalingDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> size = bondSizeScaling())
-    {
-      whileBlocking(_appearanceBondsForm->bondSizeScalingDoubleSpinBox)->setValue(*size);
-      whileBlocking(_appearanceBondsForm->bondSizeScalingDoubleSlider)->setDoubleValue(*size);
-    }
-    else
-    {
-      whileBlocking(_appearanceBondsForm->bondSizeScalingDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> size = bondSizeScaling())
+      {
+        whileBlocking(_appearanceBondsForm->bondSizeScalingDoubleSpinBox)->setValue(*size);
+        whileBlocking(_appearanceBondsForm->bondSizeScalingDoubleSlider)->setDoubleValue(*size);
+      }
+      else
+      {
+        whileBlocking(_appearanceBondsForm->bondSizeScalingDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
@@ -4346,300 +4462,319 @@ void AppearanceTreeWidgetController::reloadBondSizeScaling()
 
 void AppearanceTreeWidgetController::reloadBondColorMode()
 {
-  _appearanceBondsForm->bondColorModeComboBox->setEnabled(false);
+  _appearanceBondsForm->bondColorModeComboBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceBondsForm->bondColorModeComboBox->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceBondsForm->bondColorModeComboBox->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<RKBondColorMode> type=bondColorMode())
-    {
-      if(int index = _appearanceBondsForm->bondColorModeComboBox->findText("Multiple values"); index>=0)
+      if (std::optional<RKBondColorMode> type=bondColorMode())
       {
-        whileBlocking(_appearanceBondsForm->bondColorModeComboBox)->removeItem(index);
+        if(int index = _appearanceBondsForm->bondColorModeComboBox->findText("Multiple values"); index>=0)
+        {
+          whileBlocking(_appearanceBondsForm->bondColorModeComboBox)->removeItem(index);
+        }
+        whileBlocking(_appearanceBondsForm->bondColorModeComboBox)->setCurrentIndex(int(*type));
       }
-      whileBlocking(_appearanceBondsForm->bondColorModeComboBox)->setCurrentIndex(int(*type));
-    }
-    else
-    {
-      if(int index = _appearanceBondsForm->bondColorModeComboBox->findText("Multiple values"); index<0)
+      else
       {
-        whileBlocking(_appearanceBondsForm->bondColorModeComboBox)->addItem("Multiple values");
+        if(int index = _appearanceBondsForm->bondColorModeComboBox->findText("Multiple values"); index<0)
+        {
+          whileBlocking(_appearanceBondsForm->bondColorModeComboBox)->addItem("Multiple values");
+        }
+        whileBlocking(_appearanceBondsForm->bondColorModeComboBox)->setCurrentText("Multiple values");
       }
-      whileBlocking(_appearanceBondsForm->bondColorModeComboBox)->setCurrentText("Multiple values");
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadBondHighDynamicRange()
 {
-  _appearanceBondsForm->bondHighDynamicRangeCheckBox->setEnabled(false);
+  _appearanceBondsForm->bondHighDynamicRangeCheckBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceBondsForm->bondHighDynamicRangeCheckBox->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceBondsForm->bondHighDynamicRangeCheckBox->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<bool> state = bondHighDynamicRange())
-    {
-      whileBlocking(_appearanceBondsForm->bondHighDynamicRangeCheckBox)->setTristate(false);
-      whileBlocking(_appearanceBondsForm->bondHighDynamicRangeCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
-    }
-    else
-    {
-      whileBlocking(_appearanceBondsForm->bondHighDynamicRangeCheckBox)->setTristate(true);
-      whileBlocking(_appearanceBondsForm->bondHighDynamicRangeCheckBox)->setCheckState(Qt::PartiallyChecked);
+      if (std::optional<bool> state = bondHighDynamicRange())
+      {
+        whileBlocking(_appearanceBondsForm->bondHighDynamicRangeCheckBox)->setTristate(false);
+        whileBlocking(_appearanceBondsForm->bondHighDynamicRangeCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
+      }
+      else
+      {
+        whileBlocking(_appearanceBondsForm->bondHighDynamicRangeCheckBox)->setTristate(true);
+        whileBlocking(_appearanceBondsForm->bondHighDynamicRangeCheckBox)->setCheckState(Qt::PartiallyChecked);
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadBondHDRExposure()
 {
-  _appearanceBondsForm->bondHDRExposureDoubleSpinBox->setReadOnly(true);
-  _appearanceBondsForm->bondHDRExposureDoubleSlider->setEnabled(false);
+  _appearanceBondsForm->bondHDRExposureDoubleSpinBox->setDisabled(true);
+  _appearanceBondsForm->bondHDRExposureDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceBondsForm->bondHDRExposureDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceBondsForm->bondHDRExposureDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceBondsForm->bondHDRExposureDoubleSpinBox->setEnabled(true);
+      _appearanceBondsForm->bondHDRExposureDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceBondsForm->bondHDRExposureDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = bondHDRExposure())
-    {
-      whileBlocking(_appearanceBondsForm->bondHDRExposureDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceBondsForm->bondHDRExposureDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceBondsForm->bondHDRExposureDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = bondHDRExposure())
+      {
+        whileBlocking(_appearanceBondsForm->bondHDRExposureDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceBondsForm->bondHDRExposureDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceBondsForm->bondHDRExposureDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadBondHue()
 {
-  _appearanceBondsForm->bondHueDoubleSpinBox->setReadOnly(true);
-  _appearanceBondsForm->bondHueDoubleSlider->setEnabled(false);
+  _appearanceBondsForm->bondHueDoubleSpinBox->setDisabled(true);
+  _appearanceBondsForm->bondHueDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceBondsForm->bondHueDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceBondsForm->bondHueDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceBondsForm->bondHueDoubleSpinBox->setEnabled(true);
+      _appearanceBondsForm->bondHueDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceBondsForm->bondHueDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = bondHue())
-    {
-      whileBlocking(_appearanceBondsForm->bondHueDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceBondsForm->bondHueDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceBondsForm->bondHueDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = bondHue())
+      {
+        whileBlocking(_appearanceBondsForm->bondHueDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceBondsForm->bondHueDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceBondsForm->bondHueDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadBondSaturation()
 {
-  _appearanceBondsForm->bondSaturationDoubleSpinBox->setReadOnly(true);
-  _appearanceBondsForm->bondSaturationDoubleSlider->setEnabled(false);
+  _appearanceBondsForm->bondSaturationDoubleSpinBox->setDisabled(true);
+  _appearanceBondsForm->bondSaturationDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceBondsForm->bondSaturationDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceBondsForm->bondSaturationDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceBondsForm->bondSaturationDoubleSpinBox->setEnabled(true);
+      _appearanceBondsForm->bondSaturationDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceBondsForm->bondSaturationDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = bondSaturation())
-    {
-      whileBlocking(_appearanceBondsForm->bondSaturationDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceBondsForm->bondSaturationDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceBondsForm->bondSaturationDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = bondSaturation())
+      {
+        whileBlocking(_appearanceBondsForm->bondSaturationDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceBondsForm->bondSaturationDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceBondsForm->bondSaturationDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadBondValue()
 {
-  _appearanceBondsForm->bondValueDoubleSpinBox->setReadOnly(true);
-  _appearanceBondsForm->bondValueDoubleSlider->setEnabled(false);
+  _appearanceBondsForm->bondValueDoubleSpinBox->setDisabled(true);
+  _appearanceBondsForm->bondValueDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceBondsForm->bondValueDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceBondsForm->bondValueDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceBondsForm->bondValueDoubleSpinBox->setEnabled(true);
+      _appearanceBondsForm->bondValueDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceBondsForm->bondValueDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = bondValue())
-    {
-      whileBlocking(_appearanceBondsForm->bondValueDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceBondsForm->bondValueDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceBondsForm->bondValueDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = bondValue())
+      {
+        whileBlocking(_appearanceBondsForm->bondValueDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceBondsForm->bondValueDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceBondsForm->bondValueDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadBondAmbientOcclusion()
 {
-  _appearanceBondsForm->bondAmbientOcclusionCheckBox->setEnabled(false);
+  _appearanceBondsForm->bondAmbientOcclusionCheckBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceBondsForm->bondAmbientOcclusionCheckBox->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceBondsForm->bondAmbientOcclusionCheckBox->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<bool> state = bondAmbientOcclusion())
-    {
-      whileBlocking(_appearanceBondsForm->bondAmbientOcclusionCheckBox)->setTristate(false);
-      whileBlocking(_appearanceBondsForm->bondAmbientOcclusionCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
-    }
-    else
-    {
-      whileBlocking(_appearanceBondsForm->bondAmbientOcclusionCheckBox)->setTristate(true);
-      whileBlocking(_appearanceBondsForm->bondAmbientOcclusionCheckBox)->setCheckState(Qt::PartiallyChecked);
+      if (std::optional<bool> state = bondAmbientOcclusion())
+      {
+        whileBlocking(_appearanceBondsForm->bondAmbientOcclusionCheckBox)->setTristate(false);
+        whileBlocking(_appearanceBondsForm->bondAmbientOcclusionCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
+      }
+      else
+      {
+        whileBlocking(_appearanceBondsForm->bondAmbientOcclusionCheckBox)->setTristate(true);
+        whileBlocking(_appearanceBondsForm->bondAmbientOcclusionCheckBox)->setCheckState(Qt::PartiallyChecked);
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadBondAmbientLight()
 {
-  _appearanceBondsForm->bondAmbientIntensityDoubleSpinBox->setReadOnly(true);
-  _appearanceBondsForm->bondAmbientIntensityDoubleSlider->setEnabled(false);
+  _appearanceBondsForm->bondAmbientIntensityDoubleSpinBox->setDisabled(true);
+  _appearanceBondsForm->bondAmbientIntensityDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceBondsForm->bondAmbientIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceBondsForm->bondAmbientIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceBondsForm->bondAmbientIntensityDoubleSpinBox->setEnabled(true);
+      _appearanceBondsForm->bondAmbientIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceBondsForm->bondAmbientIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = bondAmbientLightIntensity())
-    {
-      whileBlocking(_appearanceBondsForm->bondAmbientIntensityDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceBondsForm->bondAmbientIntensityDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceBondsForm->bondAmbientIntensityDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = bondAmbientLightIntensity())
+      {
+        whileBlocking(_appearanceBondsForm->bondAmbientIntensityDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceBondsForm->bondAmbientIntensityDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceBondsForm->bondAmbientIntensityDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<QColor> value = bondAmbientLightColor())
-    {
-      whileBlocking(_appearanceBondsForm->bondAmbientColorPushButton)->setText("color");
-      whileBlocking(_appearanceBondsForm->bondAmbientColorPushButton)->setColor(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceBondsForm->bondAmbientColorPushButton)->setColor(QColor(255,255,255,255));
-      whileBlocking(_appearanceBondsForm->bondAmbientColorPushButton)->setText("Mult. Val.");
+      if (std::optional<QColor> value = bondAmbientLightColor())
+      {
+        whileBlocking(_appearanceBondsForm->bondAmbientColorPushButton)->setText("color");
+        whileBlocking(_appearanceBondsForm->bondAmbientColorPushButton)->setColor(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceBondsForm->bondAmbientColorPushButton)->setColor(QColor(255,255,255,255));
+        whileBlocking(_appearanceBondsForm->bondAmbientColorPushButton)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadBondDiffuseLight()
 {
-  _appearanceBondsForm->bondDiffuseIntensityDoubleSpinBox->setReadOnly(true);
-  _appearanceBondsForm->bondDiffuseIntensityDoubleSlider->setEnabled(false);
+  _appearanceBondsForm->bondDiffuseIntensityDoubleSpinBox->setDisabled(true);
+  _appearanceBondsForm->bondDiffuseIntensityDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceBondsForm->bondDiffuseIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceBondsForm->bondDiffuseIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceBondsForm->bondDiffuseIntensityDoubleSpinBox->setEnabled(true);
+      _appearanceBondsForm->bondDiffuseIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceBondsForm->bondDiffuseIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = bondDiffuseLightIntensity())
-    {
-      whileBlocking(_appearanceBondsForm->bondDiffuseIntensityDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceBondsForm->bondDiffuseIntensityDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceBondsForm->bondDiffuseIntensityDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = bondDiffuseLightIntensity())
+      {
+        whileBlocking(_appearanceBondsForm->bondDiffuseIntensityDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceBondsForm->bondDiffuseIntensityDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceBondsForm->bondDiffuseIntensityDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<QColor> value = bondDiffuseLightColor())
-    {
-      whileBlocking(_appearanceBondsForm->bondDiffuseColorPushButton)->setText("color");
-      whileBlocking(_appearanceBondsForm->bondDiffuseColorPushButton)->setColor(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceBondsForm->bondDiffuseColorPushButton)->setColor(QColor(255,255,255,255));
-      whileBlocking(_appearanceBondsForm->bondDiffuseColorPushButton)->setText("Mult. Val.");
+      if (std::optional<QColor> value = bondDiffuseLightColor())
+      {
+        whileBlocking(_appearanceBondsForm->bondDiffuseColorPushButton)->setText("color");
+        whileBlocking(_appearanceBondsForm->bondDiffuseColorPushButton)->setColor(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceBondsForm->bondDiffuseColorPushButton)->setColor(QColor(255,255,255,255));
+        whileBlocking(_appearanceBondsForm->bondDiffuseColorPushButton)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadBondSpecularLight()
 {
-  _appearanceBondsForm->bondSpecularIntensityDoubleSpinBox->setReadOnly(true);
-  _appearanceBondsForm->bondSpecularIntensityDoubleSlider->setEnabled(false);
+  _appearanceBondsForm->bondSpecularIntensityDoubleSpinBox->setDisabled(true);
+  _appearanceBondsForm->bondSpecularIntensityDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceBondsForm->bondSpecularIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceBondsForm->bondSpecularIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceBondsForm->bondSpecularIntensityDoubleSpinBox->setEnabled(true);
+      _appearanceBondsForm->bondSpecularIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceBondsForm->bondSpecularIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = bondSpecularLightIntensity())
-    {
-      whileBlocking(_appearanceBondsForm->bondSpecularIntensityDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceBondsForm->bondSpecularIntensityDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceBondsForm->bondSpecularIntensityDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = bondSpecularLightIntensity())
+      {
+        whileBlocking(_appearanceBondsForm->bondSpecularIntensityDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceBondsForm->bondSpecularIntensityDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceBondsForm->bondSpecularIntensityDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<QColor> value = bondSpecularLightColor())
-    {
-      whileBlocking(_appearanceBondsForm->bondSpecularColorPushButton)->setText("color");
-      whileBlocking(_appearanceBondsForm->bondSpecularColorPushButton)->setColor(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceBondsForm->bondSpecularColorPushButton)->setColor(QColor(255,255,255,255));
-      whileBlocking(_appearanceBondsForm->bondSpecularColorPushButton)->setText("Mult. Val.");
+      if (std::optional<QColor> value = bondSpecularLightColor())
+      {
+        whileBlocking(_appearanceBondsForm->bondSpecularColorPushButton)->setText("color");
+        whileBlocking(_appearanceBondsForm->bondSpecularColorPushButton)->setColor(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceBondsForm->bondSpecularColorPushButton)->setColor(QColor(255,255,255,255));
+        whileBlocking(_appearanceBondsForm->bondSpecularColorPushButton)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadBondShininess()
 {
-  _appearanceBondsForm->bondShininessDoubleSpinBox->setReadOnly(true);
-  _appearanceBondsForm->bondShininessDoubleSlider->setEnabled(false);
+  _appearanceBondsForm->bondShininessDoubleSpinBox->setDisabled(true);
+  _appearanceBondsForm->bondShininessDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceBondsForm->bondShininessDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceBondsForm->bondShininessDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceBondsForm->bondShininessDoubleSpinBox->setEnabled(true);
+      _appearanceBondsForm->bondShininessDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceBondsForm->bondShininessDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = bondShininessy())
-    {
-      whileBlocking(_appearanceBondsForm->bondShininessDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceBondsForm->bondShininessDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceBondsForm->bondShininessDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = bondShininessy())
+      {
+        whileBlocking(_appearanceBondsForm->bondShininessDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceBondsForm->bondShininessDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceBondsForm->bondShininessDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
@@ -5163,82 +5298,87 @@ std::optional<double> AppearanceTreeWidgetController::bondShininessy()
 
 void AppearanceTreeWidgetController::reloadDrawUnitCell()
 {
-  _appearanceUnitCellForm->drawUnitCellCheckBox->setEnabled(false);
+  _appearanceUnitCellForm->drawUnitCellCheckBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceUnitCellForm->drawUnitCellCheckBox->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceUnitCellForm->drawUnitCellCheckBox->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<bool> state = drawUnitCell())
-    {
-      whileBlocking(_appearanceUnitCellForm->drawUnitCellCheckBox)->setTristate(false);
-      whileBlocking(_appearanceUnitCellForm->drawUnitCellCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
-    }
-    else
-    {
-      whileBlocking(_appearanceUnitCellForm->drawUnitCellCheckBox)->setTristate(true);
-      whileBlocking(_appearanceUnitCellForm->drawUnitCellCheckBox)->setCheckState(Qt::PartiallyChecked);
+      if (std::optional<bool> state = drawUnitCell())
+      {
+        whileBlocking(_appearanceUnitCellForm->drawUnitCellCheckBox)->setTristate(false);
+        whileBlocking(_appearanceUnitCellForm->drawUnitCellCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
+      }
+      else
+      {
+        whileBlocking(_appearanceUnitCellForm->drawUnitCellCheckBox)->setTristate(true);
+        whileBlocking(_appearanceUnitCellForm->drawUnitCellCheckBox)->setCheckState(Qt::PartiallyChecked);
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadUnitCellSizeScaling()
 {
-  _appearanceUnitCellForm->unitCellSizeScalingDoubleSpinBox->setReadOnly(true);
-  _appearanceUnitCellForm->unitCellSizeScalingDoubleSlider->setEnabled(false);
+  _appearanceUnitCellForm->unitCellSizeScalingDoubleSpinBox->setDisabled(true);
+  _appearanceUnitCellForm->unitCellSizeScalingDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceUnitCellForm->unitCellSizeScalingDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceUnitCellForm->unitCellSizeScalingDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceUnitCellForm->unitCellSizeScalingDoubleSpinBox->setEnabled(true);
+      _appearanceUnitCellForm->unitCellSizeScalingDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceUnitCellForm->unitCellSizeScalingDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> size = unitCellSizeScaling())
-    {
-      whileBlocking(_appearanceUnitCellForm->unitCellSizeScalingDoubleSpinBox)->setValue(*size);
-      whileBlocking(_appearanceUnitCellForm->unitCellSizeScalingDoubleSlider)->setDoubleValue(*size);
-    }
-    else
-    {
-      whileBlocking(_appearanceUnitCellForm->unitCellSizeScalingDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> size = unitCellSizeScaling())
+      {
+        whileBlocking(_appearanceUnitCellForm->unitCellSizeScalingDoubleSpinBox)->setValue(*size);
+        whileBlocking(_appearanceUnitCellForm->unitCellSizeScalingDoubleSlider)->setDoubleValue(*size);
+      }
+      else
+      {
+        whileBlocking(_appearanceUnitCellForm->unitCellSizeScalingDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadUnitCellDiffuseLight()
 {
-  _appearanceUnitCellForm->diffuseIntensityDoubleSpinBox->setReadOnly(true);
-  _appearanceUnitCellForm->diffuseIntensityDoubleSlider->setEnabled(false);
+  _appearanceUnitCellForm->diffuseIntensityDoubleSpinBox->setDisabled(true);
+  _appearanceUnitCellForm->diffuseIntensityDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceUnitCellForm->diffuseIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceUnitCellForm->diffuseIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceUnitCellForm->diffuseIntensityDoubleSpinBox->setEnabled(true);
+      _appearanceUnitCellForm->diffuseIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceUnitCellForm->diffuseIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = unitCellDiffuseLightIntensity())
-    {
-      whileBlocking(_appearanceUnitCellForm->diffuseIntensityDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceUnitCellForm->diffuseIntensityDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceUnitCellForm->diffuseIntensityDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = unitCellDiffuseLightIntensity())
+      {
+        whileBlocking(_appearanceUnitCellForm->diffuseIntensityDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceUnitCellForm->diffuseIntensityDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceUnitCellForm->diffuseIntensityDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<QColor> value = bondDiffuseLightColor())
-    {
-      whileBlocking(_appearanceUnitCellForm->diffuseColorPushButton)->setText("color");
-      whileBlocking(_appearanceUnitCellForm->diffuseColorPushButton)->setColor(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceUnitCellForm->diffuseColorPushButton)->setColor(QColor(255,255,255,255));
-      whileBlocking(_appearanceUnitCellForm->diffuseColorPushButton)->setText("Mult. Val.");
+      if (std::optional<QColor> value = bondDiffuseLightColor())
+      {
+        whileBlocking(_appearanceUnitCellForm->diffuseColorPushButton)->setText("color");
+        whileBlocking(_appearanceUnitCellForm->diffuseColorPushButton)->setColor(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceUnitCellForm->diffuseColorPushButton)->setColor(QColor(255,255,255,255));
+        whileBlocking(_appearanceUnitCellForm->diffuseColorPushButton)->setText("Mult. Val.");
+      }
     }
   }
 }
@@ -5378,465 +5518,493 @@ std::optional<QColor> AppearanceTreeWidgetController::unitCellDiffuseLightColor(
 
 void AppearanceTreeWidgetController::reloadDrawAdsorptionSurfaceCheckBox()
 {
-  _appearanceAdsorptionSurfaceForm->adsorptionSurfaceCheckBox->setEnabled(false);
+  _appearanceAdsorptionSurfaceForm->adsorptionSurfaceCheckBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAdsorptionSurfaceForm->adsorptionSurfaceCheckBox->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAdsorptionSurfaceForm->adsorptionSurfaceCheckBox->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<bool> state = drawAdsorptionSurface())
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceCheckBox)->setTristate(false);
-      whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
-    }
-    else
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceCheckBox)->setTristate(true);
-      whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceCheckBox)->setCheckState(Qt::PartiallyChecked);
+      if (std::optional<bool> state = drawAdsorptionSurface())
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceCheckBox)->setTristate(false);
+        whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceCheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
+      }
+      else
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceCheckBox)->setTristate(true);
+        whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceCheckBox)->setCheckState(Qt::PartiallyChecked);
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAdsorptionSurfaceProbeMoleculePopupBox()
 {
-  _appearanceAdsorptionSurfaceForm->probeParticleComboBox->setEnabled(false);
+  _appearanceAdsorptionSurfaceForm->probeParticleComboBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAdsorptionSurfaceForm->probeParticleComboBox->setEnabled(_projectTreeNode->isEditable());
-  }
-
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<Structure::ProbeMolecule> type=adsorptionSurfaceProbeMolecule())
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
     {
-      if(int index = _appearanceAdsorptionSurfaceForm->probeParticleComboBox->findText("Mult. Val."); index>=0)
+      _appearanceAdsorptionSurfaceForm->probeParticleComboBox->setEnabled(_projectTreeNode->isEditable());
+
+      if (std::optional<Structure::ProbeMolecule> type=adsorptionSurfaceProbeMolecule())
       {
-        whileBlocking(_appearanceAdsorptionSurfaceForm->probeParticleComboBox)->removeItem(index);
-      }
-      if(int(*type)<0)
-      {
-       whileBlocking(_appearanceAdsorptionSurfaceForm->probeParticleComboBox)->setCurrentIndex(int(Structure::ProbeMolecule::multiple_values));
+        if(int index = _appearanceAdsorptionSurfaceForm->probeParticleComboBox->findText("Mult. Val."); index>=0)
+        {
+          whileBlocking(_appearanceAdsorptionSurfaceForm->probeParticleComboBox)->removeItem(index);
+        }
+        if(int(*type)<0)
+        {
+         whileBlocking(_appearanceAdsorptionSurfaceForm->probeParticleComboBox)->setCurrentIndex(int(Structure::ProbeMolecule::multiple_values));
+        }
+        else
+        {
+          whileBlocking(_appearanceAdsorptionSurfaceForm->probeParticleComboBox)->setCurrentIndex(int(*type));
+        }
       }
       else
       {
-        whileBlocking(_appearanceAdsorptionSurfaceForm->probeParticleComboBox)->setCurrentIndex(int(*type));
+        if(int index = _appearanceAdsorptionSurfaceForm->probeParticleComboBox->findText("Mult. Val."); index<0)
+        {
+          whileBlocking(_appearanceAdsorptionSurfaceForm->probeParticleComboBox)->addItem("Mult. Val.");
+        }
+        whileBlocking(_appearanceAdsorptionSurfaceForm->probeParticleComboBox)->setCurrentText("Mult. Val.");
       }
-    }
-    else
-    {
-      if(int index = _appearanceAdsorptionSurfaceForm->probeParticleComboBox->findText("Mult. Val."); index<0)
-      {
-        whileBlocking(_appearanceAdsorptionSurfaceForm->probeParticleComboBox)->addItem("Mult. Val.");
-      }
-      whileBlocking(_appearanceAdsorptionSurfaceForm->probeParticleComboBox)->setCurrentText("Mult. Val.");
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAdsorptionSurfaceIsovalue()
 {
-  _appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSpinBox->setReadOnly(true);
-  _appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSlider->setEnabled(false);
+  _appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSpinBox->setDisabled(true);
+  _appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSpinBox->setEnabled(true);
+      _appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = adsorptionSurfaceMinimumValue())
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSlider)->setDoubleMinimum(*value);
-      whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSpinBox)->setMinimum(*value);
-    }
+      if (std::optional<double> value = adsorptionSurfaceMinimumValue())
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSlider)->setDoubleMinimum(*value);
+        whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSpinBox)->setMinimum(*value);
+      }
 
-    if (std::optional<double> value = adsorptionSurfaceIsovalue())
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = adsorptionSurfaceIsovalue())
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceIsovalueDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAdsorptionSurfaceOpacity()
 {
-  _appearanceAdsorptionSurfaceForm->adsorptionSurfaceOpacityDoubleSpinBox->setReadOnly(true);
-  _appearanceAdsorptionSurfaceForm->adsorptionSurfaceOpacityDoubleSlider->setEnabled(false);
+  _appearanceAdsorptionSurfaceForm->adsorptionSurfaceOpacityDoubleSpinBox->setDisabled(true);
+  _appearanceAdsorptionSurfaceForm->adsorptionSurfaceOpacityDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAdsorptionSurfaceForm->adsorptionSurfaceOpacityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAdsorptionSurfaceForm->adsorptionSurfaceOpacityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAdsorptionSurfaceForm->adsorptionSurfaceOpacityDoubleSpinBox->setEnabled(true);
+      _appearanceAdsorptionSurfaceForm->adsorptionSurfaceOpacityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAdsorptionSurfaceForm->adsorptionSurfaceOpacityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = adsorptionSurfaceOpacity())
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceOpacityDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceOpacityDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceOpacityDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = adsorptionSurfaceOpacity())
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceOpacityDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceOpacityDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->adsorptionSurfaceOpacityDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAdsorptionSurfaceInsideHighDynamicRange()
 {
-  _appearanceAdsorptionSurfaceForm->insideHighDynamicRangecheckBox->setEnabled(false);
+  _appearanceAdsorptionSurfaceForm->insideHighDynamicRangecheckBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAdsorptionSurfaceForm->insideHighDynamicRangecheckBox->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAdsorptionSurfaceForm->insideHighDynamicRangecheckBox->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<bool> state = adsorptionSurfaceInsideHighDynamicRange())
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideHighDynamicRangecheckBox)->setTristate(false);
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideHighDynamicRangecheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
-    }
-    else
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideHighDynamicRangecheckBox)->setTristate(true);
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideHighDynamicRangecheckBox)->setCheckState(Qt::PartiallyChecked);
+      if (std::optional<bool> state = adsorptionSurfaceInsideHighDynamicRange())
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideHighDynamicRangecheckBox)->setTristate(false);
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideHighDynamicRangecheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
+      }
+      else
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideHighDynamicRangecheckBox)->setTristate(true);
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideHighDynamicRangecheckBox)->setCheckState(Qt::PartiallyChecked);
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAdsorptionSurfaceInsideHDRExposure()
 {
-  _appearanceAdsorptionSurfaceForm->insideHDRExposureDoubleSpinBox->setReadOnly(true);
-  _appearanceAdsorptionSurfaceForm->insideHDRExposureDoubleSlider->setEnabled(false);
+  _appearanceAdsorptionSurfaceForm->insideHDRExposureDoubleSpinBox->setDisabled(true);
+  _appearanceAdsorptionSurfaceForm->insideHDRExposureDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAdsorptionSurfaceForm->insideHDRExposureDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAdsorptionSurfaceForm->insideHDRExposureDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAdsorptionSurfaceForm->insideHDRExposureDoubleSpinBox->setEnabled(true);
+      _appearanceAdsorptionSurfaceForm->insideHDRExposureDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAdsorptionSurfaceForm->insideHDRExposureDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = adsorptionSurfaceInsideHDRExposure())
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideHDRExposureDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideHDRExposureDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideHDRExposureDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = adsorptionSurfaceInsideHDRExposure())
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideHDRExposureDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideHDRExposureDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideHDRExposureDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAdsorptionSurfaceInsideAmbientLight()
 {
-  _appearanceAdsorptionSurfaceForm->insideAmbientLightIntensityDoubleSpinBox->setReadOnly(true);
-  _appearanceAdsorptionSurfaceForm->insideAmbientLightIntensityDoubleSlider->setEnabled(false);
+  _appearanceAdsorptionSurfaceForm->insideAmbientLightIntensityDoubleSpinBox->setDisabled(true);
+  _appearanceAdsorptionSurfaceForm->insideAmbientLightIntensityDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAdsorptionSurfaceForm->insideAmbientLightIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAdsorptionSurfaceForm->insideAmbientLightIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAdsorptionSurfaceForm->insideAmbientLightIntensityDoubleSpinBox->setEnabled(true);
+      _appearanceAdsorptionSurfaceForm->insideAmbientLightIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAdsorptionSurfaceForm->insideAmbientLightIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = adsorptionSurfaceInsideAmbientLightIntensity())
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideAmbientLightIntensityDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideAmbientLightIntensityDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideAmbientLightIntensityDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = adsorptionSurfaceInsideAmbientLightIntensity())
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideAmbientLightIntensityDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideAmbientLightIntensityDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideAmbientLightIntensityDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<QColor> value = adsorptionSurfaceInsideAmbientLightColor())
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideAmbientColorPushButton)->setText("color");
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideAmbientColorPushButton)->setColor(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideAmbientColorPushButton)->setColor(QColor(255,255,255,255));
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideAmbientColorPushButton)->setText("Mult. Val.");
+      if (std::optional<QColor> value = adsorptionSurfaceInsideAmbientLightColor())
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideAmbientColorPushButton)->setText("color");
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideAmbientColorPushButton)->setColor(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideAmbientColorPushButton)->setColor(QColor(255,255,255,255));
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideAmbientColorPushButton)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAdsorptionSurfaceInsideDiffuseLight()
 {
-  _appearanceAdsorptionSurfaceForm->insideDiffuseLightIntensityDoubleSpinBox->setReadOnly(true);
-  _appearanceAdsorptionSurfaceForm->insideDiffuseLightIntensityDoubleSlider->setEnabled(false);
+  _appearanceAdsorptionSurfaceForm->insideDiffuseLightIntensityDoubleSpinBox->setDisabled(true);
+  _appearanceAdsorptionSurfaceForm->insideDiffuseLightIntensityDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAdsorptionSurfaceForm->insideDiffuseLightIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAdsorptionSurfaceForm->insideDiffuseLightIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAdsorptionSurfaceForm->insideDiffuseLightIntensityDoubleSpinBox->setEnabled(true);
+      _appearanceAdsorptionSurfaceForm->insideDiffuseLightIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAdsorptionSurfaceForm->insideDiffuseLightIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = adsorptionSurfaceInsideDiffuseLightIntensity())
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideDiffuseLightIntensityDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideDiffuseLightIntensityDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideDiffuseLightIntensityDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = adsorptionSurfaceInsideDiffuseLightIntensity())
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideDiffuseLightIntensityDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideDiffuseLightIntensityDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideDiffuseLightIntensityDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<QColor> value = adsorptionSurfaceInsideDiffuseLightColor())
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideDiffuseColorPushButton)->setText("color");
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideDiffuseColorPushButton)->setColor(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideDiffuseColorPushButton)->setColor(QColor(255,255,255,255));
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideDiffuseColorPushButton)->setText("Mult. Val.");
+      if (std::optional<QColor> value = adsorptionSurfaceInsideDiffuseLightColor())
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideDiffuseColorPushButton)->setText("color");
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideDiffuseColorPushButton)->setColor(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideDiffuseColorPushButton)->setColor(QColor(255,255,255,255));
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideDiffuseColorPushButton)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAdsorptionSurfaceInsideSpecularLight()
 {
-  _appearanceAdsorptionSurfaceForm->insideSpecularLightIntensityDoubleSpinBox->setReadOnly(true);
-  _appearanceAdsorptionSurfaceForm->insideSpecularLightIntensityDoubleSlider->setEnabled(false);
+  _appearanceAdsorptionSurfaceForm->insideSpecularLightIntensityDoubleSpinBox->setDisabled(true);
+  _appearanceAdsorptionSurfaceForm->insideSpecularLightIntensityDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAdsorptionSurfaceForm->insideSpecularLightIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAdsorptionSurfaceForm->insideSpecularLightIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAdsorptionSurfaceForm->insideSpecularLightIntensityDoubleSpinBox->setEnabled(true);
+      _appearanceAdsorptionSurfaceForm->insideSpecularLightIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAdsorptionSurfaceForm->insideSpecularLightIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = adsorptionSurfaceInsideSpecularLightIntensity())
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideSpecularLightIntensityDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideSpecularLightIntensityDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideSpecularLightIntensityDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = adsorptionSurfaceInsideSpecularLightIntensity())
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideSpecularLightIntensityDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideSpecularLightIntensityDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideSpecularLightIntensityDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<QColor> value = adsorptionSurfaceInsideSpecularLightColor())
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideSpecularColorPushButton)->setText("color");
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideSpecularColorPushButton)->setColor(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideSpecularColorPushButton)->setColor(QColor(255,255,255,255));
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideSpecularColorPushButton)->setText("Mult. Val.");
+      if (std::optional<QColor> value = adsorptionSurfaceInsideSpecularLightColor())
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideSpecularColorPushButton)->setText("color");
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideSpecularColorPushButton)->setColor(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideSpecularColorPushButton)->setColor(QColor(255,255,255,255));
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideSpecularColorPushButton)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAdsorptionSurfaceInsideShininess()
 {
-  _appearanceAdsorptionSurfaceForm->insideShininessDoubleSpinBox->setReadOnly(true);
-  _appearanceAdsorptionSurfaceForm->insideShininessDoubleSlider->setEnabled(false);
+  _appearanceAdsorptionSurfaceForm->insideShininessDoubleSpinBox->setDisabled(true);
+  _appearanceAdsorptionSurfaceForm->insideShininessDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAdsorptionSurfaceForm->insideShininessDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAdsorptionSurfaceForm->insideShininessDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAdsorptionSurfaceForm->insideShininessDoubleSpinBox->setEnabled(true);
+      _appearanceAdsorptionSurfaceForm->insideShininessDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAdsorptionSurfaceForm->insideShininessDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = adsorptionSurfaceInsideShininessy())
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideShininessDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideShininessDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->insideShininessDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = adsorptionSurfaceInsideShininessy())
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideShininessDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideShininessDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->insideShininessDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAdsorptionSurfaceOutsideHighDynamicRange()
 {
-  _appearanceAdsorptionSurfaceForm->outsideHighDynamicRangecheckBox->setEnabled(false);
+  _appearanceAdsorptionSurfaceForm->outsideHighDynamicRangecheckBox->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAdsorptionSurfaceForm->outsideHighDynamicRangecheckBox->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAdsorptionSurfaceForm->outsideHighDynamicRangecheckBox->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<bool> state = adsorptionSurfaceOutsideHighDynamicRange())
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideHighDynamicRangecheckBox)->setTristate(false);
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideHighDynamicRangecheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
-    }
-    else
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideHighDynamicRangecheckBox)->setTristate(true);
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideHighDynamicRangecheckBox)->setCheckState(Qt::PartiallyChecked);
+      if (std::optional<bool> state = adsorptionSurfaceOutsideHighDynamicRange())
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideHighDynamicRangecheckBox)->setTristate(false);
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideHighDynamicRangecheckBox)->setCheckState(*state ? Qt::Checked : Qt::Unchecked);
+      }
+      else
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideHighDynamicRangecheckBox)->setTristate(true);
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideHighDynamicRangecheckBox)->setCheckState(Qt::PartiallyChecked);
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAdsorptionSurfaceOutsideHDRExposure()
 {
-  _appearanceAdsorptionSurfaceForm->outsideHDRExposureDoubleSpinBox->setReadOnly(true);
-  _appearanceAdsorptionSurfaceForm->outsideHDRExposureDoubleSlider->setEnabled(false);
+  _appearanceAdsorptionSurfaceForm->outsideHDRExposureDoubleSpinBox->setDisabled(true);
+  _appearanceAdsorptionSurfaceForm->outsideHDRExposureDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAdsorptionSurfaceForm->outsideHDRExposureDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAdsorptionSurfaceForm->outsideHDRExposureDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAdsorptionSurfaceForm->outsideHDRExposureDoubleSpinBox->setEnabled(true);
+      _appearanceAdsorptionSurfaceForm->outsideHDRExposureDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAdsorptionSurfaceForm->outsideHDRExposureDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = adsorptionSurfaceOutsideHDRExposure())
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideHDRExposureDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideHDRExposureDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideHDRExposureDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = adsorptionSurfaceOutsideHDRExposure())
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideHDRExposureDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideHDRExposureDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideHDRExposureDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAdsorptionSurfaceOutsideAmbientLight()
 {
-  _appearanceAdsorptionSurfaceForm->outsideAmbientLightIntensityDoubleSpinBox->setReadOnly(true);
-  _appearanceAdsorptionSurfaceForm->outsideAmbientLightIntensityDoubleSlider->setEnabled(false);
+  _appearanceAdsorptionSurfaceForm->outsideAmbientLightIntensityDoubleSpinBox->setDisabled(true);
+  _appearanceAdsorptionSurfaceForm->outsideAmbientLightIntensityDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAdsorptionSurfaceForm->outsideAmbientLightIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAdsorptionSurfaceForm->outsideAmbientLightIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAdsorptionSurfaceForm->outsideAmbientLightIntensityDoubleSpinBox->setEnabled(true);
+      _appearanceAdsorptionSurfaceForm->outsideAmbientLightIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAdsorptionSurfaceForm->outsideAmbientLightIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = adsorptionSurfaceOutsideAmbientLightIntensity())
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideAmbientLightIntensityDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideAmbientLightIntensityDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideAmbientLightIntensityDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = adsorptionSurfaceOutsideAmbientLightIntensity())
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideAmbientLightIntensityDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideAmbientLightIntensityDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideAmbientLightIntensityDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<QColor> value = adsorptionSurfaceOutsideAmbientLightColor())
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideAmbientColorPushButton)->setText("color");
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideAmbientColorPushButton)->setColor(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideAmbientColorPushButton)->setColor(QColor(255,255,255,255));
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideAmbientColorPushButton)->setText("Mult. Val.");
+      if (std::optional<QColor> value = adsorptionSurfaceOutsideAmbientLightColor())
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideAmbientColorPushButton)->setText("color");
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideAmbientColorPushButton)->setColor(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideAmbientColorPushButton)->setColor(QColor(255,255,255,255));
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideAmbientColorPushButton)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAdsorptionSurfaceOutsideDiffuseLight()
 {
-  _appearanceAdsorptionSurfaceForm->outsideDiffuseLightIntensityDoubleSpinBox->setReadOnly(true);
-  _appearanceAdsorptionSurfaceForm->outsideDiffuseLightIntensityDoubleSlider->setEnabled(false);
+  _appearanceAdsorptionSurfaceForm->outsideDiffuseLightIntensityDoubleSpinBox->setDisabled(true);
+  _appearanceAdsorptionSurfaceForm->outsideDiffuseLightIntensityDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAdsorptionSurfaceForm->outsideDiffuseLightIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAdsorptionSurfaceForm->outsideDiffuseLightIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAdsorptionSurfaceForm->outsideDiffuseLightIntensityDoubleSpinBox->setEnabled(true);
+      _appearanceAdsorptionSurfaceForm->outsideDiffuseLightIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAdsorptionSurfaceForm->outsideDiffuseLightIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = adsorptionSurfaceOutsideDiffuseLightIntensity())
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideDiffuseLightIntensityDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideDiffuseLightIntensityDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideDiffuseLightIntensityDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = adsorptionSurfaceOutsideDiffuseLightIntensity())
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideDiffuseLightIntensityDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideDiffuseLightIntensityDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideDiffuseLightIntensityDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<QColor> value = adsorptionSurfaceOutsideDiffuseLightColor())
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideDiffuseColorPushButton)->setText("color");
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideDiffuseColorPushButton)->setColor(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideDiffuseColorPushButton)->setColor(QColor(255,255,255,255));
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideDiffuseColorPushButton)->setText("Mult. Val.");
+      if (std::optional<QColor> value = adsorptionSurfaceOutsideDiffuseLightColor())
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideDiffuseColorPushButton)->setText("color");
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideDiffuseColorPushButton)->setColor(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideDiffuseColorPushButton)->setColor(QColor(255,255,255,255));
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideDiffuseColorPushButton)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAdsorptionSurfaceOutsideSpecularLight()
 {
-  _appearanceAdsorptionSurfaceForm->outsideSpecularLightIntensityDoubleSpinBox->setReadOnly(true);
-  _appearanceAdsorptionSurfaceForm->outsideSpecularLightIntensityDoubleSlider->setEnabled(false);
+  _appearanceAdsorptionSurfaceForm->outsideSpecularLightIntensityDoubleSpinBox->setDisabled(true);
+  _appearanceAdsorptionSurfaceForm->outsideSpecularLightIntensityDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAdsorptionSurfaceForm->outsideSpecularLightIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAdsorptionSurfaceForm->outsideSpecularLightIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAdsorptionSurfaceForm->outsideSpecularLightIntensityDoubleSpinBox->setEnabled(true);
+      _appearanceAdsorptionSurfaceForm->outsideSpecularLightIntensityDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAdsorptionSurfaceForm->outsideSpecularLightIntensityDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = adsorptionSurfaceOutsideSpecularLightIntensity())
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideSpecularLightIntensityDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideSpecularLightIntensityDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideSpecularLightIntensityDoubleSpinBox)->setText("Mult. Val.");
-    }
+      if (std::optional<double> value = adsorptionSurfaceOutsideSpecularLightIntensity())
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideSpecularLightIntensityDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideSpecularLightIntensityDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideSpecularLightIntensityDoubleSpinBox)->setText("Mult. Val.");
+      }
 
-    if (std::optional<QColor> value = adsorptionSurfaceOutsideSpecularLightColor())
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideSpecularColorPushButton)->setText("color");
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideSpecularColorPushButton)->setColor(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideSpecularColorPushButton)->setColor(QColor(255,255,255,255));
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideSpecularColorPushButton)->setText("Mult. Val.");
+      if (std::optional<QColor> value = adsorptionSurfaceOutsideSpecularLightColor())
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideSpecularColorPushButton)->setText("color");
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideSpecularColorPushButton)->setColor(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideSpecularColorPushButton)->setColor(QColor(255,255,255,255));
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideSpecularColorPushButton)->setText("Mult. Val.");
+      }
     }
   }
 }
 
 void AppearanceTreeWidgetController::reloadAdsorptionSurfaceOutsideShininess()
 {
-  _appearanceAdsorptionSurfaceForm->outsideShininessDoubleSpinBox->setReadOnly(true);
-  _appearanceAdsorptionSurfaceForm->outsideShininessDoubleSlider->setEnabled(false);
+  _appearanceAdsorptionSurfaceForm->outsideShininessDoubleSpinBox->setDisabled(true);
+  _appearanceAdsorptionSurfaceForm->outsideShininessDoubleSlider->setDisabled(true);
+
   if(_projectTreeNode)
   {
-    _appearanceAdsorptionSurfaceForm->outsideShininessDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-    _appearanceAdsorptionSurfaceForm->outsideShininessDoubleSlider->setEnabled(_projectTreeNode->isEditable());
-  }
+    if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
+    {
+      _appearanceAdsorptionSurfaceForm->outsideShininessDoubleSpinBox->setEnabled(true);
+      _appearanceAdsorptionSurfaceForm->outsideShininessDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
+      _appearanceAdsorptionSurfaceForm->outsideShininessDoubleSlider->setEnabled(_projectTreeNode->isEditable());
 
-  if(!_iraspa_structures.empty())
-  {
-    if (std::optional<double> value = adsorptionSurfaceOutsideShininessy())
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideShininessDoubleSpinBox)->setValue(*value);
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideShininessDoubleSlider)->setDoubleValue(*value);
-    }
-    else
-    {
-      whileBlocking(_appearanceAdsorptionSurfaceForm->outsideShininessDoubleSpinBox)->setText("Mult. Val.");
+      if (std::optional<double> value = adsorptionSurfaceOutsideShininessy())
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideShininessDoubleSpinBox)->setValue(*value);
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideShininessDoubleSlider)->setDoubleValue(*value);
+      }
+      else
+      {
+        whileBlocking(_appearanceAdsorptionSurfaceForm->outsideShininessDoubleSpinBox)->setText("Mult. Val.");
+      }
     }
   }
 }

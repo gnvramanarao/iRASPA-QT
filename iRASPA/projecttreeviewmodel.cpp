@@ -281,9 +281,13 @@ Qt::ItemFlags ProjectTreeViewModel::flags(const QModelIndex &index) const
 {
   if (!index.isValid()) return Qt::NoItemFlags;
 
-  Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+  Qt::ItemFlags flags = Qt::ItemFlag::NoItemFlags;
 
-
+  if(index.parent().isValid())
+  {
+    flags |= Qt::ItemIsSelectable;
+    flags |= Qt::ItemIsEnabled;
+  }
 
   if(ProjectTreeNode *node = getItem(index))
   {

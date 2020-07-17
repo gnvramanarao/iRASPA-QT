@@ -205,8 +205,6 @@ std::vector<RKInPerInstanceAttributesAtoms> Molecule::renderSelectedAtoms() cons
     asymmetricAtomIndex++;
   }
 
-  qDebug() << "NUMBER OF SELCTED ATOMS: " << atomData.size();
-
   return atomData;
 }
 

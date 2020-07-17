@@ -53,6 +53,7 @@ ProjectTreeView::ProjectTreeView(QWidget* parent): QTreeView(parent ),
 
   setItemsExpandable(true);
   setRootIsDecorated(false);
+  setExpandsOnDoubleClick(false);
 
   this->setContextMenuPolicy(Qt::CustomContextMenu);
   QObject::connect(this, &QWidget::customContextMenuRequested, this, &ProjectTreeView::ShowContextMenu);
@@ -239,21 +240,25 @@ void ProjectTreeView::selectionChanged(const QItemSelection &selected, const QIt
         if(std::shared_ptr<Project> project = iraspa_project->project())
         {
           project->setInitialSelectionIfNeeded();
+
+          // set currentIndex for keyboard navigation
+          ProjectTreeViewModel* pModel = qobject_cast<ProjectTreeViewModel*>(model());
+          if (pModel)
+          {
+            QModelIndex index = pModel->indexForItem(selectedTreeNode->shared_from_this());
+            selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectionFlag::Current);
+          }
         }
       }
 
+
       if(std::shared_ptr<iRASPAProject> iraspa_project = std::dynamic_pointer_cast<iRASPAProject>(selectedTreeNode->representedObject()))
       {
-        //if(std::shared_ptr<ProjectStructure> project = std::dynamic_pointer_cast<ProjectStructure>(iraspa_project->project()))
-       // {
-       //   qDebug() << "yes";
-          _mainWindow->propagateProject(selectedTreeNode->shared_from_this(), _mainWindow);
-          return;
-       // }
+        _mainWindow->propagateProject(selectedTreeNode->shared_from_this(), _mainWindow);
+        return;
       }
     }
   }
-  qDebug() << "no";
   _mainWindow->propagateProject(nullptr, _mainWindow);
 }
 

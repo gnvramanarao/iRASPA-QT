@@ -276,6 +276,7 @@
     <ClCompile Include="iRASPA\frameliststyleditemdelegate.cpp" />
     <ClCompile Include="iRASPA\framelistview.cpp" />
     <ClCompile Include="iRASPA\framelistviewmodel.cpp" />
+    <ClCompile Include="iRASPA\framelistviewproxystyle.cpp" />
     <ClCompile Include="RenderKit\glgeterror.cpp" />
     <ClCompile Include="RenderKit\glwidget.cpp" />
     <ClCompile Include="iRASPA\helpbrowser.cpp" />
@@ -350,6 +351,7 @@
     <ClCompile Include="iRASPAKit\projecttreenode.cpp" />
     <ClCompile Include="iRASPA\projecttreeview.cpp" />
     <ClCompile Include="iRASPA\projecttreeviewmodel.cpp" />
+    <ClCompile Include="iRASPA\projecttreeviewproxystyle.cpp" />
     <ClCompile Include="iRASPA\projecttreeviewstyleditemdelegate.cpp" />
     <ClCompile Include="iRASPAKit\protein.cpp" />
     <ClCompile Include="iRASPAKit\proteincrystal.cpp" />
@@ -370,6 +372,7 @@
     <ClCompile Include="iRASPAKit\scenelist.cpp" />
     <ClCompile Include="iRASPA\scenetreeview.cpp" />
     <ClCompile Include="iRASPA\scenetreeviewmodel.cpp" />
+    <ClCompile Include="iRASPA\scenetreeviewproxystyle.cpp" />
     <ClCompile Include="iRASPA\scenetreeviewstyleditemdelegate.cpp" />
     <ClCompile Include="iRASPA\selectcolorbutton.cpp" />
     <ClCompile Include="MathKit\simd_quatd.cpp" />
@@ -525,6 +528,8 @@
     </QtMoc>
     <QtMoc Include="iRASPA\framelistviewmodel.h">
     </QtMoc>
+    <QtMoc Include="iRASPA\framelistviewproxystyle.h">
+    </QtMoc>
     <ClInclude Include="RenderKit\glgeterror.h" />
     <QtMoc Include="RenderKit\glwidget.h">
     </QtMoc>
@@ -619,6 +624,8 @@
     </QtMoc>
     <QtMoc Include="iRASPA\projecttreeviewmodel.h">
     </QtMoc>
+    <QtMoc Include="iRASPA\projecttreeviewproxystyle.h">
+    </QtMoc>
     <QtMoc Include="iRASPA\projecttreeviewstyleditemdelegate.h">
     </QtMoc>
     <ClInclude Include="iRASPAKit\protein.h" />
@@ -648,6 +655,8 @@
     <QtMoc Include="iRASPA\scenetreeview.h">
     </QtMoc>
     <QtMoc Include="iRASPA\scenetreeviewmodel.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\scenetreeviewproxystyle.h">
     </QtMoc>
     <QtMoc Include="iRASPA\scenetreeviewstyleditemdelegate.h">
     </QtMoc>
@@ -773,6 +782,7 @@
     <None Include="iRASPA\BottomPanelCollapse.png" />
     <None Include="iRASPA\DoubleBond.png" />
     <None Include="iRASPA\FrameListController.png" />
+    <None Include="iRASPA\GenericFolderIcon.png" />
     <None Include="iRASPA\LeftPanelCollapse.png" />
     <None Include="iRASPA\MovieListController.png" />
     <None Include="iRASPA\NSAddTemplate.png" />

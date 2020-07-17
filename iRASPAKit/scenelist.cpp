@@ -73,6 +73,7 @@ int SceneList::selectedSceneIndex()
   return -1;
 }
 
+
 void SceneList::clearSelection()
 {
   for(std::shared_ptr<Scene> &scene: _scenes)
@@ -120,6 +121,24 @@ std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> SceneList::selectediR
     sceneStructures.push_back(structures);
   }
   return sceneStructures;
+}
+
+std::vector<std::shared_ptr<RKRenderStructure>> SceneList::flattenedSelectediRASPARenderStructures() const
+{
+  std::vector<std::shared_ptr<RKRenderStructure>> allStructures{};
+
+  for(std::shared_ptr<Scene> scene : _scenes)
+  {
+    std::vector<std::shared_ptr<iRASPAStructure>> structures = std::vector<std::shared_ptr<iRASPAStructure>>();
+    for(std::shared_ptr<Movie> movie: scene->movies())
+    {
+      for(std::shared_ptr<iRASPAStructure> selectedFrame: movie->selectedFramesSet())
+      {
+        allStructures.push_back(selectedFrame->structure());
+      }
+    }
+  }
+  return allStructures;
 }
 
 

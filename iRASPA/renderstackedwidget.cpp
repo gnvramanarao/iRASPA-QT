@@ -734,6 +734,7 @@ void RenderStackedWidget::redrawWithPictureQuality()
 
 void RenderStackedWidget::invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>> structures)
 {
+  qDebug() << "invalidateCachedAmbientOcclusionTexture: " << structures.size();
   if (RKRenderViewController* widget = dynamic_cast<RKRenderViewController*>(currentWidget()))
   {
     widget->invalidateCachedAmbientOcclusionTexture(structures);

@@ -63,7 +63,9 @@ private slots:
   void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override final;
 signals:
   void updateRenderer();
+  void rendererReloadData();
   void setSelectedFrame(std::shared_ptr<iRASPAStructure> structure);
   void setSelectedRenderFrames(std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> structures);
   void setFlattenedSelectedFrames(std::vector<std::shared_ptr<iRASPAStructure>> structures);
+  void invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>> structures);
 };

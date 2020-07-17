@@ -56,8 +56,6 @@ void OpenGLAmbientOcclusionShadowMapShader::setRenderStructures(std::vector<std:
    generateBuffers();
 }
 
-//QCache<RKRenderStructure*, std::vector<uint16_t>> OpenGLAmbientOcclusionShadowMapShader::_cache;
-
 void OpenGLAmbientOcclusionShadowMapShader::invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>> structures)
 {
   for(std::shared_ptr<RKRenderStructure> structure : structures)

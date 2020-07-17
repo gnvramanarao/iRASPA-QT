@@ -93,8 +93,8 @@ void SceneTreeView::reloadSelection()
       {
         QModelIndex selectedMovie = model()->index(*movieIndex,0,parentItem);
 
-        selectionModel()->clearSelection();
-        selectionModel()->select(selectedMovie, QItemSelectionModel::Select);
+        whileBlocking(selectionModel())->clearSelection();
+        whileBlocking(selectionModel())->select(selectedMovie, QItemSelectionModel::Select);
       }
     }
 
@@ -103,8 +103,9 @@ void SceneTreeView::reloadSelection()
     QModelIndex selectedIndex = pModel->indexOfMainSelected();
     if (selectedIndex.isValid())
     {
-      selectionModel()->setCurrentIndex(selectedIndex, QItemSelectionModel::SelectionFlag::Current);
+      whileBlocking(selectionModel())->setCurrentIndex(selectedIndex, QItemSelectionModel::SelectionFlag::Current);
     }
+
     update();
   }
 }

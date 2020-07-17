@@ -181,11 +181,11 @@ void ProjectTreeView::reloadSelection()
       QModelIndex index = pModel->indexForItem(project);
       if(index.isValid())
       {
-        selectionModel()->clearSelection();
-        selectionModel()->select(index, QItemSelectionModel::Select);
-        update();
+        whileBlocking(selectionModel())->clearSelection();
+        whileBlocking(selectionModel())->select(index, QItemSelectionModel::Select);
       }
     }
+    update();
   }
 }
 

@@ -44,7 +44,6 @@ public:
   SceneList();
   void appendScene(std::shared_ptr<Scene> scene) {_scenes.push_back(scene);}
   std::vector<std::shared_ptr<Scene>> scenes() {return _scenes;}
-  std::shared_ptr<Scene> parentForMovie(const std::shared_ptr<Movie> movie) const;
   std::shared_ptr<Scene> selectedScene();
   std::unordered_set<std::shared_ptr<Scene>> &selectedScenes() {return _selectedScenes;}
   void setSelectedScene(std::shared_ptr<Scene> scene);
@@ -55,6 +54,7 @@ public:
 
   std::vector<std::shared_ptr<iRASPAStructure>> selectedMoviesiRASPAStructures();
   std::vector<std::vector<std::shared_ptr<iRASPAStructure> > > selectediRASPARenderStructures() const;
+  std::vector<std::shared_ptr<RKRenderStructure>> flattenedSelectediRASPARenderStructures() const;
 private:
   qint64 _versionNumber{1};
   QString _displayName = QString("");

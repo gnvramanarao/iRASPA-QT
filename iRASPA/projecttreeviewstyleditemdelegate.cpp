@@ -32,20 +32,33 @@ void ProjectTreeViewStyledItemDelegate::paint(QPainter *painter, const QStyleOpt
   // handle selection
   if(option.state & QStyle::State_Selected)
   {
-    painter->save();
+    if(ProjectTreeView *item = qobject_cast<ProjectTreeView*>(this->parent()))
+    {
+      if(ProjectTreeViewModel *model = qobject_cast<ProjectTreeViewModel*>(item->model()))
+      {
+        if(ProjectTreeNode *item = static_cast<ProjectTreeNode*>(index.internalPointer()))
+        {
+          if(model->isMainSelectedItem(item->shared_from_this()))
+          {
+            painter->save();
 
-    #if defined(Q_OS_WIN)
-      painter->setPen(Qt::blue);
-    #elif defined(Q_OS_MAC)
-      painter->setPen(Qt::white);
-    #elif defined(Q_OS_LINUX)
-      painter->setPen(Qt::white);
-    #endif
+            #if defined(Q_OS_WIN)
+              painter->setPen(Qt::blue);
+            #elif defined(Q_OS_MAC)
+              painter->setPen(Qt::white);
+            #elif defined(Q_OS_LINUX)
+              painter->setPen(Qt::white);
+            #endif
 
-    painter->drawRoundedRect(rect.adjusted(1,1,-1,-1), 5, 5);
+            painter->drawRoundedRect(rect.adjusted(1,1,-1,-1), 5, 5);
 
-    painter->restore();
+            painter->restore();
+          }
+        }
+      }
+    }
   }
+
 
   painter->restore();
 }

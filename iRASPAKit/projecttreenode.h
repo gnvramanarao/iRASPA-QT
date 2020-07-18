@@ -47,6 +47,8 @@ public:
       gallery = 0, user = 1, cloud = 2
     };
 
+    static char mimeType[];
+
     ProjectTreeNode(QString displayName = "Default", bool isEditable=true, bool isDropEnabled=true): _type(Type::user), _displayName(displayName), _representedObject(std::make_shared<iRASPAProject>()), _isEditable(isEditable), _isDropEnabled(isDropEnabled) {}
     ProjectTreeNode(std::shared_ptr<iRASPAProject> representedObject, bool isEditable=true, bool isDropEnabled=true): _type(Type::user), _representedObject(representedObject), _isEditable(isEditable), _isDropEnabled(isDropEnabled) {}
     ProjectTreeNode(QString displayName, std::shared_ptr<iRASPAProject> representedObject, bool isEditable=true, bool isDropEnabled=true): _type(Type::user), _displayName(displayName), _representedObject(representedObject), _isEditable(isEditable), _isDropEnabled(isDropEnabled) {}

@@ -64,10 +64,16 @@ void FrameListView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 
           _movie = projectStructure->getFrameListModel();
           _model->setMovie(_movie);
+          return;
         }
       }
     }
   }
+
+  // if no project is selected or the project is not of type 'ProjectStructure'
+  _sceneList = nullptr;
+  _movie = nullptr;
+  _model->setMovie(nullptr);
 }
 
 void FrameListView::setSelectedMovie(std::shared_ptr<Movie> movie)
@@ -89,7 +95,6 @@ void FrameListView::keyPressEvent(QKeyEvent *event)
 
 void FrameListView::reloadSelection()
 {
-  qDebug() << "FrameListView::reloadSelection";
   if (_movie)
   {
     whileBlocking(selectionModel())->clearSelection();
@@ -123,63 +128,64 @@ void FrameListView::reloadData()
 
 void FrameListView::selectionChanged(const QItemSelection &selected, const QItemSelection &previous)
 {
-  qDebug() << "FrameListView::selectionChanged";
-
-  int oldSelectionSize = _movie ? _movie->selectedFramesIndexSet().size() : 0;
-
-  if(oldSelectionSize > 1)
+  if(_movie)
   {
-    emit invalidateCachedAmbientOcclusionTexture(_sceneList->flattenedSelectediRASPARenderStructures());
-  }
+    int oldSelectionSize = _movie ? _movie->selectedFramesIndexSet().size() : 0;
 
-  if (selectedIndexes().isEmpty())
-  {
-    selectionModel()->select(selected, QItemSelectionModel::QItemSelectionModel::Deselect);
-    selectionModel()->select(previous, QItemSelectionModel::QItemSelectionModel::SelectCurrent);
-    return;
-  }
-
-  QAbstractItemView::selectionChanged(selected, previous);
-
-  if(selectedIndexes().size() == 1)
-  {
-    QModelIndex current = selectedIndexes().front();
-    DisplayableProtocol *item = static_cast<DisplayableProtocol*>(current.internalPointer());
-
-    if(iRASPAStructure* iraspa_structure = dynamic_cast<iRASPAStructure*>(item))
+    if(oldSelectionSize > 1)
     {
-      std::shared_ptr<iRASPAStructure> iraspaStructure = iraspa_structure->shared_from_this();
-
-      _sceneList->setSelectedFrameIndices(current.row());
-      emit setSelectedFrame(iraspaStructure);
+      emit invalidateCachedAmbientOcclusionTexture(_sceneList->flattenedSelectediRASPARenderStructures());
     }
-  }
 
-  _movie->selectedFramesSet().clear();
-  for(QModelIndex index : selectedIndexes())
-  {
-    iRASPAStructure *item = static_cast<iRASPAStructure*>(index.internalPointer());
-    std::shared_ptr<iRASPAStructure> iraspa_structure = item->shared_from_this();
-    _movie->selectedFramesSet().insert(iraspa_structure);
-  }
+    if (selectedIndexes().isEmpty())
+    {
+      selectionModel()->select(selected, QItemSelectionModel::QItemSelectionModel::Deselect);
+      selectionModel()->select(previous, QItemSelectionModel::QItemSelectionModel::SelectCurrent);
+      return;
+    }
 
-  // set currentIndex for keyboard navigation
-  if (std::optional<int> selectedIndex = _movie->selectedFrameIndex())
-  {
+    QAbstractItemView::selectionChanged(selected, previous);
+
+    if(selectedIndexes().size() == 1)
+    {
+      QModelIndex current = selectedIndexes().front();
+      DisplayableProtocol *item = static_cast<DisplayableProtocol*>(current.internalPointer());
+
+      if(iRASPAStructure* iraspa_structure = dynamic_cast<iRASPAStructure*>(item))
+      {
+        std::shared_ptr<iRASPAStructure> iraspaStructure = iraspa_structure->shared_from_this();
+
+        _sceneList->setSelectedFrameIndices(current.row());
+        emit setSelectedFrame(iraspaStructure);
+      }
+    }
+
+    _movie->selectedFramesSet().clear();
+    for(QModelIndex index : selectedIndexes())
+    {
+      iRASPAStructure *item = static_cast<iRASPAStructure*>(index.internalPointer());
+      std::shared_ptr<iRASPAStructure> iraspa_structure = item->shared_from_this();
+      _movie->selectedFramesSet().insert(iraspa_structure);
+    }
+
+    // set currentIndex for keyboard navigation
+    if (std::optional<int> selectedIndex = _movie->selectedFrameIndex())
+    {
       QModelIndex item = model()->index(*selectedIndex, 0, QModelIndex());
       selectionModel()->setCurrentIndex(item, QItemSelectionModel::SelectionFlag::Current);
+    }
+
+    emit setSelectedRenderFrames(_sceneList->selectediRASPARenderStructures());
+    emit setFlattenedSelectedFrames(_movie->selectedFramesiRASPAStructures());
+
+    if(oldSelectionSize > 1)
+    {
+      emit rendererReloadData();
+    }
+    emit updateRenderer();
+
+    update();
   }
-
-  emit setSelectedRenderFrames(_sceneList->selectediRASPARenderStructures());
-  emit setFlattenedSelectedFrames(_movie->selectedFramesiRASPAStructures());
-
-  if(oldSelectionSize > 1)
-  {
-    emit rendererReloadData();
-  }
-  emit updateRenderer();
-
-  update();
 }
 
 QSize FrameListView::sizeHint() const

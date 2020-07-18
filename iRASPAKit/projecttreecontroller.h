@@ -76,7 +76,6 @@ public:
     void setSelectedTreeNode(std::shared_ptr<ProjectTreeNode> selectedNode) {_selectedTreeNode = selectedNode;}
 private:
     qint64 _versionNumber{1};
-
     std::shared_ptr<ProjectTreeNode> _galleryProjects;
     std::shared_ptr<ProjectTreeNode> _localProjects;
     std::shared_ptr<ProjectTreeNode> _icloudProjects;

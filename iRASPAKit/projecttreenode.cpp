@@ -36,6 +36,7 @@ ProjectTreeNode::~ProjectTreeNode()
 {
 }
 
+char ProjectTreeNode::mimeType[] = "application/x-qt-iraspa-project-mime";
 
 std::shared_ptr<iRASPAProject> ProjectTreeNode::representedObject()
 {

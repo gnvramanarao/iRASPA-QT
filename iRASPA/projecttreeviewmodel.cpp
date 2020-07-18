@@ -29,7 +29,6 @@
 
 #include "projecttreeviewmodel.h"
 
-char ProjectTreeViewModel::mimeType[] = "application/x-qt-iraspa-project-mime";
 
 ProjectTreeViewModel::ProjectTreeViewModel(): _projectTreeController(std::make_shared<ProjectTreeController>())
 {
@@ -46,6 +45,12 @@ void ProjectTreeViewModel::setProjectTreeController(std::shared_ptr<ProjectTreeC
     _projectTreeController = controller;
     endResetModel();
   }
+}
+
+bool ProjectTreeViewModel::isMainSelectedItem(std::shared_ptr<ProjectTreeNode> treeNode)
+{
+  qDebug() << "check: " << _projectTreeController->selectedTreeNode().get() << treeNode.get();
+  return (_projectTreeController->selectedTreeNode() == treeNode);
 }
 
 QModelIndex ProjectTreeViewModel::indexForItem(std::shared_ptr<ProjectTreeNode> item)
@@ -347,7 +352,7 @@ Qt::DropActions ProjectTreeViewModel::supportedDragActions() const
 
 QStringList ProjectTreeViewModel::mimeTypes() const
 {
-  return QAbstractItemModel::mimeTypes() << mimeType;
+  return QAbstractItemModel::mimeTypes() << ProjectTreeNode::mimeType;
 }
 
 QMimeData* ProjectTreeViewModel::mimeData(const QModelIndexList &indexes) const
@@ -355,13 +360,13 @@ QMimeData* ProjectTreeViewModel::mimeData(const QModelIndexList &indexes) const
   QByteArray encodedData;
   QDataStream stream(&encodedData, QIODevice::WriteOnly);
 
-  QModelIndexList indexes2 = indexes;
-  qSort(indexes2.begin(), indexes2.end(), qGreater<QModelIndex>());
+  QModelIndexList sortedIndexes = indexes;
+  std::sort(sortedIndexes.begin(), sortedIndexes.end());
 
   stream << QCoreApplication::applicationPid();
-  stream << indexes2.count();
+  stream << sortedIndexes.count();
 
-  for(const QModelIndex &index: indexes)
+  for(const QModelIndex &index: sortedIndexes)
   {
     if(index.isValid())
     {
@@ -373,11 +378,27 @@ QMimeData* ProjectTreeViewModel::mimeData(const QModelIndexList &indexes) const
     }
   }
   QMimeData *mimeData = new QMimeData();
-  mimeData->setData(mimeType, encodedData);
+  mimeData->setData(ProjectTreeNode::mimeType, encodedData);
 
   return mimeData;
 }
 
+bool ProjectTreeViewModel::canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const
+{
+  Q_UNUSED(data);
+  Q_UNUSED(action);
+  Q_UNUSED(row);
+  Q_UNUSED(column);
+
+  if(ProjectTreeNode *parentNode = getItem(parent))
+  {
+    if(parentNode->isDropEnabled())
+    {
+      return true;
+    }
+  }
+  return false;
+}
 
 // drops onto existing items have row and column set to -1 and parent set to the current item
 bool ProjectTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
@@ -388,12 +409,12 @@ bool ProjectTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction ac
   {
     return true;
   }
-  if(!data->hasFormat(mimeType))
+  if(!data->hasFormat(ProjectTreeNode::mimeType))
   {
     return false;
   }
 
-  QByteArray ddata = data->data(mimeType);
+  QByteArray ddata = data->data(ProjectTreeNode::mimeType);
   QDataStream stream(&ddata, QIODevice::ReadOnly);
 
   ProjectTreeNode *parentNode = getItem(parent);
@@ -419,14 +440,15 @@ bool ProjectTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction ac
 
   if(action == Qt::DropAction::CopyAction)
   {
+    qDebug() << "Qt::DropAction::CopyAction";
     emit layoutAboutToBeChanged();
     bool oldState = this->blockSignals(true);
     while (!stream.atEnd())
     {
       qlonglong nodePtr;
       stream >> nodePtr;
-      ProjectTreeNode *node = reinterpret_cast<ProjectTreeNode *>(nodePtr);
-      std::shared_ptr<ProjectTreeNode> copiedProjectTreeNode = node->shallowClone();
+      std::shared_ptr<ProjectTreeNode> copiedProjectTreeNode = std::make_shared<ProjectTreeNode>();
+      stream >>= copiedProjectTreeNode;
       copiedProjectTreeNode->setIsEditable(true);
       copiedProjectTreeNode->setIsDropEnabled(true);
 
@@ -438,8 +460,9 @@ bool ProjectTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction ac
     }
     this->blockSignals(oldState);
   }
-  else
+  else if(action == Qt::DropAction::MoveAction)
   {
+    qDebug() << "Qt::DropAction::MoveAction";
     emit layoutAboutToBeChanged();
     bool oldState = this->blockSignals(true);
     while (!stream.atEnd())
@@ -448,26 +471,42 @@ bool ProjectTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction ac
       qlonglong nodePtr;
       stream >> nodePtr;
       ProjectTreeNode *node = reinterpret_cast<ProjectTreeNode *>(nodePtr);
-      std::shared_ptr<ProjectTreeNode> atom = node->shared_from_this();
 
-      localRow = node->row();
-      QModelIndex index = createIndex(localRow,0,atom.get());
-
-      removeRows(localRow,1,index.parent());
-
-
-      // Adjust destination row for the case of moving an item
-      // within the same parent, to a position further down.
-      // Its own removal will reduce the final row number by one.
-      if (index.row() < beginRow && (parentNode == atom->parent().get()))
+      if(node->isEditable())
       {
-         --beginRow;
+        qDebug() << "NOH ISEDITABLE";
+        std::shared_ptr<ProjectTreeNode> projectTreeNode = node->shared_from_this();
+        localRow = node->row();
+        QModelIndex index = createIndex(localRow,0,projectTreeNode.get());
+
+        removeRows(localRow,1,index.parent());
+
+
+        // Adjust destination row for the case of moving an item
+        // within the same parent, to a position further down.
+        // Its own removal will reduce the final row number by one.
+        if (index.row() < beginRow && (parentNode == projectTreeNode->parent().get()))
+        {
+           --beginRow;
+        }
+
+        beginInsertRows(parent, beginRow, beginRow);
+        if (!parentNode->insertChild(beginRow, projectTreeNode))
+          break;
+        endInsertRows();
+      }
+      else
+      {
+        qDebug() << "YEAH";
+        std::shared_ptr<ProjectTreeNode> copiedTreeNode = node->shallowClone();
+        copiedTreeNode->setIsEditable(true);
+        copiedTreeNode->setIsDropEnabled(true);
+        beginInsertRows(parent, beginRow, beginRow);
+        if (!parentNode->insertChild(beginRow, copiedTreeNode))
+          break;
+        endInsertRows();
       }
 
-      beginInsertRows(parent, beginRow, beginRow);
-      if (!parentNode->insertChild(beginRow, atom))
-        break;
-      endInsertRows();
       ++beginRow;
     }
     this->blockSignals(oldState);

@@ -40,8 +40,6 @@ AtomTreeView::AtomTreeView(QWidget* parent): QTreeView(parent ), _atomModel(std:
 
   QObject::connect(model(),&QAbstractItemModel::modelReset, this, &AtomTreeView::reloadSelection);
 
-  //_atomTreeController = std::make_shared<SKAtomTreeController>();
-
   this->viewport()->setMouseTracking(true);
 
   this->setHeaderHidden(true);

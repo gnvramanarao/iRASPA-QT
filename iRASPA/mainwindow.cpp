@@ -44,6 +44,7 @@
 #include "glwidget.h"
 #include "masterstackedwidget.h"
 #include "importfiledialog.h"
+#include <iraspatreeview.h>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
   ui(new Ui::MainWindow)
@@ -219,15 +220,39 @@ void MainWindow::createMenus()
   QObject::connect(actionFileSave, &QAction::triggered, this, &MainWindow::saveFile);
   fileMenu->addAction(actionFileSave);
 
-  undoAction = ui->projectTreeView->undoManager().createUndoAction(this, tr("&Undo"));
-  undoAction->setShortcuts(QKeySequence::Undo);
+  _undoAction = ui->projectTreeView->undoManager().createUndoAction(this, tr("&Undo"));
+  _undoAction->setShortcuts(QKeySequence::Undo);
 
-  redoAction = ui->projectTreeView->undoManager().createRedoAction(this, tr("&Redo"));
-  redoAction->setShortcuts(QKeySequence::Redo);
+  _redoAction = ui->projectTreeView->undoManager().createRedoAction(this, tr("&Redo"));
+  _redoAction->setShortcuts(QKeySequence::Redo);
 
-  editMenu = menuBar()->addMenu(tr("&Edit"));
-  editMenu->addAction(undoAction);
-  editMenu->addAction(redoAction);
+  _copyAction = new QAction(tr("&Copy"), this);
+  _copyAction->setObjectName(QStringLiteral("actionCopy"));
+  //_copyAction->setIcon(QIcon(QString::fromUtf8(":/icons/copy.png")));
+
+  _pasteAction = new QAction(tr("&Paste"), this);
+  _pasteAction->setObjectName(QStringLiteral("actionPaste"));
+  //_pasteAction->setIcon(QIcon(QString::fromUtf8(":/icons/paste.png")));
+
+  _cutAction = new QAction(tr("&Cut"), this);
+  _cutAction->setObjectName(QStringLiteral("actionCut"));
+  //_cutAction->setIcon(QIcon(QString::fromUtf8(":/icons/cut.png")));
+
+
+  QObject::connect(_copyAction, &QAction::triggered, this, &MainWindow::actionTriggered);
+  QObject::connect(_pasteAction, &QAction::triggered, this, &MainWindow::actionTriggered);
+  QObject::connect(_cutAction, &QAction::triggered, this, &MainWindow::actionTriggered);
+
+  _editMenu = menuBar()->addMenu(tr("&Edit"));
+  _editMenu->addAction(_undoAction);
+  _editMenu->addAction(_redoAction);
+  _editMenu->addSeparator();
+  _editMenu->addAction(_copyAction);
+  _editMenu->addAction(_pasteAction);
+  _editMenu->addAction(_cutAction);
+
+  // copy/paste implementation from: https://srivatsp.com/ostinato/qt-cut-copy-paste/
+  QObject::connect(qApp, &QApplication::focusChanged, this, &MainWindow::focusChanged);
 
   QAction *actionHelpContents = new QAction(tr("&Contents"), this);
   QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
@@ -242,18 +267,18 @@ void MainWindow::createMenus()
 
 void MainWindow::setUndoAction(QAction *newUndoAction)
 {
-  editMenu->insertAction(undoAction, newUndoAction);
-  editMenu->removeAction(undoAction);
-  undoAction = newUndoAction;
-  undoAction->setShortcuts(QKeySequence::Undo);
+  _editMenu->insertAction(_undoAction, newUndoAction);
+  _editMenu->removeAction(_undoAction);
+  _undoAction = newUndoAction;
+  _undoAction->setShortcuts(QKeySequence::Undo);
 }
 
 void MainWindow::setRedoAction(QAction *newRedoAction)
 {
-  editMenu->insertAction(redoAction, newRedoAction);
-  editMenu->removeAction(redoAction);
-  redoAction = newRedoAction;
-  redoAction->setShortcuts(QKeySequence::Redo);
+  _editMenu->insertAction(_redoAction, newRedoAction);
+  _editMenu->removeAction(_redoAction);
+  _redoAction = newRedoAction;
+  _redoAction->setShortcuts(QKeySequence::Redo);
 }
 
 void MainWindow::propagateProject(std::shared_ptr<ProjectTreeNode> project, QObject *widget)
@@ -660,4 +685,136 @@ QDir MainWindow::directoryOf(const QString &subdir)
 #endif
   dir.cd(subdir);
   return dir;
+}
+
+
+// see https://srivatsp.com/ostinato/qt-cut-copy-paste/
+void MainWindow::actionTriggered()
+{
+  QWidget *focusWidget = qApp->focusWidget();
+
+  if  (!focusWidget)
+    return;
+
+  // single slot to handle cut/copy/paste - find which action was triggered
+  QString action = sender()->objectName().remove("action").append("()").toLower();
+  if (focusWidget->metaObject()->indexOfSlot(qPrintable(action)) < 0)
+  {
+    // slot not found in focus widget corresponding to action
+    return;
+  }
+
+  action.remove("()");
+  QMetaObject::invokeMethod(focusWidget, qPrintable(action), Qt::DirectConnection);
+}
+
+void MainWindow::focusChanged(QWidget *old, QWidget *now)
+{
+  // after leaving a widget, the widget needs to be redrawn to grey-out the selection
+  if(old)
+  {
+    old->update();
+  }
+
+  // after entering a widget, the widget needs to be redrawn to highlight the selection
+  if(now)
+  {
+    now->update();
+  }
+
+  updatePasteStatus();
+
+  const iRASPATreeView *view = dynamic_cast<iRASPATreeView*>(old);
+  if(view)
+  {
+    disconnect(view->selectionModel(),  SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+               this, SLOT(focusWidgetSelectionChanged(const QItemSelection&, const QItemSelection&)));
+  }
+
+  if(!now)
+  {
+    // No focus widget to copy from
+    _cutAction->setEnabled(false);
+    _copyAction->setEnabled(false);
+    return;
+  }
+
+  const QMetaObject *meta = now->metaObject();
+  if (meta->indexOfSlot("copy()") < 0)
+  {
+    // Focus Widget doesn't have a copy slot
+    _cutAction->setEnabled(false);
+    _copyAction->setEnabled(false);
+    return;
+  }
+
+  view = dynamic_cast<iRASPATreeView*>(now);
+  if (view)
+  {
+    connect(view->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+            this, SLOT(focusWidgetSelectionChanged(const QItemSelection&, const QItemSelection&)));
+    if (!view->hasSelection())
+    {
+      // view doesn't have anything selected to copy
+      _cutAction->setEnabled(false);
+      _copyAction->setEnabled(false);
+      return;
+    }
+    _cutAction->setEnabled(view->canCut());
+  }
+
+  // focus widget has a selection and copy slot: copy possible
+  _copyAction->setEnabled(true);
+}
+
+void MainWindow::focusWidgetSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+{
+  Q_UNUSED(selected);
+  Q_UNUSED(deselected);
+
+  // Selection changed in the iRASPATreeView that has focus
+  if(const iRASPATreeView *view = dynamic_cast<iRASPATreeView*>(qApp->focusWidget()))
+  {
+    _copyAction->setEnabled(view->hasSelection());
+    _cutAction->setEnabled(view->hasSelection() && view && view->canCut());
+  }
+}
+
+void MainWindow::updatePasteStatus()
+{
+  QWidget *focusWidget = qApp->focusWidget();
+
+  if (!focusWidget)
+  {
+    // No focus widget to paste into
+    _pasteAction->setEnabled(false);
+    return;
+  }
+
+  const QMimeData *item = QGuiApplication::clipboard()->mimeData();
+  if  (!item || item->formats().isEmpty())
+  {
+    // Nothing on clipboard to paste
+    _pasteAction->setEnabled(false);
+    return;
+  }
+
+  const QMetaObject *meta = focusWidget->metaObject();
+  if (meta->indexOfSlot("paste()") < 0)
+  {
+    // Focus Widget doesn't have a paste slot
+    _pasteAction->setEnabled(false);
+    return;
+  }
+
+  const iRASPATreeView *view = dynamic_cast<iRASPATreeView*>(focusWidget);
+  if (view && !view->canPaste(item))
+  {
+    // Focus widget view cannot accept this item
+    _pasteAction->setEnabled(false);
+    return;
+  }
+
+  // Focus widget can accept this item: paste possible",
+  _pasteAction->setEnabled(true);
 }

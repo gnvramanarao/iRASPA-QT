@@ -46,7 +46,7 @@ public:
   void setProjectTreeController(std::shared_ptr<ProjectTreeController> controller);
   std::shared_ptr<ProjectTreeController> projectTreeController() {return _projectTreeController;}
 
-  static char mimeType[];
+  bool isMainSelectedItem(std::shared_ptr<ProjectTreeNode> treeNode);
   QModelIndexList selectedIndexes();
 
 	bool insertRows(int position, int rows, const QModelIndex &parent, std::shared_ptr<ProjectTreeNode> item);
@@ -73,6 +73,7 @@ public:
   Qt::DropActions supportedDropActions() const override final;
   QStringList mimeTypes() const override final;
   QMimeData* mimeData(const QModelIndexList &indexes) const override final;
+  bool canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const override final;
   bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override final;
 
   ProjectTreeNode* getItem(const QModelIndex &index) const;

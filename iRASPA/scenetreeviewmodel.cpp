@@ -37,6 +37,7 @@ SceneTreeViewModel::SceneTreeViewModel(): _sceneList(std::make_shared<SceneList>
 
 void SceneTreeViewModel::setSceneList(std::shared_ptr<SceneList> sceneList)
 {
+  qDebug() << "Set scenelist " << sceneList.get();
   beginResetModel();
   _sceneList = sceneList;
   endResetModel();
@@ -45,13 +46,16 @@ void SceneTreeViewModel::setSceneList(std::shared_ptr<SceneList> sceneList)
 
 std::shared_ptr<Scene> SceneTreeViewModel::parentForMovie(const std::shared_ptr<Movie> movie) const
 {
-  for(std::shared_ptr<Scene> currentScene: _sceneList->scenes())
+  if(_sceneList)
   {
-    for(std::shared_ptr<Movie> currentMovie: currentScene->movies())
+    for(std::shared_ptr<Scene> currentScene: _sceneList->scenes())
     {
-      if (currentMovie == movie)
+      for(std::shared_ptr<Movie> currentMovie: currentScene->movies())
       {
-        return currentScene;
+        if (currentMovie == movie)
+        {
+          return currentScene;
+        }
       }
     }
   }
@@ -72,13 +76,16 @@ bool SceneTreeViewModel::isMainSelectedItem(std::shared_ptr<Movie> movie)
 
 QModelIndex SceneTreeViewModel::indexOfMainSelected() const
 {
-  if(std::shared_ptr<Scene> selectedScene = _sceneList->selectedScene())
+  if(_sceneList)
   {
-    if(std::shared_ptr<Movie> selectedMovie = selectedScene->selectedMovie())
+    if(std::shared_ptr<Scene> selectedScene = _sceneList->selectedScene())
     {
-      if (std::optional<int> row = selectedScene->findChildIndex(selectedMovie))
+      if(std::shared_ptr<Movie> selectedMovie = selectedScene->selectedMovie())
       {
-        return createIndex(*row, 0, selectedMovie.get());
+        if (std::optional<int> row = selectedScene->findChildIndex(selectedMovie))
+        {
+          return createIndex(*row, 0, selectedMovie.get());
+        }
       }
     }
   }
@@ -90,27 +97,29 @@ QModelIndex SceneTreeViewModel::indexOfMainSelected() const
 // Returns the index of the item in the model specified by the given row, column and parent index.
 QModelIndex SceneTreeViewModel::index(int row, int column, const QModelIndex &parent) const
 {
-  if(_sceneList->scenes().empty())
-    return QModelIndex();
-
-  if (!parent.isValid())
+  if(_sceneList)
   {
-    return createIndex(row, 0, _sceneList->scenes()[row].get());
-  }
+    if(_sceneList->scenes().empty())
+      return QModelIndex();
 
-  DisplayableProtocol* parentItem = static_cast<DisplayableProtocol*>(parent.internalPointer());
-  if(dynamic_cast<SceneList*>(parentItem))
-  {
-    Scene* scene = _sceneList->scenes()[row].get();
-    return createIndex(row, 0, scene);
-  }
+    if (!parent.isValid())
+    {
+      return createIndex(row, 0, _sceneList->scenes()[row].get());
+    }
 
-  if(Scene* scene = dynamic_cast<Scene*>(parentItem))
-  {
-    Movie* movie = scene->movies()[row].get();
-    return createIndex(row, 0, movie);
-  }
+    DisplayableProtocol* parentItem = static_cast<DisplayableProtocol*>(parent.internalPointer());
+    if(dynamic_cast<SceneList*>(parentItem))
+    {
+      Scene* scene = _sceneList->scenes()[row].get();
+      return createIndex(row, 0, scene);
+    }
 
+    if(Scene* scene = dynamic_cast<Scene*>(parentItem))
+    {
+      Movie* movie = scene->movies()[row].get();
+      return createIndex(row, 0, movie);
+    }
+  }
   return QModelIndex();
 }
 
@@ -126,50 +135,55 @@ QModelIndex SceneTreeViewModel::parent(const QModelIndex &index) const
   }
 
   // pointer to the sceneList is the root
-  DisplayableProtocol* indexItem = static_cast<DisplayableProtocol*>(index.internalPointer());
-  if(SceneList* sceneListItem = dynamic_cast<SceneList*>(indexItem))
+  if(DisplayableProtocol* indexItem = static_cast<DisplayableProtocol*>(index.internalPointer()))
   {
-    return QModelIndex();
-  }
-
-  if(Scene* scene = dynamic_cast<Scene*>(indexItem))
-  {
-    return QModelIndex();
-  }
-
-  if(Movie* movie = dynamic_cast<Movie*>(indexItem))
-  {
-    std::shared_ptr<Scene> scene = parentForMovie(movie->shared_from_this());
-
-
-    std::optional<int> row = scene->findChildIndex(movie->shared_from_this());
-
-    if(row)
+    if(SceneList* sceneListItem = dynamic_cast<SceneList*>(indexItem))
     {
-      return createIndex(*row,0,scene.get());
+      return QModelIndex();
+    }
+
+    if(Scene* scene = dynamic_cast<Scene*>(indexItem))
+    {
+      return QModelIndex();
+    }
+
+    if(Movie* movie = dynamic_cast<Movie*>(indexItem))
+    {
+      std::shared_ptr<Scene> scene = parentForMovie(movie->shared_from_this());
+
+      std::optional<int> row = scene->findChildIndex(movie->shared_from_this());
+
+      if(row)
+      {
+        return createIndex(*row,0,scene.get());
+      }
     }
   }
 
-  // should not reach this
   return QModelIndex();
 }
 
 
 int SceneTreeViewModel::rowCount(const QModelIndex &parent) const
 {
-  if(parent == QModelIndex())
+  if(_sceneList)
   {
-    return static_cast<int>(_sceneList->scenes().size());
-  }
+    if(parent == QModelIndex())
+    {
+      return static_cast<int>(_sceneList->scenes().size());
+    }
 
-  DisplayableProtocol *parentItem = static_cast<DisplayableProtocol*>(parent.internalPointer());
-  if(SceneList* parentSceneList = dynamic_cast<SceneList*>(parentItem))
-  {
-    return static_cast<int>(parentSceneList->scenes().size());
-  }
-  if(Scene* scene = dynamic_cast<Scene*>(parentItem))
-  {
-    return static_cast<int>(scene->movies().size());
+    if(DisplayableProtocol *parentItem = static_cast<DisplayableProtocol*>(parent.internalPointer()))
+    {
+      if(SceneList* parentSceneList = dynamic_cast<SceneList*>(parentItem))
+      {
+        return static_cast<int>(parentSceneList->scenes().size());
+      }
+      if(Scene* scene = dynamic_cast<Scene*>(parentItem))
+      {
+        return static_cast<int>(scene->movies().size());
+      }
+    }
   }
   return 0;
 }

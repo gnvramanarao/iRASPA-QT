@@ -76,13 +76,18 @@ private:
   int projectInsertionIndex();
 
   void readLibraryOfStructures();
-  QAction *helpAction;
+  QAction *_helpAction;
   void acknowledgements();
   QDir directoryOf(const QString &subdir);
   void createMenus();
-  QMenu *editMenu = nullptr;
-  QAction *undoAction = nullptr;
-  QAction *redoAction = nullptr;
+
+  QMenu *_editMenu{nullptr};
+  QAction *_undoAction{nullptr};
+  QAction *_redoAction{nullptr};
+
+  QAction *_cutAction{nullptr};
+  QAction *_copyAction{nullptr};
+  QAction *_pasteAction{nullptr};
 public slots:
   void importFile();
   void openFile();
@@ -91,4 +96,8 @@ public slots:
   int slideRightPanel(void);
   int slideDownPanel(void);
   int slideLeftPanel(void);
+  void actionTriggered();
+  void focusChanged(QWidget *old, QWidget *now);
+  void updatePasteStatus();
+  void focusWidgetSelectionChanged(const QItemSelection &selected, const QItemSelection &/*deselected*/);
 };

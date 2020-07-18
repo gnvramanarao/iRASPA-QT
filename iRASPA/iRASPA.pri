@@ -12,6 +12,7 @@ SOURCES += \
     $$PWD/frameliststyleditemdelegate.cpp \
     $$PWD/framelistviewproxystyle.cpp \
     $$PWD/importfiledialog.cpp \
+    $$PWD/iraspatreeview.cpp \
     $$PWD/main.cpp \
     $$PWD/mainwindow.cpp \
     $$PWD/moviemaker.cpp \
@@ -83,6 +84,7 @@ HEADERS += \
     $$PWD/frameliststyleditemdelegate.h \
     $$PWD/framelistviewproxystyle.h \
     $$PWD/importfiledialog.h \
+    $$PWD/iraspatreeview.h \
     $$PWD/mainwindow.h \
     $$PWD/moviemaker.h \
     $$PWD/projecttreeview.h \

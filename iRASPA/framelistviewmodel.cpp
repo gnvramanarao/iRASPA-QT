@@ -53,28 +53,42 @@ bool FrameListViewModel::isMainSelectedItem(std::shared_ptr<iRASPAStructure> ira
 
 QModelIndex FrameListViewModel::index(int row, int column, const QModelIndex &parent) const
 {
-  if (_movie->frames().size() == 0)
-    return QModelIndex();
+  Q_UNUSED(parent);
+  Q_UNUSED(column);
 
-  return createIndex(row, 0 , _movie->frames()[row].get());
+  if(_movie)
+  {
+    if (_movie->frames().size() == 0)
+      return QModelIndex();
+
+    return createIndex(row, 0 , _movie->frames()[row].get());
+  }
+  return QModelIndex();
 }
 
 QModelIndex FrameListViewModel::parent(const QModelIndex &child) const
 {
+  Q_UNUSED(child);
+
   return QModelIndex();
 }
 
 int FrameListViewModel::rowCount(const QModelIndex &parent) const
 {
-  if(parent == QModelIndex())
+  if(_movie)
   {
-    return static_cast<int>(_movie->frames().size());
+    if(parent == QModelIndex())
+    {
+      return static_cast<int>(_movie->frames().size());
+    }
   }
   return 0;
 }
 
 int FrameListViewModel::columnCount(const QModelIndex &parent) const
 {
+  Q_UNUSED(parent);
+
   return 1;
 }
 

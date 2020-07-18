@@ -32,18 +32,24 @@
 #include <QObject>
 #include <QMainWindow>
 #include <QTreeView>
+#include <iraspatreeview.h>
 #include <QModelIndex>
 #include "projecttreeviewmodel.h"
 #include <optional>
+#include "logreporting.h"
 #include <iraspakit.h>
 #include "iraspamainwindowconsumerprotocol.h"
 
-class ProjectTreeView: public QTreeView, public MainWindowConsumer, public Reloadable
+class ProjectTreeView: public iRASPATreeView, public MainWindowConsumer, public Reloadable, public LogReportingConsumer
 {
   Q_OBJECT
 public:
   ProjectTreeView(QWidget* parent = nullptr);
   QSize sizeHint() const override;
+
+  void setLogReportingWidget(LogReporting *logReporting);
+
+  bool hasSelection() const override final;
   void paintEvent(QPaintEvent *event) override final;
   void setMainWindow(MainWindow* mainWindow) final override {_mainWindow = mainWindow;}
   void setController(std::shared_ptr<ProjectTreeController> treeController);
@@ -61,13 +67,17 @@ public:
 private:
   QRect _dropIndicatorRect;
   MainWindow* _mainWindow;
+  LogReporting *_logReporting;
   std::shared_ptr<ProjectTreeController> _projectTreeController;
   std::shared_ptr<ProjectTreeViewModel> _model;
-  QAbstractItemView::DropIndicatorPosition position(QPoint pos, QRect rect, QModelIndex index);
   QUndoStack _undoStack;
 public slots:
+  void copy();
+  void paste();
+  void cut();
   void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override final;
   void ShowContextMenu(const QPoint &pos);
+  void keyPressEvent(QKeyEvent * event) override final;
 signals:
   void setSelectedRenderFrames(std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> structures);
 };

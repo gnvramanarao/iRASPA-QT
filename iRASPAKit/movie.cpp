@@ -39,6 +39,8 @@ Movie::Movie(QString displayName): _displayName(displayName)
 
 }
 
+char Movie::mimeType[] = "application/x-qt-iraspa-movie-mime";
+
 void Movie::setVisibility(bool visibility)
 {
   _isVisible = visibility;
@@ -58,7 +60,10 @@ std::shared_ptr<iRASPAStructure> Movie::selectedFrame()
 void Movie::setSelectedFrame(std::shared_ptr<iRASPAStructure> selectedFrame)
 {
   _selectedFrame = selectedFrame;
-  _selectedFramesSet.insert(_selectedFrame);
+  if(_selectedFrame)
+  {
+    _selectedFramesSet.insert(_selectedFrame);
+  }
 }
 
 void Movie::setSelectedFrameIndex(int frameIndex)

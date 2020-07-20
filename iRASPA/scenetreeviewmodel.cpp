@@ -37,7 +37,6 @@ SceneTreeViewModel::SceneTreeViewModel(): _sceneList(std::make_shared<SceneList>
 
 void SceneTreeViewModel::setSceneList(std::shared_ptr<SceneList> sceneList)
 {
-  qDebug() << "Set scenelist " << sceneList.get();
   beginResetModel();
   _sceneList = sceneList;
   endResetModel();
@@ -97,6 +96,8 @@ QModelIndex SceneTreeViewModel::indexOfMainSelected() const
 // Returns the index of the item in the model specified by the given row, column and parent index.
 QModelIndex SceneTreeViewModel::index(int row, int column, const QModelIndex &parent) const
 {
+  Q_UNUSED(column);
+
   if(_sceneList)
   {
     if(_sceneList->scenes().empty())
@@ -116,6 +117,8 @@ QModelIndex SceneTreeViewModel::index(int row, int column, const QModelIndex &pa
 
     if(Scene* scene = dynamic_cast<Scene*>(parentItem))
     {
+      if(scene->movies().size() == 0)
+        return QModelIndex();
       Movie* movie = scene->movies()[row].get();
       return createIndex(row, 0, movie);
     }
@@ -252,26 +255,28 @@ bool SceneTreeViewModel::setData(const QModelIndex &index, const QVariant &value
   if (!index.isValid() /*|| role != Qt::EditRole*/)
     return false;
 
-  DisplayableProtocol *item = static_cast<DisplayableProtocol*>(index.internalPointer());
-  if(Movie* movie = dynamic_cast<Movie*>(item))
+  if(DisplayableProtocol *item = static_cast<DisplayableProtocol*>(index.internalPointer()))
   {
-    if (role == Qt::CheckStateRole)
+    if(Movie* movie = dynamic_cast<Movie*>(item))
     {
-      std::shared_ptr<Scene> scene = parentForMovie(movie->shared_from_this());
-      std::vector<std::shared_ptr<Structure>> structures = scene->structures();
-      if ((Qt::CheckState)value.toInt() == Qt::Checked)
+      if (role == Qt::CheckStateRole)
       {
-        movie->setVisibility(true);
-        emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{structures.begin(), structures.end()});
-        emit rendererReloadData();
-        return true;
-      }
-      else
-      {
-        movie->setVisibility(false);
-        emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{structures.begin(), structures.end()});
-        emit rendererReloadData();
-        return true;
+        std::shared_ptr<Scene> scene = parentForMovie(movie->shared_from_this());
+        std::vector<std::shared_ptr<Structure>> structures = scene->structures();
+        if ((Qt::CheckState)value.toInt() == Qt::Checked)
+        {
+          movie->setVisibility(true);
+          emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{structures.begin(), structures.end()});
+          emit rendererReloadData();
+          return true;
+        }
+        else
+        {
+          movie->setVisibility(false);
+          emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{structures.begin(), structures.end()});
+          emit rendererReloadData();
+          return true;
+        }
       }
     }
   }
@@ -283,15 +288,22 @@ Qt::ItemFlags SceneTreeViewModel::flags(const QModelIndex &index) const
 {
   if (!index.isValid()) return Qt::NoItemFlags;
 
+  Qt::ItemFlags flags = Qt::NoItemFlags;
+
   DisplayableProtocol *item = static_cast<DisplayableProtocol*>(index.internalPointer());
   if(Scene* scene = dynamic_cast<Scene*>(item))
   {
-    return Qt::NoItemFlags;
+    flags |= Qt::ItemIsDropEnabled;
+    return flags;
   }
 
   if(Movie* movie = dynamic_cast<Movie*>(item))
   {
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
+    flags |= Qt::ItemIsEnabled;
+    flags |= Qt::ItemIsSelectable;
+    flags |= Qt::ItemIsUserCheckable;
+    flags |= Qt::ItemIsDragEnabled;
+    return flags;
   }
 
   return Qt::NoItemFlags;
@@ -302,9 +314,226 @@ bool SceneTreeViewModel::hasChildren(const QModelIndex &parent) const
   if (!parent.isValid()) return true;
 
   DisplayableProtocol *item = static_cast<DisplayableProtocol*>(parent.internalPointer());
-  if(Movie* scene = dynamic_cast<Movie*>(item))
+  if(Movie* movie = dynamic_cast<Movie*>(item))
   {
     return false;
   }
+  return true;
+}
+
+bool SceneTreeViewModel::removeRows(int position, int rows, const QModelIndex &parent)
+{
+  DisplayableProtocol *item = static_cast<DisplayableProtocol*>(parent.internalPointer());
+
+  if(Scene* scene = dynamic_cast<Scene*>(item))
+  {
+    if (position < 0 || position > static_cast<int>(scene->movies().size()))
+      return false;
+
+    beginRemoveRows(parent, position, position + rows - 1);
+    for (int row = 0; row < rows; ++row)
+    {
+      if (!scene->removeChild(position))
+      {
+        qDebug() << "error removing " << position;
+        break;
+      }
+    }
+    endRemoveRows();
+
+    return true;
+  }
+  return false;
+}
+
+
+QStringList SceneTreeViewModel::mimeTypes() const
+{
+  return QAbstractItemModel::mimeTypes() << Movie::mimeType;
+}
+
+
+Qt::DropActions SceneTreeViewModel::supportedDropActions() const
+{
+  return Qt::CopyAction | Qt::MoveAction;
+}
+
+Qt::DropActions SceneTreeViewModel::supportedDragActions() const
+{
+  return Qt::CopyAction | Qt::MoveAction;
+}
+
+
+QMimeData* SceneTreeViewModel::mimeData(const QModelIndexList &indexes) const
+{
+  QByteArray encodedData;
+  QDataStream stream(&encodedData, QIODevice::WriteOnly);
+
+  QModelIndexList sortedIndexes = indexes;
+  std::sort(sortedIndexes.begin(), sortedIndexes.end());
+
+  stream << QCoreApplication::applicationPid();
+  stream << sortedIndexes.count();
+
+  for(const QModelIndex &index: sortedIndexes)
+  {
+    if(index.isValid())
+    {
+      DisplayableProtocol *item = static_cast<DisplayableProtocol*>(index.internalPointer());
+      if(Movie* movie = dynamic_cast<Movie*>(item))
+      {
+        qulonglong ptrval(reinterpret_cast<qulonglong>(movie));
+        stream << ptrval;
+      }
+    }
+  }
+  QMimeData *mimeData = new QMimeData();
+  mimeData->setData(Movie::mimeType, encodedData);
+
+  return mimeData;
+}
+
+bool SceneTreeViewModel::canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const
+{
+  Q_UNUSED(data);
+  Q_UNUSED(action);
+  Q_UNUSED(row);
+  Q_UNUSED(column);
+
+
+  return true;
+}
+
+// drops onto existing items have row and column set to -1 and parent set to the current item
+bool SceneTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+  Q_UNUSED(column);
+
+  if(action == Qt::IgnoreAction)
+  {
+    return true;
+  }
+  if(!data->hasFormat(Movie::mimeType))
+  {
+    return false;
+  }
+
+  QByteArray ddata = data->data(Movie::mimeType);
+  QDataStream stream(&ddata, QIODevice::ReadOnly);
+
+  qint64 senderPid;
+  stream >> senderPid;
+  if (senderPid != QCoreApplication::applicationPid())
+  {
+    return false;
+  }
+
+  DisplayableProtocol *item = static_cast<DisplayableProtocol*>(parent.internalPointer());
+  Scene* scene = dynamic_cast<Scene*>(item);
+
+  qDebug() << "scene: " << scene;
+
+    qDebug() << "parent is: " << item->displayName();
+
+
+  int count;
+  stream >> count;
+
+  qDebug() << "COUNT DRAG: " << count;
+
+
+  int beginRow = row;
+  if (beginRow == -1)
+  {
+    if (parent.isValid())
+      beginRow = 0;
+    else
+      beginRow = rowCount(parent);
+  }
+
+  if(action == Qt::DropAction::CopyAction)
+  {
+    qDebug() << "Qt::DropAction::CopyAction";
+    emit layoutAboutToBeChanged();
+    bool oldState = this->blockSignals(true);
+    while (!stream.atEnd())
+    {
+      qlonglong nodePtr;
+      stream >> nodePtr;
+      std::shared_ptr<ProjectTreeNode> copiedProjectTreeNode = std::make_shared<ProjectTreeNode>();
+      stream >>= copiedProjectTreeNode;
+      copiedProjectTreeNode->setIsEditable(true);
+      copiedProjectTreeNode->setIsDropEnabled(true);
+
+      beginInsertRows(parent, beginRow, beginRow);
+      //if (!scene->insertChild(beginRow, copiedProjectTreeNode))
+      //  break;
+      endInsertRows();
+      ++beginRow;
+    }
+    this->blockSignals(oldState);
+  }
+  else if(action == Qt::DropAction::MoveAction)
+  {
+    qDebug() << "Qt::DropAction::MoveAction";
+    emit layoutAboutToBeChanged();
+    bool oldState = this->blockSignals(true);
+    while (!stream.atEnd())
+    {
+      int localRow;
+      qlonglong nodePtr;
+      stream >> nodePtr;
+      Movie *node = reinterpret_cast<Movie *>(nodePtr);
+
+      if(true)
+      {
+        std::shared_ptr<Movie> movieNode = node->shared_from_this();
+
+        std::shared_ptr<Scene> parentScene = parentForMovie(movieNode);
+        std::optional<int> row = parentScene->findChildIndex(movieNode);
+        if(row)
+        {
+          localRow = *row;
+          QModelIndex index = createIndex(localRow,0, node);
+
+          removeRows(localRow,1,index.parent());
+
+
+          // Adjust destination row for the case of moving an item
+          // within the same parent, to a position further down.
+          // Its own removal will reduce the final row number by one.
+          if (index.row() < beginRow && (parentScene.get() == scene))
+          {
+             --beginRow;
+          }
+
+          beginInsertRows(parent, beginRow, beginRow);
+          if (!scene->insertChild(beginRow, movieNode))
+          {
+            break;
+          }
+          endInsertRows();
+        }
+      }
+      else
+      {
+        qDebug() << "YEAH";
+        //std::shared_ptr<ProjectTreeNode> copiedTreeNode = node->shallowClone();
+        //copiedTreeNode->setIsEditable(true);
+        //copiedTreeNode->setIsDropEnabled(true);
+        beginInsertRows(parent, beginRow, beginRow);
+        //if (!parentNode->insertChild(beginRow, copiedTreeNode))
+        //  break;
+        endInsertRows();
+      }
+
+      ++beginRow;
+    }
+    this->blockSignals(oldState);
+  }
+
+  emit layoutChanged();
+
+
   return true;
 }

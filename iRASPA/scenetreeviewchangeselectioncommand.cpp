@@ -27,29 +27,44 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#include "mainwindow.h"
-#include <QApplication>
-#include <QGLFormat>
+#include "scenetreeviewchangeselectioncommand.h"
+#include <QDebug>
+#include <algorithm>
 
-int main(int argc, char *argv[])
+SceneChangeSelectionCommand::SceneChangeSelectionCommand(MainWindow *main_window, std::shared_ptr<Movie> newSelectedMovie,
+                                                         std::map<std::shared_ptr<Scene>, std::set<std::shared_ptr<Movie>>> newSelection,
+                                                         std::shared_ptr<Movie> oldSelectedMovie, std::map<std::shared_ptr<Scene>,
+                                                         std::set<std::shared_ptr<Movie>>> oldSelection, QUndoCommand *parent):
+  _main_window(main_window),
+  _newSelectedMovie(newSelectedMovie),
+  _newSelection(newSelection),
+  _oldSelectedMovie(oldSelectedMovie),
+  _oldSelection(oldSelection)
 {
-  QSurfaceFormat format;
-  format.setRenderableType(QSurfaceFormat::OpenGL);
-  format.setSamples(1);
-  format.setVersion(3, 3);
-  format.setProfile(QSurfaceFormat::CoreProfile);
-  QSurfaceFormat::setDefaultFormat(format);
+  Q_UNUSED(parent);
 
-  QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-  // https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
-#ifdef Q_OS_WIN
-   SetProcessDPIAware(); // call before the main event loop
-#endif
-
-  QApplication a(argc, argv);
-
-  MainWindow w;
-  w.show();
-
-  return a.exec();
+  setText(QString("Change project selection"));
 }
+
+void SceneChangeSelectionCommand::redo()
+{
+  qDebug() << "Redoing SceneChangeSelectionCommand";
+
+  if(_main_window)
+  {
+    _main_window->reloadSelectionDetailViews();
+  }
+}
+
+void SceneChangeSelectionCommand::undo()
+{
+  qDebug() << "Undoing SceneChangeSelectionCommand";
+
+
+  if(_main_window)
+  {
+    _main_window->reloadSelectionDetailViews();
+  }
+}
+
+

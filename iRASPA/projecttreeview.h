@@ -47,7 +47,7 @@ public:
   ProjectTreeView(QWidget* parent = nullptr);
   QSize sizeHint() const override;
 
-  void setLogReportingWidget(LogReporting *logReporting);
+  void setLogReportingWidget(LogReporting *logReporting) override final;
 
   bool hasSelection() const override final;
   void paintEvent(QPaintEvent *event) override final;
@@ -71,6 +71,7 @@ private:
   std::shared_ptr<ProjectTreeController> _projectTreeController;
   std::shared_ptr<ProjectTreeViewModel> _model;
   QUndoStack _undoStack;
+  QPixmap selectionToPixmap();
 public slots:
   void copy();
   void paste();

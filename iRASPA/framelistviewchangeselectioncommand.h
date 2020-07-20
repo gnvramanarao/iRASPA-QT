@@ -1,0 +1,11 @@
+#ifndef FRAMELISTVIEWCHANGESELECTIONCOMMAND_H
+#define FRAMELISTVIEWCHANGESELECTIONCOMMAND_H
+
+
+class FrameListViewChangeSelectionCommand
+{
+public:
+  FrameListViewChangeSelectionCommand();
+};
+
+#endif // FRAMELISTVIEWCHANGESELECTIONCOMMAND_H

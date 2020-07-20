@@ -51,6 +51,8 @@ public:
   Scene(const QUrl url, const SKColorSets& colorSets, ForceFieldSets &forcefieldSets, LogReporting *log, bool asSeparateProject, bool onlyAsymmetricUnit, bool asMolecule);
   const std::vector<std::shared_ptr<Movie>> movies() const {return _movies;}
   std::optional<int> findChildIndex(std::shared_ptr<Movie> movie);
+  bool removeChild(size_t row);
+  bool insertChild(size_t row, std::shared_ptr<Movie> child);
   void setSelectedMovie(std::shared_ptr<Movie> movie);
   void setSelectedFrameIndices(int frameIndex);
   std::unordered_set<std::shared_ptr<Movie>>& selectedMovies() {return _selectedMovies;}

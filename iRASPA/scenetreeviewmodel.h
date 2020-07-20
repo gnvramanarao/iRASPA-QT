@@ -57,6 +57,15 @@ public:
   bool setData(const QModelIndex &index, const QVariant &value, int role) override final;
   Qt::ItemFlags flags(const QModelIndex &index) const override final;
   bool hasChildren(const QModelIndex &parent) const override final;
+
+  bool removeRows(int positions, int rows, const QModelIndex &parent = QModelIndex()) override final;
+
+  QStringList mimeTypes() const override final;
+  Qt::DropActions supportedDropActions() const override final;
+  Qt::DropActions supportedDragActions() const override final;
+  QMimeData* mimeData(const QModelIndexList &indexes) const override final;
+  bool canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const override final;
+  bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override final;
 private:
   std::shared_ptr<SceneList> _sceneList;
   std::shared_ptr<Scene> parentForMovie(const std::shared_ptr<Movie> movie) const;

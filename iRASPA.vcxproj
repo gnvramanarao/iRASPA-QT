@@ -275,6 +275,8 @@
     <ClCompile Include="SimulationKit\forcefieldtype.cpp" />
     <ClCompile Include="iRASPA\frameliststyleditemdelegate.cpp" />
     <ClCompile Include="iRASPA\framelistview.cpp" />
+    <ClCompile Include="iRASPA\framelistviewchangeselectioncommand.cpp" />
+    <ClCompile Include="iRASPA\framelistviewdeleteselectioncommand.cpp" />
     <ClCompile Include="iRASPA\framelistviewmodel.cpp" />
     <ClCompile Include="iRASPA\framelistviewproxystyle.cpp" />
     <ClCompile Include="RenderKit\glgeterror.cpp" />
@@ -294,6 +296,7 @@
     <ClCompile Include="iRASPAKit\iraspaproject.cpp" />
     <ClCompile Include="iRASPAKit\iraspastructure.cpp" />
     <ClCompile Include="iRASPA\iraspatoolbar.cpp" />
+    <ClCompile Include="iRASPA\iraspatreeview.cpp" />
     <ClCompile Include="iRASPA\linenumberplaintextedit.cpp" />
     <ClCompile Include="iRASPA\logviewcontroller.cpp" />
     <ClCompile Include="iRASPA\main.cpp" />
@@ -350,6 +353,8 @@
     <ClCompile Include="iRASPAKit\projecttreecontroller.cpp" />
     <ClCompile Include="iRASPAKit\projecttreenode.cpp" />
     <ClCompile Include="iRASPA\projecttreeview.cpp" />
+    <ClCompile Include="iRASPA\projecttreeviewchangeselectioncommand.cpp" />
+    <ClCompile Include="iRASPA\projecttreeviewdeleteselectioncommand.cpp" />
     <ClCompile Include="iRASPA\projecttreeviewmodel.cpp" />
     <ClCompile Include="iRASPA\projecttreeviewproxystyle.cpp" />
     <ClCompile Include="iRASPA\projecttreeviewstyleditemdelegate.cpp" />
@@ -371,6 +376,8 @@
     <ClCompile Include="iRASPAKit\scene.cpp" />
     <ClCompile Include="iRASPAKit\scenelist.cpp" />
     <ClCompile Include="iRASPA\scenetreeview.cpp" />
+    <ClCompile Include="iRASPA\scenetreeviewchangeselectioncommand.cpp" />
+    <ClCompile Include="iRASPA\scenetreeviewdeleteselectioncommand.cpp" />
     <ClCompile Include="iRASPA\scenetreeviewmodel.cpp" />
     <ClCompile Include="iRASPA\scenetreeviewproxystyle.cpp" />
     <ClCompile Include="iRASPA\scenetreeviewstyleditemdelegate.cpp" />
@@ -526,6 +533,8 @@
     </QtMoc>
     <QtMoc Include="iRASPA\framelistview.h">
     </QtMoc>
+    <ClInclude Include="iRASPA\framelistviewchangeselectioncommand.h" />
+    <ClInclude Include="iRASPA\framelistviewdeleteselectioncommand.h" />
     <QtMoc Include="iRASPA\framelistviewmodel.h">
     </QtMoc>
     <QtMoc Include="iRASPA\framelistviewproxystyle.h">
@@ -558,6 +567,8 @@
     <ClInclude Include="iRASPAKit\iraspaproject.h" />
     <ClInclude Include="iRASPAKit\iraspastructure.h" />
     <QtMoc Include="iRASPA\iraspatoolbar.h">
+    </QtMoc>
+    <QtMoc Include="iRASPA\iraspatreeview.h">
     </QtMoc>
     <QtMoc Include="iRASPA\linenumberplaintextedit.h">
     </QtMoc>
@@ -622,6 +633,8 @@
     <ClInclude Include="iRASPAKit\projecttreenode.h" />
     <QtMoc Include="iRASPA\projecttreeview.h">
     </QtMoc>
+    <ClInclude Include="iRASPA\projecttreeviewchangeselectioncommand.h" />
+    <ClInclude Include="iRASPA\projecttreeviewdeleteselectioncommand.h" />
     <QtMoc Include="iRASPA\projecttreeviewmodel.h">
     </QtMoc>
     <QtMoc Include="iRASPA\projecttreeviewproxystyle.h">
@@ -654,6 +667,8 @@
     <ClInclude Include="iRASPAKit\scenelist.h" />
     <QtMoc Include="iRASPA\scenetreeview.h">
     </QtMoc>
+    <ClInclude Include="iRASPA\scenetreeviewchangeselectioncommand.h" />
+    <ClInclude Include="iRASPA\scenetreeviewdeleteselectioncommand.h" />
     <QtMoc Include="iRASPA\scenetreeviewmodel.h">
     </QtMoc>
     <QtMoc Include="iRASPA\scenetreeviewproxystyle.h">

@@ -1,0 +1,11 @@
+#ifndef SCENETREEVIEWDELETESELECTIONCOMMAND_H
+#define SCENETREEVIEWDELETESELECTIONCOMMAND_H
+
+
+class SceneTreeViewDeleteSelectionCommand
+{
+public:
+  SceneTreeViewDeleteSelectionCommand();
+};
+
+#endif // SCENETREEVIEWDELETESELECTIONCOMMAND_H

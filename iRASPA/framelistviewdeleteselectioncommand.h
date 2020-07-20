@@ -1,0 +1,11 @@
+#ifndef FRAMELISTVIEWDELETESELECTIONCOMMAND_H
+#define FRAMELISTVIEWDELETESELECTIONCOMMAND_H
+
+
+class FrameListViewDeleteSelectionCommand
+{
+public:
+  FrameListViewDeleteSelectionCommand();
+};
+
+#endif // FRAMELISTVIEWDELETESELECTIONCOMMAND_H

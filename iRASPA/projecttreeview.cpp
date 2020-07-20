@@ -33,6 +33,8 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QMimeData>
+#include <QFont>
+#include <QFontMetrics>
 
 ProjectTreeView::ProjectTreeView(QWidget* parent): iRASPATreeView(parent),
   _model(std::make_shared<ProjectTreeViewModel>()),
@@ -104,19 +106,15 @@ void ProjectTreeView::focusOutEvent( QFocusEvent* )
 
 bool ProjectTreeView::hasSelection() const
 {
-  qDebug() << "ProjectTreeView hasSelection" << selectionModel()->selectedIndexes().size();
   QModelIndexList selection = selectionModel()->selectedIndexes();
   for(QModelIndex index : selection)
   {
-    qDebug() << "hasSelection 1";
     if(ProjectTreeNode *selectedTreeNode = static_cast<ProjectTreeNode*>(index.internalPointer()))
     {
-      qDebug() << "hasSelection 2";
       if(std::shared_ptr<iRASPAProject> iraspa_project = selectedTreeNode->representedObject())
       {
         if(std::shared_ptr<ProjectStructure> structureProject = std::dynamic_pointer_cast<ProjectStructure>(iraspa_project->project()))
         {
-          qDebug() << "hasSelction: " << true;
           return true;
         }
       }
@@ -131,6 +129,62 @@ void ProjectTreeView::paintEvent(QPaintEvent *event)
 }
 
 
+QPixmap ProjectTreeView::selectionToPixmap()
+{
+  QModelIndexList selectionIndexes = selectionModel()->selectedRows();
+  QMimeData* mimeData = model()->mimeData(selectionIndexes);
+
+  QDrag* drag = new QDrag(this);
+  drag->setMimeData(mimeData);
+
+  QFontMetrics fontMetrics = QFontMetrics(this->font());
+
+  if(ProjectTreeViewModel* pModel = qobject_cast<ProjectTreeViewModel*>(model()))
+  {
+    int maxWidth=0;
+    int height=4;
+
+    for(QModelIndex index: selectionIndexes)
+    {
+      if(ProjectTreeNode* item = pModel->getItem(index))
+      {
+        QString text = item->displayName();
+        QRect textBoundingRect = fontMetrics.boundingRect(text);
+        if(textBoundingRect.width() > maxWidth) maxWidth = textBoundingRect.size().width();
+        height += textBoundingRect.size().height();
+      }
+    }
+
+    QRect rect = QRect(QPoint(0,0), QSize(maxWidth, height));
+    QPixmap pix = QPixmap(maxWidth, height);
+    pix.fill(Qt::transparent);
+
+    QPainter painter( &pix );
+    painter.setFont(this->font());
+    painter.setOpacity(1.0);
+    painter.setPen(Qt::black);
+
+    int currentHeight=0;
+    for(QModelIndex index: selectionIndexes)
+    {
+      if(ProjectTreeNode* item = pModel->getItem(index))
+      {
+        QString text = item->displayName();
+        QRect rect = fontMetrics.boundingRect(text);
+        currentHeight += rect.size().height();
+
+        painter.save();
+        painter.translate(QPointF(0,currentHeight));
+        painter.drawText(rect,Qt::AlignLeft|Qt::AlignCenter, text);
+        painter.restore();
+      }
+    }
+    return pix;
+  }
+
+  return QPixmap();
+}
+
 void ProjectTreeView::startDrag(Qt::DropActions supportedActions)
 {
   setDropIndicatorShown(true);
@@ -140,32 +194,17 @@ void ProjectTreeView::startDrag(Qt::DropActions supportedActions)
   if(ProjectTreeNode* item = pModel->getItem(index))
   {
     QModelIndexList selectionIndexes = selectionModel()->selectedRows();
-    QMimeData* mimeData = model()->mimeData(selectionIndexes);
+    QMimeData* mimeData = pModel->mimeDataLazy(selectionIndexes);
 
     QDrag* drag = new QDrag(this);
     drag->setMimeData(mimeData);
+
+    drag->setPixmap(selectionToPixmap());
 
     if(drag->exec(supportedActions))
     {
       reloadSelection();
     }
-
-    /*
-    switch(item->type())
-    {
-    case ProjectTreeNode::Type::user:
-      if(drag->exec(Qt::MoveAction))
-      {
-        reloadSelection();
-      }
-      break;
-    default:
-      if(drag->exec(Qt::CopyAction))
-      {
-        reloadSelection();
-      }
-      break;
-    }*/
   }
 }
 
@@ -187,7 +226,7 @@ void ProjectTreeView::dragMoveEvent(QDragMoveEvent* event)
     event->accept();
   }
 
-   QTreeView::dragMoveEvent(event);
+  QTreeView::dragMoveEvent(event);
 }
 
 
@@ -198,23 +237,22 @@ void ProjectTreeView::reloadSelection()
   {
     if(_projectTreeController)
     {
-      std::unordered_set<std::shared_ptr<ProjectTreeNode>> selectedProjects = _projectTreeController->selectedTreeNodes();
+      std::set<std::shared_ptr<ProjectTreeNode>> selectedProjects = _projectTreeController->selectedTreeNodes();
       whileBlocking(selectionModel())->clearSelection();
       if(selectedProjects.size()>0)
       {
         for(std::shared_ptr<ProjectTreeNode> project: selectedProjects)
         {
           QModelIndex index = pModel->indexForItem(project);
-          whileBlocking(selectionModel())->select(index, QItemSelectionModel::Select);
+          selectionModel()->select(index, QItemSelectionModel::Select);
         }
       }
       if(std::shared_ptr<ProjectTreeNode> project = _projectTreeController->selectedTreeNode())
       {
         QModelIndex index = pModel->indexForItem(project);
-        whileBlocking(selectionModel())->select(index, QItemSelectionModel::Select);
-        whileBlocking(selectionModel())->setCurrentIndex(index, QItemSelectionModel::Select);
+        selectionModel()->select(index, QItemSelectionModel::Select);
+        selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select);
       }
-
     }
     update();
   }
@@ -247,72 +285,87 @@ bool ProjectTreeView::insertRows(int position, int rows, const QModelIndex &pare
 
 void ProjectTreeView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
-  if (selectedIndexes().isEmpty() || selected.isEmpty())
+  // avoid empty selection
+  if (selectedIndexes().isEmpty())
   {
-    qDebug() << "EMPTY";
-    if(_projectTreeController)
-    {
-      _projectTreeController->selectedTreeNodes().clear();
-      _projectTreeController->setSelectedTreeNode(nullptr);
-      _mainWindow->propagateProject(nullptr, _mainWindow);
-      update();
-      return;
-    }
     selectionModel()->select(selected, QItemSelectionModel::QItemSelectionModel::Deselect);
     selectionModel()->select(deselected, QItemSelectionModel::QItemSelectionModel::SelectCurrent);
-
     return;
   }
 
   QAbstractItemView::selectionChanged(selected, deselected);
 
-  qDebug() << "SELECTION: " << selectedIndexes();
-
-  _projectTreeController->selectedTreeNodes().clear();
-
-  for(QModelIndex index : selectedIndexes())
+  if(_projectTreeController)
   {
-    if(ProjectTreeNode *selectedTreeNode = static_cast<ProjectTreeNode*>(index.internalPointer()))
-    {
-       _projectTreeController->selectedTreeNodes().insert(selectedTreeNode->shared_from_this());
-    }
-  }
+    _projectTreeController->selectedTreeNodes().clear();
 
-  if(selectedIndexes().size() == 1)
-  {
-    QModelIndex current = selectedIndexes().front();
-    if(ProjectTreeNode *selectedTreeNode = static_cast<ProjectTreeNode*>(current.internalPointer()))
+    if(selectedIndexes().size() == 1)
     {
-      _projectTreeController->setSelectedTreeNode(selectedTreeNode->shared_from_this());
-      _projectTreeController->selectedTreeNodes().insert(selectedTreeNode->shared_from_this());
-      selectedTreeNode->representedObject()->unwrapIfNeeded();
-
-      if(std::shared_ptr<iRASPAProject> iraspa_project = selectedTreeNode->representedObject())
+      QModelIndex current = selectedIndexes().front();
+      if(ProjectTreeNode *selectedTreeNode = static_cast<ProjectTreeNode*>(current.internalPointer()))
       {
-        if(std::shared_ptr<Project> project = iraspa_project->project())
-        {
-          project->setInitialSelectionIfNeeded();
+        _projectTreeController->setSelectedTreeNode(selectedTreeNode->shared_from_this());
+        _projectTreeController->selectedTreeNodes().insert(selectedTreeNode->shared_from_this());
+        selectedTreeNode->representedObject()->unwrapIfNeeded();
 
-          // set currentIndex for keyboard navigation
-          ProjectTreeViewModel* pModel = qobject_cast<ProjectTreeViewModel*>(model());
-          if (pModel)
+        if(std::shared_ptr<iRASPAProject> iraspa_project = selectedTreeNode->representedObject())
+        {
+          if(std::shared_ptr<Project> project = iraspa_project->project())
           {
-            QModelIndex index = pModel->indexForItem(selectedTreeNode->shared_from_this());
-            selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectionFlag::Current);
+            project->setInitialSelectionIfNeeded();
+            _mainWindow->propagateProject(selectedTreeNode->shared_from_this(), _mainWindow);
           }
         }
       }
+    }
 
-
-      if(std::shared_ptr<iRASPAProject> iraspa_project = std::dynamic_pointer_cast<iRASPAProject>(selectedTreeNode->representedObject()))
+    // loop over all selected indexes
+    for(QModelIndex index : selectedIndexes())
+    {
+      if(ProjectTreeNode *selectedTreeNode = static_cast<ProjectTreeNode*>(index.internalPointer()))
       {
-        _mainWindow->propagateProject(selectedTreeNode->shared_from_this(), _mainWindow);
-        return;
+        _projectTreeController->selectedTreeNodes().insert(selectedTreeNode->shared_from_this());
       }
     }
-  }
 
-  _mainWindow->propagateProject(nullptr, _mainWindow);
+    ProjectTreeViewModel* pModel = qobject_cast<ProjectTreeViewModel*>(model());
+    QModelIndex selectedIndex = pModel->indexForItem(_projectTreeController->selectedTreeNode());
+    if(selectedIndexes().empty())
+    {
+      _mainWindow->propagateProject(nullptr, _mainWindow);
+    }
+    else
+    {
+      // if the main selected project is unselected, pick another as the main
+      if(!selectedIndexes().contains(selectedIndex))
+      {
+        selectedIndex = selectedIndexes().front();
+        if(ProjectTreeNode *selectedTreeNode = static_cast<ProjectTreeNode*>(selectedIndex.internalPointer()))
+        {
+          _projectTreeController->setSelectedTreeNode(selectedTreeNode->shared_from_this());
+
+          selectedTreeNode->representedObject()->unwrapIfNeeded();
+
+          if(std::shared_ptr<iRASPAProject> iraspa_project = selectedTreeNode->representedObject())
+          {
+            if(std::shared_ptr<Project> project = iraspa_project->project())
+            {
+              project->setInitialSelectionIfNeeded();
+              _mainWindow->propagateProject(selectedTreeNode->shared_from_this(), _mainWindow);
+            }
+          }
+        }
+      }
+    }
+
+    // set currentIndex for keyboard navigation
+    if (selectedIndex.isValid())
+    {
+      selectionModel()->setCurrentIndex(selectedIndex, QItemSelectionModel::SelectionFlag::Current);
+    }
+
+    update();
+  }
 }
 
 QSize ProjectTreeView::sizeHint() const
@@ -381,7 +434,6 @@ void ProjectTreeView::keyPressEvent(QKeyEvent * event)
 
 void ProjectTreeView::copy()
 {
-  qDebug() << "ProjectTreeView::copy()";
   if(ProjectTreeViewModel* pModel = qobject_cast<ProjectTreeViewModel*>(model()))
   {
     if(QClipboard *clipboard = QApplication::clipboard())
@@ -393,53 +445,26 @@ void ProjectTreeView::copy()
 
       std::sort(indexes.begin(), indexes.end());
 
-      if(indexes.size()>0)
-      {
-        QByteArray encodedData;
-        QDataStream stream(&encodedData, QIODevice::WriteOnly);
-
-        stream << QCoreApplication::applicationPid();
-        stream << indexes.count();
-
-        for(const QModelIndex &index: indexes)
-        {
-          if(index.isValid())
-          {
-            if(ProjectTreeNode *projectTreeNode = pModel->getItem(index))
-            {
-              qulonglong ptrval(reinterpret_cast<qulonglong>(projectTreeNode));
-              stream << ptrval;
-              stream <<= projectTreeNode->shared_from_this();
-            }
-          }
-        }
-        QMimeData *mimeData = new QMimeData();
-        mimeData->setData(ProjectTreeNode::mimeType, encodedData);
-
-        clipboard->setMimeData(mimeData);
-      }
+      QMimeData *mimeData = pModel->mimeData(indexes);
+      clipboard->setMimeData(mimeData);
     }
   }
 }
 
 void ProjectTreeView::paste()
 {
-  qDebug() << "ProjectTreeView::paste()";
   if(ProjectTreeViewModel* pModel = qobject_cast<ProjectTreeViewModel*>(model()))
   {
     if(qApp->clipboard()->mimeData()->hasFormat(ProjectTreeNode::mimeType))
     {
       const QMimeData *mimeData = qApp->clipboard()->mimeData();
 
-      qDebug() << "correct project object on pasteboard";
-      //std::shared_ptr<ProjectTreeNode> lcoalProjects = pModel->projectTreeController()->localProjects();
-      //QModelIndex currentIndex = pModel->indexForItem(lcoalProjects);
       QModelIndex currentIndex = selectionModel()->currentIndex();
       if(currentIndex.isValid())
       {
         if(pModel->canDropMimeData(mimeData,Qt::CopyAction, 0, 0, currentIndex))
         {
-          pModel->dropMimeData(mimeData, Qt::CopyAction, 0, 0, currentIndex);
+          pModel->pasteMimeData(mimeData, 0, 0, currentIndex);
         }
         else
         {

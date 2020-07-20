@@ -69,12 +69,14 @@ public:
   bool setData(const QModelIndex &index, const QVariant &value, int role) override final;
   bool setData(const QModelIndex &index, std::shared_ptr<iRASPAProject> value, bool isGroup=false);
 
-  Qt::DropActions supportedDragActions() const override final;
   Qt::DropActions supportedDropActions() const override final;
+  Qt::DropActions supportedDragActions() const override final;
   QStringList mimeTypes() const override final;
   QMimeData* mimeData(const QModelIndexList &indexes) const override final;
+  QMimeData* mimeDataLazy(const QModelIndexList &indexes) const;
   bool canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const override final;
   bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override final;
+  bool pasteMimeData(const QMimeData *data, int row, int column, const QModelIndex &parent);
 
   ProjectTreeNode* getItem(const QModelIndex &index) const;
 

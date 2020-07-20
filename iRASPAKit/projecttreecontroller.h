@@ -71,7 +71,7 @@ public:
     std::shared_ptr<ProjectTreeNode> localProjects() {return _localProjects;}
     std::shared_ptr<ProjectTreeNode> icloudProjects() {return _icloudProjects;}
 
-    std::unordered_set<std::shared_ptr<ProjectTreeNode>>& selectedTreeNodes() {return _selectedTreeNodes;}
+    std::set<std::shared_ptr<ProjectTreeNode>>& selectedTreeNodes() {return _selectedTreeNodes;}
     std::shared_ptr<ProjectTreeNode>& selectedTreeNode() {return _selectedTreeNode;}
     void setSelectedTreeNode(std::shared_ptr<ProjectTreeNode> selectedNode) {_selectedTreeNode = selectedNode;}
 private:
@@ -82,7 +82,7 @@ private:
 
     std::shared_ptr<ProjectTreeNode> _hiddenRootNode;
     std::shared_ptr<ProjectTreeNode> _selectedTreeNode;
-    std::unordered_set<std::shared_ptr<ProjectTreeNode>> _selectedTreeNodes{};
+    std::set<std::shared_ptr<ProjectTreeNode>> _selectedTreeNodes{};
     std::function<bool(std::shared_ptr<ProjectTreeNode>)> _filterPredicate = [](std::shared_ptr<ProjectTreeNode>) { return true; };
 
     friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<ProjectTreeController> &);

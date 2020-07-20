@@ -49,6 +49,19 @@ std::shared_ptr<Scene> SceneList::selectedScene()
   return nullptr;
 }
 
+std::optional<int> SceneList::findChildIndex(std::shared_ptr<Scene> scene)
+{
+  std::vector<std::shared_ptr<Scene>>::const_iterator itr = std::find(_scenes.begin(), _scenes.end(), scene);
+  if (itr != _scenes.end())
+  {
+    int row = itr-_scenes.begin();
+    return row;
+  }
+
+  return std::nullopt;
+}
+
+
 void SceneList::setSelectedFrameIndices(int frameIndex)
 {
   for(std::shared_ptr<Scene> scene : _scenes)
@@ -60,6 +73,10 @@ void SceneList::setSelectedFrameIndices(int frameIndex)
 void SceneList::setSelectedScene(std::shared_ptr<Scene> scene)
 {
   _selectedScene = scene;
+  if(_selectedScene)
+  {
+    _selectedScenes.insert(_selectedScene);
+  }
 }
 
 int SceneList::selectedSceneIndex()

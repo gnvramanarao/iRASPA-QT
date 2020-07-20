@@ -81,6 +81,9 @@ private:
   QDir directoryOf(const QString &subdir);
   void createMenus();
 
+  QMenu *_newMenu{nullptr};
+  QAction *_newWorkSpaceAction{nullptr};
+
   QMenu *_editMenu{nullptr};
   QAction *_undoAction{nullptr};
   QAction *_redoAction{nullptr};
@@ -93,6 +96,7 @@ public slots:
   void openFile();
   void saveFile();
   void showAboutDialog();
+  void newWorkSpace();
   int slideRightPanel(void);
   int slideDownPanel(void);
   int slideLeftPanel(void);

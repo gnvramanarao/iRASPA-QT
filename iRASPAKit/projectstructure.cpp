@@ -81,15 +81,21 @@ ProjectStructure::~ProjectStructure()
 
 void ProjectStructure::setInitialSelectionIfNeeded()
 {
-  _sceneList->setSelectedScene(_sceneList->scenes().front());
+  if(!_sceneList->selectedScene())
+  {
+    _sceneList->setSelectedScene(_sceneList->scenes().front());
+  }
 
-  for(std::shared_ptr<Scene> scene : _sceneList->scenes())
+  for(std::shared_ptr<Scene> scene : _sceneList->selectedScenes())
   {
     if(!scene->selectedMovie())
     {
       scene->setSelectedMovie(scene->movies().front());
     }
+  }
 
+  for(std::shared_ptr<Scene> scene : _sceneList->scenes())
+  {
     for(std::shared_ptr<Movie> movie : scene->movies())
     {
       if(!movie->selectedFrame())

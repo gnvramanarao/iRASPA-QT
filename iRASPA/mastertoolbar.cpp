@@ -35,9 +35,9 @@ MasterToolBar::MasterToolBar(QWidget * parent):QToolBar(parent)
 {
   // the first toolbutton is the "project"-tab
   buttonToProjectTab = new QToolButton(this);
-  buttonToProjectTab->setGeometry(0,0,30,30);
-  buttonToProjectTab->setMinimumSize(30,30);
-  buttonToProjectTab->setMaximumSize(30,30);
+  buttonToProjectTab->setGeometry(0,0,24,24);
+  buttonToProjectTab->setMinimumSize(24,24);
+  buttonToProjectTab->setMaximumSize(24,24);
   buttonToProjectTab->setIcon(QIcon(":/iRASPA/ProjectListController.png"));
   buttonToProjectTab->setContentsMargins(0,0,0,0);
   buttonToProjectTab->setCheckable(true);
@@ -47,9 +47,9 @@ MasterToolBar::MasterToolBar(QWidget * parent):QToolBar(parent)
 
   // the second toolbutton is the "detail"-tab (scene for crystals, vasp-input files for VASP,...)
   buttonToMovieViewTab = new QToolButton(this);
-  buttonToMovieViewTab->setGeometry(0,0,30,30);
-  buttonToMovieViewTab->setMinimumSize(30,30);
-  buttonToMovieViewTab->setMaximumSize(30,30);
+  buttonToMovieViewTab->setGeometry(0,0,24,24);
+  buttonToMovieViewTab->setMinimumSize(24,24);
+  buttonToMovieViewTab->setMaximumSize(24,24);
   buttonToMovieViewTab->setIcon(QIcon(":/iRASPA/MovieListController.png"));
   buttonToMovieViewTab->setContentsMargins(0,0,0,0);
   buttonToMovieViewTab->setCheckable(true);
@@ -58,9 +58,9 @@ MasterToolBar::MasterToolBar(QWidget * parent):QToolBar(parent)
 
   // the second toolbutton is the "detail"-tab (scene for crystals, vasp-input files for VASP,...)
   buttonFrameViewTab = new QToolButton(this);
-  buttonFrameViewTab->setGeometry(0,0,30,30);
-  buttonFrameViewTab->setMinimumSize(30,30);
-  buttonFrameViewTab->setMaximumSize(30,30);
+  buttonFrameViewTab->setGeometry(0,0,24,24);
+  buttonFrameViewTab->setMinimumSize(24,24);
+  buttonFrameViewTab->setMaximumSize(24,24);
   buttonFrameViewTab->setIcon(QIcon(":/iRASPA/FrameListController.png"));
   buttonFrameViewTab->setContentsMargins(0,0,0,0);
   buttonFrameViewTab->setCheckable(true);
@@ -121,5 +121,5 @@ void MasterToolBar::reactToFrameToggled(bool checked)
 
 QSize MasterToolBar::sizeHint() const
 {
-    return QSize(200, 30);
+  return QSize(200, 24);
 }

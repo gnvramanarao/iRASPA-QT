@@ -210,6 +210,12 @@ void MainWindow::createMenus()
   QAction *actionFileAbout = new QAction(tr("&About iRASPA"), this);
   QObject::connect(actionFileAbout, &QAction::triggered, this, &MainWindow::showAboutDialog);
   fileMenu->addAction(actionFileAbout);
+
+  _newMenu = fileMenu->addMenu(tr("&New"));
+  _newWorkSpaceAction = new QAction(tr("&Workspace"), this);
+  QObject::connect(_newWorkSpaceAction, &QAction::triggered, this, &MainWindow::newWorkSpace);
+  _newMenu->addAction(_newWorkSpaceAction);
+
   QAction *actionFileImport = new QAction(tr("&Import"), this);
   QObject::connect(actionFileImport, &QAction::triggered, this, &MainWindow::importFile);
   fileMenu->addAction(actionFileImport);
@@ -685,6 +691,14 @@ QDir MainWindow::directoryOf(const QString &subdir)
 #endif
   dir.cd(subdir);
   return dir;
+}
+
+
+void MainWindow::newWorkSpace()
+{
+  MainWindow *mainWindow = new MainWindow();
+  mainWindow->setAttribute(Qt::WA_DeleteOnClose);
+  mainWindow->show();
 }
 
 

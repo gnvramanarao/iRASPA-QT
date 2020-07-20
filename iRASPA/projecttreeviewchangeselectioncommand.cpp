@@ -27,29 +27,42 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#include "mainwindow.h"
-#include <QApplication>
-#include <QGLFormat>
+#include "projecttreeviewchangeselectioncommand.h"
+#include <QDebug>
+#include <algorithm>
 
-int main(int argc, char *argv[])
+ProjectChangeSelectionCommand::ProjectChangeSelectionCommand(MainWindow *main_window, std::shared_ptr<ProjectTreeNode> projectSelection,
+                                     std::shared_ptr<ProjectTreeNode> previousProjectSelection, std::set<std::shared_ptr<ProjectTreeNode> > projectSetSelection,
+                                     std::set<std::shared_ptr<SKAtomTreeNode> > previousProjectSetSelection, QUndoCommand *parent):
+  _main_window(main_window),
+  _projectSelection(projectSelection),
+  _previousProjectSelection(previousProjectSelection),
+  _projectSetSelection(projectSetSelection),
+  _previousProjectSetSelection(previousProjectSetSelection)
 {
-  QSurfaceFormat format;
-  format.setRenderableType(QSurfaceFormat::OpenGL);
-  format.setSamples(1);
-  format.setVersion(3, 3);
-  format.setProfile(QSurfaceFormat::CoreProfile);
-  QSurfaceFormat::setDefaultFormat(format);
+  Q_UNUSED(parent);
 
-  QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-  // https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
-#ifdef Q_OS_WIN
-   SetProcessDPIAware(); // call before the main event loop
-#endif
-
-  QApplication a(argc, argv);
-
-  MainWindow w;
-  w.show();
-
-  return a.exec();
+  setText(QString("Change project selection"));
 }
+
+void ProjectChangeSelectionCommand::redo()
+{
+  qDebug() << "Redoing ProjectTreeViewChangeSelectionCommand";
+
+  if(_main_window)
+  {
+    _main_window->reloadSelectionDetailViews();
+  }
+}
+
+void ProjectChangeSelectionCommand::undo()
+{
+  qDebug() << "Undoing ProjectTreeViewChangeSelectionCommand";
+
+
+  if(_main_window)
+  {
+    _main_window->reloadSelectionDetailViews();
+  }
+}
+

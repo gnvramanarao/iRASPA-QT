@@ -49,7 +49,6 @@ void ProjectTreeViewModel::setProjectTreeController(std::shared_ptr<ProjectTreeC
 
 bool ProjectTreeViewModel::isMainSelectedItem(std::shared_ptr<ProjectTreeNode> treeNode)
 {
-  qDebug() << "check: " << _projectTreeController->selectedTreeNode().get() << treeNode.get();
   return (_projectTreeController->selectedTreeNode() == treeNode);
 }
 
@@ -355,7 +354,7 @@ QStringList ProjectTreeViewModel::mimeTypes() const
   return QAbstractItemModel::mimeTypes() << ProjectTreeNode::mimeType;
 }
 
-QMimeData* ProjectTreeViewModel::mimeData(const QModelIndexList &indexes) const
+QMimeData* ProjectTreeViewModel::mimeDataLazy(const QModelIndexList &indexes) const
 {
   QByteArray encodedData;
   QDataStream stream(&encodedData, QIODevice::WriteOnly);
@@ -363,7 +362,14 @@ QMimeData* ProjectTreeViewModel::mimeData(const QModelIndexList &indexes) const
   QModelIndexList sortedIndexes = indexes;
   std::sort(sortedIndexes.begin(), sortedIndexes.end());
 
+  // write application id
   stream << QCoreApplication::applicationPid();
+
+  // write application projectTreeView id
+  qulonglong ptrval(reinterpret_cast<qulonglong>(this));
+  stream << ptrval;
+
+  // write the number of objects
   stream << sortedIndexes.count();
 
   for(const QModelIndex &index: sortedIndexes)
@@ -374,6 +380,33 @@ QMimeData* ProjectTreeViewModel::mimeData(const QModelIndexList &indexes) const
       {
         qulonglong ptrval(reinterpret_cast<qulonglong>(projectTreeNode));
         stream << ptrval;
+      }
+    }
+  }
+  QMimeData *mimeData = new QMimeData();
+  mimeData->setData(ProjectTreeNode::mimeType, encodedData);
+
+  return mimeData;
+}
+
+QMimeData* ProjectTreeViewModel::mimeData(const QModelIndexList &indexes) const
+{
+  QByteArray encodedData;
+  QDataStream stream(&encodedData, QIODevice::WriteOnly);
+
+  QModelIndexList sortedIndexes = indexes;
+  std::sort(sortedIndexes.begin(), sortedIndexes.end());
+
+  // write application id
+  stream << QCoreApplication::applicationPid();
+
+  for(const QModelIndex &index: sortedIndexes)
+  {
+    if(index.isValid())
+    {
+      if(ProjectTreeNode *projectTreeNode = getItem(index))
+      {
+        stream <<= projectTreeNode->shared_from_this();
       }
     }
   }
@@ -405,6 +438,7 @@ bool ProjectTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction ac
 {
   Q_UNUSED(column);
 
+
   if(action == Qt::IgnoreAction)
   {
     return true;
@@ -419,6 +453,7 @@ bool ProjectTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction ac
 
   ProjectTreeNode *parentNode = getItem(parent);
 
+  // read application id
   qint64 senderPid;
   stream >> senderPid;
   if (senderPid != QCoreApplication::applicationPid())
@@ -426,6 +461,12 @@ bool ProjectTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction ac
     return false;
   }
 
+  // read application projectTreeView id
+  qulonglong sourceProjectTreeViewId(reinterpret_cast<qulonglong>(this));
+  qulonglong senderProjectTreeViewId;
+  stream >> senderProjectTreeViewId;
+
+  // read the number of objects
   int count;
   stream >> count;
 
@@ -438,17 +479,16 @@ bool ProjectTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction ac
       beginRow = rowCount(parent);
   }
 
-  if(action == Qt::DropAction::CopyAction)
+  if(action == Qt::DropAction::CopyAction || (senderProjectTreeViewId != sourceProjectTreeViewId))
   {
-    qDebug() << "Qt::DropAction::CopyAction";
     emit layoutAboutToBeChanged();
     bool oldState = this->blockSignals(true);
     while (!stream.atEnd())
     {
       qlonglong nodePtr;
       stream >> nodePtr;
-      std::shared_ptr<ProjectTreeNode> copiedProjectTreeNode = std::make_shared<ProjectTreeNode>();
-      stream >>= copiedProjectTreeNode;
+      ProjectTreeNode *node = reinterpret_cast<ProjectTreeNode *>(nodePtr);
+      std::shared_ptr<ProjectTreeNode> copiedProjectTreeNode = node->shallowClone();
       copiedProjectTreeNode->setIsEditable(true);
       copiedProjectTreeNode->setIsDropEnabled(true);
 
@@ -460,9 +500,8 @@ bool ProjectTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction ac
     }
     this->blockSignals(oldState);
   }
-  else if(action == Qt::DropAction::MoveAction)
+  else if(action == Qt::DropAction::MoveAction && (senderProjectTreeViewId == sourceProjectTreeViewId))
   {
-    qDebug() << "Qt::DropAction::MoveAction";
     emit layoutAboutToBeChanged();
     bool oldState = this->blockSignals(true);
     while (!stream.atEnd())
@@ -474,7 +513,7 @@ bool ProjectTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction ac
 
       if(node->isEditable())
       {
-        qDebug() << "NOH ISEDITABLE";
+        // source project is editable, so move it
         std::shared_ptr<ProjectTreeNode> projectTreeNode = node->shared_from_this();
         localRow = node->row();
         QModelIndex index = createIndex(localRow,0,projectTreeNode.get());
@@ -497,7 +536,7 @@ bool ProjectTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction ac
       }
       else
       {
-        qDebug() << "YEAH";
+        // source project not editable, so copy the project and do NOT delete the source
         std::shared_ptr<ProjectTreeNode> copiedTreeNode = node->shallowClone();
         copiedTreeNode->setIsEditable(true);
         copiedTreeNode->setIsDropEnabled(true);
@@ -516,3 +555,74 @@ bool ProjectTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction ac
 
   return true;
 }
+
+bool ProjectTreeViewModel::pasteMimeData(const QMimeData *data, int row, int column, const QModelIndex &parent)
+{
+  Q_UNUSED(column);
+
+  if(!data->hasFormat(ProjectTreeNode::mimeType))
+  {
+    return false;
+  }
+
+  QByteArray ddata = data->data(ProjectTreeNode::mimeType);
+  QDataStream stream(&ddata, QIODevice::ReadOnly);
+
+
+
+  // read application id
+  qint64 senderPid;
+  stream >> senderPid;
+  if (senderPid != QCoreApplication::applicationPid())
+  {
+    return false;
+  }
+
+  // determine insertion point
+  QModelIndex beginParent = parent;
+  int beginRow = row;
+  if(ProjectTreeNode *parentNode = getItem(parent))
+  {
+    if(std::shared_ptr<iRASPAProject> iraspa_project = parentNode->representedObject())
+    {
+      if(std::shared_ptr<ProjectStructure> project = std::dynamic_pointer_cast<ProjectStructure>(iraspa_project->project()))
+      {
+        beginParent = parent.parent();
+        beginRow = parent.row() + 1;
+      }
+    }
+  }
+
+  if (row == -1)
+  {
+      if (parent.isValid())
+          beginRow = 0;
+      else
+          beginRow = rowCount(parent);
+  }
+
+  if(ProjectTreeNode *parentNode = getItem(beginParent))
+  {
+    emit layoutAboutToBeChanged();
+    bool oldState = this->blockSignals(true);
+    while (!stream.atEnd())
+    {
+      std::shared_ptr<ProjectTreeNode> copiedProjectTreeNode = std::make_shared<ProjectTreeNode>();
+      stream >>= copiedProjectTreeNode;
+      copiedProjectTreeNode->setIsEditable(true);
+      copiedProjectTreeNode->setIsDropEnabled(true);
+
+      beginInsertRows(beginParent, beginRow, beginRow);
+      if (!parentNode->insertChild(beginRow, copiedProjectTreeNode))
+        break;
+      endInsertRows();
+      beginRow += 1;
+    }
+    this->blockSignals(oldState);
+  }
+
+  emit layoutChanged();
+
+  return true;
+}
+

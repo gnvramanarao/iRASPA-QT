@@ -51,6 +51,9 @@ public:
   void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode) override final;
   void reloadSelection() override final;
   void reloadData() override final;
+
+  void startDrag(Qt::DropActions supportedActions) override final;
+  void dragMoveEvent(QDragMoveEvent* event) override final;
 private:
   MainWindow* _mainWindow;
   std::shared_ptr<SceneTreeViewModel> _model;

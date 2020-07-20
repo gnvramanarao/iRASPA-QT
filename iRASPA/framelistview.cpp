@@ -106,7 +106,7 @@ void FrameListView::reloadSelection()
     if (std::optional<int> selectedIndex = _movie->selectedFrameIndex())
     {
       QModelIndex item = model()->index(*selectedIndex, 0, QModelIndex());
-      whileBlocking(selectionModel())->select(item, QItemSelectionModel::Select);
+      selectionModel()->select(item, QItemSelectionModel::Select);
     }
 
     // set currentIndex for keyboard navigation
@@ -114,6 +114,7 @@ void FrameListView::reloadSelection()
     {
       QModelIndex item = model()->index(*selectedIndex, 0, QModelIndex());
       whileBlocking(selectionModel())->setCurrentIndex(item, QItemSelectionModel::SelectionFlag::Current);
+
     }
 
     update();
@@ -126,8 +127,16 @@ void FrameListView::reloadData()
 }
 
 
-void FrameListView::selectionChanged(const QItemSelection &selected, const QItemSelection &previous)
+void FrameListView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
+  // avoid empty selection
+  if (selectedIndexes().isEmpty())
+  {
+    selectionModel()->select(selected, QItemSelectionModel::QItemSelectionModel::Deselect);
+    selectionModel()->select(deselected, QItemSelectionModel::QItemSelectionModel::SelectCurrent);
+    return;
+  }
+
   if(_movie)
   {
     int oldSelectionSize = _movie ? _movie->selectedFramesIndexSet().size() : 0;
@@ -137,14 +146,8 @@ void FrameListView::selectionChanged(const QItemSelection &selected, const QItem
       emit invalidateCachedAmbientOcclusionTexture(_sceneList->flattenedSelectediRASPARenderStructures());
     }
 
-    if (selectedIndexes().isEmpty())
-    {
-      selectionModel()->select(selected, QItemSelectionModel::QItemSelectionModel::Deselect);
-      selectionModel()->select(previous, QItemSelectionModel::QItemSelectionModel::SelectCurrent);
-      return;
-    }
 
-    QAbstractItemView::selectionChanged(selected, previous);
+    QAbstractItemView::selectionChanged(selected, deselected);
 
     if(selectedIndexes().size() == 1)
     {

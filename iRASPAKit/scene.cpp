@@ -182,6 +182,25 @@ std::optional<int> Scene::findChildIndex(std::shared_ptr<Movie> movie)
   return std::nullopt;
 }
 
+bool Scene::removeChild(size_t row)
+{
+  if (row < 0 || row >= _movies.size())
+     return false;
+
+  _movies.erase(_movies.begin() + row);
+  return true;
+}
+
+bool Scene::insertChild(size_t row, std::shared_ptr<Movie> child)
+{
+  if (row < 0 || row > _movies.size())
+    return false;
+
+  _movies.insert(_movies.begin() + row, child);
+  return true;
+}
+
+
 std::vector<std::shared_ptr<Structure>> Scene::structures() const
 {
   std::vector<std::shared_ptr<Structure>> structures = std::vector<std::shared_ptr<Structure>>();

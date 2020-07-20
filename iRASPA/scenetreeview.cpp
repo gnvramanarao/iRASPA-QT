@@ -45,6 +45,12 @@ SceneTreeView::SceneTreeView(QWidget* parent): QTreeView(parent ), _model(std::m
   this->setHeaderHidden(true);
   this->setIndentation(4);
 
+  setDragEnabled(true);
+  setAcceptDrops(true);
+  setDropIndicatorShown(true);
+  setDragDropMode(DragDropMode::DragDrop);
+  setDragDropOverwriteMode(false);
+
   this->setAttribute(Qt::WA_MacShowFocusRect, false);
   this->setStyleSheet("background-color:rgb(240, 240, 240);");
   this->setStyle(new SceneTreeViewProxyStyle());
@@ -57,6 +63,9 @@ void SceneTreeView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
   _projectTreeNode = projectTreeNode;
   if (projectTreeNode)
   {
+    setDragEnabled(projectTreeNode->isEditable());
+    setAcceptDrops(projectTreeNode->isEditable());
+
     if(std::shared_ptr<iRASPAProject> iraspaProject = projectTreeNode->representedObject())
     {
       if(std::shared_ptr<Project> project = iraspaProject->project())
@@ -73,6 +82,8 @@ void SceneTreeView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
   }
 
   // if no project is selected or the project is not of type 'ProjectStructure'
+  setDragEnabled(false);
+  setAcceptDrops(false);
   _sceneList = nullptr;
   _model->setSceneList(nullptr);
 }
@@ -87,28 +98,50 @@ void SceneTreeView::reloadSelection()
 {
   if(_sceneList)
   {
+    whileBlocking(selectionModel())->clearSelection();
+
+    std::unordered_set<std::shared_ptr<Scene>> selectedScenes = _sceneList->selectedScenes();
+    for(std::shared_ptr<Scene> scene: selectedScenes)
+    {
+      std::optional<int> sceneIndex = _sceneList->findChildIndex(scene);
+      if(sceneIndex)
+      {
+        QModelIndex parentItem = model()->index(*sceneIndex,0,QModelIndex());
+        std::unordered_set<std::shared_ptr<Movie>> selectedMovies = scene->selectedMovies();
+        for(std::shared_ptr<Movie> movie: selectedMovies)
+        {
+          std::optional<int> movieIndex = scene->findChildIndex(movie);
+          if(movieIndex)
+          {
+            QModelIndex selectedMovie = model()->index(*movieIndex,0, parentItem);
+            whileBlocking(selectionModel())->select(selectedMovie, QItemSelectionModel::Select);
+          }
+        }
+      }
+    }
+    emit setSelectedRenderFrames(_sceneList->selectediRASPARenderStructures());
+    emit setFlattenedSelectedFrames(_sceneList->selectedMoviesiRASPAStructures());
+
     std::optional<int> sceneIndex = _sceneList->selectedSceneIndex();
     if(sceneIndex)
     {
       QModelIndex parentItem = model()->index(*sceneIndex,0,QModelIndex());
 
+      std::shared_ptr<Movie> movie = _sceneList->selectedScene()->selectedMovie();
       std::optional<int> movieIndex = _sceneList->selectedScene()->selectMovieIndex();
 
       if(movieIndex)
       {
         QModelIndex selectedMovie = model()->index(*movieIndex,0,parentItem);
 
-        whileBlocking(selectionModel())->clearSelection();
         whileBlocking(selectionModel())->select(selectedMovie, QItemSelectionModel::Select);
-      }
-    }
 
-    // set currentIndex for keyboard navigation
-    SceneTreeViewModel* pModel = qobject_cast<SceneTreeViewModel*>(model());
-    QModelIndex selectedIndex = pModel->indexOfMainSelected();
-    if (selectedIndex.isValid())
-    {
-      whileBlocking(selectionModel())->setCurrentIndex(selectedIndex, QItemSelectionModel::SelectionFlag::Current);
+        // set currentIndex for keyboard navigation
+        whileBlocking(selectionModel())->setCurrentIndex(selectedMovie, QItemSelectionModel::SelectionFlag::Current);
+
+        emit setSelectedMovie(movie);
+        emit setSelectedFrame(movie->selectedFrame());
+      }
     }
   }
   update();
@@ -121,17 +154,18 @@ void SceneTreeView::reloadData()
 
 void SceneTreeView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
+  // avoid empty selection
+  if (selectedIndexes().isEmpty())
+  {
+    selectionModel()->select(selected, QItemSelectionModel::QItemSelectionModel::Deselect);
+    selectionModel()->select(deselected, QItemSelectionModel::QItemSelectionModel::SelectCurrent);
+    return;
+  }
+
+  QAbstractItemView::selectionChanged(selected, deselected);
+
   if(_sceneList)
   {
-    if (selectedIndexes().isEmpty())
-    {
-      selectionModel()->select(selected, QItemSelectionModel::QItemSelectionModel::Deselect);
-      selectionModel()->select(deselected, QItemSelectionModel::QItemSelectionModel::SelectCurrent);
-      return;
-    }
-
-    QAbstractItemView::selectionChanged(selected, deselected);
-
     // clear scene-movie selection
     _sceneList->selectedScenes().clear();
     for(std::shared_ptr<Scene> scene : _sceneList->scenes())
@@ -215,3 +249,43 @@ QString SceneTreeView::nameOfItem(const QModelIndex &current)
   }
   return QString("unknown");
 }
+
+void SceneTreeView::startDrag(Qt::DropActions supportedActions)
+{
+  setDropIndicatorShown(true);
+  QModelIndex index = currentIndex();
+
+  SceneTreeViewModel* pModel = qobject_cast<SceneTreeViewModel*>(model());
+
+  QMimeData* mimeData = model()->mimeData(selectedIndexes());
+
+  QDrag* drag = new QDrag(this);
+  drag->setMimeData(mimeData);
+
+  if(drag->exec(supportedActions))
+  {
+    reloadSelection();
+  }
+}
+
+void SceneTreeView::dragMoveEvent(QDragMoveEvent* event)
+{
+  QModelIndex index = indexAt(event->pos());
+
+  // use the visualRect of the index to avoid dropping on the background left to items
+  if (!index.isValid() || !visualRect(index).contains(event->pos()))
+  {
+    setDropIndicatorShown(false);
+    event->ignore();
+    viewport()->update();
+  }
+  else
+  {
+    setDropIndicatorShown(true);
+    viewport()->update();
+    event->accept();
+  }
+
+  QTreeView::dragMoveEvent(event);
+}
+

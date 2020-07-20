@@ -1,0 +1,11 @@
+#ifndef PROJECTTREEVIEWDELETESELECTIONCOMMAND_H
+#define PROJECTTREEVIEWDELETESELECTIONCOMMAND_H
+
+
+class ProjectTreeViewDeleteSelectionCommand
+{
+public:
+  ProjectTreeViewDeleteSelectionCommand();
+};
+
+#endif // PROJECTTREEVIEWDELETESELECTIONCOMMAND_H

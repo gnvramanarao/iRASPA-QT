@@ -29,47 +29,28 @@
 
 #pragma once
 
+#include <QUndoCommand>
+#include <set>
 #include <vector>
-#include <unordered_set>
-#include "iraspastructure.h"
-#include "iraspakitprotocols.h"
+#include <map>
+#include "iraspakit.h"
+#include "symmetrykit.h"
+#include "mathkit.h"
+#include "mainwindow.h"
 
-class Movie: public std::enable_shared_from_this<Movie>, public DisplayableProtocol
+class SceneChangeSelectionCommand : public QUndoCommand
 {
 public:
-
-  static char mimeType[];
-
-  Movie();
-  Movie(QString displayName);
-  Movie(std::shared_ptr<iRASPAStructure> structure) {_frames.push_back(structure);}
-  virtual ~Movie() {}
-
-  void append(std::shared_ptr<iRASPAStructure> structure) {_frames.push_back(structure);}
-  const std::vector<std::shared_ptr<iRASPAStructure>> frames() const {return _frames;}
-  QString displayName() const override final;
-  bool isVisible() {return _isVisible;}
-  void setVisibility(bool visibility);
-
-  std::shared_ptr<iRASPAStructure> selectedFrame();
-  std::optional<int> selectedFrameIndex();
-  void setSelectedFrameIndex(int frameIndex);
-  void setSelectedFrame(std::shared_ptr<iRASPAStructure> selectedFrame);
-  std::set<std::shared_ptr<iRASPAStructure>> &selectedFramesSet() {return _selectedFramesSet;}
-  std::set<int> selectedFramesIndexSet();
-
-  std::vector<std::shared_ptr<iRASPAStructure>> selectedFramesiRASPAStructures() const;
+  SceneChangeSelectionCommand(MainWindow *main_window,
+                         std::shared_ptr<Movie> newSelectedMovie, std::map<std::shared_ptr<Scene>, std::set<std::shared_ptr<Movie>>> newSelection,
+                         std::shared_ptr<Movie> oldSelectedMovie, std::map<std::shared_ptr<Scene>, std::set<std::shared_ptr<Movie>>> oldSelection,
+                         QUndoCommand *parent = nullptr);
+  void undo() override final;
+  void redo() override final;
 private:
-  qint64 _versionNumber{1};
-  bool _isVisible = true;
-  bool _isLoading = false;
-  QString _displayName = QString("Movie");
-
-  std::vector<std::shared_ptr<iRASPAStructure>> _frames{};
-  std::shared_ptr<iRASPAStructure> _selectedFrame;
-  std::set<std::shared_ptr<iRASPAStructure>> _selectedFramesSet;
-
-  friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<Movie> &);
-  friend QDataStream &operator>>(QDataStream &, std::shared_ptr<Movie> &);
+  MainWindow *_main_window;
+  std::shared_ptr<Movie> _newSelectedMovie;
+  std::map<std::shared_ptr<Scene>, std::set<std::shared_ptr<Movie>>>  _newSelection;
+  std::shared_ptr<Movie> _oldSelectedMovie;
+  std::map<std::shared_ptr<Scene>, std::set<std::shared_ptr<Movie>>>  _oldSelection;
 };
-

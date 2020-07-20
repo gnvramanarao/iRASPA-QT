@@ -50,9 +50,9 @@
 class iRASPAStructure: public std::enable_shared_from_this<iRASPAStructure>, public DisplayableProtocol
 {
 public:
-  iRASPAStructure():_rawValue(iRASPAStructureType::none), _structure(std::make_shared<Structure>()) {qDebug() << "create none class";}
-  iRASPAStructure(std::shared_ptr<Structure> structure):_rawValue(iRASPAStructureType::structure), _structure(structure) { qDebug() << "create base class";}
-  iRASPAStructure(std::shared_ptr<Crystal> crystal):_rawValue(iRASPAStructureType::crystal), _structure(crystal) {qDebug() << "create crystal class";}
+  iRASPAStructure():_rawValue(iRASPAStructureType::none), _structure(std::make_shared<Structure>()) {}
+  iRASPAStructure(std::shared_ptr<Structure> structure):_rawValue(iRASPAStructureType::structure), _structure(structure) {}
+  iRASPAStructure(std::shared_ptr<Crystal> crystal):_rawValue(iRASPAStructureType::crystal), _structure(crystal) {}
   iRASPAStructure(std::shared_ptr<MolecularCrystal> molecularCrystal):_rawValue(iRASPAStructureType::molecularCrystal), _structure(molecularCrystal) {}
   iRASPAStructure(std::shared_ptr<ProteinCrystal> proteinCrystal):_rawValue(iRASPAStructureType::proteinCrystal), _structure(proteinCrystal) {}
   iRASPAStructure(std::shared_ptr<Molecule> molecule):_rawValue(iRASPAStructureType::molecule), _structure(molecule) {}

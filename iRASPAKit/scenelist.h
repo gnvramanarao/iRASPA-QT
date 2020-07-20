@@ -50,6 +50,7 @@ public:
   void setSelectedFrameIndices(int frameIndex);
   QString displayName() const override final;
   int selectedSceneIndex();
+  std::optional<int> findChildIndex(std::shared_ptr<Scene> scene);
   void clearSelection();
 
   std::vector<std::shared_ptr<iRASPAStructure>> selectedMoviesiRASPAStructures();

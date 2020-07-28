@@ -43,7 +43,7 @@
  #include <QSpinBox>
  #include <QToolButton>
  #include <QTreeView>
-
+ #include <QSizePolicy>
 
  AtomTreeViewPushButtonStyledItemDelegate::AtomTreeViewPushButtonStyledItemDelegate(QWidget* parent) : QStyledItemDelegate(parent)
  {

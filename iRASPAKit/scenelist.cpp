@@ -62,6 +62,36 @@ std::optional<int> SceneList::findChildIndex(std::shared_ptr<Scene> scene)
 }
 
 
+bool SceneList::removeChild(size_t row)
+{
+  if (row < 0 || row >= _scenes.size())
+     return false;
+
+  _scenes.erase(_scenes.begin() + row);
+  return true;
+}
+
+bool SceneList::removeChildren(size_t position, size_t count)
+{
+  if (position < 0 || position + count > _scenes.size())
+    return false;
+  std::vector<std::shared_ptr<Scene>>::iterator start = _scenes.begin() + position;
+  std::vector<std::shared_ptr<Scene>>::iterator end = _scenes.begin() + position + count;
+  _scenes.erase(start, end);
+
+  return true;
+}
+
+bool SceneList::insertChild(size_t row, std::shared_ptr<Scene> child)
+{
+  if (row < 0 || row > _scenes.size())
+    return false;
+
+  _scenes.insert(_scenes.begin() + row, child);
+  return true;
+}
+
+
 void SceneList::setSelectedFrameIndices(int frameIndex)
 {
   for(std::shared_ptr<Scene> scene : _scenes)
@@ -79,7 +109,7 @@ void SceneList::setSelectedScene(std::shared_ptr<Scene> scene)
   }
 }
 
-int SceneList::selectedSceneIndex()
+std::optional<int> SceneList::selectedSceneIndex()
 {
   std::vector<std::shared_ptr<Scene>>::const_iterator itr = std::find(_scenes.begin(), _scenes.end(), selectedScene());
   if (itr != _scenes.end())
@@ -87,7 +117,7 @@ int SceneList::selectedSceneIndex()
     int row = itr-_scenes.begin();
     return row;
   }
-  return -1;
+  return std::nullopt;
 }
 
 
@@ -156,6 +186,47 @@ std::vector<std::shared_ptr<RKRenderStructure>> SceneList::flattenedSelectediRAS
     }
   }
   return allStructures;
+}
+
+SceneListSelection SceneList::allSelection()
+{
+  std::map<std::shared_ptr<Scene>, std::shared_ptr<Movie>> s{};
+
+  for(std::shared_ptr<Scene> scene : scenes())
+  {
+    s.insert({scene, scene->selectedMovie()});
+  }
+
+  std::map<std::shared_ptr<Scene>, std::unordered_set<std::shared_ptr<Movie>>> t{};
+
+  for(std::shared_ptr<Scene> scene : scenes())
+  {
+    t.insert({scene, scene->selectedMovies()});
+  }
+
+  return SceneListSelection(_selectedScene, _selectedScenes, s, t);
+}
+
+void SceneList::setSelection(SceneListSelection selection)
+{
+  _selectedScene = std::get<0>(selection);
+  _selectedScenes = std::get<1>(selection);
+
+  for(auto const& [selectedScene, selectedMovie] : std::get<2>(selection))
+  {
+    if(selectedScene)
+    {
+       selectedScene->setSelectedMovie(selectedMovie);
+    }
+  }
+
+  for(auto const& [selectedScene, selectedMovies] : std::get<3>(selection))
+  {
+    if(selectedScene)
+    {
+      selectedScene->setSelectedMovies(selectedMovies);
+    }
+  }
 }
 
 

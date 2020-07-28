@@ -83,7 +83,10 @@ void ProjectStructure::setInitialSelectionIfNeeded()
 {
   if(!_sceneList->selectedScene())
   {
-    _sceneList->setSelectedScene(_sceneList->scenes().front());
+    if(!_sceneList->scenes().empty())
+    {
+      _sceneList->setSelectedScene(_sceneList->scenes().front());
+    }
   }
 
   for(std::shared_ptr<Scene> scene : _sceneList->selectedScenes())

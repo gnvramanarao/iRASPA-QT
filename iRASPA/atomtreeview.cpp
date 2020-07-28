@@ -67,6 +67,16 @@ AtomTreeView::AtomTreeView(QWidget* parent): QTreeView(parent ), _atomModel(std:
   pushButtonDelegate = new AtomTreeViewPushButtonStyledItemDelegate(this);
   this->setItemDelegateForColumn(1, pushButtonDelegate);
 
+  this->header()->setStretchLastSection(true);
+  this->setColumnWidth(0,110);
+  this->setColumnWidth(1,50);
+  this->setColumnWidth(2,40);
+  this->setColumnWidth(3,70);
+  this->setColumnWidth(4,70);
+  this->setColumnWidth(5,70);
+  this->setColumnWidth(6,70);
+
+
   QObject::connect(selectionModel(), &QItemSelectionModel::selectionChanged, this, &AtomTreeView::setSelectedAtoms);
 }
 
@@ -111,11 +121,7 @@ void AtomTreeView::setSelectedFrame(std::shared_ptr<iRASPAStructure> iraspastruc
 
   if(AtomTreeViewModel* atomModel = qobject_cast<AtomTreeViewModel*>(model()))
   {
-
-    if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iraspaStructure.lock())
-    {
-      atomModel->setFrame(iraspaStructure);
-    }
+    atomModel->setFrame(iraspastructure);
   }
 }
 

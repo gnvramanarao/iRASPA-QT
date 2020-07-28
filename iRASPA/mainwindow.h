@@ -66,6 +66,10 @@ public:
   void reloadDetailViews();
   void reloadAllViews();
   void reloadSelectionDetailViews();
+  void recheckRemovalButtons();
+  void updateMenuToProjectTab();
+  void updateMenuToSceneTab();
+  void updateMenuToFrameTab();
 private:
   Ui::MainWindow *ui;
   DocumentData _documentData{};
@@ -83,6 +87,21 @@ private:
 
   QMenu *_newMenu{nullptr};
   QAction *_newWorkSpaceAction{nullptr};
+  QAction *_newStructureProjectAction{nullptr};
+  QAction *_newProjectGroupAction{nullptr};
+  QAction *_newCrystalAction{nullptr};
+  QAction *_newMolecularCrystalAction{nullptr};
+  QAction *_newProteinCrystalAction{nullptr};
+  QAction *_newMoleculeAction{nullptr};
+  QAction *_newProteinAction{nullptr};
+  QMenu *_newObjectsMenu{nullptr};
+  QAction *_newCrystalEllipsoidAction{nullptr};
+  QAction *_newCrystalCylinderAction{nullptr};
+  QAction *_newCrystalPolygonalPrismAction{nullptr};
+  QAction *_newEllipsoidAction{nullptr};
+  QAction *_newCylinderAction{nullptr};
+  QAction *_newPolygonalPrismAction{nullptr};
+
 
   QMenu *_editMenu{nullptr};
   QAction *_undoAction{nullptr};
@@ -96,7 +115,10 @@ public slots:
   void openFile();
   void saveFile();
   void showAboutDialog();
+  void ShowContextAddStructureMenu(const QPoint &pos);
   void newWorkSpace();
+  void newStructureProject();
+  void newProjectGroup();
   int slideRightPanel(void);
   int slideDownPanel(void);
   int slideLeftPanel(void);

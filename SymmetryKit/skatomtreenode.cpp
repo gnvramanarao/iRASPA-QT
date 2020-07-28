@@ -110,12 +110,23 @@ void SKAtomTreeNode::appendToParent(std::shared_ptr<SKAtomTreeNode> parent)
 
 }
 
-bool SKAtomTreeNode::removeChild(int row)
+bool SKAtomTreeNode::removeChild(size_t row)
 {
   if (row < 0 || row >= _childNodes.size())
      return false;
 
   _childNodes.erase(_childNodes.begin() + row);
+  return true;
+}
+
+bool SKAtomTreeNode::removeChildren(size_t position, size_t count)
+{
+  if (position < 0 || position + count > _childNodes.size())
+    return false;
+  std::vector<std::shared_ptr<SKAtomTreeNode>>::iterator start = _childNodes.begin() + position;
+  std::vector<std::shared_ptr<SKAtomTreeNode>>::iterator end = _childNodes.begin() + position + count;
+  _childNodes.erase(start, end);
+
   return true;
 }
 

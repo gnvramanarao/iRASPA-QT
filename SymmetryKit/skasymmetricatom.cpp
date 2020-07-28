@@ -29,7 +29,7 @@
 
 #include "skasymmetricatom.h"
 
-SKAsymmetricAtom::SKAsymmetricAtom()
+SKAsymmetricAtom::SKAsymmetricAtom(): _displayName("C"), _elementIdentifier(6)
 {
 
 }

@@ -27,29 +27,56 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#include "masterstackedwidget.h"
+#include "scenetreeviewdraganddropmovemoviesubcommand.h"
+#include <QDebug>
+#include <algorithm>
 
-
-MasterStackedWidget::MasterStackedWidget(QWidget* parent ): QStackedWidget(parent )
+SceneTreeViewDragAndDropMoveMovieSubCommand::SceneTreeViewDragAndDropMoveMovieSubCommand(SceneTreeViewModel *sceneTreeViewModel, std::shared_ptr<SceneList> sceneList, std::shared_ptr<Scene> parent,
+                                                                                         std::shared_ptr<Movie> movie, int row, QUndoCommand *undoParent):
+  QUndoCommand(undoParent),
+  _sceneTreeViewModel(sceneTreeViewModel),
+  _sceneList(sceneList),
+  _parent(parent),
+  _movie(movie),
+  _row(row),
+  _movieRow(std::nullopt),
+  _sceneRow(std::nullopt)
 {
+  Q_UNUSED(undoParent);
 
+  setText(QString("Move movie(s)"));
 }
 
-void MasterStackedWidget::reloadTab(int tab)
+void SceneTreeViewDragAndDropMoveMovieSubCommand::redo()
 {
-  setCurrentIndex(tab);
-
-  foreach(QObject *child, widget(tab)->children())
+  _movieParent = _sceneTreeViewModel->parentForMovie(_movie);
+  _movieRow = _movieParent->findChildIndex(_movie);
+  if(_movieRow)
   {
-    if(Reloadable* reloadable = dynamic_cast<Reloadable*>(child))
+    _sceneTreeViewModel->removeRow(*_movieRow, _movieParent, _movie);
+    if(_movieParent->movies().empty())
     {
-      reloadable->reloadData();
-      reloadable->reloadSelection();
+      // remove _movieParent if it would become empty
+      if((_sceneRow = _sceneList->findChildIndex(_movieParent)))
+      {
+        _sceneTreeViewModel->removeRow(*_sceneRow);
+      }
     }
   }
+  _sceneTreeViewModel->insertRow(_row, _parent, _movie);
 }
 
-QSize MasterStackedWidget::sizeHint() const
+void SceneTreeViewDragAndDropMoveMovieSubCommand::undo()
 {
-    return QSize(200, 800);
+  _sceneTreeViewModel->removeRow(_row, _parent, _movie);
+
+  if(_sceneRow)
+  {
+    _sceneTreeViewModel->insertRow(*_sceneRow, _movieParent);
+  }
+
+  if(_movieRow)
+  {
+    _sceneTreeViewModel->insertRow(*_movieRow, _movieParent, _movie);
+  }
 }

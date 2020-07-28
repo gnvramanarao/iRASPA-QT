@@ -27,29 +27,33 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#include "masterstackedwidget.h"
+#pragma once
 
+#include <QUndoCommand>
+#include <set>
+#include <vector>
+#include <tuple>
+#include <optional>
+#include "scenetreeview.h"
+#include "iraspakit.h"
+#include "indexpath.h"
+#include "symmetrykit.h"
+#include "mathkit.h"
+#include "mainwindow.h"
+#include "scenetreeview.h"
 
-MasterStackedWidget::MasterStackedWidget(QWidget* parent ): QStackedWidget(parent )
+class SceneTreeViewDeleteMovieSubCommand : public QUndoCommand
 {
-
-}
-
-void MasterStackedWidget::reloadTab(int tab)
-{
-  setCurrentIndex(tab);
-
-  foreach(QObject *child, widget(tab)->children())
-  {
-    if(Reloadable* reloadable = dynamic_cast<Reloadable*>(child))
-    {
-      reloadable->reloadData();
-      reloadable->reloadSelection();
-    }
-  }
-}
-
-QSize MasterStackedWidget::sizeHint() const
-{
-    return QSize(200, 800);
-}
+public:
+  SceneTreeViewDeleteMovieSubCommand(MainWindow *main_window, SceneTreeView *_sceneTreeView, std::shared_ptr<SceneList> sceneList, std::shared_ptr<Movie> movie, QUndoCommand *undoParent = nullptr);
+  void redo() override final;
+  void undo() override final;
+private:
+  MainWindow *_main_window;
+  SceneTreeView *_sceneTreeView;
+  std::shared_ptr<SceneList> _sceneList;
+  std::shared_ptr<Scene> _scene;
+  std::shared_ptr<Movie> _movie;
+  int _row;
+  std::optional<int> _sceneRow;
+};

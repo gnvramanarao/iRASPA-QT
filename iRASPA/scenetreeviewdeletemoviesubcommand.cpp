@@ -27,29 +27,61 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#include "masterstackedwidget.h"
+#include "scenetreeviewdeletemoviesubcommand.h"
+#include <QDebug>
+#include <algorithm>
 
+SceneTreeViewDeleteMovieSubCommand::SceneTreeViewDeleteMovieSubCommand(MainWindow *main_window, SceneTreeView *sceneTreeView, std::shared_ptr<SceneList> sceneList, std::shared_ptr<Movie> movie, QUndoCommand *undoParent):
+  QUndoCommand(undoParent),
+  _main_window(main_window),
+  _sceneTreeView(sceneTreeView),
+  _sceneList(sceneList),
+  _movie(movie)
 
-MasterStackedWidget::MasterStackedWidget(QWidget* parent ): QStackedWidget(parent )
 {
-
+  setText(QString("Delete movie"));
 }
 
-void MasterStackedWidget::reloadTab(int tab)
+void SceneTreeViewDeleteMovieSubCommand::redo()
 {
-  setCurrentIndex(tab);
-
-  foreach(QObject *child, widget(tab)->children())
+  if(_sceneTreeView)
   {
-    if(Reloadable* reloadable = dynamic_cast<Reloadable*>(child))
+    if(SceneTreeViewModel* pModel = qobject_cast<SceneTreeViewModel*>(_sceneTreeView->model()))
     {
-      reloadable->reloadData();
-      reloadable->reloadSelection();
+      _scene = pModel->parentForMovie(_movie);
+      std::optional<int> row = _scene->findChildIndex(_movie);
+      if(row)
+      {
+        _row = *row;
+        pModel->removeRow(_row, _scene, _movie);
+      }
+
+      _sceneRow = std::nullopt;
+      if(_scene->movies().empty())
+      {
+        _sceneRow = _sceneList->findChildIndex(_scene);
+        if(_sceneRow)
+        {
+          pModel->removeRow(*_sceneRow);
+        }
+      }
     }
   }
 }
 
-QSize MasterStackedWidget::sizeHint() const
+void SceneTreeViewDeleteMovieSubCommand::undo()
 {
-    return QSize(200, 800);
+  if(_sceneTreeView)
+  {
+    if(SceneTreeViewModel* pModel = qobject_cast<SceneTreeViewModel*>(_sceneTreeView->model()))
+    {
+      if(_sceneRow)
+      {
+        pModel->insertRow(*_sceneRow, _scene);
+        _sceneTreeView->expandAll();
+      }
+
+      pModel->insertRow(_row, _scene, _movie);
+    }
+  }
 }

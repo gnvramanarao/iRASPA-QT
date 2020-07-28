@@ -38,6 +38,15 @@ Scene::Scene()
 
 }
 
+Scene::Scene(QString displayName): _displayName(displayName)
+{
+}
+
+
+Scene::Scene(std::shared_ptr<Movie> movie): _movies{movie}
+{
+}
+
 std::shared_ptr<Movie> Scene::selectedMovie()
 {
   if(_selectedMovie)
@@ -60,6 +69,11 @@ void Scene::setSelectedMovie(std::shared_ptr<Movie> movie)
   {
     _selectedMovies.insert(_selectedMovie);
   }
+}
+
+void Scene::setSelectedMovies(std::unordered_set<std::shared_ptr<Movie>> movies)
+{
+  _selectedMovies = movies;
 }
 
 
@@ -188,6 +202,17 @@ bool Scene::removeChild(size_t row)
      return false;
 
   _movies.erase(_movies.begin() + row);
+  return true;
+}
+
+bool Scene::removeChildren(size_t position, size_t count)
+{
+  if (position < 0 || position + count > _movies.size())
+    return false;
+  std::vector<std::shared_ptr<Movie>>::iterator start = _movies.begin() + position;
+  std::vector<std::shared_ptr<Movie>>::iterator end = _movies.begin() + position + count;
+  _movies.erase(start, end);
+
   return true;
 }
 

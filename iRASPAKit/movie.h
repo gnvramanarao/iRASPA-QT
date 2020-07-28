@@ -44,10 +44,13 @@ public:
   Movie(QString displayName);
   Movie(std::shared_ptr<iRASPAStructure> structure) {_frames.push_back(structure);}
   virtual ~Movie() {}
+  std::shared_ptr<Movie> shallowClone();
+
 
   void append(std::shared_ptr<iRASPAStructure> structure) {_frames.push_back(structure);}
   const std::vector<std::shared_ptr<iRASPAStructure>> frames() const {return _frames;}
   QString displayName() const override final;
+  void setDisplayName(QString name) {_displayName = name;}
   bool isVisible() {return _isVisible;}
   void setVisibility(bool visibility);
 
@@ -59,6 +62,8 @@ public:
   std::set<int> selectedFramesIndexSet();
 
   std::vector<std::shared_ptr<iRASPAStructure>> selectedFramesiRASPAStructures() const;
+
+  bool removeChildren(size_t position, size_t count);
 private:
   qint64 _versionNumber{1};
   bool _isVisible = true;

@@ -79,6 +79,7 @@ public slots:
   void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override final;
   void ShowContextMenu(const QPoint &pos);
   void keyPressEvent(QKeyEvent * event) override final;
+  void insertProjectStructure();
 signals:
   void setSelectedRenderFrames(std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> structures);
 };

@@ -123,7 +123,7 @@ void FrameListView::reloadSelection()
 
 void FrameListView::reloadData()
 {
-
+  _mainWindow->updateMenuToFrameTab();
 }
 
 

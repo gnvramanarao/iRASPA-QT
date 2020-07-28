@@ -27,58 +27,66 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#include "scenetreeviewdeleteselectioncommand.h"
-#include "scenetreeviewdeletemoviesubcommand.h"
+#include "scenetreeviewdropmovecommand.h"
+#include "scenetreeviewdraganddropinsertscenesubcommand.h"
+#include "scenetreeviewdraganddropmovemoviesubcommand.h"
 #include <QDebug>
 #include <algorithm>
 
-SceneTreeViewDeleteSelectionCommand::SceneTreeViewDeleteSelectionCommand(MainWindow *main_window, SceneTreeView *sceneTreeView,
-                                                                         std::shared_ptr<SceneList> sceneList,
-                                                                         std::vector<std::shared_ptr<Movie>> movies,
-                                                                         SceneListSelection selection,
-                                                                         QUndoCommand *undoParent):
+SceneTreeViewDropMoveCommand::SceneTreeViewDropMoveCommand(SceneTreeViewModel *sceneTreeViewModel, std::shared_ptr<SceneList> sceneList, std::shared_ptr<Scene> parent, int row,
+                                                           std::vector<std::shared_ptr<Movie>> movies, SceneListSelection selection, QUndoCommand *undoParent):
   QUndoCommand(undoParent),
-  _main_window(main_window),
-  _sceneTreeView(sceneTreeView),
+  _sceneTreeViewModel(sceneTreeViewModel),
   _sceneList(sceneList),
+  _parent(parent),
+  _row(row),
   _movies(movies),
   _selection(selection)
 {
   Q_UNUSED(undoParent);
 
-  setText(QString("Delete selection"));
+  setText(QString("Reorder movies"));
+
+  int beginRow = row;
+  _newParent = _parent;
+
+  if(!_newParent)
+  {
+    std::shared_ptr<Scene> scene = std::make_shared<Scene>("NEW SCENE");
+    int insertionRow = _sceneList->scenes().size();
+    new SceneTreeViewDragAndDropInsertSceneSubCommand(_sceneTreeViewModel, scene, insertionRow, this);
+
+    _newParent = scene;
+    beginRow = 0;
+  }
 
   for(std::shared_ptr<Movie> movie : _movies)
   {
-    new SceneTreeViewDeleteMovieSubCommand(_main_window, _sceneTreeView, _sceneList, movie, this);
+    if(_newParent == _sceneTreeViewModel->parentForMovie(movie) && *_newParent->findChildIndex(movie) < beginRow)
+    {
+      beginRow--;
+    }
+
+    new SceneTreeViewDragAndDropMoveMovieSubCommand(_sceneTreeViewModel, _sceneList, _newParent, movie, beginRow, this);
+    beginRow += 1;
   }
 }
 
-void SceneTreeViewDeleteSelectionCommand::redo()
+void SceneTreeViewDropMoveCommand::redo()
 {
-   QUndoCommand::redo();
+  QUndoCommand::redo();
 
-   if(_main_window)
-   {
-     // after removing the selection, choose the first scene/movie as the new selection
-     std::shared_ptr<Scene> newSelectedScene = _sceneList->scenes().empty() ? nullptr : _sceneList->scenes().front();
-     std::shared_ptr<Movie> newSelectedMovie = newSelectedScene ? newSelectedScene->movies().front() : nullptr;
-     _sceneList->setSelection({newSelectedScene, {newSelectedScene}, {{newSelectedScene, newSelectedMovie}}, {{newSelectedScene, {newSelectedMovie}}}});
-
-     _sceneTreeView->reloadSelection();
-     _main_window->reloadDetailViews();
-   }
+  _sceneList->setSelection(SceneListSelection(_newParent,
+                                              {_newParent},
+                                              {{_newParent, _movies.front()}},
+                                              {{_newParent, std::unordered_set<std::shared_ptr<Movie>>(_movies.begin(),_movies.end())}} ));
+  emit _sceneTreeViewModel->updateSelection();
 }
 
-void SceneTreeViewDeleteSelectionCommand::undo()
+void SceneTreeViewDropMoveCommand::undo()
 {
-  // automatically peform the undo's
   QUndoCommand::undo();
 
-  if(_main_window)
-  {
-    _sceneList->setSelection(_selection);
-    _sceneTreeView->reloadSelection();
-    _main_window->reloadDetailViews();
-  }
+  _sceneList->setSelection(_selection);
+  emit _sceneTreeViewModel->updateSelection();
 }

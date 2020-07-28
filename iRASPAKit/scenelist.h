@@ -33,29 +33,42 @@
 #include <QModelIndex>
 #include <QSharedPointer>
 #include <vector>
+#include <tuple>
 #include <memory>
 #include <ostream>
 #include "scene.h"
 #include "iraspakitprotocols.h"
+
+using SceneListSelection = std::tuple<std::shared_ptr<Scene>,
+                                      std::unordered_set<std::shared_ptr<Scene>>,
+                                      std::map<std::shared_ptr<Scene>, std::shared_ptr<Movie>>,
+                                      std::map<std::shared_ptr<Scene>, std::unordered_set<std::shared_ptr<Movie>>> >;
+
 
 class SceneList: public std::enable_shared_from_this<SceneList>, public DisplayableProtocol
 {
 public:
   SceneList();
   void appendScene(std::shared_ptr<Scene> scene) {_scenes.push_back(scene);}
-  std::vector<std::shared_ptr<Scene>> scenes() {return _scenes;}
+  std::vector<std::shared_ptr<Scene>> &scenes() {return _scenes;}
   std::shared_ptr<Scene> selectedScene();
   std::unordered_set<std::shared_ptr<Scene>> &selectedScenes() {return _selectedScenes;}
   void setSelectedScene(std::shared_ptr<Scene> scene);
   void setSelectedFrameIndices(int frameIndex);
   QString displayName() const override final;
-  int selectedSceneIndex();
+  std::optional<int> selectedSceneIndex();
   std::optional<int> findChildIndex(std::shared_ptr<Scene> scene);
+  bool removeChild(size_t row);
+  bool removeChildren(size_t position, size_t count);
+  bool insertChild(size_t row, std::shared_ptr<Scene> child);
   void clearSelection();
 
   std::vector<std::shared_ptr<iRASPAStructure>> selectedMoviesiRASPAStructures();
   std::vector<std::vector<std::shared_ptr<iRASPAStructure> > > selectediRASPARenderStructures() const;
   std::vector<std::shared_ptr<RKRenderStructure>> flattenedSelectediRASPARenderStructures() const;
+
+  SceneListSelection allSelection();
+  void setSelection(SceneListSelection selection);
 private:
   qint64 _versionNumber{1};
   QString _displayName = QString("");

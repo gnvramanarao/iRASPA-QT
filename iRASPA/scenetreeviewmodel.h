@@ -44,9 +44,12 @@ class SceneTreeViewModel: public QAbstractItemModel
 public:
   SceneTreeViewModel();
 
-  void setSceneList(std::shared_ptr<SceneList> sceneList);
+  void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode);
   bool isMainSelectedItem(std::shared_ptr<Movie> movie);
   QModelIndex indexOfMainSelected() const;
+  QModelIndex indexForItem(std::shared_ptr<Movie> movie);
+  QModelIndex indexForItem(std::shared_ptr<Scene> scene);
+  DisplayableProtocol *getItem(const QModelIndex &index) const;
 
   //QT
   QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override final;
@@ -58,7 +61,12 @@ public:
   Qt::ItemFlags flags(const QModelIndex &index) const override final;
   bool hasChildren(const QModelIndex &parent) const override final;
 
-  bool removeRows(int positions, int rows, const QModelIndex &parent = QModelIndex()) override final;
+  bool removeRows(int positions, int count, const QModelIndex &parent = QModelIndex()) override final;
+  bool insertRows(int position, int rows, const QModelIndex &parent) override final;
+  bool insertRow(int position, std::shared_ptr<Scene> scene, std::shared_ptr<Movie> movie);
+  bool insertRow(int position, std::shared_ptr<Scene> scene);
+  bool removeRow(int position);
+  bool removeRow(int position, std::shared_ptr<Scene> scene, std::shared_ptr<Movie> movie);
 
   QStringList mimeTypes() const override final;
   Qt::DropActions supportedDropActions() const override final;
@@ -66,11 +74,13 @@ public:
   QMimeData* mimeData(const QModelIndexList &indexes) const override final;
   bool canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const override final;
   bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override final;
-private:
-  std::shared_ptr<SceneList> _sceneList;
   std::shared_ptr<Scene> parentForMovie(const std::shared_ptr<Movie> movie) const;
+private:
+  std::shared_ptr<ProjectTreeNode> _projectTreeNode;
+  std::shared_ptr<SceneList> _sceneList;
 signals:
-    void rendererReloadData();
-    void invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>> structures);
+  void rendererReloadData();
+  void updateSelection();
+  void invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>> structures);
 };
 

@@ -48,12 +48,16 @@ class Scene: public std::enable_shared_from_this<Scene>, public DisplayableProto
 {
 public:
   Scene();
+  Scene(QString displayName);
+  Scene(std::shared_ptr<Movie> movie);
   Scene(const QUrl url, const SKColorSets& colorSets, ForceFieldSets &forcefieldSets, LogReporting *log, bool asSeparateProject, bool onlyAsymmetricUnit, bool asMolecule);
-  const std::vector<std::shared_ptr<Movie>> movies() const {return _movies;}
+  const std::vector<std::shared_ptr<Movie>> &movies() const {return _movies;}
   std::optional<int> findChildIndex(std::shared_ptr<Movie> movie);
   bool removeChild(size_t row);
+  bool removeChildren(size_t position, size_t count);
   bool insertChild(size_t row, std::shared_ptr<Movie> child);
   void setSelectedMovie(std::shared_ptr<Movie> movie);
+  void setSelectedMovies(std::unordered_set<std::shared_ptr<Movie>> movies);
   void setSelectedFrameIndices(int frameIndex);
   std::unordered_set<std::shared_ptr<Movie>>& selectedMovies() {return _selectedMovies;}
   std::shared_ptr<Movie> selectedMovie();
@@ -64,7 +68,7 @@ private:
   qint64 _versionNumber{1};
   QString _displayName = QString("Scene");
   std::vector<std::shared_ptr<Movie>> _movies{};
-  std::shared_ptr<Movie> _selectedMovie = nullptr;
+  std::shared_ptr<Movie> _selectedMovie{nullptr};
   std::unordered_set<std::shared_ptr<Movie>> _selectedMovies;
 
   friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<Scene> &);

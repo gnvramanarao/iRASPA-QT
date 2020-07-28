@@ -43,7 +43,8 @@ public:
 
   std::vector<RKInPerInstanceAttributesAtoms> renderCrystalPrimitivePolygonalPrismObjects() const override;
 
-  SKBoundingBox boundingBox() const final override;
+  SKBoundingBox boundingBox() const override final;
+  void expandSymmetry() override final;
 
   simd_quatd primitiveOrientation() const override {return _primitiveOrientation;}
   double3x3 primitiveTransformationMatrix() const override  {return _primitiveTransformationMatrix;}

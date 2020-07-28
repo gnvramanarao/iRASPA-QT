@@ -53,7 +53,8 @@ public:
 
   bool removeRows(int positions, int rows, const QModelIndex &parent = QModelIndex()) override final;
   bool insertRows(int position, int rows, const QModelIndex &parent) override final;
-  bool insertRows(int position, int rows, const QModelIndex &parent, bool isGroup, std::shared_ptr<iRASPAProject> project);
+
+  bool insertRow(int position, std::shared_ptr<ProjectTreeNode> parent, std::shared_ptr<ProjectTreeNode> project);
 
   QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override final;
   QModelIndex parent(const QModelIndex &index) const override final;

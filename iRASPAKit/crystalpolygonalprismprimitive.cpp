@@ -123,6 +123,30 @@ SKBoundingBox CrystalPolygonalPrismPrimitive::boundingBox() const
 // MARK: Symmetry
 // =====================================================================
 
+void CrystalPolygonalPrismPrimitive::expandSymmetry()
+{
+  std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
+
+  for(std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
+  {
+    std::vector<std::shared_ptr<SKAtomCopy>> atomCopies = std::vector<std::shared_ptr<SKAtomCopy>>{};
+    if(std::shared_ptr<SKAsymmetricAtom> asymmetricAtom = node->representedObject())
+    {
+      std::vector<std::shared_ptr<SKAtomCopy>> atomCopies = std::vector<std::shared_ptr<SKAtomCopy>>{};
+
+      std::vector<double3> images = _spaceGroup.listOfSymmetricPositions(asymmetricAtom->position());
+
+      for(double3 image : images)
+      {
+        std::shared_ptr<SKAtomCopy> newAtom = std::make_shared<SKAtomCopy>(asymmetricAtom, double3::fract(image));
+        newAtom->setType(SKAtomCopy::AtomCopyType::copy);
+        atomCopies.push_back(newAtom);
+      }
+      asymmetricAtom->setCopies(atomCopies);
+    }
+  }
+}
+
 
 // MARK: bond-computations
 // =====================================================================

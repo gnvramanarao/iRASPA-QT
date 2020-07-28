@@ -41,6 +41,19 @@ Movie::Movie(QString displayName): _displayName(displayName)
 
 char Movie::mimeType[] = "application/x-qt-iraspa-movie-mime";
 
+std::shared_ptr<Movie> Movie::shallowClone()
+{
+  QByteArray byteArray = QByteArray();
+  QDataStream stream(&byteArray, QIODevice::WriteOnly);
+  stream << this->shared_from_this();
+
+  QDataStream streamRead(&byteArray, QIODevice::ReadOnly);
+  std::shared_ptr<Movie> movie = std::make_shared<Movie>();
+  streamRead >> movie;
+
+  return movie;
+}
+
 void Movie::setVisibility(bool visibility)
 {
   _isVisible = visibility;
@@ -113,6 +126,17 @@ std::vector<std::shared_ptr<iRASPAStructure>> Movie::selectedFramesiRASPAStructu
 QString Movie::displayName() const
 {
  return _displayName;
+}
+
+bool Movie::removeChildren(size_t position, size_t count)
+{
+  if (position < 0 || position + count > _frames.size())
+    return false;
+  std::vector<std::shared_ptr<iRASPAStructure>>::iterator start = _frames.begin() + position;
+  std::vector<std::shared_ptr<iRASPAStructure>>::iterator end = _frames.begin() + position + count;
+  _frames.erase(start, end);
+
+  return true;
 }
 
 QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<Movie> &movie)

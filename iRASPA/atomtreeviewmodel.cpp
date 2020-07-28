@@ -277,23 +277,18 @@ void AtomTreeViewModel::removeNode(SKAtomTreeNode *node)
   endRemoveRows();
 }
 
-bool AtomTreeViewModel::removeRows(int position, int rows, const QModelIndex &parent)
+bool AtomTreeViewModel::removeRows(int position, int count, const QModelIndex &parent)
 {
-
   SKAtomTreeNode *parentItem = getItem(parent);
 
-  if (position < 0 || position > parentItem->childNodes().size())
+  if (position < 0 || position > static_cast<int>(parentItem->childNodes().size()))
     return false;
 
-  beginRemoveRows(parent, position, position + rows - 1);
-  for (int row = 0; row < rows; ++row)
-  {
-    if (!parentItem->removeChild(position))
-      break;
-  }
+  beginRemoveRows(parent, position, position + count - 1);
+  const bool success = parentItem->removeChildren(position, count);
   endRemoveRows();
 
-  return true;
+  return success;
 }
 
 bool AtomTreeViewModel::insertRows(int position, int rows, const QModelIndex &parent)

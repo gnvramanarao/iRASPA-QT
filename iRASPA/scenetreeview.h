@@ -44,7 +44,6 @@ class SceneTreeView: public QTreeView, public MainWindowConsumer, public Project
 
 public:
   SceneTreeView(QWidget* parent = nullptr);
-  QModelIndex selectedIndex(void);
   QSize sizeHint() const override final;
   SceneTreeViewModel* sceneTreeModel() {return _model.get();}
   void setMainWindow(MainWindow* mainWindow) final override {_mainWindow = mainWindow;}
@@ -54,14 +53,31 @@ public:
 
   void startDrag(Qt::DropActions supportedActions) override final;
   void dragMoveEvent(QDragMoveEvent* event) override final;
+
+  void keyPressEvent(QKeyEvent *event) override final;
+  void restoreSelection(SceneListSelection selection);
 private:
   MainWindow* _mainWindow;
   std::shared_ptr<SceneTreeViewModel> _model;
   std::shared_ptr<ProjectTreeNode> _projectTreeNode;
   std::shared_ptr<SceneList> _sceneList;
   QString nameOfItem(const QModelIndex &current);
+  QPixmap selectionToPixmap();
 public slots:
   void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override final;
+  void newCrystal();
+  void newMolecularCrystal();
+  void newProteinCrystal();
+  void newMolecule();
+  void newProtein();
+  void newCrystalEllipsoid();
+  void newCrystalCylinder();
+  void newCrystalPolygonalPrism();
+  void newEllipsoid();
+  void newCylinder();
+  void newPolygonalPrism();
+  void insertMovie(std::shared_ptr<iRASPAStructure> iraspaStructure);
+  void deleteSelection();
 signals:
   void updateRenderer();
   void setSelectedFrame(std::shared_ptr<iRASPAStructure> structure);

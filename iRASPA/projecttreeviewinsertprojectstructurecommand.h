@@ -27,29 +27,29 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#include "masterstackedwidget.h"
+#pragma once
 
+#include <QUndoCommand>
+#include <set>
+#include <vector>
+#include "iraspakit.h"
+#include "indexpath.h"
+#include "symmetrykit.h"
+#include "mathkit.h"
+#include "mainwindow.h"
+#include "projecttreeview.h"
 
-MasterStackedWidget::MasterStackedWidget(QWidget* parent ): QStackedWidget(parent )
+class ProjectTreeViewInsertProjectStructureCommand : public QUndoCommand
 {
-
-}
-
-void MasterStackedWidget::reloadTab(int tab)
-{
-  setCurrentIndex(tab);
-
-  foreach(QObject *child, widget(tab)->children())
-  {
-    if(Reloadable* reloadable = dynamic_cast<Reloadable*>(child))
-    {
-      reloadable->reloadData();
-      reloadable->reloadSelection();
-    }
-  }
-}
-
-QSize MasterStackedWidget::sizeHint() const
-{
-    return QSize(200, 800);
-}
+public:
+  ProjectTreeViewInsertProjectStructureCommand(MainWindow *main_window, ProjectTreeView *projectTreeView, std::shared_ptr<ProjectTreeNode> parent, int row,
+                         QUndoCommand *undoParent = nullptr);
+  void undo() override final;
+  void redo() override final;
+private:
+  MainWindow *_main_window;
+  ProjectTreeView *_projectTreeView;
+  int _row;
+  std::shared_ptr<ProjectTreeNode> _parent;
+  std::shared_ptr<ProjectTreeNode> _projectTreeNode;
+};

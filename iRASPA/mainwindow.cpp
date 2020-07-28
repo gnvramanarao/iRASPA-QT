@@ -93,7 +93,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
   ui->detailTabViewController->setStyleSheet("QTabWidget::tab-bar { left: 0;}");
 
   // connect the project-toolbar to the stackedWidget
-  QObject::connect(ui->masterToolBar->mapper(), static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped),ui->masterStackedWidget, &MasterStackedWidget::reloadTab);
+  QObject::connect(ui->masterToolBar->mapper(), static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mappedInt),ui->masterStackedWidget, &MasterStackedWidget::reloadTab);
 
   // connect the sceneTreeView
   QObject::connect(ui->sceneTreeView, &SceneTreeView::updateRenderer,ui->stackedRenderers, &RenderStackedWidget::reloadData);
@@ -167,22 +167,95 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
   QObject::connect(ui->stackedRenderers, &RenderStackedWidget::updateBondSelection,ui->bondListView, &BondListView::reloadSelection);
 
 
-  ui->addProjectToolButton->setEnabled(false);
-  ui->removeProjectToolButton->setEnabled(false);
-  ui->addMovieToolButton->setEnabled(false);
-  ui->removeMovieToolButton->setEnabled(false);
-  ui->addFrameToolButton->setEnabled(false);
-  ui->removeFrameToolButton->setEnabled(false);
+  QObject::connect(ui->addProjectToolButton, &QToolButton::pressed,ui->projectTreeView, &ProjectTreeView::insertProjectStructure);
+  QObject::connect(ui->addMovieToolButton, &QToolButton::pressed,ui->sceneTreeView, &SceneTreeView::newCrystal);
+  QObject::connect(ui->removeMovieToolButton, &QToolButton::pressed,ui->sceneTreeView, &SceneTreeView::deleteSelection);
 
-  ui->addElementToolButton->setEnabled(false);
-  ui->removeElementToolButton->setEnabled(false);
-
-  ui->addAtomToolButton->setEnabled(false);
-  ui->removeAtomToolButton->setEnabled(false);
-  ui->atomFilterLineEdit->setEnabled(false);
-  ui->atomChargeLineEdit->setEnabled(false);
+  recheckRemovalButtons();
+  updateMenuToProjectTab();
 
   readLibraryOfStructures();
+}
+
+void MainWindow::recheckRemovalButtons()
+{
+
+  ui->removeMovieToolButton->setDisabled(true);
+  if(ui->sceneTreeView->model()->rowCount(QModelIndex())>0)
+  {
+    ui->removeMovieToolButton->setEnabled(true);
+  }
+
+  ui->addProjectToolButton->setEnabled(true);
+  ui->removeProjectToolButton->setDisabled(false);
+
+  ui->addMovieToolButton->setDisabled(false);
+
+
+  ui->addFrameToolButton->setDisabled(false);
+  ui->removeFrameToolButton->setDisabled(false);
+
+  ui->addElementToolButton->setDisabled(false);
+  ui->removeElementToolButton->setDisabled(false);
+
+  ui->addAtomToolButton->setDisabled(false);
+  ui->removeAtomToolButton->setDisabled(false);
+  ui->atomFilterLineEdit->setDisabled(false);
+  ui->atomChargeLineEdit->setDisabled(false);
+}
+
+void MainWindow::updateMenuToProjectTab()
+{
+  _newWorkSpaceAction->setEnabled(true);
+  _newStructureProjectAction->setEnabled(true);
+  _newProjectGroupAction->setEnabled(true);
+  _newCrystalAction->setDisabled(true);
+  _newMolecularCrystalAction->setDisabled(true);
+  _newProteinCrystalAction->setDisabled(true);
+  _newMoleculeAction->setDisabled(true);
+  _newProteinAction->setDisabled(true);
+  _newCrystalEllipsoidAction->setDisabled(true);
+  _newCrystalCylinderAction->setDisabled(true);
+  _newCrystalPolygonalPrismAction->setDisabled(true);
+  _newEllipsoidAction->setDisabled(true);
+  _newCylinderAction->setDisabled(true);
+  _newPolygonalPrismAction->setDisabled(true);
+}
+
+void MainWindow::updateMenuToSceneTab()
+{
+  _newWorkSpaceAction->setEnabled(true);
+  _newStructureProjectAction->setDisabled(true);
+  _newProjectGroupAction->setDisabled(true);
+  _newCrystalAction->setEnabled(true);
+  _newMolecularCrystalAction->setEnabled(true);
+  _newProteinCrystalAction->setEnabled(true);
+  _newMoleculeAction->setEnabled(true);
+  _newProteinAction->setEnabled(true);
+  _newCrystalEllipsoidAction->setEnabled(true);
+  _newCrystalCylinderAction->setEnabled(true);
+  _newCrystalPolygonalPrismAction->setEnabled(true);
+  _newEllipsoidAction->setEnabled(true);
+  _newCylinderAction->setEnabled(true);
+  _newPolygonalPrismAction->setEnabled(true);
+}
+
+void MainWindow::updateMenuToFrameTab()
+{
+  _newWorkSpaceAction->setEnabled(true);
+  _newStructureProjectAction->setDisabled(true);
+  _newProjectGroupAction->setDisabled(true);
+  _newCrystalAction->setDisabled(true);
+  _newMolecularCrystalAction->setDisabled(true);
+  _newProteinCrystalAction->setDisabled(true);
+  _newMoleculeAction->setDisabled(true);
+  _newProteinAction->setDisabled(true);
+  _newCrystalEllipsoidAction->setDisabled(true);
+  _newCrystalCylinderAction->setDisabled(true);
+  _newCrystalPolygonalPrismAction->setDisabled(true);
+  _newEllipsoidAction->setDisabled(true);
+  _newCylinderAction->setDisabled(true);
+  _newPolygonalPrismAction->setDisabled(true);
 }
 
 void MainWindow::reloadAllViews()
@@ -212,6 +285,51 @@ void MainWindow::createMenus()
   fileMenu->addAction(actionFileAbout);
 
   _newMenu = fileMenu->addMenu(tr("&New"));
+  _newStructureProjectAction = new QAction(tr("&Structure project"), this);
+  QObject::connect(_newStructureProjectAction, &QAction::triggered, this, &MainWindow::newStructureProject);
+  _newMenu->addAction(_newStructureProjectAction);
+  _newProjectGroupAction = new QAction(tr("&Project group"), this);
+  QObject::connect(_newProjectGroupAction, &QAction::triggered, this, &MainWindow::newProjectGroup);
+  _newMenu->addAction(_newProjectGroupAction);
+  _newMenu->addSeparator();
+
+  _newCrystalAction = new QAction(tr("&Crystal"), this);
+  QObject::connect(_newCrystalAction, &QAction::triggered, ui->sceneTreeView, &SceneTreeView::newCrystal);
+  _newMenu->addAction(_newCrystalAction);
+  _newMolecularCrystalAction = new QAction(tr("&Molecular crystal"), this);
+  QObject::connect(_newMolecularCrystalAction, &QAction::triggered, ui->sceneTreeView, &SceneTreeView::newMolecularCrystal);
+  _newMenu->addAction(_newMolecularCrystalAction);
+  _newProteinCrystalAction = new QAction(tr("&Protein crystal"), this);
+  QObject::connect(_newProteinCrystalAction, &QAction::triggered, ui->sceneTreeView, &SceneTreeView::newProteinCrystal);
+  _newMenu->addAction(_newProteinCrystalAction);
+  _newMoleculeAction = new QAction(tr("&Molecule"), this);
+  QObject::connect(_newMoleculeAction, &QAction::triggered, ui->sceneTreeView, &SceneTreeView::newMolecule);
+  _newMenu->addAction(_newMoleculeAction);
+  _newProteinAction = new QAction(tr("&Protein"), this);
+  QObject::connect(_newProteinAction, &QAction::triggered, ui->sceneTreeView, &SceneTreeView::newProtein);
+  _newMenu->addAction(_newProteinAction);
+
+  _newObjectsMenu = _newMenu->addMenu(tr("&Objects"));
+  _newCrystalEllipsoidAction = new QAction(tr("&Crystal ellipsoid"), this);
+  QObject::connect(_newCrystalEllipsoidAction, &QAction::triggered, ui->sceneTreeView, &SceneTreeView::newCrystalEllipsoid);
+  _newObjectsMenu->addAction(_newCrystalEllipsoidAction);
+  _newCrystalCylinderAction = new QAction(tr("&Crystal cylinder"), this);
+  QObject::connect(_newCrystalCylinderAction, &QAction::triggered, ui->sceneTreeView, &SceneTreeView::newCrystalCylinder);
+  _newObjectsMenu->addAction(_newCrystalCylinderAction);
+  _newCrystalPolygonalPrismAction = new QAction(tr("&Crystal polygonal prism"), this);
+  QObject::connect(_newCrystalPolygonalPrismAction, &QAction::triggered, ui->sceneTreeView, &SceneTreeView::newCrystalPolygonalPrism);
+  _newObjectsMenu->addAction(_newCrystalPolygonalPrismAction);
+  _newEllipsoidAction = new QAction(tr("&Ellipsoid"), this);
+  QObject::connect(_newEllipsoidAction, &QAction::triggered, ui->sceneTreeView, &SceneTreeView::newEllipsoid);
+  _newObjectsMenu->addAction(_newEllipsoidAction);
+  _newCylinderAction = new QAction(tr("&Cylinder"), this);
+  QObject::connect(_newCylinderAction, &QAction::triggered, ui->sceneTreeView, &SceneTreeView::newCylinder);
+  _newObjectsMenu->addAction(_newCylinderAction);
+  _newPolygonalPrismAction = new QAction(tr("&Polygonal prism"), this);
+  QObject::connect(_newPolygonalPrismAction, &QAction::triggered, ui->sceneTreeView, &SceneTreeView::newPolygonalPrism);
+  _newObjectsMenu->addAction(_newPolygonalPrismAction);
+
+  _newMenu->addSeparator();
   _newWorkSpaceAction = new QAction(tr("&Workspace"), this);
   QObject::connect(_newWorkSpaceAction, &QAction::triggered, this, &MainWindow::newWorkSpace);
   _newMenu->addAction(_newWorkSpaceAction);
@@ -269,6 +387,31 @@ void MainWindow::createMenus()
      helpWindow->resize(1200,800);
      helpWindow->show();
   });
+
+  ui->addMovieToolButton->setContextMenuPolicy(Qt::CustomContextMenu);
+  QObject::connect(ui->addMovieToolButton, &QToolButton::customContextMenuRequested, this, &MainWindow::ShowContextAddStructureMenu);
+}
+
+void MainWindow::ShowContextAddStructureMenu(const QPoint &pos)
+{
+  QMenu contextMenu(tr("Context menu"), this);
+
+  contextMenu.addAction(_newCrystalAction);
+  contextMenu.addAction(_newMolecularCrystalAction);
+  contextMenu.addAction(_newProteinCrystalAction);
+  contextMenu.addAction(_newMoleculeAction);
+  contextMenu.addAction(_newProteinAction);
+  QMenu *menu = new QMenu("Objects", this);
+  contextMenu.addMenu(menu);
+  menu->addAction(_newCrystalEllipsoidAction);
+  menu->addAction(_newCrystalCylinderAction);
+  menu->addAction(_newCrystalPolygonalPrismAction);
+  menu->addAction(_newEllipsoidAction);
+  menu->addAction(_newCylinderAction);
+  menu->addAction(_newPolygonalPrismAction);
+
+  QPoint globalPos = ui->addMovieToolButton->mapToGlobal(pos);
+  contextMenu.exec(globalPos);
 }
 
 void MainWindow::setUndoAction(QAction *newUndoAction)
@@ -289,6 +432,43 @@ void MainWindow::setRedoAction(QAction *newRedoAction)
 
 void MainWindow::propagateProject(std::shared_ptr<ProjectTreeNode> project, QObject *widget)
 {
+  if(project)
+  {
+    ui->removeProjectToolButton->setEnabled(project->isEditable());
+
+    ui->addMovieToolButton->setEnabled(project->isEditable());
+    ui->removeMovieToolButton->setEnabled(project->isEditable());
+
+    ui->addFrameToolButton->setEnabled(project->isEditable());
+    ui->removeFrameToolButton->setEnabled(project->isEditable());
+
+    ui->addElementToolButton->setEnabled(project->isEditable());
+    ui->removeElementToolButton->setEnabled(project->isEditable());
+
+    ui->addAtomToolButton->setEnabled(project->isEditable());
+    ui->removeAtomToolButton->setEnabled(project->isEditable());
+    ui->atomFilterLineEdit->setEnabled(project->isEditable());
+    ui->atomChargeLineEdit->setEnabled(project->isEditable());
+  }
+  else
+  {
+    ui->removeProjectToolButton->setDisabled(true);
+
+    ui->addMovieToolButton->setDisabled(true);
+    ui->removeMovieToolButton->setDisabled(true);
+
+    ui->addFrameToolButton->setDisabled(true);
+    ui->removeFrameToolButton->setDisabled(true);
+
+    ui->addElementToolButton->setDisabled(true);
+    ui->removeElementToolButton->setDisabled(true);
+
+    ui->addAtomToolButton->setDisabled(true);
+    ui->removeAtomToolButton->setDisabled(true);
+    ui->atomFilterLineEdit->setDisabled(true);
+    ui->atomChargeLineEdit->setDisabled(true);
+  }
+
   if (ProjectConsumer *projectConsumer = dynamic_cast<ProjectConsumer*>(widget))
   {
     projectConsumer->setProject(project);
@@ -700,6 +880,17 @@ void MainWindow::newWorkSpace()
   mainWindow->setAttribute(Qt::WA_DeleteOnClose);
   mainWindow->show();
 }
+
+void MainWindow::newStructureProject()
+{
+
+}
+
+void MainWindow::newProjectGroup()
+{
+
+}
+
 
 
 // see https://srivatsp.com/ostinato/qt-cut-copy-paste/

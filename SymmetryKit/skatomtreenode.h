@@ -61,7 +61,8 @@ public:
     bool insertChild(int row, std::shared_ptr<SKAtomTreeNode> child);
     void insertInParent(std::shared_ptr<SKAtomTreeNode> parent, int index);
     void appendToParent(std::shared_ptr<SKAtomTreeNode> parent);
-    bool removeChild(int position);
+    bool removeChild(size_t position);
+    bool removeChildren(size_t position, size_t count);
     void removeFromParent();
     const IndexPath indexPath();
     std::shared_ptr<SKAtomTreeNode> descendantNodeAtIndexPath(IndexPath indexPath);
@@ -88,8 +89,8 @@ private:
     std::weak_ptr<SKAtomTreeNode> _parent;
     std::shared_ptr<SKAsymmetricAtom> _representedObject;
 
-    std::vector<std::shared_ptr<SKAtomTreeNode>> _childNodes;
-    std::vector<std::shared_ptr<SKAtomTreeNode>> _filteredAndSortedNodes;
+    std::vector<std::shared_ptr<SKAtomTreeNode>> _childNodes{};
+    std::vector<std::shared_ptr<SKAtomTreeNode>> _filteredAndSortedNodes{};
 
     bool _matchesFilter = true;
     bool _selected = true;

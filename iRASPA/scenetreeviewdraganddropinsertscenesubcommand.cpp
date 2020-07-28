@@ -27,29 +27,28 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#include "masterstackedwidget.h"
+#include "scenetreeviewdraganddropinsertscenesubcommand.h"
+#include <QDebug>
+#include <algorithm>
 
-
-MasterStackedWidget::MasterStackedWidget(QWidget* parent ): QStackedWidget(parent )
+SceneTreeViewDragAndDropInsertSceneSubCommand::SceneTreeViewDragAndDropInsertSceneSubCommand(SceneTreeViewModel *sceneTreeViewModel, std::shared_ptr<Scene> scene,
+                                                                                             int row, QUndoCommand *undoParent):
+  QUndoCommand(undoParent),
+  _sceneTreeViewModel(sceneTreeViewModel),
+  _scene(scene),
+  _row(row)
 {
+  Q_UNUSED(undoParent);
 
+  setText(QString("Insert scene"));
 }
 
-void MasterStackedWidget::reloadTab(int tab)
+void SceneTreeViewDragAndDropInsertSceneSubCommand::redo()
 {
-  setCurrentIndex(tab);
-
-  foreach(QObject *child, widget(tab)->children())
-  {
-    if(Reloadable* reloadable = dynamic_cast<Reloadable*>(child))
-    {
-      reloadable->reloadData();
-      reloadable->reloadSelection();
-    }
-  }
+  _sceneTreeViewModel->insertRow(_row, _scene);
 }
 
-QSize MasterStackedWidget::sizeHint() const
+void SceneTreeViewDragAndDropInsertSceneSubCommand::undo()
 {
-    return QSize(200, 800);
+  _sceneTreeViewModel->removeRow(_row);
 }

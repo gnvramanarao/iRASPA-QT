@@ -30,6 +30,7 @@
 #include "projecttreeview.h"
 #include "projecttreeviewstyleditemdelegate.h"
 #include "projecttreeviewproxystyle.h"
+#include "projecttreeviewinsertprojectstructurecommand.h"
 #include <QApplication>
 #include <QClipboard>
 #include <QMimeData>
@@ -260,7 +261,7 @@ void ProjectTreeView::reloadSelection()
 
 void ProjectTreeView::reloadData()
 {
-
+  _mainWindow->updateMenuToProjectTab();
 }
 
 void ProjectTreeView::setController(std::shared_ptr<ProjectTreeController> treeController)
@@ -384,7 +385,7 @@ void ProjectTreeView::addGroupProject(QModelIndex index)
     std::shared_ptr<ProjectGroup> project = std::make_shared<ProjectGroup>();
     std::shared_ptr<iRASPAProject>  iraspaproject = std::make_shared<iRASPAProject>(project);
 
-    pModel->insertRows(index.row(), 1, index.parent(), true, iraspaproject);
+    //pModel->insertRows(index.row(), 1, index.parent(), true, iraspaproject);
   }
 }
 
@@ -481,5 +482,23 @@ void ProjectTreeView::paste()
 void ProjectTreeView::cut()
 {
 
+}
+
+void ProjectTreeView::insertProjectStructure()
+{
+  qDebug() << "ProjectTreeView::insertProjectStructure";
+  if(_projectTreeController)
+  {
+    if(ProjectTreeViewModel* pModel = qobject_cast<ProjectTreeViewModel*>(model()))
+    {
+      std::shared_ptr<ProjectTreeNode> parent = _projectTreeController->localProjects();
+      QModelIndex parentIndex = pModel->indexForItem(parent);
+      if(parentIndex.isValid())
+      {
+        ProjectTreeViewInsertProjectStructureCommand *insertProjectCommand = new ProjectTreeViewInsertProjectStructureCommand(_mainWindow, this, parent, 0, nullptr);
+        undoManager().push(insertProjectCommand);
+      }
+    }
+  }
 }
 

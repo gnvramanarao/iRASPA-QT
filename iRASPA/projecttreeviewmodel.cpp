@@ -77,9 +77,9 @@ ProjectTreeNode *ProjectTreeViewModel::getItem(const QModelIndex &index) const
   {
      ProjectTreeNode *item = static_cast<ProjectTreeNode*>(index.internalPointer());
      if (item)
-     {
        return item;
-     }
+     else
+       return nullptr;
   }
   return _projectTreeController->hiddenRootNode().get();
 }
@@ -123,6 +123,7 @@ bool ProjectTreeViewModel::removeRows(int position, int rows, const QModelIndex 
   return true;
 }
 
+
 bool ProjectTreeViewModel::insertRows(int position, int rows, const QModelIndex &parent, std::shared_ptr<ProjectTreeNode> item)
 {
 	ProjectTreeNode *parentItem = getItem(parent);
@@ -157,25 +158,22 @@ bool ProjectTreeViewModel::insertRows(int position, int rows, const QModelIndex 
   return true;
 }
 
-bool ProjectTreeViewModel::insertRows(int position, int rows, const QModelIndex &parent, bool isGroup, std::shared_ptr<iRASPAProject> project)
+bool ProjectTreeViewModel::insertRow(int position, std::shared_ptr<ProjectTreeNode> parent, std::shared_ptr<ProjectTreeNode> project)
 {
-    ProjectTreeNode *parentItem = getItem(parent);
-
-    std::cout << "insert, parent is: " << parentItem->displayName().toStdString() << std::endl;
-    std::cout << "position: " << position << ", " << rows << std::endl;
-
-    beginInsertRows(parent, position, position + rows - 1);
-    for (int row = 0; row < rows; ++row)
+  if(parent)
+  {
+    QModelIndex parentIndex = indexForItem(parent);
+    if(parentIndex.isValid())
     {
-      std::shared_ptr<ProjectTreeNode> newItem = std::make_shared<ProjectTreeNode>("New project", project, true, true);
+      beginInsertRows(parentIndex, position, position);
+      parent->insertChild(position, project);
+      endInsertRows();
 
-      if (!parentItem->insertChild(position, newItem))
-        break;
+      return true;
     }
-    endInsertRows();
-
-    return true;
   }
+  return false;
+}
 
 
 QModelIndex ProjectTreeViewModel::index(int row, int column, const QModelIndex &parent) const
@@ -240,7 +238,7 @@ QVariant ProjectTreeViewModel::data(const QModelIndex &index, int role) const
   if (!index.isValid())
     return QVariant();
 
-  if (role == Qt::TextColorRole)
+  if (role == Qt::ForegroundRole)
   {
     if(index.parent() == QModelIndex())
     {

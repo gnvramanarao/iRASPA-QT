@@ -76,7 +76,7 @@ public:
   Qt::DropActions supportedDropActions() const override final;
   QStringList mimeTypes() const override final;
   QMimeData* mimeData(const QModelIndexList &indexes) const override final;
-  bool removeRows(int positions, int rows, const QModelIndex &parent = QModelIndex()) override final;
+  bool removeRows(int positions, int count, const QModelIndex &parent = QModelIndex()) override final;
   bool insertRows(int position, int rows, const QModelIndex &parent) override final;
   bool moveRows(const QModelIndex &sourceParent, int sourceRow, int count, const QModelIndex &destinationParent, int destinationChild) override final;
   bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override final;

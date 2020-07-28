@@ -27,41 +27,58 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#include "projecttreeviewdeleteselectioncommand.h"
+#include "scenetreeviewdropcopycommand.h"
+#include "scenetreeviewdraganddropinsertscenesubcommand.h"
+#include "scenetreeviewdraganddropinsertmoviesubcommand.h"
 #include <QDebug>
 #include <algorithm>
 
-ProjectTreeViewDeleteSelectionCommand::ProjectTreeViewDeleteSelectionCommand(MainWindow *main_window, std::shared_ptr<ProjectTreeNode> projectSelection,
-                                     std::shared_ptr<ProjectTreeNode> previousProjectSelection, std::set<std::shared_ptr<ProjectTreeNode> > projectSetSelection,
-                                     std::set<std::shared_ptr<SKAtomTreeNode> > previousProjectSetSelection, QUndoCommand *parent):
-  _main_window(main_window),
-  _projectSelection(projectSelection),
-  _previousProjectSelection(previousProjectSelection),
-  _projectSetSelection(projectSetSelection),
-  _previousProjectSetSelection(previousProjectSetSelection)
+SceneTreeViewDropCopyCommand::SceneTreeViewDropCopyCommand(SceneTreeViewModel *sceneTreeViewModel, std::shared_ptr<SceneList> sceneList, std::shared_ptr<Scene> parent, int row,
+                                                           std::vector<std::shared_ptr<Movie>> movies, SceneListSelection selection, QUndoCommand *undoParent):
+  QUndoCommand(undoParent),
+  _sceneTreeViewModel(sceneTreeViewModel),
+  _sceneList(sceneList),
+  _parent(parent),
+  _row(row),
+  _movies(movies),
+  _selection(selection)
 {
-  Q_UNUSED(parent);
+  Q_UNUSED(undoParent);
 
-  setText(QString("Change project selection"));
-}
+  setText(QString("Copy movies"));
 
-void ProjectTreeViewDeleteSelectionCommand::redo()
-{
-  qDebug() << "Redoing ProjectTreeViewChangeSelectionCommand";
+  int beginRow = row;
+  std::shared_ptr<Scene> newParent = _parent;
 
-  if(_main_window)
+  if(!newParent)
   {
-    _main_window->reloadSelectionDetailViews();
+    std::shared_ptr<Scene> scene = std::make_shared<Scene>("NEW SCENE");
+    int insertionRow = _sceneList->scenes().size();
+    new SceneTreeViewDragAndDropInsertSceneSubCommand(_sceneTreeViewModel, scene, insertionRow, this);
+
+    newParent = scene;
+    beginRow = 0;
+  }
+
+  for(std::shared_ptr<Movie> movie : _movies)
+  {
+    new SceneTreeViewDragAndDropInsertMovieSubCommand(_sceneTreeViewModel, newParent, movie, beginRow, this);
+    beginRow += 1;
   }
 }
 
-void ProjectTreeViewDeleteSelectionCommand::undo()
+void SceneTreeViewDropCopyCommand::redo()
 {
-  qDebug() << "Undoing ProjectTreeViewChangeSelectionCommand";
+  QUndoCommand::redo();
 
+  _sceneList->setSelection(_selection);
+  emit _sceneTreeViewModel->updateSelection();
+}
 
-  if(_main_window)
-  {
-    _main_window->reloadSelectionDetailViews();
-  }
+void SceneTreeViewDropCopyCommand::undo()
+{
+  QUndoCommand::undo();
+
+  _sceneList->setSelection(_selection);
+  emit _sceneTreeViewModel->updateSelection();
 }

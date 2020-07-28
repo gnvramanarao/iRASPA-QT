@@ -27,29 +27,46 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#include "masterstackedwidget.h"
+#include "projecttreeviewinsertprojectstructurecommand.h"
+#include <QDebug>
+#include <algorithm>
 
-
-MasterStackedWidget::MasterStackedWidget(QWidget* parent ): QStackedWidget(parent )
+ProjectTreeViewInsertProjectStructureCommand::ProjectTreeViewInsertProjectStructureCommand(MainWindow *main_window, ProjectTreeView *projectTreeView,
+                                                                                           std::shared_ptr<ProjectTreeNode> parent, int row, QUndoCommand *undoParent):
+  _main_window(main_window),
+  _projectTreeView(projectTreeView),
+  _row(row),
+  _parent(parent)
 {
+  Q_UNUSED(undoParent);
 
+  setText(QString("Insert project structure"));
 }
 
-void MasterStackedWidget::reloadTab(int tab)
+void ProjectTreeViewInsertProjectStructureCommand::redo()
 {
-  setCurrentIndex(tab);
+  qDebug() << "Redoing ProjectTreeViewChangeSelectionCommand";
 
-  foreach(QObject *child, widget(tab)->children())
+  if(_projectTreeView)
   {
-    if(Reloadable* reloadable = dynamic_cast<Reloadable*>(child))
+    if(ProjectTreeViewModel* pModel = qobject_cast<ProjectTreeViewModel*>(_projectTreeView->model()))
     {
-      reloadable->reloadData();
-      reloadable->reloadSelection();
+      std::shared_ptr<ProjectStructure> project = std::make_shared<ProjectStructure>();
+      std::shared_ptr<iRASPAProject>  iraspaproject = std::make_shared<iRASPAProject>(project);
+      std::shared_ptr<ProjectTreeNode> newItem = std::make_shared<ProjectTreeNode>("New project", iraspaproject, true, true);
+
+      pModel->insertRow(_row, _parent, newItem);
     }
   }
 }
 
-QSize MasterStackedWidget::sizeHint() const
+void ProjectTreeViewInsertProjectStructureCommand::undo()
 {
-    return QSize(200, 800);
+  qDebug() << "Undoing ProjectTreeViewChangeSelectionCommand";
+
+
+  if(_main_window)
+  {
+    _main_window->reloadSelectionDetailViews();
+  }
 }

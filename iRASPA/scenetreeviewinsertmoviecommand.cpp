@@ -27,29 +27,60 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#include "masterstackedwidget.h"
+#include "scenetreeviewinsertmoviecommand.h"
+#include <QDebug>
+#include <algorithm>
 
-
-MasterStackedWidget::MasterStackedWidget(QWidget* parent ): QStackedWidget(parent )
+SceneTreeViewInsertMovieCommand::SceneTreeViewInsertMovieCommand(MainWindow *main_window, SceneTreeView *sceneTreeView, std::shared_ptr<SceneList> sceneList,
+                                                                 std::shared_ptr<Movie> movie, std::shared_ptr<Scene> parent, int row,
+                                                                 SceneListSelection selection, QUndoCommand *undoParent):
+  _main_window(main_window),
+  _sceneTreeView(sceneTreeView),
+  _sceneList(sceneList),
+  _movie(movie),
+  _row(row),
+  _parent(parent),
+  _selection(selection)
 {
+  Q_UNUSED(undoParent);
 
+  setText(QString("Insert movie"));
 }
 
-void MasterStackedWidget::reloadTab(int tab)
+void SceneTreeViewInsertMovieCommand::redo()
 {
-  setCurrentIndex(tab);
-
-  foreach(QObject *child, widget(tab)->children())
+  if(_sceneTreeView)
   {
-    if(Reloadable* reloadable = dynamic_cast<Reloadable*>(child))
+    if(SceneTreeViewModel* pModel = qobject_cast<SceneTreeViewModel*>(_sceneTreeView->model()))
     {
-      reloadable->reloadData();
-      reloadable->reloadSelection();
+      _sceneList->setSelection(_selection);
+      _sceneTreeView->reloadSelection();
+      pModel->insertRow(_row, _parent, _movie);
     }
+  }
+
+  if(_main_window)
+  {
+    _sceneTreeView->reloadSelection();
+    _main_window->recheckRemovalButtons();
   }
 }
 
-QSize MasterStackedWidget::sizeHint() const
+void SceneTreeViewInsertMovieCommand::undo()
 {
-    return QSize(200, 800);
+  if(_sceneTreeView)
+  {
+    if(SceneTreeViewModel* pModel = qobject_cast<SceneTreeViewModel*>(_sceneTreeView->model()))
+    {
+      _sceneList->setSelection(_selection);
+      _sceneTreeView->reloadSelection();
+      pModel->removeRow(_row, _parent, _movie);
+    }
+  }
+
+  if(_main_window)
+  {
+    _sceneTreeView->reloadSelection();
+    _main_window->recheckRemovalButtons();
+  }
 }

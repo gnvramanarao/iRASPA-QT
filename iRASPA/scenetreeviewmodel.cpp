@@ -449,10 +449,10 @@ bool SceneTreeViewModel::removeRow(int position)
 {
   QModelIndex parent = QModelIndex();
   beginRemoveRows(parent, position, position);
-  _sceneList->removeChild(position);
+  bool success = _sceneList->removeChild(position);
   endRemoveRows();
 
-  return true;
+  return success;
 }
 
 bool SceneTreeViewModel::removeRow(int position, std::shared_ptr<Scene> scene, std::shared_ptr<Movie> movie)
@@ -461,10 +461,10 @@ bool SceneTreeViewModel::removeRow(int position, std::shared_ptr<Scene> scene, s
   checkIndex(parent);
 
   beginRemoveRows(parent, position, position);
-  scene->removeChild(position);
+  bool success = scene->removeChild(position);
   endRemoveRows();
 
-  return true;
+  return success;
 }
 
 QStringList SceneTreeViewModel::mimeTypes() const

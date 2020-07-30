@@ -42,6 +42,7 @@ class SKAsymmetricAtom
 {
 public:
     SKAsymmetricAtom();
+    SKAsymmetricAtom(QString displayName, int elementIdentifier);
     virtual ~SKAsymmetricAtom();
     enum class SKAsymmetricAtomType: qint64
     {

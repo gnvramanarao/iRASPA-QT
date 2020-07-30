@@ -3,6 +3,10 @@ INCLUDEPATH += $$PWD
 SOURCES += \
     $$PWD/atomchangeselectioncommand.cpp \
     $$PWD/atomtreeviewdeleteselectioncommand.cpp \
+    $$PWD/atomtreeviewdropcopycommand.cpp \
+    $$PWD/atomtreeviewdropmovecommand.cpp \
+    $$PWD/atomtreeviewinsertatomcommand.cpp \
+    $$PWD/atomtreeviewinsertatomgroupcommand.cpp \
     $$PWD/bondchangeselectioncommand.cpp \
     $$PWD/bondlistviewdeleteselectioncommand.cpp \
     $$PWD/framelistviewchangeselectioncommand.cpp \
@@ -26,6 +30,10 @@ SOURCES += \
 HEADERS += \
     $$PWD/atomchangeselectioncommand.h \
     $$PWD/atomtreeviewdeleteselectioncommand.h \
+    $$PWD/atomtreeviewdropcopycommand.h \
+    $$PWD/atomtreeviewdropmovecommand.h \
+    $$PWD/atomtreeviewinsertatomcommand.h \
+    $$PWD/atomtreeviewinsertatomgroupcommand.h \
     $$PWD/bondchangeselectioncommand.h \
     $$PWD/bondlistviewdeleteselectioncommand.h \
     $$PWD/framelistviewchangeselectioncommand.h \

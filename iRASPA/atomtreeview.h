@@ -73,15 +73,15 @@ private:
   MainWindow* _mainWindow;
   std::shared_ptr<AtomTreeViewModel> _atomModel;
   std::shared_ptr<BondListViewModel> _bondModel;
-  std::weak_ptr<iRASPAStructure> _iraspaStructure;
-  std::weak_ptr<ProjectTreeNode> _projectTreeNode;
+  std::shared_ptr<iRASPAStructure> _iraspaStructure;
+  std::shared_ptr<ProjectTreeNode> _projectTreeNode;
   std::shared_ptr<iRASPAProject> _iRASPAProject;
   void paintDropIndicator(QPainter& painter);
   QAbstractItemView::DropIndicatorPosition position(QPoint pos, QRect rect, QModelIndex index);
   void addAtomGroup(QModelIndex index);
   void flattenHierachy();
   void makeSuperCell();
-  void setSelectedAtoms(const QItemSelection &selected, const QItemSelection &deselected);
+  void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override final;
   AtomTreeViewPushButtonStyledItemDelegate *pushButtonDelegate;
   SKAtomTreeNode* getItem(const QModelIndex &index) const;
   void exportToPDB() const;
@@ -94,6 +94,8 @@ protected:
   void keyPressEvent(QKeyEvent *event) override final;
 public slots:
   void ShowContextMenu(const QPoint &pos);
+  void addAtom();
+  void addAtomGroup();
 signals:
   void rendererReloadData();
   void invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>> structures);

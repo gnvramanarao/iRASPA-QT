@@ -28,11 +28,19 @@
  *************************************************************************************************************/
 
 #include "atomtreeviewmodel.h"
+#include "atomtreeviewdropmovecommand.h"
+#include <vector>
+#include <tuple>
 
 char AtomTreeViewModel::mimeType[] = "application/x-qt-iraspa-mime";
 
 AtomTreeViewModel::AtomTreeViewModel(): _iraspaStructure()
 {
+}
+
+void AtomTreeViewModel::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
+{
+  _projectTreeNode = projectTreeNode;
 }
 
 void AtomTreeViewModel::setFrame(std::shared_ptr<iRASPAStructure> frame)
@@ -44,6 +52,7 @@ void AtomTreeViewModel::setFrame(std::shared_ptr<iRASPAStructure> frame)
     endResetModel();
   }
 }
+
 
 QModelIndexList AtomTreeViewModel::selectedIndexes()
 {
@@ -106,11 +115,13 @@ int AtomTreeViewModel::columnCount(const QModelIndex &parent) const
 
 int AtomTreeViewModel::rowCount(const QModelIndex &parent) const
 {
-  SKAtomTreeNode *parentItem = nodeForIndex(parent);
-  if(parentItem)
-    return static_cast<int>(parentItem->childCount());
-  else
-    return 0;
+  if(_iraspaStructure)
+  {
+    SKAtomTreeNode *parentItem = nodeForIndex(parent);
+    if(parentItem)
+      return static_cast<int>(parentItem->childCount());
+  }
+  return 0;
 }
 
 QVariant AtomTreeViewModel::data(const QModelIndex &index, int role) const
@@ -123,7 +134,7 @@ QVariant AtomTreeViewModel::data(const QModelIndex &index, int role) const
   {
     int elementIdentifier = atom->elementIdentifier();
 
-    if(item->isGroup())
+    if(item->isGroup() && index.column() == 0)
     {
       if (role == Qt::CheckStateRole)
       {
@@ -309,6 +320,28 @@ bool AtomTreeViewModel::insertRows(int position, int rows, const QModelIndex &pa
   return true;
 }
 
+bool AtomTreeViewModel::insertRow(int position, std::shared_ptr<SKAtomTreeNode> parentNode, std::shared_ptr<SKAtomTreeNode> atomNode)
+{
+  QModelIndex parentModelIndex = indexForNode(parentNode.get());
+  checkIndex(parentModelIndex);
+  beginInsertRows(parentModelIndex, position, position);
+  bool success = parentNode->insertChild(position, atomNode);
+  endInsertRows();
+  return success;
+}
+
+bool AtomTreeViewModel::removeRow(int position, std::shared_ptr<SKAtomTreeNode> parentNode)
+{
+  QModelIndex parent = indexForNode(parentNode.get());
+  checkIndex(parent);
+
+  beginRemoveRows(parent, position, position);
+  bool success = parentNode->removeChild(position);
+  endRemoveRows();
+
+  return success;
+}
+
 bool AtomTreeViewModel::moveRows(const QModelIndex &sourceParent, int sourceRow, int count, const QModelIndex &destinationParent, int destinationChild)
 {
   std::cout << "MOVE ROWS!!!!!" << std::endl;
@@ -352,7 +385,7 @@ QMimeData* AtomTreeViewModel::mimeData(const QModelIndexList &indexes) const
   QDataStream stream(&encodedData, QIODevice::WriteOnly);
 
   QModelIndexList indexes2 = indexes;
-  qSort(indexes2.begin(), indexes2.end(), qGreater<QModelIndex>());
+  std::sort(indexes2.begin(), indexes2.end());
 
   stream << QCoreApplication::applicationPid();
   stream << indexes2.count();
@@ -381,6 +414,88 @@ bool AtomTreeViewModel::hasChildren(const QModelIndex &parent) const
   return item->isGroup();
 }
 
+bool AtomTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+  if(_iraspaStructure)
+  {
+    if(action == Qt::IgnoreAction)
+    {
+      return true;
+    }
+    if(!data->hasFormat(mimeType))
+    {
+      return false;
+    }
+
+    QByteArray ddata = data->data(mimeType);
+    QDataStream stream(&ddata, QIODevice::ReadOnly);
+
+    SKAtomTreeNode *parentNode = nodeForIndex(parent);
+
+    qint64 senderPid;
+    stream >> senderPid;
+    if (senderPid != QCoreApplication::applicationPid())
+    {
+      // Let's not cast pointers that come from another process...
+      return false;
+    }
+
+    int count;
+    stream >> count;
+
+    int beginRow = row;
+    if (beginRow == -1)
+    {
+      // valid index means: drop onto item. I chose that this should insert
+      // a child item, because this is the only way to create the first child of an item...
+      // This explains why Qt calls it parent: unless you just support replacing, this
+      // is really the future parent of the dropped items.
+      if (parent.isValid())
+        beginRow = 0;
+      else
+        // invalid index means: append at bottom, after last toplevel
+        beginRow = rowCount(parent);
+    }
+
+    if(action == Qt::DropAction::CopyAction)
+    {
+      insertRows(beginRow,count,parent);
+    }
+    else
+    {
+      std::vector<std::shared_ptr<SKAtomTreeNode>> newItems{};
+      std::vector<std::tuple<std::shared_ptr<SKAtomTreeNode>, std::shared_ptr<SKAtomTreeNode>, int >> moves{};
+
+      while (!stream.atEnd())
+      {
+
+        qlonglong nodePtr;
+        stream >> nodePtr;
+        SKAtomTreeNode *node = reinterpret_cast<SKAtomTreeNode *>(nodePtr);
+        std::shared_ptr<SKAtomTreeNode> atom = node->shared_from_this();
+
+        if (atom->row() < beginRow && (parentNode == atom->parent().get()))
+        {
+          beginRow -= 1;
+        }
+
+        moves.push_back(std::make_tuple(atom, parentNode->shared_from_this(), beginRow));
+
+        beginRow += 1;
+      }
+
+      AtomTreeViewDropMoveCommand *moveCommand = new AtomTreeViewDropMoveCommand(this, _iraspaStructure->structure(), moves, nullptr);
+      _projectTreeNode->representedObject()->undoManager().push(moveCommand);
+    }
+
+    _iraspaStructure->structure()->atomsTreeController()->setTags();
+
+    return true;
+  }
+  return false;
+}
+
+/*
 bool AtomTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
   if(action == Qt::IgnoreAction)
@@ -469,7 +584,7 @@ bool AtomTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction actio
   emit layoutChanged();
 
   return true;
-}
+}*/
 
 void AtomTreeViewModel::deleteSelection(std::shared_ptr<Structure> structure, std::vector<std::shared_ptr<SKAtomTreeNode>> atoms)
 {
@@ -522,12 +637,13 @@ SKAtomTreeNode *AtomTreeViewModel::nodeForIndex(const QModelIndex &index) const
 {
   if(index.isValid())
   {
-    return static_cast<SKAtomTreeNode *>(index.internalPointer());
+    SKAtomTreeNode *atomNode = static_cast<SKAtomTreeNode *>(index.internalPointer());
+    if(atomNode)
+      return atomNode;
+    else
+      return nullptr;
   }
-  if(_iraspaStructure)
-    return _iraspaStructure->structure()->atomsTreeController()->hiddenRootNode().get();
-  else
-    return nullptr;
+  return _iraspaStructure->structure()->atomsTreeController()->hiddenRootNode().get();
 }
 
 int AtomTreeViewModel::rowForNode(SKAtomTreeNode *node) const

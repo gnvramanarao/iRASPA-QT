@@ -31,14 +31,19 @@
 #include <QPainter>
 #include <QtCore>
 #include <QItemSelection>
+#include "atomtreeviewinsertatomcommand.h"
+#include "atomtreeviewinsertatomgroupcommand.h"
 #include "atomtreeviewdeleteselectioncommand.h"
 #include "atomchangeselectioncommand.h"
+#include "atomtreeviewdecorationstyleditemdelegate.h"
 
 AtomTreeView::AtomTreeView(QWidget* parent): QTreeView(parent ), _atomModel(std::make_shared<AtomTreeViewModel>())
 {
   this->setModel(_atomModel.get());
 
   QObject::connect(model(),&QAbstractItemModel::modelReset, this, &AtomTreeView::reloadSelection);
+
+  QObject::connect(_atomModel.get(),&AtomTreeViewModel::collapse, this, &AtomTreeView::collapse);
 
   this->viewport()->setMouseTracking(true);
 
@@ -67,6 +72,8 @@ AtomTreeView::AtomTreeView(QWidget* parent): QTreeView(parent ), _atomModel(std:
   pushButtonDelegate = new AtomTreeViewPushButtonStyledItemDelegate(this);
   this->setItemDelegateForColumn(1, pushButtonDelegate);
 
+  this->setItemDelegateForColumn(0, new AtomTreeViewDecorationStyledItemDelegate(this));
+
   this->header()->setStretchLastSection(true);
   this->setColumnWidth(0,110);
   this->setColumnWidth(1,50);
@@ -76,14 +83,15 @@ AtomTreeView::AtomTreeView(QWidget* parent): QTreeView(parent ), _atomModel(std:
   this->setColumnWidth(5,70);
   this->setColumnWidth(6,70);
 
-
-  QObject::connect(selectionModel(), &QItemSelectionModel::selectionChanged, this, &AtomTreeView::setSelectedAtoms);
+  QObject::connect(_atomModel.get(), &AtomTreeViewModel::reloadSelection, this, &AtomTreeView::reloadSelection);
 }
+
 
 void AtomTreeView::setBondModel(std::shared_ptr<BondListViewModel> bondModel)
 {
   _bondModel = bondModel;
 }
+
 
 void AtomTreeView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 {
@@ -93,6 +101,7 @@ void AtomTreeView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 
   if (projectTreeNode)
   {
+    _atomModel->setProject(projectTreeNode);
     setEnabled(projectTreeNode->isEditable());
     _iRASPAProject = projectTreeNode->representedObject();
     if(_iRASPAProject)
@@ -111,7 +120,7 @@ void AtomTreeView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 
 
   // reload and resize the columns
-  _atomModel->setFrame(_iraspaStructure.lock());
+  _atomModel->setFrame(_iraspaStructure);
   this->reloadData();
 }
 
@@ -127,9 +136,9 @@ void AtomTreeView::setSelectedFrame(std::shared_ptr<iRASPAStructure> iraspastruc
 
 SKAtomTreeNode* AtomTreeView::getItem(const QModelIndex &index) const
 {
-  if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iraspaStructure.lock())
+  if(_iraspaStructure)
   {
-    std::shared_ptr<Structure> structure = iraspaStructure->structure();
+    std::shared_ptr<Structure> structure = _iraspaStructure->structure();
     if (index.isValid())
     {
        SKAtomTreeNode *item = static_cast<SKAtomTreeNode*>(index.internalPointer());
@@ -157,13 +166,13 @@ void AtomTreeView::keyPressEvent(QKeyEvent *event)
 }
 
 
-void AtomTreeView::setSelectedAtoms(const QItemSelection &selected, const QItemSelection &deselected)
+void AtomTreeView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
   qDebug() << "Number of selected atoms: " << selected.size();
 
-  if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iraspaStructure.lock())
+  if(_iraspaStructure)
   {
-    std::shared_ptr<Structure> structure = iraspaStructure->structure();
+    std::shared_ptr<Structure> structure = _iraspaStructure->structure();
     std::shared_ptr<SKAtomTreeController> atomTreeControler = structure->atomsTreeController();
     std::shared_ptr<SKBondSetController> bondListControler = structure->bondSetController();
 
@@ -272,8 +281,6 @@ void AtomTreeView::dragMoveEvent(QDragMoveEvent *event)
   QPoint pos = event->pos();
   QModelIndex index = indexAt(mapFromParent(pos));
 
-  std::cout << "row:" << index.row() << ", " << index.column() << ", " << index.parent().internalPointer() <<  std::endl;
-
   int columnCount = model()->columnCount();
 
   QRect rect = visualRect(index);
@@ -325,6 +332,7 @@ QAbstractItemView::DropIndicatorPosition AtomTreeView::position(QPoint pos, QRec
 
 void AtomTreeView::reloadSelection()
 {
+  qDebug() << "AtomTreeView::reloadSelection()";
   if(AtomTreeViewModel* pModel = qobject_cast<AtomTreeViewModel*>(model()))
   {
     whileBlocking(selectionModel())->clearSelection();
@@ -339,9 +347,9 @@ void AtomTreeView::reloadSelection()
 
 void AtomTreeView::reloadData()
 {
-  if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iraspaStructure.lock())
+  if(_iraspaStructure)
   {
-    std::shared_ptr<Structure> structure = iraspaStructure->structure();
+    std::shared_ptr<Structure> structure = _iraspaStructure->structure();
     std::shared_ptr<SKAtomTreeController> atomTreeController = structure->atomsTreeController();
 
     if(atomTreeController->rootNodes().size() > 0)
@@ -382,9 +390,9 @@ QSize AtomTreeView::sizeHint() const
 
 void AtomTreeView::deleteSelection()
 {
-  if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iraspaStructure.lock())
+  if(_iraspaStructure)
   {
-    std::shared_ptr<Structure> structure = iraspaStructure->structure();
+    std::shared_ptr<Structure> structure = _iraspaStructure->structure();
     std::shared_ptr<SKAtomTreeController> atomTreeController = structure->atomsTreeController();
     std::shared_ptr<SKBondSetController> bondSetController = structure->bondSetController();
 
@@ -402,21 +410,53 @@ void AtomTreeView::deleteSelection()
   }
 }
 
+void AtomTreeView::addAtom()
+{
+  if(_iraspaStructure)
+  {
+    if(AtomTreeViewModel* pModel = qobject_cast<AtomTreeViewModel*>(model()))
+    {
+      QModelIndex index = currentIndex();
+      QModelIndex parentIndex = index.isValid() ? index.parent() : QModelIndex();
+      int row = index.isValid() ? index.row() + 1 : pModel->rowCount(index);
+      SKAtomTreeNode *parentNode = pModel->nodeForIndex(parentIndex);
+
+      AtomTreeViewInsertAtomCommand *insertAtomCommand = new AtomTreeViewInsertAtomCommand(_mainWindow, this, _iraspaStructure->structure(), parentNode->shared_from_this(), row, nullptr);
+      _iRASPAProject->undoManager().push(insertAtomCommand);
+    }
+  }
+}
+
+void AtomTreeView::addAtomGroup()
+{
+  if(_iraspaStructure)
+  {
+    if(AtomTreeViewModel* pModel = qobject_cast<AtomTreeViewModel*>(model()))
+    {
+      QModelIndex index = currentIndex();
+      QModelIndex parentIndex = index.isValid() ? index.parent() : QModelIndex();
+      int row = index.isValid() ? index.row() + 1 : pModel->rowCount(index);
+      SKAtomTreeNode *parentNode = pModel->nodeForIndex(parentIndex);
+
+      AtomTreeViewInsertAtomGroupCommand *insertAtomCommand = new AtomTreeViewInsertAtomGroupCommand(_mainWindow, this, _iraspaStructure->structure(), parentNode->shared_from_this(), row, nullptr);
+      _iRASPAProject->undoManager().push(insertAtomCommand);
+    }
+  }
+}
+
 void AtomTreeView::addAtomGroup(QModelIndex index)
 {
-  if(std::shared_ptr<iRASPAStructure> iraspaStructure = _iraspaStructure.lock())
+  if(_iraspaStructure)
   {
-    std::shared_ptr<Structure> structure = iraspaStructure->structure();
+    if(AtomTreeViewModel* pModel = qobject_cast<AtomTreeViewModel*>(model()))
+    {
+      QModelIndex parentIndex = index.isValid() ? index.parent() : QModelIndex();
+      int row = index.isValid() ? index.row() + 1 : pModel->rowCount(index);
+      SKAtomTreeNode *parentNode = pModel->nodeForIndex(parentIndex);
 
-    model()->insertRows(index.row(), 1, index.parent());
-
-    QModelIndex index2 = model()->index(index.row(),0,index.parent());
-    SKAtomTreeNode *item = static_cast<SKAtomTreeNode*>(index2.internalPointer());
-    item->setGroupItem(true);
-    item->setDisplayName("New atom group");
-    setFirstColumnSpanned(index2.row(),index2.parent(), true);
-
-    emit rendererReloadData();
+      AtomTreeViewInsertAtomGroupCommand *insertAtomCommand = new AtomTreeViewInsertAtomGroupCommand(_mainWindow, this, _iraspaStructure->structure(), parentNode->shared_from_this(), row, nullptr);
+      _iRASPAProject->undoManager().push(insertAtomCommand);
+    }
   }
 }
 
@@ -427,11 +467,11 @@ void AtomTreeView::flattenHierachy()
 
 void AtomTreeView::makeSuperCell()
 {
-  if(std::shared_ptr<ProjectTreeNode> projectTreeNode = _projectTreeNode.lock())
+  if(_projectTreeNode)
   {
-    if(projectTreeNode->isEditable())
+    if(_projectTreeNode->isEditable())
     {
-      if(std::shared_ptr<iRASPAProject> iRASPAProject = projectTreeNode->representedObject())
+      if(std::shared_ptr<iRASPAProject> iRASPAProject = _projectTreeNode->representedObject())
       {
         if(std::shared_ptr<Project> project = iRASPAProject->project())
         {
@@ -454,10 +494,16 @@ void AtomTreeView::ShowContextMenu(const QPoint &pos)
 {
   QModelIndex index = indexAt(pos);
 
-  QMenu contextMenu(tr("Context menu"), this);
+  QMenu contextMenu(tr("Context menu"), nullptr);
+
+  bool isEnabled = false;
+  if(_iraspaStructure)
+  {
+    isEnabled = _projectTreeNode->isEditable()  && (model()->rowCount(QModelIndex()) > 0);
+  }
 
   QAction actionAddAtomGroup("Add Atom Group", this);
-  actionAddAtomGroup.setEnabled(false);
+  actionAddAtomGroup.setEnabled(isEnabled);
   connect(&actionAddAtomGroup, &QAction::triggered, [this, index](void) {
      this->addAtomGroup(index);
   });

@@ -171,6 +171,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
   QObject::connect(ui->addMovieToolButton, &QToolButton::pressed,ui->sceneTreeView, &SceneTreeView::newCrystal);
   QObject::connect(ui->removeMovieToolButton, &QToolButton::pressed,ui->sceneTreeView, &SceneTreeView::deleteSelection);
 
+  QObject::connect(ui->addAtomToolButton, &QToolButton::pressed, ui->atomTreeView, &AtomTreeView::addAtom);
+
   recheckRemovalButtons();
   updateMenuToProjectTab();
 

@@ -45,7 +45,7 @@
  #include <QTreeView>
  #include <QSizePolicy>
 
- AtomTreeViewPushButtonStyledItemDelegate::AtomTreeViewPushButtonStyledItemDelegate(QWidget* parent) : QStyledItemDelegate(parent)
+ AtomTreeViewPushButtonStyledItemDelegate::AtomTreeViewPushButtonStyledItemDelegate(QWidget* parent): QStyledItemDelegate(parent)
  {
    btn = new QPushButton();
    btn->setCheckable(true);

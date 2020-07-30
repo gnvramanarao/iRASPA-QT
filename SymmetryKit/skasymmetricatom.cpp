@@ -34,6 +34,11 @@ SKAsymmetricAtom::SKAsymmetricAtom(): _displayName("C"), _elementIdentifier(6)
 
 }
 
+SKAsymmetricAtom::SKAsymmetricAtom(QString displayName, int elementIdentifier): _displayName(displayName), _elementIdentifier(elementIdentifier)
+{
+
+}
+
 SKAsymmetricAtom::~SKAsymmetricAtom()
 {
 }

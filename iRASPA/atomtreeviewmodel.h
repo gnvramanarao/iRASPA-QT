@@ -45,6 +45,8 @@ public:
   AtomTreeViewModel();
 
   static char mimeType[];
+
+  void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode);
   void setFrame(std::shared_ptr<iRASPAStructure> frame);
   std::shared_ptr<iRASPAStructure> frame() {return _iraspaStructure;}
 
@@ -78,13 +80,19 @@ public:
   QMimeData* mimeData(const QModelIndexList &indexes) const override final;
   bool removeRows(int positions, int count, const QModelIndex &parent = QModelIndex()) override final;
   bool insertRows(int position, int rows, const QModelIndex &parent) override final;
+  bool insertRow(int position, std::shared_ptr<SKAtomTreeNode> parentNode, std::shared_ptr<SKAtomTreeNode> atomNode);
+  bool removeRow(int position, std::shared_ptr<SKAtomTreeNode> parentNode);
   bool moveRows(const QModelIndex &sourceParent, int sourceRow, int count, const QModelIndex &destinationParent, int destinationChild) override final;
   bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override final;
 
   void deleteSelection(std::shared_ptr<Structure> structure, std::vector<std::shared_ptr<SKAtomTreeNode>> atoms);
   void insertSelection(std::shared_ptr<Structure> structure, std::vector<std::shared_ptr<SKAtomTreeNode>> atoms, std::vector<IndexPath> indexPaths);
+
 private:
+  std::shared_ptr<ProjectTreeNode> _projectTreeNode;
   std::shared_ptr<iRASPAStructure> _iraspaStructure;
 signals:
     void rendererReloadData();
+    void reloadSelection();
+    void collapse(const QModelIndex &index);
 };

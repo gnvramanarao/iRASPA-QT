@@ -29,6 +29,12 @@
 
 #include "atomtreeviewmodel.h"
 #include "atomtreeviewdropmovecommand.h"
+#include "atomtreeviewchangedisplaynamecommand.h"
+#include "atomtreeviewchangeelementcommand.h"
+#include "atomtreeviewchangepositionxcommand.h"
+#include "atomtreeviewchangepositionycommand.h"
+#include "atomtreeviewchangepositionzcommand.h"
+#include "atomtreeviewchangechargecommand.h"
 #include <vector>
 #include <tuple>
 
@@ -185,6 +191,11 @@ Qt::ItemFlags AtomTreeViewModel::flags(const QModelIndex &index) const
     flags |= Qt::ItemIsEditable;
   }
 
+  if ( index.column() >= 2 )
+  {
+    flags |= Qt::ItemIsEditable;
+  }
+
   flags |= Qt::ItemIsDragEnabled;
 
   SKAtomTreeNode *node = getItem(index);
@@ -248,9 +259,82 @@ bool AtomTreeViewModel::setData(const QModelIndex &index, const QVariant &value,
     }
   }
 
-  QModelIndex topLeft = index;
-  QModelIndex bottomRight = index;
-  emit dataChanged(topLeft,bottomRight);
+  if (role != Qt::EditRole)
+       return false;
+
+  SKAtomTreeNode *item = static_cast<SKAtomTreeNode*>(index.internalPointer());
+  switch(index.column())
+  {
+    case 0:
+    {
+      bool success;
+      QString newValue = value.toString();
+      AtomTreeViewChangeDisplayNameCommand*changeDisplayNameCommand = new AtomTreeViewChangeDisplayNameCommand(this, item->shared_from_this(), newValue, nullptr);
+      _projectTreeNode->representedObject()->undoManager().push(changeDisplayNameCommand);
+      return true;
+    }
+  case 2:
+  {
+    std::map<QString, int>::iterator newValue = PredefinedElements::atomicNumberData.find(value.toString());
+    if (newValue != PredefinedElements::atomicNumberData.end() )
+    {
+      AtomTreeViewChangeElementCommand*changeElementCommand = new AtomTreeViewChangeElementCommand(_mainWindow, this, _iraspaStructure->structure(), item->shared_from_this(), newValue->second, nullptr);
+      _projectTreeNode->representedObject()->undoManager().push(changeElementCommand);
+      return true;
+    }
+    break;
+  }
+  case 3:
+  {
+    bool success;
+    double newValue = value.toDouble(&success);
+    if(success)
+    {
+      AtomTreeViewChangePositionXCommand*changePositionXCommand = new AtomTreeViewChangePositionXCommand(this, _iraspaStructure->structure(), item->shared_from_this(), newValue, nullptr);
+      _projectTreeNode->representedObject()->undoManager().push(changePositionXCommand);
+      return true;
+    }
+    break;
+  }
+  case 4:
+  {
+    bool success;
+    double newValue = value.toDouble(&success);
+    if(success)
+    {
+      AtomTreeViewChangePositionYCommand*changePositionYCommand = new AtomTreeViewChangePositionYCommand(this, _iraspaStructure->structure(), item->shared_from_this(), newValue, nullptr);
+      _projectTreeNode->representedObject()->undoManager().push(changePositionYCommand);
+      return true;
+    }
+    break;
+  }
+  case 5:
+  {
+    bool success;
+    double newValue = value.toDouble(&success);
+    if(success)
+    {
+      AtomTreeViewChangePositionZCommand*changePositionZCommand = new AtomTreeViewChangePositionZCommand(this, _iraspaStructure->structure(), item->shared_from_this(), newValue, nullptr);
+      _projectTreeNode->representedObject()->undoManager().push(changePositionZCommand);
+      return true;
+    }
+    break;
+  }
+  case 6:
+  {
+    bool success;
+    double newValue = value.toDouble(&success);
+    if(success)
+    {
+      AtomTreeViewChangeChargeCommand*changeChargeCommand = new AtomTreeViewChangeChargeCommand(this, _iraspaStructure->structure(), item->shared_from_this(), newValue, nullptr);
+      _projectTreeNode->representedObject()->undoManager().push(changeChargeCommand);
+      return true;
+    }
+    break;
+  }
+  default:
+    break;
+  }
 
   return false;
 }

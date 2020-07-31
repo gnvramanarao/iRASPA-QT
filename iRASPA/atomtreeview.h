@@ -50,7 +50,7 @@ public:
   AtomTreeView(QWidget* parent = nullptr);
   QSize sizeHint() const override final;
 
-  void setMainWindow(MainWindow* mainWindow) override final {_mainWindow = mainWindow;}
+  void setMainWindow(MainWindow* mainWindow) override final;
   void setBondModel(std::shared_ptr<BondListViewModel> bondModel);
 
   // update the atomTreeView when a new project is selected in the ProjectTreeView

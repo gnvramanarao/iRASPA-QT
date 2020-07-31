@@ -41,9 +41,7 @@ AtomTreeView::AtomTreeView(QWidget* parent): QTreeView(parent ), _atomModel(std:
 {
   this->setModel(_atomModel.get());
 
-  QObject::connect(model(),&QAbstractItemModel::modelReset, this, &AtomTreeView::reloadSelection);
 
-  QObject::connect(_atomModel.get(),&AtomTreeViewModel::collapse, this, &AtomTreeView::collapse);
 
   this->viewport()->setMouseTracking(true);
 
@@ -83,7 +81,16 @@ AtomTreeView::AtomTreeView(QWidget* parent): QTreeView(parent ), _atomModel(std:
   this->setColumnWidth(5,70);
   this->setColumnWidth(6,70);
 
+  QObject::connect(model(),&QAbstractItemModel::modelReset, this, &AtomTreeView::reloadSelection);
+  QObject::connect(_atomModel.get(),&AtomTreeViewModel::collapse, this, &AtomTreeView::collapse);
   QObject::connect(_atomModel.get(), &AtomTreeViewModel::reloadSelection, this, &AtomTreeView::reloadSelection);
+  QObject::connect(_atomModel.get(), &AtomTreeViewModel::rendererReloadData, this, &AtomTreeView::rendererReloadData);
+}
+
+void AtomTreeView::setMainWindow(MainWindow* mainWindow)
+{
+  _mainWindow = mainWindow;
+  _atomModel->_mainWindow = mainWindow;
 }
 
 

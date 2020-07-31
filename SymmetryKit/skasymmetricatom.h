@@ -62,6 +62,9 @@ public:
     void setDisplayName(QString newValue)  {_displayName = newValue;}
     double3 position() const  {return _position;}
     void setPosition(double3 newValue)  {_position = newValue;}
+    void setPositionX(double newValue)  {_position.x = newValue;}
+    void setPositionY(double newValue)  {_position.y = newValue;}
+    void setPositionZ(double newValue)  {_position.z = newValue;}
     double charge() const  {return _charge;}
     void setCharge(double newValue)  {_charge = newValue;}
 

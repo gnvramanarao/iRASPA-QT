@@ -36,6 +36,9 @@
 #include <QModelIndex>
 #include <optional>
 #include <iraspakit.h>
+#include "mainwindow.h"
+
+class MainWindow;
 
 class AtomTreeViewModel: public QAbstractItemModel
 {
@@ -88,7 +91,9 @@ public:
   void deleteSelection(std::shared_ptr<Structure> structure, std::vector<std::shared_ptr<SKAtomTreeNode>> atoms);
   void insertSelection(std::shared_ptr<Structure> structure, std::vector<std::shared_ptr<SKAtomTreeNode>> atoms, std::vector<IndexPath> indexPaths);
 
+  MainWindow* _mainWindow;
 private:
+
   std::shared_ptr<ProjectTreeNode> _projectTreeNode;
   std::shared_ptr<iRASPAStructure> _iraspaStructure;
 signals:

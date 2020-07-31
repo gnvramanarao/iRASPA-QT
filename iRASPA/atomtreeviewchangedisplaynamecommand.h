@@ -36,17 +36,18 @@
 #include "indexpath.h"
 #include "symmetrykit.h"
 #include "mathkit.h"
+#include "mainwindow.h"
 #include "atomtreeviewmodel.h"
 
-class AtomTreeViewDropCopyCommand : public QUndoCommand
+class AtomTreeViewChangeDisplayNameCommand : public QUndoCommand
 {
 public:
-  AtomTreeViewDropCopyCommand(AtomTreeViewModel *model, std::shared_ptr<Structure> structure, std::vector<std::tuple<std::shared_ptr<SKAtomTreeNode>, std::shared_ptr<SKAtomTreeNode>, int>> moves, QUndoCommand *undoParent = nullptr);
+  AtomTreeViewChangeDisplayNameCommand(AtomTreeViewModel *model, std::shared_ptr<SKAtomTreeNode> atom, QString newValue, QUndoCommand *undoParent = nullptr);
   void redo() override final;
   void undo() override final;
 private:
   AtomTreeViewModel *_model;
-  std::shared_ptr<Structure> _structure;
-  std::vector<std::tuple<std::shared_ptr<SKAtomTreeNode>, std::shared_ptr<SKAtomTreeNode>, int>> _moves;
-  std::vector<std::tuple<std::shared_ptr<SKAtomTreeNode>, std::shared_ptr<SKAtomTreeNode>, int>> _reverseMoves;
+  std::shared_ptr<SKAtomTreeNode> _atomTreeNode;
+  QString _newValue;
+  QString _oldValue;
 };

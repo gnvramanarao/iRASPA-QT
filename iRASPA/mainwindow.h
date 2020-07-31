@@ -38,8 +38,8 @@
 #include <iraspakit.h>
 #include <symmetrykit.h>
 #include "helpwidget.h"
-#include "atomtreeviewmodel.h"
-#include "bondlistviewmodel.h"
+//#include "atomtreeviewmodel.h"
+//#include "bondlistviewmodel.h"
 
 namespace Ui {
 class MainWindow;
@@ -73,8 +73,8 @@ public:
 private:
   Ui::MainWindow *ui;
   DocumentData _documentData{};
-  std::shared_ptr<AtomTreeViewModel> _atomModel;
-  std::shared_ptr<BondListViewModel> _bondModel;
+  //std::shared_ptr<AtomTreeViewModel> _atomModel;
+  //std::shared_ptr<BondListViewModel> _bondModel;
   SKColorSets _colorSets{};
   ForceFieldSets _forceFieldSets{};
   int projectInsertionIndex();

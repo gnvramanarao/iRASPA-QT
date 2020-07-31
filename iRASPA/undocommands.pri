@@ -2,6 +2,12 @@ INCLUDEPATH += $$PWD
 
 SOURCES += \
     $$PWD/atomchangeselectioncommand.cpp \
+    $$PWD/atomtreeviewchangechargecommand.cpp \
+    $$PWD/atomtreeviewchangedisplaynamecommand.cpp \
+    $$PWD/atomtreeviewchangeelementcommand.cpp \
+    $$PWD/atomtreeviewchangepositionxcommand.cpp \
+    $$PWD/atomtreeviewchangepositionycommand.cpp \
+    $$PWD/atomtreeviewchangepositionzcommand.cpp \
     $$PWD/atomtreeviewdeleteselectioncommand.cpp \
     $$PWD/atomtreeviewdropcopycommand.cpp \
     $$PWD/atomtreeviewdropmovecommand.cpp \
@@ -29,6 +35,12 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/atomchangeselectioncommand.h \
+    $$PWD/atomtreeviewchangechargecommand.h \
+    $$PWD/atomtreeviewchangedisplaynamecommand.h \
+    $$PWD/atomtreeviewchangeelementcommand.h \
+    $$PWD/atomtreeviewchangepositionxcommand.h \
+    $$PWD/atomtreeviewchangepositionycommand.h \
+    $$PWD/atomtreeviewchangepositionzcommand.h \
     $$PWD/atomtreeviewdeleteselectioncommand.h \
     $$PWD/atomtreeviewdropcopycommand.h \
     $$PWD/atomtreeviewdropmovecommand.h \

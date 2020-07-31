@@ -525,7 +525,6 @@ void RenderStackedWidget::ShowContextMenu(const QPoint &pos)
     subMenuExport->addAction(&actionExportToPOSCAR);
     connect(&actionOrthographic, &QAction::triggered, this, &RenderStackedWidget::exportToPOSCAR);
 
-
     contextMenu.exec(mapToGlobal(pos));
   }
 }
@@ -533,6 +532,7 @@ void RenderStackedWidget::ShowContextMenu(const QPoint &pos)
 
 void RenderStackedWidget::reloadRenderData()
 {
+  qDebug() << "RenderStackedWidget::reloadRenderData()";
   if (RKRenderViewController* widget = dynamic_cast<RKRenderViewController*>(currentWidget()))
   {
     widget->reloadRenderData();

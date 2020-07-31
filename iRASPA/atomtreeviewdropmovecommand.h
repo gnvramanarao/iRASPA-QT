@@ -36,8 +36,7 @@
 #include "indexpath.h"
 #include "symmetrykit.h"
 #include "mathkit.h"
-#include "mainwindow.h"
-#include "scenetreeview.h"
+#include "atomtreeviewmodel.h"
 
 class AtomTreeViewDropMoveCommand : public QUndoCommand
 {

@@ -27,26 +27,30 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#pragma once
+#include "atomtreeviewchangedisplaynamecommand.h"
+#include <QDebug>
+#include <algorithm>
 
-#include <QUndoCommand>
-#include <set>
-#include <vector>
-#include "iraspakit.h"
-#include "indexpath.h"
-#include "symmetrykit.h"
-#include "mathkit.h"
-#include "atomtreeviewmodel.h"
-
-class AtomTreeViewDropCopyCommand : public QUndoCommand
+AtomTreeViewChangeDisplayNameCommand::AtomTreeViewChangeDisplayNameCommand(AtomTreeViewModel *model, std::shared_ptr<SKAtomTreeNode> atomTreeNode, QString newValue, QUndoCommand *undoParent):
+  QUndoCommand(undoParent),
+  _model(model),
+  _atomTreeNode(atomTreeNode),
+  _newValue(newValue)
 {
-public:
-  AtomTreeViewDropCopyCommand(AtomTreeViewModel *model, std::shared_ptr<Structure> structure, std::vector<std::tuple<std::shared_ptr<SKAtomTreeNode>, std::shared_ptr<SKAtomTreeNode>, int>> moves, QUndoCommand *undoParent = nullptr);
-  void redo() override final;
-  void undo() override final;
-private:
-  AtomTreeViewModel *_model;
-  std::shared_ptr<Structure> _structure;
-  std::vector<std::tuple<std::shared_ptr<SKAtomTreeNode>, std::shared_ptr<SKAtomTreeNode>, int>> _moves;
-  std::vector<std::tuple<std::shared_ptr<SKAtomTreeNode>, std::shared_ptr<SKAtomTreeNode>, int>> _reverseMoves;
-};
+  setText(QString("Change atom name"));
+}
+
+void AtomTreeViewChangeDisplayNameCommand::redo()
+{
+  _oldValue = _atomTreeNode->representedObject()->displayName();
+  _atomTreeNode->representedObject()->setDisplayName(_newValue);
+  QModelIndex index = _model->indexForNode(_atomTreeNode.get());
+  emit _model->dataChanged(index,index);
+}
+
+void AtomTreeViewChangeDisplayNameCommand::undo()
+{
+  _atomTreeNode->representedObject()->setDisplayName(_oldValue);
+  QModelIndex index = _model->indexForNode(_atomTreeNode.get());
+  emit _model->dataChanged(index,index);
+}

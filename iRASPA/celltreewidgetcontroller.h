@@ -98,7 +98,6 @@ private:
   void reloadCellOriginZ();
 
   void setStructureType(int value);
-  void replaceStructure(std::vector<std::pair<std::shared_ptr<iRASPAStructure>,std::shared_ptr<iRASPAStructure>>>);
   std::optional<iRASPAStructureType>  structureType();
   SKBoundingBox boundingBox();
 

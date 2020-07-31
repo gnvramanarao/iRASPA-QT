@@ -65,6 +65,8 @@ public:
   iRASPAStructure(std::shared_ptr<CrystalPolygonalPrismPrimitive> crystalPolygonalPrismPrimitive):_rawValue(iRASPAStructureType::crystalPolygonalPrismPrimitive), _structure(crystalPolygonalPrismPrimitive) {}
 
   inline std::shared_ptr<Structure> structure() const {return _structure;}
+  inline iRASPAStructureType type() const {return _rawValue;}
+  inline void setStructure(std::shared_ptr<Structure> structure, iRASPAStructureType rawValue) {_structure = structure; _rawValue = rawValue;}
   static void swapRepresentedObjects(std::shared_ptr<iRASPAStructure> s1, std::shared_ptr<iRASPAStructure> s2);
   QString displayName() const override final;
   virtual ~iRASPAStructure() {}

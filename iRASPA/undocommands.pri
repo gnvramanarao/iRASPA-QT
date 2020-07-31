@@ -15,6 +15,7 @@ SOURCES += \
     $$PWD/atomtreeviewinsertatomgroupcommand.cpp \
     $$PWD/bondchangeselectioncommand.cpp \
     $$PWD/bondlistviewdeleteselectioncommand.cpp \
+    $$PWD/celltreewidgetchangestructurecommand.cpp \
     $$PWD/framelistviewchangeselectioncommand.cpp \
     $$PWD/framelistviewdeleteselectioncommand.cpp \
     $$PWD/framelistviewinsertcommand.cpp \
@@ -48,6 +49,7 @@ HEADERS += \
     $$PWD/atomtreeviewinsertatomgroupcommand.h \
     $$PWD/bondchangeselectioncommand.h \
     $$PWD/bondlistviewdeleteselectioncommand.h \
+    $$PWD/celltreewidgetchangestructurecommand.h \
     $$PWD/framelistviewchangeselectioncommand.h \
     $$PWD/framelistviewdeleteselectioncommand.h \
     $$PWD/framelistviewinsertcommand.h \

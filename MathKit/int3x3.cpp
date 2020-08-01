@@ -71,7 +71,7 @@ int3x3 int3x3::operator * (const int3x3& b) const
 
 int3 int3x3::operator * (const int3& b) const
 {
-  int3 r;
+  int3 r(0,0,0);
 
   r.x = m11 * b.x + m12 * b.y + m13 * b.z;
   r.y = m21 * b.x + m22 * b.y + m23 * b.z;

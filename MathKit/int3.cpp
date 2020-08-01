@@ -31,7 +31,7 @@
 
 int3 int3::operator + (const int3& right) const
 {
-  int3 a;
+  int3 a(0,0,0);
 
   a.x=x+right.x;
   a.y=y+right.y;
@@ -42,7 +42,7 @@ int3 int3::operator + (const int3& right) const
 
 int3 int3::operator - (const int3& right) const
 {
-  int3 a;
+  int3 a(0,0,0);
 
   a.x=x-right.x;
   a.y=y-right.y;

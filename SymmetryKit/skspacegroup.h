@@ -40,7 +40,7 @@ class SKSpaceGroup
 public:
   SKSpaceGroup(int HallNumber);
   std::vector<double3> listOfSymmetricPositions(double3 pos);
-  SKSpaceGroupSetting spaceGroupSetting() {return _spaceGroupSetting;}
+  const SKSpaceGroupSetting &spaceGroupSetting() const {return _spaceGroupSetting;}
 
   static std::vector<QString> latticeTranslationStrings(int HallNumber);
   static QString inversionCenterString(int HallNumber);

@@ -30,6 +30,7 @@
 #include "skseitzmatrix.h"
 #include <iostream>
 #include <cassert>
+#include <QDebug>
 
 SKSeitzMatrix::SKSeitzMatrix()
 {
@@ -58,7 +59,7 @@ SKSeitzMatrix::SKSeitzMatrix(char xvalue, char yvalue, char zvalue)
   int3 r2 = int3(SKSeitzMatrix::_SeitzData[x].r2(), SKSeitzMatrix::_SeitzData[y].r2(), SKSeitzMatrix::_SeitzData[z].r2());
   int3 r3 = int3(SKSeitzMatrix::_SeitzData[x].r3(), SKSeitzMatrix::_SeitzData[y].r3(), SKSeitzMatrix::_SeitzData[z].r3());
    _rotation = SKRotationMatrix(r1,r2,r3);
-   _translation = int3(SKSeitzMatrix::_SeitzData[x].t(), SKSeitzMatrix::_SeitzData[y].t(), SKSeitzMatrix::_SeitzData[x].t());
+   _translation = int3(SKSeitzMatrix::_SeitzData[x].t(), SKSeitzMatrix::_SeitzData[y].t(), SKSeitzMatrix::_SeitzData[z].t());
 }
 
 std::vector<SKSeitzMatrix> SKSeitzMatrix::SeitzMatrices(std::string encoding)

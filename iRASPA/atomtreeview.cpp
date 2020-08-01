@@ -41,10 +41,9 @@ AtomTreeView::AtomTreeView(QWidget* parent): QTreeView(parent ), _atomModel(std:
 {
   this->setModel(_atomModel.get());
 
-
-
   this->viewport()->setMouseTracking(true);
 
+  this->setUniformRowHeights(true);
   this->setHeaderHidden(true);
   this->setAlternatingRowColors(true);
   this->setSelectionBehavior (QAbstractItemView::SelectRows);

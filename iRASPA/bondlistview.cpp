@@ -41,6 +41,7 @@ BondListView::BondListView(QWidget* parent): QTreeView(parent ), _bondModel(std:
 
   this->viewport()->setMouseTracking(true);
 
+  this->setUniformRowHeights(true);
   this->setAlternatingRowColors(true);
   this->setSelectionBehavior (QAbstractItemView::SelectRows);
   this->setSelectionMode(QAbstractItemView::ExtendedSelection);

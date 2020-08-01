@@ -38,7 +38,8 @@ union int3
   int32_t v[3];
   struct {int32_t x, y, z;};
 
-  int3(int x=0,int y=0, int z=0):x(x),y(y),z(z) {}
+  int3(): x(0), y(0), z(0) {}
+  int3(int x,int y, int z): x(x), y(y), z(z) {}
   inline int & operator [] (int i) { return v[i]; }
   inline const int & operator [] (int i) const { return v[i]; }
 

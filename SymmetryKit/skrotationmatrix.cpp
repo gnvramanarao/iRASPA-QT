@@ -83,7 +83,7 @@ SKRotationMatrix SKRotationMatrix::operator * (const SKRotationMatrix& b) const
 
 int3 SKRotationMatrix::operator * (const int3& b) const
 {
-  int3 r;
+  int3 r(0,0,0);
 
   r.x = m11 * b.x + m12 * b.y + m13 * b.z;
   r.y = m21 * b.x + m22 * b.y + m23 * b.z;

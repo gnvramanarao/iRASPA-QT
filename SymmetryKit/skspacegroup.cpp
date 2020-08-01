@@ -116,7 +116,7 @@ std::vector<double3> SKSpaceGroup::listOfSymmetricPositions(double3 pos)
   std::unordered_set<SKSeitzMatrix> seitzMatrices = _spaceGroupSetting.fullSeitzMatrices().operations();
   size_t m = seitzMatrices.size();
 
-  std::vector<double3> positions = std::vector<double3>();
+  std::vector<double3> positions = std::vector<double3>{};
   positions.reserve(m);
 
   for (const auto& elem: seitzMatrices)

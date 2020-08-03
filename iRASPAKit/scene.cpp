@@ -225,24 +225,6 @@ bool Scene::insertChild(size_t row, std::shared_ptr<Movie> child)
   return true;
 }
 
-
-std::vector<std::shared_ptr<Structure>> Scene::structures() const
-{
-  std::vector<std::shared_ptr<Structure>> structures = std::vector<std::shared_ptr<Structure>>();
-
-  for(std::shared_ptr<Movie> movie: _movies)
-  {
-    for(std::shared_ptr<iRASPAStructure> frame: movie->frames())
-    {
-      if(std::shared_ptr<Structure> structure = frame->structure())
-      {
-        structures.push_back(structure);
-      }
-    }
-  }
-  return structures;
-}
-
 QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<Scene> &scene)
 {
   stream << scene->_versionNumber;

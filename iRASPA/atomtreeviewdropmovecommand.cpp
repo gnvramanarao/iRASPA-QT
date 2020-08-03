@@ -38,7 +38,7 @@ AtomTreeViewDropMoveCommand::AtomTreeViewDropMoveCommand(AtomTreeViewModel *mode
   _moves(moves),
   _reverseMoves({})
 {
-  setText(QString("Move atoms"));
+  setText(QString("Reorder atoms"));
 }
 
 void AtomTreeViewDropMoveCommand::redo()

@@ -366,6 +366,10 @@ void CameraTreeWidgetController::renderWidgetResize(QSize size)
 
 }
 
+void CameraTreeWidgetController::resetData()
+{
+  reloadData();
+}
 
 void CameraTreeWidgetController::reloadData()
 {

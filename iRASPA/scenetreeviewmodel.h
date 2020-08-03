@@ -81,6 +81,6 @@ private:
 signals:
   void rendererReloadData();
   void updateSelection();
-  void invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>> structures);
+  void invalidateCachedAmbientOcclusionTexture(std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> structures);
 };
 

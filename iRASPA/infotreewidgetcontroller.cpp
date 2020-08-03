@@ -249,7 +249,7 @@ void InfoTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode> proje
         if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
         {
           _projectStructure = projectStructure;
-          _iraspa_structures = projectStructure->flattenediRASPAStructures();
+          _iraspa_structures = projectStructure->sceneList()->allIRASPAStructures();
         }
       }
     }
@@ -324,6 +324,11 @@ void InfoTreeWidgetController::expandCitationItem()
     this->expand(index);
     pushButtonCitation->setIcon(QIcon(":/iRASPA/expanded.png"));
   }
+}
+
+void InfoTreeWidgetController::resetData()
+{
+  reloadData();
 }
 
 void InfoTreeWidgetController::reloadData()

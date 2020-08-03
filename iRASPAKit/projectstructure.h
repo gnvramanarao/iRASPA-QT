@@ -48,32 +48,14 @@ public:
   ProjectStructure(QString filename, SKColorSets& colorSets, ForceFieldSets& forcefieldSets, LogReporting *log, bool asSeparateProject, bool onlyAsymmetricUnit, bool asMolecule);
   ProjectStructure(QList<QUrl> fileURLs, SKColorSets& colorSets, ForceFieldSets& forcefieldSets, LogReporting *log, bool asSeparateProject, bool onlyAsymmetricUnit, bool asMolecule);
 
-
-  std::shared_ptr<SceneList> getSceneTreeModel();
-  std::shared_ptr<Movie> getFrameListModel();
-  std::shared_ptr<Structure> getCellTreeModel();
-  std::shared_ptr<SKAtomTreeController> getAtomTreeModel();
-  std::shared_ptr<SKBondSetController> getBondListModel();
-  std::shared_ptr<iRASPAStructure> selectedFrame();
-
-  std::vector<std::shared_ptr<Structure>> flattenedStructures() const;
-  std::vector<std::shared_ptr<iRASPAStructure>> flattenediRASPAStructures() const;
-  std::vector<std::vector<std::shared_ptr<Structure>>> structures() const;
-
-
   std::vector<size_t> numberOfScenes() const override final;
   int numberOfMovies(int sceneIndex) const override final;
   std::vector<std::shared_ptr<RKRenderStructure>> renderStructuresForScene(size_t i) const;
-
-  std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> iRASPAstructures() const;
-  std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> renderStructures() const override final;
-  std::vector<std::shared_ptr<RKRenderStructure>> flattenedRenderStructures() const;
 
   std::vector<std::shared_ptr<RKLight>>& renderLights() override final {return _renderLights;}
 
   std::vector<RKInPerInstanceAttributesAtoms> renderMeasurementPoints() const override final;
   std::vector<RKRenderStructure> renderMeasurementStructure() const override final;
-
 
   bool hasSelectedObjects() const override final;
 

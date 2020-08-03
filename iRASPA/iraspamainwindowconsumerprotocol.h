@@ -40,4 +40,5 @@ struct Reloadable
 {
   virtual void reloadSelection() = 0;
   virtual void reloadData() = 0;
+  //virtual void resetData() = 0;
 };

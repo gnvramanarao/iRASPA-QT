@@ -351,7 +351,6 @@ public:
   virtual std::vector<size_t> numberOfScenes() const = 0;
   virtual int numberOfMovies(int sceneIndex) const = 0;
 
-  virtual std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> renderStructures() const = 0;
   virtual std::vector<std::shared_ptr<RKLight>>& renderLights() = 0;
 
   virtual std::vector<RKInPerInstanceAttributesAtoms> renderMeasurementPoints() const = 0;

@@ -46,7 +46,7 @@ SceneTreeViewDeleteSelectionCommand::SceneTreeViewDeleteSelectionCommand(MainWin
 {
   Q_UNUSED(undoParent);
 
-  setText(QString("Delete selection"));
+  setText(QString("Delete movie selection"));
 
   for(std::shared_ptr<Movie> movie : _movies)
   {

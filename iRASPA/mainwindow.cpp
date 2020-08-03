@@ -260,6 +260,18 @@ void MainWindow::updateMenuToFrameTab()
   _newPolygonalPrismAction->setDisabled(true);
 }
 
+void MainWindow::resetData()
+{
+  ui->stackedRenderers->resetData();
+
+  ui->cameraTreeWidget->resetData();
+  ui->infoTreeWidget->resetData();
+  ui->appearanceTreeWidget->resetData();
+  ui->cellTreeWidget->resetData();
+  ui->atomTreeView->resetData();
+  ui->bondListView->resetData();
+}
+
 void MainWindow::reloadAllViews()
 {
   ui->stackedRenderers->reloadData();

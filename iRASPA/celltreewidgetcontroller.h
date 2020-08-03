@@ -57,6 +57,7 @@ public:
   void setFlattenedSelectedFrames(std::vector<std::shared_ptr<iRASPAStructure>> iraspa_structures);
   void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode) override;
 
+  void resetData();
   void reloadData() override;
   void reloadSelection() override;
 private:
@@ -263,6 +264,6 @@ signals:
   void redrawRendererWithHighQuality();
   void computeHeliumVoidFraction(std::vector<std::shared_ptr<RKRenderStructure>> structures);
   void computeNitrogenSurfaceArea(std::vector<std::shared_ptr<RKRenderStructure>> structures);
-  void invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>> structures);
+  void invalidateCachedAmbientOcclusionTexture(std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> structures);
   void invalidateIsosurface(std::vector<std::shared_ptr<RKRenderStructure>> structures);
 };

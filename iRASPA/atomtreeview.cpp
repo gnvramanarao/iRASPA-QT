@@ -98,6 +98,10 @@ void AtomTreeView::setBondModel(std::shared_ptr<BondListViewModel> bondModel)
   _bondModel = bondModel;
 }
 
+void AtomTreeView::resetData()
+{
+  _atomModel->resetData();
+}
 
 void AtomTreeView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 {
@@ -116,14 +120,14 @@ void AtomTreeView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
       {
         if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
         {
-          _iraspaStructure = projectStructure->selectedFrame();
+          std::shared_ptr<Scene> selectedScene = projectStructure->sceneList()->selectedScene();
+          std::shared_ptr<Movie> selectedMovie = selectedScene? selectedScene->selectedMovie() : nullptr;
+          std::shared_ptr<iRASPAStructure> iraspaStructure = selectedMovie ? selectedMovie->selectedFrame() : nullptr;
+          _iraspaStructure = iraspaStructure;
         }
-
       }
     }
   }
-
-
 
   // reload and resize the columns
   _atomModel->setFrame(_iraspaStructure);

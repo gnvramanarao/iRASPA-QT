@@ -44,6 +44,7 @@ class BondListViewModel: public QAbstractItemModel
 public:
   BondListViewModel();
 
+  void resetData();
   void setFrame(std::shared_ptr<iRASPAStructure> frame);
   std::shared_ptr<iRASPAStructure> frame() {return _iraspaStructure;}
 

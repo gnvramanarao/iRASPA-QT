@@ -39,7 +39,7 @@ AtomTreeViewChangeChargeCommand::AtomTreeViewChangeChargeCommand(AtomTreeViewMod
   _atomTreeNode(atomTreeNode),
   _newValue(newValue)
 {
-  setText(QString("Change atom name"));
+  setText(QString("Change atom charge"));
 }
 
 void AtomTreeViewChangeChargeCommand::redo()

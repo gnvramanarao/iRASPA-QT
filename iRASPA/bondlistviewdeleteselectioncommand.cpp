@@ -42,7 +42,7 @@ BondListViewDeleteSelectionCommand::BondListViewDeleteSelectionCommand(std::shar
 {
   Q_UNUSED(parent);
 
-  setText(QString("Delete selection"));
+  setText(QString("Delete bond selection"));
 }
 
 void BondListViewDeleteSelectionCommand::redo()

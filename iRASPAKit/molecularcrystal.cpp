@@ -639,7 +639,7 @@ void MolecularCrystal::expandSymmetry()
 
       for (double3 image : images)
       {
-        double3 CartesianPosition = _cell->convertToCartesian(image);
+        double3 CartesianPosition = _cell->convertToCartesian(double3::fract(image));
         std::shared_ptr<SKAtomCopy> newAtom = std::make_shared<SKAtomCopy>(asymmetricAtom, CartesianPosition);
         newAtom->setType(SKAtomCopy::AtomCopyType::copy);
         atomCopies.push_back(newAtom);

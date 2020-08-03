@@ -59,6 +59,7 @@ public:
   void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode) override final;
   void setMainWindow(MainWindow *mainWindow) override final {_mainWindow = mainWindow;}
   void setFlattenedSelectedFrames(std::vector<std::shared_ptr<iRASPAStructure>> iraspa_structures);
+  void resetData();
 private:
   AppearancePrimitiveForm* _appearancePrimitiveForm;
   AppearanceAtomsForm* _appearanceAtomsForm;
@@ -420,7 +421,7 @@ signals:
   void redrawRendererWithHighQuality();
   void redrawRendererWithPictureQuality();
 
-  void invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>> structures);
+  void invalidateCachedAmbientOcclusionTexture(std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> structures);
   void invalidateIsosurface(std::vector<std::shared_ptr<RKRenderStructure>> structures);
 };
 

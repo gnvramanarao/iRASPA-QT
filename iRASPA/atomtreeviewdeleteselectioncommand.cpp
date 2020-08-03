@@ -46,7 +46,7 @@ AtomTreeViewDeleteSelectionCommand::AtomTreeViewDeleteSelectionCommand(std::shar
 {
   Q_UNUSED(parent);
 
-  setText(QString("Delete selection"));
+  setText(QString("Delete atom selection"));
 }
 
 void AtomTreeViewDeleteSelectionCommand::redo()

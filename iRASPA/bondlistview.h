@@ -58,6 +58,7 @@ public:
   // update the bondListView when (implicitely or explicitly) a new frame is selected in the Scene/Movie-ListView or frameListView
   void setSelectedFrame(std::shared_ptr<iRASPAStructure> iraspastructure);
 
+  void resetData();
   void reloadSelection() override final;
   void reloadData() override final;
 

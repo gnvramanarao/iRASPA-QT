@@ -45,7 +45,7 @@ ElementListWidgetController::ElementListWidgetController(QWidget* parent): QList
   this->setSelectionMode(QAbstractItemView::SingleSelection);
 }
 
-void ElementListWidgetController::setStructures(std::vector<std::shared_ptr<Structure>> structures)
+void ElementListWidgetController::setStructures(std::vector<std::shared_ptr<iRASPAStructure>> structures)
 {
   _structures = structures;
   reloadData();
@@ -114,11 +114,16 @@ void ElementListWidgetController::setProject(std::shared_ptr<ProjectTreeNode> pr
         if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
         {
           _projectStructure = projectStructure;
-          _structures = projectStructure->flattenedStructures();
+          _structures = projectStructure->sceneList()->allIRASPAStructures();
         }
       }
     }
   }
+}
+
+void ElementListWidgetController::resetData()
+{
+  reloadData();
 }
 
 void ElementListWidgetController::reloadData()
@@ -508,10 +513,10 @@ void ElementListWidgetController::selectColorButton()
                     QString::number(color.green()) + QString(",")  + QString::number(color.blue()) + QString(");  border: 1px solid black;}");
         button->setStyleSheet(style);
 
-        for(std::shared_ptr<Structure> structure : _structures)
+        for(std::shared_ptr<iRASPAStructure> iraspa_structure : _structures)
         {
-          QString colorScheme = structure->atomColorSchemeIdentifier();
-          structure->setRepresentationColorSchemeIdentifier(colorScheme, _mainWindow->colorSets());
+          QString colorScheme = iraspa_structure->structure()->atomColorSchemeIdentifier();
+          iraspa_structure->structure()->setRepresentationColorSchemeIdentifier(colorScheme, _mainWindow->colorSets());
         }
 
         emit rendererReloadData();
@@ -537,12 +542,13 @@ void ElementListWidgetController::setEpsilonParameter(double parameter)
 
       atomTypeList[*row].setEpsilonPotentialParameter(parameter);
 
-      for(std::shared_ptr<Structure> structure : _structures)
+      for(std::shared_ptr<iRASPAStructure> iraspa_structure : _structures)
       {
-         structure->updateForceField(forceFieldSets);
+         iraspa_structure->structure()->updateForceField(forceFieldSets);
       }
 
-      emit invalidateIsosurface(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+      // FIX!!!
+      //emit invalidateIsosurface(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
       emit rendererReloadData();
     }
   }
@@ -565,12 +571,13 @@ void ElementListWidgetController::setSigmaParameter(double parameter)
 
       atomTypeList[*row].setSigmaPotentialParameter(parameter);
 
-      for(std::shared_ptr<Structure> structure : _structures)
+      for(std::shared_ptr<iRASPAStructure> iraspa_structure : _structures)
       {
-         structure->updateForceField(forceFieldSets);
+         iraspa_structure->structure()->updateForceField(forceFieldSets);
       }
 
-      emit invalidateIsosurface(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
+      // FIX!!
+      //emit invalidateIsosurface(std::vector<std::shared_ptr<RKRenderStructure>>{_structures.begin(), _structures.end()});
       emit rendererReloadData();
     }
   }
@@ -592,9 +599,9 @@ void ElementListWidgetController::setMass(double mass)
 
       atomTypeList[*row].setMass(mass);
 
-      for(std::shared_ptr<Structure> structure : _structures)
+      for(std::shared_ptr<iRASPAStructure> iraspa_structure : _structures)
       {
-         structure->recomputeDensityProperties();
+         iraspa_structure->structure()->recomputeDensityProperties();
       }
     }
   }

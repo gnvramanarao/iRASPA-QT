@@ -71,8 +71,15 @@ void RenderStackedWidget::setProject(std::shared_ptr<ProjectTreeNode> projectTre
 
           this->_project = projectStructure;
           this->_camera = projectStructure->camera();
-          _iraspa_structures = projectStructure->iRASPAstructures();
-          render_structures = projectStructure->renderStructures();
+          _iraspa_structures = projectStructure->sceneList()->selectediRASPARenderStructures();
+
+          for(std::vector<std::shared_ptr<iRASPAStructure>> v : _iraspa_structures)
+          {
+            std::vector<std::shared_ptr<RKRenderStructure>> r{};
+            std::transform(v.begin(),v.end(),std::back_inserter(r),
+                           [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+            render_structures.push_back(r);
+          }
         }
       }
     }
@@ -428,18 +435,19 @@ void RenderStackedWidget::deleteSelection()
         {
           if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
           {
-            for (std::shared_ptr<Structure> structure : projectStructure->flattenedStructures())
+            for (std::shared_ptr<iRASPAStructure> iraspa_structure : projectStructure->sceneList()->allIRASPAStructures())
             {
-              std::vector<std::shared_ptr<SKAtomTreeNode>> atoms = structure->atomsTreeController()->selectedAtomTreeNodes();
+              std::vector<std::shared_ptr<SKAtomTreeNode>> atoms = iraspa_structure->structure()->atomsTreeController()->selectedAtomTreeNodes();
               sort(atoms.begin(), atoms.end(), [](std::shared_ptr<SKAtomTreeNode> node1, std::shared_ptr<SKAtomTreeNode> node2) -> bool {
                    return node1->indexPath() > node2->indexPath();});
               std::vector<IndexPath> atomSelection;
               std::transform(atoms.begin(),atoms.end(),std::back_inserter(atomSelection),[](std::shared_ptr<SKAtomTreeNode> node) -> IndexPath
                         {return node->indexPath();});
 
-              std::vector<std::shared_ptr<SKAsymmetricBond>> bonds = structure->bondSetController()->selectedObjects();
-              std::set<int> bondSelection = structure->bondSetController()->selectionIndexSet();
-              RenderViewDeleteSelectionCommand *deleteSelectionCommand = new RenderViewDeleteSelectionCommand(_atomModel, _bondModel, _mainWindow, structure, atoms, atomSelection, bonds, bondSelection);
+              std::vector<std::shared_ptr<SKAsymmetricBond>> bonds = iraspa_structure->structure()->bondSetController()->selectedObjects();
+              std::set<int> bondSelection = iraspa_structure->structure()->bondSetController()->selectionIndexSet();
+              RenderViewDeleteSelectionCommand *deleteSelectionCommand = new RenderViewDeleteSelectionCommand(_atomModel, _bondModel, _mainWindow,
+                                                                                    iraspa_structure->structure(), atoms, atomSelection, bonds, bondSelection);
               iRASPAProject->undoManager().push(deleteSelectionCommand);
             }
           }
@@ -537,6 +545,26 @@ void RenderStackedWidget::reloadRenderData()
   {
     widget->reloadRenderData();
   }
+}
+
+void RenderStackedWidget::resetData()
+{
+  std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> render_structures{};
+
+  for(std::vector<std::shared_ptr<iRASPAStructure>> v : _iraspa_structures)
+  {
+    std::vector<std::shared_ptr<RKRenderStructure>> r{};
+    std::transform(v.begin(),v.end(),std::back_inserter(r),
+                   [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+    render_structures.push_back(r);
+  }
+
+  if (RKRenderViewController* widget = dynamic_cast<RKRenderViewController*>(currentWidget()))
+  {
+    widget->setRenderStructures(render_structures);
+    widget->reloadData();
+  }
+  update();
 }
 
 void RenderStackedWidget::reloadData()
@@ -732,12 +760,19 @@ void RenderStackedWidget::redrawWithPictureQuality()
   }
 }
 
-void RenderStackedWidget::invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>> structures)
+void RenderStackedWidget::invalidateCachedAmbientOcclusionTexture(std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> structures)
 {
-  qDebug() << "invalidateCachedAmbientOcclusionTexture: " << structures.size();
+  std::vector<std::shared_ptr<RKRenderStructure>> renderStructures{};
+  for (const std::vector<std::shared_ptr<iRASPAStructure>> &v : structures)
+  {
+    std::transform(v.begin(),v.end(),std::back_inserter(renderStructures),
+                   [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
+  }
+
+  qDebug() << "invalidateCachedAmbientOcclusionTexture: " << renderStructures.size();
   if (RKRenderViewController* widget = dynamic_cast<RKRenderViewController*>(currentWidget()))
   {
-    widget->invalidateCachedAmbientOcclusionTexture(structures);
+    widget->invalidateCachedAmbientOcclusionTexture(renderStructures);
   }
 }
 

@@ -59,6 +59,7 @@ public:
   // update the atomTreeView when (implicitely or explicitly) a new frame is selected in the Scene/Movie-ListView or frameListView
   void setSelectedFrame(std::shared_ptr<iRASPAStructure> structure);
 
+  void resetData();
   void reloadData() override final;
   void reloadSelection() override final;
 
@@ -98,5 +99,5 @@ public slots:
   void addAtomGroup();
 signals:
   void rendererReloadData();
-  void invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>> structures);
+  void invalidateCachedAmbientOcclusionTexture(std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> structures);
 };

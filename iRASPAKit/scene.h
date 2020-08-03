@@ -63,7 +63,6 @@ public:
   std::shared_ptr<Movie> selectedMovie();
   QString displayName() const override final;
   std::optional<int> selectMovieIndex();
-  std::vector<std::shared_ptr<Structure>> structures() const;
 private:
   qint64 _versionNumber{1};
   QString _displayName = QString("Scene");

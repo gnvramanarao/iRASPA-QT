@@ -61,11 +61,10 @@ public:
   bool removeChild(size_t row);
   bool removeChildren(size_t position, size_t count);
   bool insertChild(size_t row, std::shared_ptr<Scene> child);
-  void clearSelection();
 
-  std::vector<std::shared_ptr<iRASPAStructure>> selectedMoviesiRASPAStructures();
-  std::vector<std::vector<std::shared_ptr<iRASPAStructure> > > selectediRASPARenderStructures() const;
-  std::vector<std::shared_ptr<RKRenderStructure>> flattenedSelectediRASPARenderStructures() const;
+  std::vector<std::shared_ptr<iRASPAStructure>> allIRASPAStructures();
+  std::vector<std::shared_ptr<iRASPAStructure>> selectedMoviesIRASPAStructures();
+  std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> selectediRASPARenderStructures() const;
 
   SceneListSelection allSelection();
   void setSelection(SceneListSelection selection);

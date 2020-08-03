@@ -35,6 +35,12 @@ BondListViewModel::BondListViewModel(): _iraspaStructure(std::make_shared<iRASPA
   //this->setItemDelegateForColumn(2, new BondListPushButtonStyledItemDelegate() );
 }
 
+void BondListViewModel::resetData()
+{
+  beginResetModel();
+  endResetModel();
+}
+
 QModelIndex BondListViewModel::index(int row, int column, const QModelIndex &parent) const
 {
   if (!hasIndex(row, column, parent))

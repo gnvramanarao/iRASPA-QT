@@ -65,6 +65,7 @@ public:
   void setRedoAction(QAction *newRedoAction);
   void reloadDetailViews();
   void reloadAllViews();
+  void resetData();
   void reloadSelectionDetailViews();
   void recheckRemovalButtons();
   void updateMenuToProjectTab();

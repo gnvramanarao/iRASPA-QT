@@ -360,7 +360,7 @@ void CellTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode> proje
         if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
         {
           _projectStructure = projectStructure;
-          _iraspa_structures = projectStructure->flattenediRASPAStructures();
+          _iraspa_structures = projectStructure->sceneList()->allIRASPAStructures();
         }
       }
     }
@@ -373,6 +373,11 @@ void CellTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode> proje
 void CellTreeWidgetController::setFlattenedSelectedFrames(std::vector<std::shared_ptr<iRASPAStructure>> iraspa_structures)
 {
   _iraspa_structures = iraspa_structures;
+  reloadData();
+}
+
+void CellTreeWidgetController::resetData()
+{
   reloadData();
 }
 
@@ -1365,11 +1370,7 @@ void CellTreeWidgetController::setUnitCellLengthA(double value)
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
-
-    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
     emit rendererReloadData();
 
     reloadBoundingBox();
@@ -1409,11 +1410,7 @@ void CellTreeWidgetController::setUnitCellLengthB(double value)
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
-
-    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
     emit rendererReloadData();
 
     reloadBoundingBox();
@@ -1453,12 +1450,7 @@ void CellTreeWidgetController::setUnitCellLengthC(double value)
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-
-    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
-
-    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
     emit rendererReloadData();
 
     reloadBoundingBox();
@@ -1498,11 +1490,7 @@ void CellTreeWidgetController::setUnitCellAngleAlpha(double value)
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
-
-    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
     emit rendererReloadData();
 
     reloadBoundingBox();
@@ -1542,11 +1530,7 @@ void CellTreeWidgetController::setUnitCellAngleBeta(double value)
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
-
-    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
     emit rendererReloadData();
 
     reloadBoundingBox();
@@ -1586,11 +1570,7 @@ void CellTreeWidgetController::setUnitCellAngleGamma(double value)
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
-
-    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
     emit rendererReloadData();
 
     reloadBoundingBox();
@@ -1718,11 +1698,7 @@ void CellTreeWidgetController::setMaximumReplicasX(int value)
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
-
-    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
     emit rendererReloadData();
 
     reloadCellMaximumReplicasX();
@@ -1766,11 +1742,7 @@ void CellTreeWidgetController::setMaximumReplicasY(int value)
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
-
-    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
     emit rendererReloadData();
 
     reloadCellMaximumReplicasY();
@@ -1814,11 +1786,7 @@ void CellTreeWidgetController::setMaximumReplicasZ(int value)
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
-
-    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
     emit rendererReloadData();
 
     reloadCellMaximumReplicasZ();
@@ -1862,11 +1830,7 @@ void CellTreeWidgetController::setMinimumReplicasX(int value)
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
-
-    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
     emit rendererReloadData();
 
     reloadCellMinimumReplicasX();
@@ -1910,11 +1874,7 @@ void CellTreeWidgetController::setMinimumReplicasY(int value)
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
-
-    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
     emit rendererReloadData();
 
     reloadCellMinimumReplicasY();
@@ -1958,11 +1918,7 @@ void CellTreeWidgetController::setMinimumReplicasZ(int value)
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
-
-    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
     emit rendererReloadData();
 
     reloadCellMinimumReplicasZ();
@@ -2186,11 +2142,7 @@ void CellTreeWidgetController::setEulerAngleX(double angle)
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
-
-    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
     emit rendererReloadData();
 
     reloadBoundingBox();
@@ -2237,11 +2189,7 @@ void CellTreeWidgetController::setEulerAngleY(double angle)
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
-
-    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
     emit rendererReloadData();
 
     reloadBoundingBox();
@@ -2288,11 +2236,7 @@ void CellTreeWidgetController::setEulerAngleZ(double angle)
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
-
-    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
     emit rendererReloadData();
 
     reloadBoundingBox();
@@ -2333,11 +2277,7 @@ void CellTreeWidgetController::setOriginX(double value)
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
-
-    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
     emit rendererReloadData();
 
     reloadBoundingBox();
@@ -2377,11 +2317,7 @@ void CellTreeWidgetController::setOriginY(double value)
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
-
-    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
     emit rendererReloadData();
 
     reloadBoundingBox();
@@ -2421,11 +2357,8 @@ void CellTreeWidgetController::setOriginZ(double value)
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
 
-    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
     emit rendererReloadData();
 
     reloadBoundingBox();
@@ -3622,11 +3555,7 @@ void CellTreeWidgetController::setSymmetrySpaceGroupHallNumber(int value)
     iraspa_structure->structure()->setSpaceGroupHallNumber(value);
   }
 
-  std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-  std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                  [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
-
-  emit invalidateCachedAmbientOcclusionTexture(render_structures);
+  emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
   emit rendererReloadData();
 
   reloadSymmetryProperties();
@@ -3660,11 +3589,7 @@ void CellTreeWidgetController::setSymmetrySpaceGroupStandardNumber(int value)
     iraspa_structure->structure()->setSpaceGroupHallNumber(HallNumber);
   }
 
-  std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-  std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                  [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
-
-  emit invalidateCachedAmbientOcclusionTexture(render_structures);
+  emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
   emit rendererReloadData();
 
   reloadSymmetryProperties();

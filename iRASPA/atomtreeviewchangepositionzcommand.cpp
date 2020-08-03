@@ -39,7 +39,7 @@ AtomTreeViewChangePositionZCommand::AtomTreeViewChangePositionZCommand(AtomTreeV
   _atomTreeNode(atomTreeNode),
   _newValue(newValue)
 {
-  setText(QString("Change atom name"));
+  setText(QString("Change atom position-z"));
 }
 
 void AtomTreeViewChangePositionZCommand::redo()

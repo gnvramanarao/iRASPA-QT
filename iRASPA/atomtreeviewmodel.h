@@ -52,6 +52,7 @@ public:
   void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode);
   void setFrame(std::shared_ptr<iRASPAStructure> frame);
   std::shared_ptr<iRASPAStructure> frame() {return _iraspaStructure;}
+  void resetData();
 
   SKAtomTreeNode* getItem(const QModelIndex &index) const;
 

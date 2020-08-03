@@ -40,7 +40,7 @@ AtomTreeViewInsertAtomGroupCommand::AtomTreeViewInsertAtomGroupCommand(MainWindo
 {
   Q_UNUSED(parent);
 
-  setText(QString("Insert atom"));
+  setText(QString("Insert group atom"));
 
   std::shared_ptr<SKAsymmetricAtom> atom = std::make_shared<SKAsymmetricAtom>("N", 8);
   _newAtomtreeNode = std::make_shared<SKAtomTreeNode>(atom);

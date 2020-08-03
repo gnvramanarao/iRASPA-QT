@@ -61,8 +61,8 @@ void FrameListView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
         if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
         {
           _sceneList = projectStructure->sceneList();
-
-          _movie = projectStructure->getFrameListModel();
+          std::shared_ptr<Scene> scene = _sceneList->selectedScene();
+          _movie = scene ? scene->selectedMovie() : nullptr;
           _model->setMovie(_movie);
           return;
         }
@@ -143,7 +143,7 @@ void FrameListView::selectionChanged(const QItemSelection &selected, const QItem
 
     if(oldSelectionSize > 1)
     {
-      emit invalidateCachedAmbientOcclusionTexture(_sceneList->flattenedSelectediRASPARenderStructures());
+      emit invalidateCachedAmbientOcclusionTexture(_sceneList->selectediRASPARenderStructures());
     }
 
 

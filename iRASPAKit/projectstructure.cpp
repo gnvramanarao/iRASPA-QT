@@ -109,165 +109,6 @@ void ProjectStructure::setInitialSelectionIfNeeded()
   }
 }
 
-std::shared_ptr<SceneList> ProjectStructure::getSceneTreeModel()
-{
-  return _sceneList;
-}
-
-std::shared_ptr<Structure> ProjectStructure::getCellTreeModel()
-{
-  if(_sceneList->scenes().empty())
-  {
-    return nullptr;
-  }
-  std::shared_ptr<Scene> scene = _sceneList->selectedScene();
-  if(!scene)
-  {
-    return nullptr;
-  }
-
-  if(scene->movies().empty())
-  {
-    return nullptr;
-  }
-  std::shared_ptr<Movie> movie = scene->selectedMovie();
-  if(!movie)
-  {
-    return nullptr;
-  }
-  if(movie->frames().empty())
-  {
-    return nullptr;
-  }
-  std::shared_ptr<iRASPAStructure> iraspaStructure = movie->selectedFrame();
-  if(!iraspaStructure)
-  {
-    return nullptr;
-  }
-  return iraspaStructure->structure();
-}
-
-std::shared_ptr<Movie> ProjectStructure::getFrameListModel()
-{
-  if(_sceneList->scenes().empty())
-  {
-    return nullptr;
-  }
-  std::shared_ptr<Scene> scene = _sceneList->selectedScene();
-  if(!scene)
-  {
-    return nullptr;
-  }
-  if(scene->movies().empty())
-  {
-    return nullptr;
-  }
-  return scene->selectedMovie();
-}
-
-std::shared_ptr<SKAtomTreeController> ProjectStructure::getAtomTreeModel()
-{
-  if(_sceneList->scenes().empty())
-  {
-    return nullptr;
-  }
-  std::shared_ptr<Scene> scene = _sceneList->selectedScene();
-  if(!scene)
-  {
-    return nullptr;
-  }
-
-  if(scene->movies().empty())
-  {
-    return nullptr;
-  }
-  std::shared_ptr<Movie> movie = scene->selectedMovie();
-  if(!movie)
-  {
-    return nullptr;
-  }
-  if(movie->frames().empty())
-  {
-    return nullptr;
-  }
-  std::shared_ptr<iRASPAStructure> iraspaStructure = movie->selectedFrame();
-  if(!iraspaStructure)
-  {
-    return nullptr;
-  }
-  return iraspaStructure->structure()->atomsTreeController();
-}
-
-std::shared_ptr<SKBondSetController> ProjectStructure::getBondListModel()
-{
-  if(_sceneList->scenes().empty())
-  {
-    return nullptr;
-  }
-  std::shared_ptr<Scene> scene = _sceneList->selectedScene();
-  if(!scene)
-  {
-    return nullptr;
-  }
-
-  if(scene->movies().empty())
-  {
-    return nullptr;
-  }
-  std::shared_ptr<Movie> movie = scene->selectedMovie();
-  if(!movie)
-  {
-    return nullptr;
-  }
-  if(movie->frames().empty())
-  {
-    return nullptr;
-  }
-  std::shared_ptr<iRASPAStructure> iraspaStructure = movie->selectedFrame();
-  if(!iraspaStructure)
-  {
-    return nullptr;
-  }
-  return iraspaStructure->structure()->bondSetController();
-}
-
-std::shared_ptr<iRASPAStructure> ProjectStructure::selectedFrame()
-{
-  if(_sceneList->scenes().empty())
-  {
-    return nullptr;
-  }
-  std::shared_ptr<Scene> scene = _sceneList->selectedScene();
-  if(!scene)
-  {
-    return nullptr;
-  }
-
-  if(scene->movies().empty())
-  {
-    return nullptr;
-  }
-  std::shared_ptr<Movie> movie = scene->selectedMovie();
-  if(!movie)
-  {
-    return nullptr;
-  }
-  if(movie->frames().empty())
-  {
-    return nullptr;
-  }
-  std::shared_ptr<iRASPAStructure> iraspaStructure = movie->selectedFrame();
-  if(!iraspaStructure)
-  {
-    return nullptr;
-  }
-  return iraspaStructure;
-}
-
-
-
-
-
 
 std::vector<size_t> ProjectStructure::numberOfScenes() const
 {
@@ -280,6 +121,7 @@ std::vector<size_t> ProjectStructure::numberOfScenes() const
 
   return v;
 }
+
 
 int ProjectStructure::numberOfMovies(int sceneIndex) const
 {
@@ -308,162 +150,6 @@ std::vector<std::shared_ptr<RKRenderStructure>> ProjectStructure::renderStructur
   return structures;
 }
 
-std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> ProjectStructure::iRASPAstructures() const
-{
-  std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> sceneStructures = std::vector<std::vector<std::shared_ptr<iRASPAStructure>>>();
-
-  for(std::shared_ptr<Scene> scene : _sceneList->scenes())
-  {
-    std::vector<std::shared_ptr<iRASPAStructure>> structures =std::vector<std::shared_ptr<iRASPAStructure>>();
-    for(std::shared_ptr<Movie> movie: scene->movies())
-    {
-      for(std::shared_ptr<iRASPAStructure> selectedFrame : movie->selectedFramesSet())
-      {
-        structures.push_back(selectedFrame);
-      }
-    }
-    sceneStructures.push_back(structures);
-  }
-  return sceneStructures;
-}
-
-std::vector<std::vector<std::shared_ptr<Structure>>> ProjectStructure::structures() const
-{
-  std::vector<std::vector<std::shared_ptr<Structure>>> sceneStructures = std::vector<std::vector<std::shared_ptr<Structure>>>();
-
-  for(std::shared_ptr<Scene> scene : _sceneList->scenes())
-  {
-    std::vector<std::shared_ptr<Structure>> structures =std::vector<std::shared_ptr<Structure>>();
-    for(std::shared_ptr<Movie> movie: scene->movies())
-    {
-      for(std::shared_ptr<iRASPAStructure> selectedFrame : movie->selectedFramesSet())
-      {
-        if(std::shared_ptr<Structure> structure = selectedFrame->structure())
-        {
-          structures.push_back(structure);
-        }
-      }
-    }
-    sceneStructures.push_back(structures);
-  }
-  return sceneStructures;
-}
-
-std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> ProjectStructure::renderStructures() const
-{
-  std::vector<std::vector<std::shared_ptr<RKRenderStructure>>> sceneStructures = std::vector<std::vector<std::shared_ptr<RKRenderStructure>>>();
-
-
-  for(std::shared_ptr<Scene> scene : _sceneList->scenes())
-  {
-    std::vector<std::shared_ptr<RKRenderStructure>> structures =std::vector<std::shared_ptr<RKRenderStructure>>();
-    for(std::shared_ptr<Movie> movie: scene->movies())
-    {
-      for(std::shared_ptr<iRASPAStructure> selectedFrame: movie->selectedFramesSet())
-      {
-        if(std::shared_ptr<Structure> structure = selectedFrame->structure())
-        {
-          if(std::shared_ptr<RKRenderStructure> render_structure = std::dynamic_pointer_cast<RKRenderStructure>(structure))
-          {
-            structures.push_back(render_structure);
-          }
-        }
-      }
-    }
-    sceneStructures.push_back(structures);
-  }
-  return sceneStructures;
-}
-
-
-std::vector<std::shared_ptr<RKRenderStructure>> ProjectStructure::flattenedRenderStructures() const
-{
-  std::vector<std::shared_ptr<RKRenderStructure>> structures = std::vector<std::shared_ptr<RKRenderStructure>>();
-
-  for(std::shared_ptr<Scene> scene : _sceneList->scenes())
-  {
-    for(std::shared_ptr<Movie> movie: scene->movies())
-    {
-        std::shared_ptr<iRASPAStructure> selectedFrame = movie->selectedFrame();
-        if(selectedFrame)
-        {
-      //for(std::shared_ptr<iRASPAStructure> iraspaStructure : movie->frames())
-     // {
-        if(std::shared_ptr<Structure> structure = selectedFrame->structure())
-        {
-          if(std::shared_ptr<RKRenderStructure> structure2 = std::dynamic_pointer_cast<RKRenderStructure>(structure))
-          {
-            structures.push_back(structure2);
-          }
-        }
-      }
-    }
-  }
-  return structures;
-}
-
-std::vector<std::shared_ptr<iRASPAStructure>> ProjectStructure::flattenediRASPAStructures() const
-{
-  std::vector<std::shared_ptr<iRASPAStructure>> structures = std::vector<std::shared_ptr<iRASPAStructure>>();
-
-  for(std::shared_ptr<Scene> scene : _sceneList->scenes())
-  {
-    for(std::shared_ptr<Movie> movie: scene->movies())
-    {
-      for(std::shared_ptr<iRASPAStructure> frame: movie->frames())
-      {
-        structures.push_back(frame);
-      }
-    }
-  }
-  return structures;
-}
-
-std::vector<std::shared_ptr<Structure>> ProjectStructure::flattenedStructures() const
-{
-  std::vector<std::shared_ptr<Structure>> structures = std::vector<std::shared_ptr<Structure>>();
-
-  for(std::shared_ptr<Scene> scene : _sceneList->scenes())
-  {
-    for(std::shared_ptr<Movie> movie: scene->movies())
-    {
-      for(std::shared_ptr<iRASPAStructure> frame: movie->frames())
-      {
-        if(std::shared_ptr<Structure> structure = frame->structure())
-        {
-          structures.push_back(structure);
-        }
-      }
-    }
-  }
-  return structures;
-}
-/*
-std::vector<std::shared_ptr<RKRenderStructure>> ProjectStructure::renderStructures() const
-{
-  std::vector<std::shared_ptr<RKRenderStructure>> structures = std::vector<std::shared_ptr<RKRenderStructure>>();
-
-  for(std::shared_ptr<Scene> scene : _sceneList.scenes())
-  {
-    for(std::shared_ptr<Movie> movie: scene->movies())
-    {
-      for(std::shared_ptr<iRASPAStructure> iraspaStructure : movie->frames())
-      {
-        if(std::shared_ptr<Structure> structure = iraspaStructure->structure())
-        {
-          if(std::shared_ptr<RKRenderStructure> structure2 = std::dynamic_pointer_cast<RKRenderStructure>(structure))
-          {
-            structures.push_back(structure2);
-          }
-        }
-      }
-    }
-  }
-
-  return structures;
-}*/
-
-
 std::vector<RKInPerInstanceAttributesAtoms> ProjectStructure::renderMeasurementPoints() const
 {
   return std::vector<RKInPerInstanceAttributesAtoms>();
@@ -476,9 +162,15 @@ std::vector<RKRenderStructure> ProjectStructure::renderMeasurementStructure() co
 
 SKBoundingBox ProjectStructure::renderBoundingBox() const
 {
-   std::vector<std::shared_ptr<RKRenderStructure>> structures = flattenedRenderStructures();
+  std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> structures = _sceneList->selectediRASPARenderStructures();
 
-   if(structures.empty())
+  std::vector<std::shared_ptr<iRASPAStructure>> flattenedRenderStructures{};
+  for(const std::vector<std::shared_ptr<iRASPAStructure>> &v : structures)
+  {
+    flattenedRenderStructures.insert(flattenedRenderStructures.end(), v.begin(), v.end());
+  }
+
+   if(flattenedRenderStructures.empty())
    {
      return SKBoundingBox();
    }
@@ -486,10 +178,10 @@ SKBoundingBox ProjectStructure::renderBoundingBox() const
    double3 minimum = double3(DBL_MAX, DBL_MAX, DBL_MAX);
    double3 maximum = double3(-DBL_MAX, -DBL_MAX, -DBL_MAX);
 
-   for(std::shared_ptr<RKRenderStructure> frame: structures)
+   for(std::shared_ptr<iRASPAStructure> frame: flattenedRenderStructures)
    {
      // for rendering the bounding-box is in the global coordinate space (adding the frame origin)
-     SKBoundingBox currentBoundingBox  = frame->transformedBoundingBox() + frame->origin();
+     SKBoundingBox currentBoundingBox  = frame->structure()->transformedBoundingBox() + frame->structure()->origin();
 
      SKBoundingBox transformedBoundingBox = currentBoundingBox;
 

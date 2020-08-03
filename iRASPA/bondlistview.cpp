@@ -66,6 +66,11 @@ BondListView::BondListView(QWidget* parent): QTreeView(parent ), _bondModel(std:
   QObject::connect(selectionModel(), &QItemSelectionModel::selectionChanged, this, &BondListView::setSelectedBonds);
 }
 
+void BondListView::resetData()
+{
+  _bondModel->resetData();
+}
+
 void BondListView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
 {
   _projectTreeNode = projectTreeNode;
@@ -82,7 +87,9 @@ void BondListView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
       {
         if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
         {
-          std::shared_ptr<iRASPAStructure> iraspaStructure = projectStructure->selectedFrame();
+          std::shared_ptr<Scene> selectedScene = projectStructure->sceneList()->selectedScene();
+          std::shared_ptr<Movie> selectedMovie = selectedScene? selectedScene->selectedMovie() : nullptr;
+          std::shared_ptr<iRASPAStructure> iraspaStructure = selectedMovie ? selectedMovie->selectedFrame() : nullptr;
           _iraspaStructure = iraspaStructure;
         }
       }

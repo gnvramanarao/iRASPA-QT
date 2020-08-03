@@ -50,7 +50,7 @@ void SceneTreeViewModel::setProject(std::shared_ptr<ProjectTreeNode> projectTree
       {
         if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
         {
-          _sceneList = projectStructure->getSceneTreeModel();
+          _sceneList = projectStructure->sceneList();
         }
       }
     }
@@ -300,18 +300,18 @@ bool SceneTreeViewModel::setData(const QModelIndex &index, const QVariant &value
       if (role == Qt::CheckStateRole)
       {
         std::shared_ptr<Scene> scene = parentForMovie(movie->shared_from_this());
-        std::vector<std::shared_ptr<Structure>> structures = scene->structures();
+        std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> structures = _sceneList->selectediRASPARenderStructures();
         if ((Qt::CheckState)value.toInt() == Qt::Checked)
         {
           movie->setVisibility(true);
-          emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{structures.begin(), structures.end()});
+          emit invalidateCachedAmbientOcclusionTexture(structures);
           emit rendererReloadData();
           return true;
         }
         else
         {
           movie->setVisibility(false);
-          emit invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>>{structures.begin(), structures.end()});
+          emit invalidateCachedAmbientOcclusionTexture(structures);
           emit rendererReloadData();
           return true;
         }

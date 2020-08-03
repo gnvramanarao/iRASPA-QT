@@ -43,7 +43,7 @@ SceneChangeSelectionCommand::SceneChangeSelectionCommand(MainWindow *main_window
 {
   Q_UNUSED(parent);
 
-  setText(QString("Change project selection"));
+  setText(QString("Change movie selection"));
 }
 
 void SceneChangeSelectionCommand::redo()

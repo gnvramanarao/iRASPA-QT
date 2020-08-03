@@ -79,7 +79,7 @@ void SceneTreeView::setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode)
       {
         if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
         {
-          _sceneList = projectStructure->getSceneTreeModel();
+          _sceneList = projectStructure->sceneList();
           _model->setProject(projectTreeNode);
           expandAll();
           return;
@@ -129,7 +129,7 @@ void SceneTreeView::reloadSelection()
       }
     }
     emit setSelectedRenderFrames(_sceneList->selectediRASPARenderStructures());
-    emit setFlattenedSelectedFrames(_sceneList->selectedMoviesiRASPAStructures());
+    emit setFlattenedSelectedFrames(_sceneList->selectedMoviesIRASPAStructures());
 
     std::optional<int> sceneIndex = _sceneList->selectedSceneIndex();
     if(sceneIndex)
@@ -255,7 +255,7 @@ void SceneTreeView::selectionChanged(const QItemSelection &selected, const QItem
     }
 
     emit setSelectedRenderFrames(_sceneList->selectediRASPARenderStructures());
-    emit setFlattenedSelectedFrames(_sceneList->selectedMoviesiRASPAStructures());
+    emit setFlattenedSelectedFrames(_sceneList->selectedMoviesIRASPAStructures());
     emit updateRenderer();
 
     update();

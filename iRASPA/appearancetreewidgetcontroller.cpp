@@ -536,7 +536,7 @@ void AppearanceTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode>
         if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
         {
           _projectStructure = projectStructure;
-          _iraspa_structures = projectStructure->flattenediRASPAStructures();
+          _iraspa_structures = projectStructure->sceneList()->allIRASPAStructures();
         }
       }
     }
@@ -548,6 +548,11 @@ void AppearanceTreeWidgetController::setProject(std::shared_ptr<ProjectTreeNode>
 void AppearanceTreeWidgetController::setFlattenedSelectedFrames(std::vector<std::shared_ptr<iRASPAStructure>> iraspa_structures)
 {
   _iraspa_structures = iraspa_structures;
+  reloadData();
+}
+
+void AppearanceTreeWidgetController::resetData()
+{
   reloadData();
 }
 
@@ -1495,11 +1500,7 @@ void AppearanceTreeWidgetController::setEulerAngleX(double angle)
     SKBoundingBox box = _projectStructure->renderBoundingBox();
     _projectStructure->camera()->resetForNewBoundingBox(box);
 
-    std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-    std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                    [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
-
-    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
     emit rendererReloadData();
 
     reloadEulerAngles();
@@ -1549,7 +1550,7 @@ void AppearanceTreeWidgetController::setEulerAngleY(double angle)
     std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
                     [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
 
-    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
     emit rendererReloadData();
 
     reloadEulerAngles();
@@ -1600,7 +1601,7 @@ void AppearanceTreeWidgetController::setEulerAngleZ(double angle)
     std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
                     [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
 
-    emit invalidateCachedAmbientOcclusionTexture(render_structures);
+    emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
     emit rendererReloadData();
 
     reloadEulerAngles();
@@ -3926,10 +3927,8 @@ void AppearanceTreeWidgetController::setAtomSizeScalingDoubleSpinBox(double size
   reloadAtomSizeScalingDoubleSlider();
   reloadAtomRepresentationStyle();
 
-  std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-  std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                  [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
-  emit invalidateCachedAmbientOcclusionTexture(render_structures);
+
+  emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
   emit redrawRendererWithHighQuality();
 }
 
@@ -3958,10 +3957,8 @@ void AppearanceTreeWidgetController::setAtomSizeScalingDoubleSliderFinal()
   reloadAtomRepresentationStyle();
   reloadAtomSizeScalingDoubleSpinBox();
 
-  std::vector<std::shared_ptr<RKRenderStructure>> render_structures{};
-  std::transform(_iraspa_structures.begin(),_iraspa_structures.end(),std::back_inserter(render_structures),
-                  [](std::shared_ptr<iRASPAStructure> iraspastructure) -> std::shared_ptr<RKRenderStructure> {return iraspastructure->structure();});
-  emit invalidateCachedAmbientOcclusionTexture(render_structures);
+
+  emit invalidateCachedAmbientOcclusionTexture({_iraspa_structures});
   emit rendererReloadData();
   emit redrawRendererWithHighQuality();
 }

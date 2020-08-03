@@ -39,7 +39,7 @@ CellTreeWidgetChangeStructureCommand::CellTreeWidgetChangeStructureCommand(MainW
   _old_structures(),
   _value(value)
 {
-  setText(QString("Change structure"));
+  setText(QString("Change structure-type"));
 
   _old_structures.clear();
   std::transform(old_iraspa_structures.begin(),old_iraspa_structures.end(),std::back_inserter(_old_structures),
@@ -124,7 +124,8 @@ void CellTreeWidgetChangeStructureCommand::redo()
     }
   }
 
-  _main_window->propagateProject(_projectTreeNode, _main_window);
+  _main_window->resetData();
+  //_main_window->propagateProject(_projectTreeNode, _main_window);
 
   //SKBoundingBox box = _projectTreeNode->representedObject()->renderBoundingBox();
   //_projectStructure->camera()->resetForNewBoundingBox(box);
@@ -139,7 +140,8 @@ void CellTreeWidgetChangeStructureCommand::undo()
   {
     iraspaStructure->setStructure(structure, type);
   }
-  _main_window->propagateProject(_projectTreeNode, _main_window);
+
+  _main_window->resetData();
 }
 
 

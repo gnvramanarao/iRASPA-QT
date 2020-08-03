@@ -57,6 +57,7 @@ public:
   void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode) override final;
   void setMainWindow(MainWindow *mainWindow) override final;
 
+  void resetData();
   void reloadData() override final;
   void reloadSelection() override final;
 private:

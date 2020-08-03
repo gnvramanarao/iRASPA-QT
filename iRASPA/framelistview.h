@@ -67,5 +67,5 @@ signals:
   void setSelectedFrame(std::shared_ptr<iRASPAStructure> structure);
   void setSelectedRenderFrames(std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> structures);
   void setFlattenedSelectedFrames(std::vector<std::shared_ptr<iRASPAStructure>> structures);
-  void invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>> structures);
+  void invalidateCachedAmbientOcclusionTexture(std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> structures);
 };

@@ -79,6 +79,7 @@ protected:
 public slots:
   void setSelectedRenderFrames(std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> structures);
   void redraw();
+  void resetData();
   void reloadRenderData();
   void reloadData();
   void reloadAmbientOcclusionData();
@@ -91,7 +92,7 @@ public slots:
   void redrawWithMediumQuality();
   void redrawWithHighQuality();
   void redrawWithPictureQuality();
-  void invalidateCachedAmbientOcclusionTexture(std::vector<std::shared_ptr<RKRenderStructure>> structures);
+  void invalidateCachedAmbientOcclusionTexture(std::vector<std::vector<std::shared_ptr<iRASPAStructure>>> structures);
   void invalidateIsosurface(std::vector<std::shared_ptr<RKRenderStructure>> structures);
   void computeHeliumVoidFraction(std::vector<std::shared_ptr<RKRenderStructure>> structures);
   void computeNitrogenSurfaceArea(std::vector<std::shared_ptr<RKRenderStructure>> structures);

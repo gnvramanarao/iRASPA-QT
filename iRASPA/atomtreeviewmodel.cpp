@@ -49,6 +49,12 @@ void AtomTreeViewModel::setProject(std::shared_ptr<ProjectTreeNode> projectTreeN
   _projectTreeNode = projectTreeNode;
 }
 
+void AtomTreeViewModel::resetData()
+{
+  beginResetModel();
+  endResetModel();
+}
+
 void AtomTreeViewModel::setFrame(std::shared_ptr<iRASPAStructure> frame)
 {
   if(_iraspaStructure != frame)

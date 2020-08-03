@@ -32,6 +32,7 @@
 #include <QObject>
 #include <QWidget>
 #include <QSpinBox>
+#include <QWheelEvent>
 
 class CustomIntSpinBox: public QSpinBox
 {
@@ -47,12 +48,15 @@ public:
   void setValue(int value);
 
   void focusInEvent(QFocusEvent *event) override final;
+  void wheelEvent(QWheelEvent *event) override final;
+  bool focusNextPrevChild(bool next) override final;
+
   QString textFromValue(int value) const override final;
   int valueFromText(const QString &text) const override final;
   QValidator::State validate(QString& input, int& pos) const override final;
 
   void stepBy(int steps) override final;
-  void timerEvent(QTimerEvent *event)  override;
+  //void timerEvent(QTimerEvent *event)  override;
 private:
   int _intValue;
   mutable QString _textValue;

@@ -38,10 +38,11 @@
 #include "skbond.h"
 #include "skatomcopy.h"
 
-class SKAsymmetricAtom
+class  SKAsymmetricAtom
 {
 public:
     SKAsymmetricAtom();
+    SKAsymmetricAtom(const SKAsymmetricAtom &assymetricAtom);
     SKAsymmetricAtom(QString displayName, int elementIdentifier);
     virtual ~SKAsymmetricAtom();
     enum class SKAsymmetricAtomType: qint64

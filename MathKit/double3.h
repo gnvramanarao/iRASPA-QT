@@ -62,6 +62,7 @@ union double3
 
 
   friend double3 operator*(const double3 &v1, const double3 &v2);
+  friend double3 operator/(const double3 &v1, const double3 &v2);
   friend double3 operator*(const double3 &v, double value);
   friend double3 operator*(double value, const double3 &v);
   friend std::ostream& operator<<(std::ostream& out, const double3& vec) ;

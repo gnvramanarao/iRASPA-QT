@@ -44,6 +44,10 @@ Protein::Protein()
 
 }
 
+Protein::Protein(const Protein &protein): Structure(protein)
+{
+}
+
 Protein::Protein(std::shared_ptr<SKStructure> structure): Structure(structure)
 {
   expandSymmetry();

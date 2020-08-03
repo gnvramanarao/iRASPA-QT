@@ -44,6 +44,10 @@ CylinderPrimitive::CylinderPrimitive()
 
 }
 
+CylinderPrimitive::CylinderPrimitive(const CylinderPrimitive &cylinderPrimitive): Structure(cylinderPrimitive)
+{
+}
+
 CylinderPrimitive::CylinderPrimitive(std::shared_ptr<Structure> s): Structure(s)
 {
   _cell = std::make_shared<SKCell>(*s->cell());

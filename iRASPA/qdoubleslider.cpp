@@ -91,3 +91,15 @@ double QDoubleSlider::doubleValue()
 
   return m_DoubleValue;
 }
+
+void QDoubleSlider::wheelEvent(QWheelEvent *event)
+{
+  if (!hasFocus())
+  {
+    event->ignore();
+  }
+  else
+  {
+    QSlider::wheelEvent(event);
+  }
+}

@@ -68,6 +68,17 @@ SKCell::SKCell()
   _boundingBox = enclosingBoundingBox();
 }
 
+SKCell::SKCell(double3 v1, double3 v2, double3 v3)
+{
+  _unitCell = double3x3(v1, v2, v3);
+  _inverseUnitCell = _unitCell.inverse();
+
+  _fullCell = _unitCell;
+  _inverseFullCell = _fullCell.inverse();
+
+  _boundingBox = enclosingBoundingBox();
+}
+
 SKCell::SKCell(double a, double b, double c, double alpha, double beta, double gamma)
 {
   double temp = (cos(alpha) - cos(gamma) * cos(beta)) / sin(gamma);
@@ -120,6 +131,14 @@ SKCell::SKCell(SKCell superCell, int3 minimumReplica, int3 maximumReplica)
 
   _minimumReplica = int3(0,0,0);
   _maximumReplica = int3(0,0,0);
+}
+
+std::shared_ptr<SKCell> SKCell::superCell() const
+{
+  double3 v1 = double(_maximumReplica.x - _minimumReplica.x + 1) * _unitCell[0];
+  double3 v2 = double(_maximumReplica.y - _minimumReplica.y + 1) * _unitCell[1];
+  double3 v3 = double(_maximumReplica.z - _minimumReplica.z + 1) * _unitCell[2];
+  return std::make_shared<SKCell>(v1, v2, v3);
 }
 
 void SKCell::setUnitCell(const double3x3& unitCell)

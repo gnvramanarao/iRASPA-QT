@@ -261,7 +261,7 @@ void MainWindow::updateMenuToFrameTab()
 }
 
 void MainWindow::resetData()
-{
+{  
   ui->stackedRenderers->resetData();
 
   ui->cameraTreeWidget->resetData();

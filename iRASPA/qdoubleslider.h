@@ -30,6 +30,7 @@
 #pragma once
 
 #include <QSlider>
+#include <QWheelEvent>
 
 class QDoubleSlider : public QSlider
 {
@@ -37,6 +38,8 @@ class QDoubleSlider : public QSlider
 public:
   explicit QDoubleSlider(QWidget *parent = nullptr);
   QDoubleSlider(Qt::Orientation orientation, QWidget *parent);
+
+  void wheelEvent(QWheelEvent *event) override final;
 
   double doubleMinimum()
   {

@@ -27,40 +27,38 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#pragma once
+#include "atomtreeviewmakesupercellcommand.h"
+#include <QDebug>
+#include <algorithm>
 
-#include <QObject>
-#include <QSpinBox>
-#include <QWheelEvent>
+// Note: The iRASPAStructure is not modified, but the structure it contains is replaced.
 
-class CustomDoubleSpinBox: public QDoubleSpinBox
+AtomTreeViewMakeSuperCellCommand::AtomTreeViewMakeSuperCellCommand(MainWindow *mainWindow, AtomTreeViewModel *model, std::shared_ptr<iRASPAStructure> iraspa_structure,
+                                     QUndoCommand *undoParent):
+  QUndoCommand(undoParent),
+  _mainWindow(mainWindow),
+  _model(model),
+  _iraspa_structure(iraspa_structure),
+  _structure(iraspa_structure->structure())
 {
-  Q_OBJECT
+  setText(QString("Make super cell"));
+}
 
-public:
-  CustomDoubleSpinBox(QWidget* parent);
+void AtomTreeViewMakeSuperCellCommand::redo()
+{
+  qDebug() << "AtomTreeViewMakeSuperCellCommand::redo()";
 
-  enum SpinBoxStateFlag { Double = 0x00, Text = 0x01};
+  std::shared_ptr<Structure> structure = _iraspa_structure->structure()->superCell();
 
-  void setText(QString text);
-  void setValue(double value);
+  _iraspa_structure->setStructure(structure);
 
-  void focusInEvent(QFocusEvent *event) override final;
-  void wheelEvent(QWheelEvent *event) override final;
-  bool focusNextPrevChild(bool next) override final;
+  _mainWindow->resetData();
+}
 
-  QString textFromValue(double value) const override final;
-  double valueFromText(const QString &text) const override final;
-  QValidator::State validate(QString& input, int& pos) const override final;
+void AtomTreeViewMakeSuperCellCommand::undo()
+{
+  _iraspa_structure->setStructure(_structure);
 
-  void stepBy(int steps) override final;
-protected:
-    // reimplement keyPressEvent
-    //void keyPressEvent(QKeyEvent *event) override;
+  _mainWindow->resetData();
+}
 
-private:
-  double _doubleValue;
-  mutable QString _textValue;
-  SpinBoxStateFlag _state = Double;
-  void privateEditingFinished();
-};

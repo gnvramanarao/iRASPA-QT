@@ -559,6 +559,12 @@ void RenderStackedWidget::resetData()
     render_structures.push_back(r);
   }
 
+  if(std::shared_ptr<ProjectStructure> project = _project.lock())
+  {
+    SKBoundingBox box = project->renderBoundingBox();
+    project->camera()->resetForNewBoundingBox(box);
+  }
+
   if (RKRenderViewController* widget = dynamic_cast<RKRenderViewController*>(currentWidget()))
   {
     widget->setRenderStructures(render_structures);

@@ -37,6 +37,7 @@ class CylinderPrimitive: public Structure, public RKRenderPrimitiveCylinderObjec
 {
 public:
   CylinderPrimitive();
+  CylinderPrimitive(const CylinderPrimitive &cylinderPrimitive);
   CylinderPrimitive(std::shared_ptr<Structure> s);
 
   iRASPAStructureType structureType() override final { return iRASPAStructureType::cylinderPrimitive; }

@@ -37,6 +37,7 @@ class PolygonalPrismPrimitive: public Structure, public RKRenderPrimitivePolygon
 {
 public:
   PolygonalPrismPrimitive();
+  PolygonalPrismPrimitive(const PolygonalPrismPrimitive &polygonalPrismPrimitive);
   PolygonalPrismPrimitive(std::shared_ptr<Structure> s);
 
   iRASPAStructureType structureType() override final { return iRASPAStructureType::polygonalPrismPrimitive; }

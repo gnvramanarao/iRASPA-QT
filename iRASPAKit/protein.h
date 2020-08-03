@@ -35,6 +35,7 @@ class Protein: public Structure
 {
 public:
   Protein();
+  Protein(const Protein &protein);
   Protein(std::shared_ptr<SKStructure> structure);
   Protein(std::shared_ptr<Structure> s);
 

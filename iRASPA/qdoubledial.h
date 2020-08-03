@@ -30,12 +30,15 @@
 #pragma once
 
 #include <QDial>
+#include <QWheelEvent>
 
 class QDoubleDial : public QDial
 {
   Q_OBJECT
 public:
   explicit QDoubleDial(QWidget *parent = nullptr);
+
+  void wheelEvent(QWheelEvent *event) override final;
 
   double doubleMinimum()
   {

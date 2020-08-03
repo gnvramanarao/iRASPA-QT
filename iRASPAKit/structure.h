@@ -69,7 +69,11 @@ public:
   Structure(std::shared_ptr<SKAtomTreeController> atomTreeController);
   Structure(std::shared_ptr<SKStructure> structure);
   Structure(std::shared_ptr<Structure> clone);
+  Structure(const Structure &structure);
   virtual ~Structure() {}
+
+  virtual bool hasSymmetry() {return false;}
+  virtual std::shared_ptr<Structure> superCell() const {return nullptr;}
 
   enum class StructureType: qint64
   {
@@ -123,8 +127,6 @@ public:
   };
 
   virtual iRASPAStructureType structureType() {return iRASPAStructureType::structure;}
-
-
 
   QString displayName() const override {return _displayName;}
 
@@ -227,6 +229,7 @@ public:
   void setOrientation(simd_quatd orientation) {_orientation = orientation;}
   simd_quatd orientation() const override final {return _orientation;}
   double3 origin() const override final {return _origin;}
+  void setOrigin(double3 value) {_origin = value;}
   void setOriginX(double value) {_origin.x = value;}
   void setOriginY(double value) {_origin.y = value;}
   void setOriginZ(double value) {_origin.z = value;}

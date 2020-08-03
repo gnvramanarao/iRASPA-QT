@@ -154,6 +154,11 @@ double3 operator*(const double3 &v1, const double3 &v2)
    return double3(v1.x*v2.x, v1.y*v2.y, v1.z*v2.z);
 }
 
+double3 operator/(const double3 &v1, const double3 &v2)
+{
+   return double3(v1.x/v2.x, v1.y/v2.y, v1.z/v2.z);
+}
+
 double3 operator*(const double3 &v, double value)
 {
   return double3(value*v.x, value*v.y, value*v.z);

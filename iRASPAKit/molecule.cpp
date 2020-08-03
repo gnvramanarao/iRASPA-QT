@@ -45,6 +45,10 @@ Molecule::Molecule()
 
 }
 
+Molecule::Molecule(const Molecule &molecule): Structure(molecule)
+{
+}
+
 Molecule::Molecule(std::shared_ptr<SKStructure> structure): Structure(structure)
 {
   expandSymmetry();

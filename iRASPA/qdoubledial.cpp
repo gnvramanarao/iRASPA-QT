@@ -79,3 +79,15 @@ double QDoubleDial::doubleValue()
 
   return m_DoubleValue;
 }
+
+void QDoubleDial::wheelEvent(QWheelEvent *event)
+{
+  if (!hasFocus())
+  {
+    event->ignore();
+  }
+  else
+  {
+    QDial::wheelEvent(event);
+  }
+}

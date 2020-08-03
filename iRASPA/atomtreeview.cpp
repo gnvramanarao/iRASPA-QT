@@ -36,6 +36,7 @@
 #include "atomtreeviewdeleteselectioncommand.h"
 #include "atomchangeselectioncommand.h"
 #include "atomtreeviewdecorationstyleditemdelegate.h"
+#include "atomtreeviewmakesupercellcommand.h"
 
 AtomTreeView::AtomTreeView(QWidget* parent): QTreeView(parent ), _atomModel(std::make_shared<AtomTreeViewModel>())
 {
@@ -487,12 +488,15 @@ void AtomTreeView::makeSuperCell()
         {
           if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
           {
-            std::set<SKAsymmetricAtom> asymmetricAtoms = std::set<SKAsymmetricAtom>();
-            std::vector<IndexPath> atomSelection = std::vector<IndexPath>();
-            std::vector<SKAsymmetricBond> asymmetricBonds = std::vector<SKAsymmetricBond>();
-            std::set<int> bondSelection = std::set<int>();
+            //std::set<SKAsymmetricAtom> asymmetricAtoms = std::set<SKAsymmetricAtom>();
+            //std::vector<IndexPath> atomSelection = std::vector<IndexPath>();
+            //std::vector<SKAsymmetricBond> asymmetricBonds = std::vector<SKAsymmetricBond>();
+            //std::set<int> bondSelection = std::set<int>();
             //DeleteSelectionCommand *deleteSelectionCommand = new DeleteSelectionCommand(structure,asymmetricAtoms,atomSelection,asymmetricBonds,bondSelection);
             //iRASPAProject->undoManager().push(deleteSelectionCommand);
+
+            AtomTreeViewMakeSuperCellCommand *makeSuperCellCommand = new AtomTreeViewMakeSuperCellCommand(_mainWindow, _atomModel.get(), _iraspaStructure, nullptr);
+            iRASPAProject->undoManager().push(makeSuperCellCommand);
           }
         }
       }
@@ -507,9 +511,11 @@ void AtomTreeView::ShowContextMenu(const QPoint &pos)
   QMenu contextMenu(tr("Context menu"), nullptr);
 
   bool isEnabled = false;
+  bool isSymmetryEnabled = false;
   if(_iraspaStructure)
   {
     isEnabled = _projectTreeNode->isEditable()  && (model()->rowCount(QModelIndex()) > 0);
+    isSymmetryEnabled = isEnabled && _iraspaStructure->structure()->hasSymmetry();
   }
 
   QAction actionAddAtomGroup("Add Atom Group", this);
@@ -525,7 +531,7 @@ void AtomTreeView::ShowContextMenu(const QPoint &pos)
   contextMenu.addAction(&actionFlattenHierarchy);
 
   QAction actionMakeSuperCell("Make super-cell", this);
-  actionMakeSuperCell.setEnabled(false);
+  actionMakeSuperCell.setEnabled(isEnabled && isSymmetryEnabled);
   connect(&actionMakeSuperCell, &QAction::triggered, this, &AtomTreeView::makeSuperCell);
   contextMenu.addAction(&actionMakeSuperCell);
 

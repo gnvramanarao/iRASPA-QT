@@ -37,7 +37,11 @@ class CrystalEllipsoidPrimitive: public Structure, public RKRenderCrystalPrimiti
 {
 public:
   CrystalEllipsoidPrimitive();
+  CrystalEllipsoidPrimitive(const CrystalEllipsoidPrimitive &crystalEllipsoidPrimitive);
   CrystalEllipsoidPrimitive(std::shared_ptr<Structure> s);
+
+  bool hasSymmetry() override final {return true;}
+  std::shared_ptr<Structure> superCell() const override final;
 
   iRASPAStructureType structureType() override final { return iRASPAStructureType::crystalEllipsoidPrimitive; }
 

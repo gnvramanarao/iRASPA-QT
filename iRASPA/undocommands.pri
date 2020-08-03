@@ -2,6 +2,7 @@ INCLUDEPATH += $$PWD
 
 SOURCES += \
     $$PWD/atomchangeselectioncommand.cpp \
+    $$PWD/atomtreeviewmakesupercellcommand.cpp \
     $$PWD/atomtreeviewchangechargecommand.cpp \
     $$PWD/atomtreeviewchangedisplaynamecommand.cpp \
     $$PWD/atomtreeviewchangeelementcommand.cpp \
@@ -36,6 +37,7 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/atomchangeselectioncommand.h \
+    $$PWD/atomtreeviewmakesupercellcommand.h \
     $$PWD/atomtreeviewchangechargecommand.h \
     $$PWD/atomtreeviewchangedisplaynamecommand.h \
     $$PWD/atomtreeviewchangeelementcommand.h \

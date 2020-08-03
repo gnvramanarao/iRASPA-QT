@@ -105,6 +105,20 @@ CellTreeWidgetController::CellTreeWidgetController(QWidget* parent): QTreeWidget
   itemMolecularCrystalSolvent->setFlags(itemMolecularCrystalSolvent->flags() & ~Qt::ItemIsEnabled);
   QObject::connect(_cellCellForm->cellStructureTypeComboBox,static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),this,&CellTreeWidgetController::setStructureType);
 
+  _cellCellForm->cellBoundingBoxMaxXDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->cellBoundingBoxMaxYDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->cellBoundingBoxMaxZDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->cellBoundingBoxMinXDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->cellBoundingBoxMinYDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->cellBoundingBoxMinZDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+
+
+  _cellCellForm->unitCellADoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->unitCellBDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->unitCellCDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->unitCellAlphaDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->unitCellBetaDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->unitCellGammaDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
 
   QObject::connect(_cellCellForm->unitCellADoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&CellTreeWidgetController::setUnitCellLengthA);
   QObject::connect(_cellCellForm->unitCellBDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&CellTreeWidgetController::setUnitCellLengthB);
@@ -114,6 +128,21 @@ CellTreeWidgetController::CellTreeWidgetController(QWidget* parent): QTreeWidget
   QObject::connect(_cellCellForm->unitCellBetaDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&CellTreeWidgetController::setUnitCellAngleBeta);
   QObject::connect(_cellCellForm->unitCellGammaDoubleSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),this,&CellTreeWidgetController::setUnitCellAngleGamma);
 
+  _cellCellForm->unitCellAXDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->unitCellAYDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->unitCellAZDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->unitCellBXDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->unitCellBYDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->unitCellBZDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->unitCellCXDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->unitCellCYDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->unitCellCZDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+
+  _cellCellForm->volumeDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+
+  _cellCellForm->perpendicularWidthXDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->perpendicularWidthYDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->perpendicularWidthZDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
 
   _cellCellForm->cellMaximumReplicaX->setRange(-INT_MAX,INT_MAX);
   _cellCellForm->cellMaximumReplicaX->setSpecialValueText(QString("Mult.Val."));
@@ -129,8 +158,15 @@ CellTreeWidgetController::CellTreeWidgetController(QWidget* parent): QTreeWidget
   _cellCellForm->cellMinimumReplicaZ->setRange(-INT_MAX,INT_MAX);
   _cellCellForm->cellMinimumReplicaZ->setSpecialValueText(QString("Mult.Val."));
 
-  _cellCellForm->volumeDoubleSpinBox->setAttribute(Qt::WA_MacShowFocusRect, false);
 
+
+
+  _cellCellForm->cellMaximumReplicaX->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->cellMaximumReplicaY->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->cellMaximumReplicaZ->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->cellMinimumReplicaX->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->cellMinimumReplicaY->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->cellMinimumReplicaZ->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
 
   QObject::connect(_cellCellForm->cellMaximumReplicaX, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),this,&CellTreeWidgetController::setMaximumReplicasX);
   QObject::connect(_cellCellForm->cellMaximumReplicaY, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),this,&CellTreeWidgetController::setMaximumReplicasY);
@@ -139,6 +175,17 @@ CellTreeWidgetController::CellTreeWidgetController(QWidget* parent): QTreeWidget
   QObject::connect(_cellCellForm->cellMinimumReplicaY, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),this,&CellTreeWidgetController::setMinimumReplicasY);
   QObject::connect(_cellCellForm->cellMinimumReplicaZ, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),this,&CellTreeWidgetController::setMinimumReplicasZ);
 
+  _cellCellForm->rotationAngleDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->EulerAngleXDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->EulerAngleYDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->EulerAngleZDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->EulerAngleXDial->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->EulerAngleYSlider->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->EulerAngleZDial->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+
+  _cellCellForm->originXDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->originYDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
+  _cellCellForm->originZDoubleSpinBox->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
 
   _cellCellForm->EulerAngleXDoubleSpinBox->setMinimum(-180);
   _cellCellForm->EulerAngleXDoubleSpinBox->setMaximum(180);
@@ -600,9 +647,9 @@ void CellTreeWidgetController::reloadUnitCell()
   _cellCellForm->unitCellBXDoubleSpinBox->setDisabled(true);
   _cellCellForm->unitCellBYDoubleSpinBox->setDisabled(true);
   _cellCellForm->unitCellBZDoubleSpinBox->setDisabled(true);
-  _cellCellForm->unitCellBXDoubleSpinBox->setDisabled(true);
-  _cellCellForm->unitCellBYDoubleSpinBox->setDisabled(true);
-  _cellCellForm->unitCellBZDoubleSpinBox->setDisabled(true);
+  _cellCellForm->unitCellCXDoubleSpinBox->setDisabled(true);
+  _cellCellForm->unitCellCYDoubleSpinBox->setDisabled(true);
+  _cellCellForm->unitCellCZDoubleSpinBox->setDisabled(true);
 
   if(_projectTreeNode)
   {
@@ -614,9 +661,9 @@ void CellTreeWidgetController::reloadUnitCell()
       _cellCellForm->unitCellBXDoubleSpinBox->setEnabled(true);
       _cellCellForm->unitCellBYDoubleSpinBox->setEnabled(true);
       _cellCellForm->unitCellBZDoubleSpinBox->setEnabled(true);
-      _cellCellForm->unitCellBXDoubleSpinBox->setEnabled(true);
-      _cellCellForm->unitCellBYDoubleSpinBox->setEnabled(true);
-      _cellCellForm->unitCellBZDoubleSpinBox->setEnabled(true);
+      _cellCellForm->unitCellCXDoubleSpinBox->setEnabled(true);
+      _cellCellForm->unitCellCYDoubleSpinBox->setEnabled(true);
+      _cellCellForm->unitCellCZDoubleSpinBox->setEnabled(true);
 
       _cellCellForm->unitCellAXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
       _cellCellForm->unitCellAYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
@@ -714,15 +761,13 @@ void CellTreeWidgetController::reloadUnitCell()
 
 void CellTreeWidgetController::reloadCellVolume()
 {
-  _cellCellForm->volumeDoubleSpinBox->setDisabled(true);
+  _cellCellForm->volumeDoubleSpinBox->setEnabled(true);
+  _cellCellForm->volumeDoubleSpinBox->setReadOnly(true);
 
   if(_projectTreeNode)
   {
     if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
     {
-      _cellCellForm->volumeDoubleSpinBox->setEnabled(true);
-      _cellCellForm->volumeDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-
       if (std::optional<double> value = unitCellVolume())
       {
         whileBlocking(_cellCellForm->volumeDoubleSpinBox)->setValue(*value);
@@ -737,15 +782,13 @@ void CellTreeWidgetController::reloadCellVolume()
 
 void CellTreeWidgetController::reloadCellPerpendicularWidthX()
 {
-  _cellCellForm->perpendicularWidthXDoubleSpinBox->setDisabled(true);
+  _cellCellForm->perpendicularWidthXDoubleSpinBox->setEnabled(true);
+  _cellCellForm->perpendicularWidthXDoubleSpinBox->setReadOnly(true);
 
   if(_projectTreeNode)
   {
     if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
     {
-      _cellCellForm->perpendicularWidthXDoubleSpinBox->setEnabled(true);
-      _cellCellForm->perpendicularWidthXDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-
       if (std::optional<double> value = unitCellPerpendicularWidthX())
       {
         whileBlocking(_cellCellForm->perpendicularWidthXDoubleSpinBox)->setValue(*value);
@@ -760,15 +803,13 @@ void CellTreeWidgetController::reloadCellPerpendicularWidthX()
 
 void CellTreeWidgetController::reloadCellPerpendicularWidthY()
 {
-  _cellCellForm->perpendicularWidthYDoubleSpinBox->setDisabled(true);
+  _cellCellForm->perpendicularWidthYDoubleSpinBox->setEnabled(true);
+  _cellCellForm->perpendicularWidthYDoubleSpinBox->setReadOnly(true);
 
   if(_projectTreeNode)
   {
     if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
     {
-      _cellCellForm->perpendicularWidthYDoubleSpinBox->setEnabled(true);
-      _cellCellForm->perpendicularWidthYDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-
       if (std::optional<double> value = unitCellPerpendicularWidthY())
       {
         whileBlocking(_cellCellForm->perpendicularWidthYDoubleSpinBox)->setValue(*value);
@@ -783,15 +824,13 @@ void CellTreeWidgetController::reloadCellPerpendicularWidthY()
 
 void CellTreeWidgetController::reloadCellPerpendicularWidthZ()
 {
-  _cellCellForm->perpendicularWidthZDoubleSpinBox->setDisabled(true);
+  _cellCellForm->perpendicularWidthZDoubleSpinBox->setEnabled(true);
+  _cellCellForm->perpendicularWidthZDoubleSpinBox->setReadOnly(true);
 
   if(_projectTreeNode)
   {
     if(std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(_projectTreeNode->representedObject()->project()))
     {
-      _cellCellForm->perpendicularWidthZDoubleSpinBox->setEnabled(true);
-      _cellCellForm->perpendicularWidthZDoubleSpinBox->setReadOnly(!_projectTreeNode->isEditable());
-
       if (std::optional<double> value = unitCellPerpendicularWidthZ())
       {
         whileBlocking(_cellCellForm->perpendicularWidthZDoubleSpinBox)->setValue(*value);

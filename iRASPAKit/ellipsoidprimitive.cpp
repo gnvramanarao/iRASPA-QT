@@ -44,6 +44,10 @@ EllipsoidPrimitive::EllipsoidPrimitive()
 
 }
 
+EllipsoidPrimitive::EllipsoidPrimitive(const EllipsoidPrimitive &ellipsoidPrimitive): Structure(ellipsoidPrimitive)
+{
+}
+
 EllipsoidPrimitive::EllipsoidPrimitive(std::shared_ptr<Structure> s): Structure(s)
 {
   _cell = std::make_shared<SKCell>(*s->cell());

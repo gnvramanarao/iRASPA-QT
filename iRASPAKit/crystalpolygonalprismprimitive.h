@@ -37,7 +37,11 @@ class CrystalPolygonalPrismPrimitive: public Structure, public RKRenderCrystalPr
 {
 public:
   CrystalPolygonalPrismPrimitive();
+  CrystalPolygonalPrismPrimitive(const CrystalPolygonalPrismPrimitive &crystalPolygonalPrismPrimitive);
   CrystalPolygonalPrismPrimitive(std::shared_ptr<Structure> s);
+
+  bool hasSymmetry() override final {return true;}
+  std::shared_ptr<Structure> superCell() const override final;
 
   iRASPAStructureType structureType() override final { return iRASPAStructureType::crystalPolygonalPrismPrimitive; }
 

@@ -75,6 +75,25 @@ void CustomDoubleSpinBox::setText(QString text)
   setPrefix(text);
 }
 
+bool CustomDoubleSpinBox::focusNextPrevChild(bool next)
+{
+  Q_UNUSED(next);
+
+  return false;
+}
+
+void CustomDoubleSpinBox::wheelEvent(QWheelEvent *event)
+{
+  if (!hasFocus())
+  {
+    event->ignore();
+  }
+  else
+  {
+    QDoubleSpinBox::wheelEvent(event);
+  }
+}
+
 void CustomDoubleSpinBox::focusInEvent(QFocusEvent *event)
 {
   if(_state == Text && !isReadOnly())
@@ -99,17 +118,16 @@ QValidator::State CustomDoubleSpinBox::validate(QString& input, int& pos) const
   }
 }
 
-
 QString CustomDoubleSpinBox::textFromValue(double value) const
 {
-   switch(_state)
-   {
-   case Double:
-       return QDoubleSpinBox::textFromValue(value);
-   case Text:
-       return "";
-   }
-   return "";
+  switch(_state)
+  {
+  case Double:
+    return QDoubleSpinBox::textFromValue(value);
+  case Text:
+    return "";
+  }
+  return "";
 }
 
 double CustomDoubleSpinBox::valueFromText(const QString &text) const
@@ -123,10 +141,3 @@ void CustomDoubleSpinBox::stepBy(int steps)
   QDoubleSpinBox::stepBy(steps);
   _textValue = text();
 }
-
-/*
-void CustomDoubleSpinBox::keyPressEvent(QKeyEvent *event)
-{
-  event->ignore();
-}
-*/

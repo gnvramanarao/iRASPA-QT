@@ -37,6 +37,7 @@ class SKCell
 public:
   SKCell();
   SKCell(double a, double b, double c, double alpha, double beta, double gamma);
+  SKCell(double3 v1, double3 v2, double3 v3);
   SKCell(SKBoundingBox boundingBox);
   SKCell(SKCell superCell, int3 minimumReplica, int3 maximumReplica);
   double3x3 unitCell() const {return _unitCell;}
@@ -52,6 +53,8 @@ public:
   double3x3 box() const;
   void setBox(const double3x3& fullCell);
   int numberOfReplicas() const;
+
+  std::shared_ptr<SKCell> superCell() const;
 
   int minimumReplicaX() const;
   void setMinimumReplicaX(const int newValue);

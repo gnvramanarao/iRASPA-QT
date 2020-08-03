@@ -39,10 +39,14 @@ class Crystal: public Structure
 {
 public:
   Crystal() {}
+  Crystal(const Crystal &crystal);
   Crystal(std::shared_ptr<SKAtomTreeController> atomTreeController): Structure(atomTreeController){}
   Crystal(std::shared_ptr<SKStructure> structure);
   Crystal(std::shared_ptr<Structure> s);
   ~Crystal() {}
+
+  bool hasSymmetry() override final {return true;}
+  std::shared_ptr<Structure> superCell() const override final;
 
   iRASPAStructureType structureType() override final { return iRASPAStructureType::crystal; }
 

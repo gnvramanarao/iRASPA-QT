@@ -37,6 +37,7 @@ class EllipsoidPrimitive: public Structure, public RKRenderPrimitiveEllipsoidObj
 {
 public:
   EllipsoidPrimitive();
+  EllipsoidPrimitive(const EllipsoidPrimitive &ellipsoidPrimitive);
   EllipsoidPrimitive(std::shared_ptr<Structure> s);
 
   iRASPAStructureType structureType() override final { return iRASPAStructureType::ellipsoidPrimitive; }

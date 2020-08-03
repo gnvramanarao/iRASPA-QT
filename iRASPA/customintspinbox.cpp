@@ -42,26 +42,44 @@ CustomIntSpinBox::CustomIntSpinBox(QWidget* parent) : QSpinBox(parent)
 
 void CustomIntSpinBox::privateEditingFinished()
 {
-  bool success = false;
-  int value = _textValue.toInt(&success);
-  _state=Text;
-  setPrefix(_textValue);
-
-  if(success)
+  if(!isReadOnly())
   {
-    _state = Int;
-    _intValue = value;
-    setPrefix("");
-  }
+    bool success = false;
+    int value = _textValue.toInt(&success);
+    _state=Text;
+    setPrefix(_textValue);
 
-  clearFocus();
+    if(success)
+    {
+      _state = Int;
+      _intValue = value;
+      setPrefix("");
+    }
+  }
+}
+
+bool CustomIntSpinBox::focusNextPrevChild(bool next)
+{
+  return false;
+}
+
+void CustomIntSpinBox::wheelEvent(QWheelEvent *event)
+{
+  if (!hasFocus())
+  {
+    event->ignore();
+  }
+  else
+  {
+    QSpinBox::wheelEvent(event);
+  }
 }
 
 void CustomIntSpinBox::setText(QString text)
 {
   _textValue = text;
   _state = Text;
-  setPrefix(text);
+  QSpinBox::setPrefix(text);
 }
 
 void CustomIntSpinBox::setValue(int value)
@@ -72,12 +90,9 @@ void CustomIntSpinBox::setValue(int value)
   QSpinBox::setValue(value);
 }
 
-
-
-
 void CustomIntSpinBox::focusInEvent(QFocusEvent *event)
 {
-  if(_state == Text)
+  if(_state == Text && !isReadOnly())
   {
     setPrefix("");
     _state = Int;
@@ -126,7 +141,7 @@ void CustomIntSpinBox::stepBy(int steps)
 
 
 
-
+/*
 void CustomIntSpinBox::timerEvent(QTimerEvent *event)
 {
   //QWidget::timerEvent(event);
@@ -142,4 +157,4 @@ void CustomIntSpinBox::timerEvent(QTimerEvent *event)
   {
     QSpinBox::timerEvent (event);
   }
-}
+}*/

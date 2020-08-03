@@ -60,9 +60,270 @@ Structure::Structure(std::shared_ptr<SKStructure> structure): _atomsTreeControll
   }
 }
 
+// shallow copy, atoms/bonds are empty, spacegroup no symmetry
+Structure::Structure(const Structure &structure): _atomsTreeController(std::make_shared<SKAtomTreeController>()),
+  _bondSetController(std::make_shared<SKBondSetController>(_atomsTreeController)), _spaceGroup(1), _cell(std::make_shared<SKCell>())
+{
+  qDebug() << "Base-class Copy constructor";
+  _displayName = structure._displayName;
+
+  _origin = structure._origin;
+  _scaling = structure._scaling;
+  _orientation = structure._orientation;
+  _rotationDelta = structure._rotationDelta;
+  _periodic = structure._periodic;
+  _isVisible = structure._isVisible;
+  _cell = std::make_shared<SKCell>(*structure._cell);
+  _minimumGridEnergyValue = structure._minimumGridEnergyValue;
+
+  _selectionCOMTranslation = structure._selectionCOMTranslation;
+  _selectionRotationIndex = structure._selectionRotationIndex;
+  _selectionBodyFixedBasis = structure._selectionBodyFixedBasis;
+
+  _structureType = structure._structureType;
+  _structureMaterialType = structure._structureMaterialType;
+  _structureMass = structure._structureMass;
+  _structureDensity = structure._structureDensity;
+  _structureHeliumVoidFraction = structure._structureHeliumVoidFraction;
+  _structureSpecificVolume = structure._structureSpecificVolume;
+  _structureAccessiblePoreVolume = structure._structureAccessiblePoreVolume;
+  _structureVolumetricNitrogenSurfaceArea = structure._structureVolumetricNitrogenSurfaceArea;
+  _structureGravimetricNitrogenSurfaceArea = structure._structureGravimetricNitrogenSurfaceArea;
+  _structureNumberOfChannelSystems = structure._structureNumberOfChannelSystems;
+  _structureNumberOfInaccessiblePockets = structure._structureNumberOfInaccessiblePockets;
+  _structureDimensionalityOfPoreSystem = structure._structureDimensionalityOfPoreSystem;
+  _structureLargestCavityDiameter = structure._structureLargestCavityDiameter;
+  _structureRestrictingPoreLimitingDiameter = structure._structureRestrictingPoreLimitingDiameter;
+  _structureLargestCavityDiameterAlongAViablePath = structure._structureLargestCavityDiameterAlongAViablePath;
+
+  _authorFirstName = structure._authorFirstName;
+  _authorMiddleName = structure._authorMiddleName;
+  _authorLastName = structure._authorLastName;
+  _authorOrchidID = structure._authorOrchidID;
+  _authorResearcherID = structure._authorResearcherID;
+  _authorAffiliationUniversityName = structure._authorAffiliationUniversityName;
+  _authorAffiliationFacultyName = structure._authorAffiliationFacultyName;
+  _authorAffiliationInstituteName = structure._authorAffiliationInstituteName;
+  _authorAffiliationCityName = structure._authorAffiliationCityName;
+  _authorAffiliationCountryName = structure._authorAffiliationCountryName;
+
+  // primitive properties
+  _primitiveTransformationMatrix = structure._primitiveTransformationMatrix;
+  _primitiveOrientation = structure._primitiveOrientation;
+  _primitiveRotationDelta = structure._primitiveRotationDelta;
+
+  _primitiveOpacity = structure._primitiveOpacity;
+  _primitiveIsCapped = structure._primitiveIsCapped;
+  _primitiveIsFractional = structure._primitiveIsFractional;
+  _primitiveNumberOfSides = structure._primitiveNumberOfSides;
+  _primitiveThickness = structure._primitiveThickness;
+
+  _primitiveFrontSideHDR = structure._primitiveFrontSideHDR;
+  _primitiveFrontSideHDRExposure = structure._primitiveFrontSideHDRExposure;
+  _primitiveFrontSideAmbientColor = structure._primitiveFrontSideAmbientColor;
+  _primitiveFrontSideDiffuseColor = structure._primitiveFrontSideDiffuseColor;
+  _primitiveFrontSideSpecularColor = structure._primitiveFrontSideSpecularColor;
+  _primitiveFrontSideAmbientIntensity = structure._primitiveFrontSideAmbientIntensity;
+  _primitiveFrontSideDiffuseIntensity = structure._primitiveFrontSideDiffuseIntensity;
+  _primitiveFrontSideSpecularIntensity = structure._primitiveFrontSideSpecularIntensity;
+  _primitiveFrontSideShininess = structure._primitiveFrontSideShininess;
+
+  _primitiveBackSideHDR = structure._primitiveBackSideHDR;
+  _primitiveBackSideHDRExposure = structure._primitiveBackSideHDRExposure;
+  _primitiveBackSideAmbientColor = structure._primitiveBackSideAmbientColor;
+  _primitiveBackSideDiffuseColor = structure._primitiveBackSideDiffuseColor;
+  _primitiveBackSideSpecularColor = structure._primitiveBackSideSpecularColor;
+  _primitiveBackSideAmbientIntensity = structure._primitiveBackSideAmbientIntensity;
+  _primitiveBackSideDiffuseIntensity = structure._primitiveBackSideDiffuseIntensity;
+  _primitiveBackSideSpecularIntensity = structure._primitiveBackSideSpecularIntensity;
+  _primitiveBackSideShininess = structure._primitiveBackSideShininess;
+
+  // atoms
+  _drawAtoms = structure._drawAtoms;
+
+  _atomRepresentationType = structure._atomRepresentationType;
+  _atomRepresentationStyle = structure._atomRepresentationStyle;
+  _atomForceFieldIdentifier = structure._atomForceFieldIdentifier;
+  _atomForceFieldOrder = structure._atomForceFieldOrder;
+  _atomColorSchemeIdentifier = structure._atomColorSchemeIdentifier;
+  _atomColorSchemeOrder = structure._atomColorSchemeOrder;
+
+  _atomSelectionStyle = structure._atomSelectionStyle;
+  _atomSelectionStripesDensity = structure._atomSelectionStripesDensity;
+  _atomSelectionStripesFrequency = structure._atomSelectionStripesFrequency;
+  _atomSelectionWorleyNoise3DFrequency = structure._atomSelectionWorleyNoise3DFrequency;
+  _atomSelectionWorleyNoise3DJitter = structure._atomSelectionWorleyNoise3DJitter;
+  _atomSelectionScaling = structure._atomSelectionScaling;
+  _atomSelectionIntensity = structure._atomSelectionIntensity;
+
+  _atomHue = structure._atomHue;
+  _atomSaturation = structure._atomSaturation;
+  _atomValue = structure._atomValue;
+  _atomScaleFactor = structure._atomScaleFactor;
+
+  _atomAmbientOcclusion = structure._atomAmbientOcclusion;
+  _atomAmbientOcclusionPatchNumber = structure._atomAmbientOcclusionPatchNumber;
+  _atomAmbientOcclusionTextureSize = structure._atomAmbientOcclusionTextureSize;
+  _atomAmbientOcclusionPatchSize = structure._atomAmbientOcclusionPatchSize;
+  //_atomCacheAmbientOcclusionTexture = clone->_atomCacheAmbientOcclusionTexture;
+
+  _atomHDR = structure._atomHDR;
+  _atomHDRExposure = structure._atomHDRExposure;
+  _atomSelectionIntensity = structure._atomSelectionIntensity;
+
+  _atomAmbientColor = structure._atomAmbientColor;
+  _atomDiffuseColor = structure._atomDiffuseColor;
+  _atomSpecularColor = structure._atomSpecularColor;
+  _atomAmbientIntensity = structure._atomAmbientIntensity;
+  _atomDiffuseIntensity = structure._atomDiffuseIntensity;
+  _atomSpecularIntensity = structure._atomSpecularIntensity;
+  _atomShininess = structure._atomShininess;
+
+  // bonds
+  _drawBonds = structure._drawBonds;
+
+  _bondScaleFactor = structure._bondScaleFactor;
+  _bondColorMode = structure._bondColorMode;
+
+  _bondAmbientColor = structure._bondAmbientColor;
+  _bondDiffuseColor = structure._bondDiffuseColor;
+  _bondSpecularColor = structure._bondSpecularColor;
+  _bondAmbientIntensity = structure._bondAmbientIntensity;
+  _bondDiffuseIntensity = structure._bondDiffuseIntensity;
+  _bondSpecularIntensity = structure._bondSpecularIntensity;
+  _bondShininess = structure._bondShininess;
+
+  _bondHDR = structure._bondHDR;
+  _bondHDRExposure = structure._bondHDRExposure;
+  _bondSelectionIntensity = structure._bondSelectionIntensity;
+
+  _bondHue = structure._bondHue;
+  _bondSaturation = structure._bondSaturation;
+  _bondValue = structure._bondValue;
+
+  _bondAmbientOcclusion = structure._bondAmbientOcclusion;
+
+  // text properties
+  _atomTextType = structure._atomTextType;
+  _atomTextFont = structure._atomTextFont;
+  _atomTextScaling = structure._atomTextScaling;
+  _atomTextColor = structure._atomTextColor;
+  _atomTextGlowColor = structure._atomTextGlowColor;
+  _atomTextStyle = structure._atomTextStyle;
+  _atomTextEffect = structure._atomTextEffect;
+  _atomTextAlignment = structure._atomTextAlignment;
+  _atomTextOffset = structure._atomTextOffset;
+
+  // unit cell
+  _drawUnitCell = structure._drawUnitCell;
+  _unitCellScaleFactor = structure._unitCellScaleFactor;
+  _unitCellDiffuseColor = structure._unitCellDiffuseColor;
+  _unitCellDiffuseIntensity = structure._unitCellDiffuseIntensity;
+
+  // adsorption surface
+  _frameworkProbeMolecule = structure._frameworkProbeMolecule;
+
+  _drawAdsorptionSurface = structure._drawAdsorptionSurface;
+  _adsorptionSurfaceOpacity = structure._adsorptionSurfaceOpacity;
+  _adsorptionSurfaceIsoValue = structure._adsorptionSurfaceIsoValue;
+
+  _adsorptionSurfaceSize = structure._adsorptionSurfaceSize;
+  _adsorptionSurfaceNumberOfTriangles = structure._adsorptionSurfaceNumberOfTriangles;
+
+  _adsorptionSurfaceProbeMolecule = structure._adsorptionSurfaceProbeMolecule;
+
+  _adsorptionSurfaceFrontSideHDR = structure._adsorptionSurfaceFrontSideHDR;
+  _adsorptionSurfaceFrontSideHDRExposure = structure._adsorptionSurfaceFrontSideHDRExposure;
+  _adsorptionSurfaceFrontSideAmbientColor = structure._adsorptionSurfaceFrontSideAmbientColor;
+  _adsorptionSurfaceFrontSideDiffuseColor = structure._adsorptionSurfaceFrontSideDiffuseColor;
+  _adsorptionSurfaceFrontSideSpecularColor = structure._adsorptionSurfaceFrontSideSpecularColor;
+  _adsorptionSurfaceFrontSideDiffuseIntensity = structure._adsorptionSurfaceFrontSideDiffuseIntensity;
+  _adsorptionSurfaceFrontSideAmbientIntensity = structure._adsorptionSurfaceFrontSideAmbientIntensity;
+  _adsorptionSurfaceFrontSideSpecularIntensity = structure._adsorptionSurfaceFrontSideSpecularIntensity;
+  _adsorptionSurfaceFrontSideShininess = structure._adsorptionSurfaceFrontSideShininess;
+
+  _adsorptionSurfaceBackSideHDR = structure._adsorptionSurfaceBackSideHDR;
+  _adsorptionSurfaceBackSideHDRExposure = structure._adsorptionSurfaceBackSideHDRExposure;
+  _adsorptionSurfaceBackSideAmbientColor = structure._adsorptionSurfaceBackSideAmbientColor;
+  _adsorptionSurfaceBackSideDiffuseColor = structure._adsorptionSurfaceBackSideDiffuseColor;
+  _adsorptionSurfaceBackSideSpecularColor = structure._adsorptionSurfaceBackSideSpecularColor;
+  _adsorptionSurfaceBackSideDiffuseIntensity = structure._adsorptionSurfaceBackSideDiffuseIntensity;
+  _adsorptionSurfaceBackSideAmbientIntensity = structure._adsorptionSurfaceBackSideAmbientIntensity;
+  _adsorptionSurfaceBackSideSpecularIntensity = structure._adsorptionSurfaceBackSideSpecularIntensity;
+  _adsorptionSurfaceBackSideShininess = structure._adsorptionSurfaceBackSideShininess;
+
+
+  _creationDate = structure._creationDate;
+  _creationTemperature = structure._creationTemperature;
+  _creationTemperatureScale = structure._creationTemperatureScale;
+  _creationPressure = structure._creationPressure;
+  _creationPressureScale = structure._creationPressureScale;
+  _creationMethod = structure._creationMethod;
+  _creationUnitCellRelaxationMethod = structure._creationUnitCellRelaxationMethod;
+  _creationAtomicPositionsSoftwarePackage = structure._creationAtomicPositionsSoftwarePackage;
+  _creationAtomicPositionsIonsRelaxationAlgorithm = structure._creationAtomicPositionsIonsRelaxationAlgorithm;
+  _creationAtomicPositionsIonsRelaxationCheck = structure._creationAtomicPositionsIonsRelaxationCheck;
+  _creationAtomicPositionsForcefield = structure._creationAtomicPositionsForcefield;
+  _creationAtomicPositionsForcefieldDetails = structure._creationAtomicPositionsForcefieldDetails;
+  _creationAtomicChargesSoftwarePackage = structure._creationAtomicChargesSoftwarePackage;
+  _creationAtomicChargesAlgorithms = structure._creationAtomicChargesAlgorithms;
+  _creationAtomicChargesForcefield = structure._creationAtomicChargesForcefield;
+  _creationAtomicChargesForcefieldDetails = structure._creationAtomicChargesForcefieldDetails;
+
+  _chemicalFormulaMoiety = structure._chemicalFormulaMoiety;
+  _chemicalFormulaSum = structure._chemicalFormulaSum;
+  _chemicalNameSystematic = structure._chemicalNameSystematic;
+  _cellFormulaUnitsZ = structure._cellFormulaUnitsZ;
+
+
+  _citationArticleTitle = structure._citationArticleTitle;
+  _citationJournalTitle = structure._citationJournalTitle;
+  _citationAuthors = structure._citationAuthors;
+  _citationJournalVolume = structure._citationJournalVolume;
+  _citationJournalNumber = structure._citationJournalNumber;
+  _citationJournalPageNumbers = structure._citationJournalPageNumbers;
+  _citationDOI = structure._citationDOI;
+  _citationPublicationDate = structure._citationPublicationDate;
+  _citationDatebaseCodes = structure._citationDatebaseCodes;
+
+  _experimentalMeasurementRadiation = structure._experimentalMeasurementRadiation;
+  _experimentalMeasurementWaveLength = structure._experimentalMeasurementWaveLength;
+  _experimentalMeasurementThetaMin = structure._experimentalMeasurementThetaMin;
+  _experimentalMeasurementThetaMax = structure._experimentalMeasurementThetaMax;
+  _experimentalMeasurementIndexLimitsHmin = structure._experimentalMeasurementIndexLimitsHmin;
+  _experimentalMeasurementIndexLimitsHmax = structure._experimentalMeasurementIndexLimitsHmax;
+  _experimentalMeasurementIndexLimitsKmin = structure._experimentalMeasurementIndexLimitsKmin;
+  _experimentalMeasurementIndexLimitsKmax = structure._experimentalMeasurementIndexLimitsKmax;
+  _experimentalMeasurementIndexLimitsLmin = structure._experimentalMeasurementIndexLimitsLmin;
+  _experimentalMeasurementIndexLimitsLmax = structure._experimentalMeasurementIndexLimitsLmax;
+  _experimentalMeasurementNumberOfSymmetryIndependentReflections = structure._experimentalMeasurementNumberOfSymmetryIndependentReflections;
+  _experimentalMeasurementSoftware = structure._experimentalMeasurementSoftware;
+  _experimentalMeasurementRefinementDetails = structure._experimentalMeasurementRefinementDetails;
+  _experimentalMeasurementGoodnessOfFit = structure._experimentalMeasurementGoodnessOfFit;
+  _experimentalMeasurementRFactorGt = structure._experimentalMeasurementRFactorGt;
+  _experimentalMeasurementRFactorAll = structure._experimentalMeasurementRFactorAll;
+
+  /*
+  QByteArray byteArray = QByteArray();
+  QDataStream stream(&byteArray, QIODevice::WriteOnly);
+  stream << structure._atomsTreeController;
+
+  QDataStream streamRead(&byteArray, QIODevice::ReadOnly);
+  streamRead >> _atomsTreeController;
+
+  setRepresentationStyle(_atomRepresentationStyle);
+
+  reComputeBoundingBox();
+
+  _atomsTreeController->setTags();
+  _bondSetController->setTags();
+  */
+}
+
 Structure::Structure(std::shared_ptr<Structure> clone): _atomsTreeController(std::make_shared<SKAtomTreeController>()),
    _bondSetController(std::make_shared<SKBondSetController>(_atomsTreeController)), _spaceGroup(1), _cell(std::make_shared<SKCell>())
 {
+  qDebug() << "Copy constructor Structure";
   _displayName = clone->_displayName;
 
   _origin = clone->_origin;

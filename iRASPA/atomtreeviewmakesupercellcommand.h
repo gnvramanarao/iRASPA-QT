@@ -29,43 +29,25 @@
 
 #pragma once
 
-#include "structure.h"
+#include <QUndoCommand>
+#include <set>
+#include <vector>
+#include "iraspakit.h"
+#include "indexpath.h"
+#include "symmetrykit.h"
+#include "mathkit.h"
+#include "mainwindow.h"
+#include "atomtreeviewmodel.h"
 
-class Molecule: public Structure
+class AtomTreeViewMakeSuperCellCommand : public QUndoCommand
 {
 public:
-  Molecule();
-  Molecule(const Molecule &molecule);
-  Molecule(std::shared_ptr<SKStructure> structure);
-  Molecule(std::shared_ptr<Structure> s);
-
-	iRASPAStructureType structureType() override final { return iRASPAStructureType::molecule; }
-
-	std::vector<RKInPerInstanceAttributesAtoms> renderAtoms() const override final;
-  std::vector<RKInPerInstanceAttributesBonds> renderInternalBonds() const override final;
-
-  std::vector<RKInPerInstanceAttributesAtoms> renderSelectedAtoms() const override final;
-  std::vector<RKInPerInstanceAttributesBonds> renderSelectedInternalBonds() const override final;
-
-  std::set<int> filterCartesianAtomPositions(std::function<bool(double3)> &) override final;
-  std::set<int> filterCartesianBondPositions(std::function<bool(double3)> &) override final;
-
-  SKBoundingBox boundingBox() const final override;
-
-  void expandSymmetry() final override;
-  void expandSymmetry(std::shared_ptr<SKAsymmetricAtom> asymmetricAtom);
-
-  double bondLength(std::shared_ptr<SKBond> bond) const override final;
-  double3 bondVector(std::shared_ptr<SKBond> bond) const override final;
-  std::pair<double3, double3> computeChangedBondLength(std::shared_ptr<SKBond> bond, double bondlength) const override final;
-  void computeBonds() final override;
-
-  std::vector<double3> atomPositions() const override final;
-
-  double3x3 unitCell();
+  AtomTreeViewMakeSuperCellCommand(MainWindow *mainWindow, AtomTreeViewModel *model, std::shared_ptr<iRASPAStructure> iraspa_structure, QUndoCommand *undoParent = nullptr);
+  void redo() override final;
+  void undo() override final;
 private:
-  qint64 _versionNumber{1};
-  friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<Molecule> &);
-  friend QDataStream &operator>>(QDataStream &, std::shared_ptr<Molecule> &);
+  MainWindow *_mainWindow;
+  AtomTreeViewModel *_model;
+  std::shared_ptr<iRASPAStructure> _iraspa_structure;
+  std::shared_ptr<Structure> _structure;
 };
-

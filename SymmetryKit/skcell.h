@@ -92,6 +92,8 @@ public:
   double volume() const;
   double3 perpendicularWidths() const;
 
+  int zValue() {return _zValue;}
+
   double3 applyFullCellBoundaryCondition(double3 dr);
   double3 applyUnitCellBoundaryCondition(double3 dr);
 
@@ -111,7 +113,7 @@ public:
 private:
   qint64 _versionNumber{2};
 
-  qint64 _zValue{1};
+  int _zValue{1};
 
   int3 _minimumReplica = int3(0,0,0);
   int3 _maximumReplica = int3(0,0,0);

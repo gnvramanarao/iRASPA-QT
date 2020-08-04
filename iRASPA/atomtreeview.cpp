@@ -37,6 +37,11 @@
 #include "atomchangeselectioncommand.h"
 #include "atomtreeviewdecorationstyleditemdelegate.h"
 #include "atomtreeviewmakesupercellcommand.h"
+#include "skpdbwriter.h"
+#include "skcifwriter.h"
+#include "skmmcifwriter.h"
+#include "skposcarwriter.h"
+#include "skxyzwriter.h"
 
 AtomTreeView::AtomTreeView(QWidget* parent): QTreeView(parent ), _atomModel(std::make_shared<AtomTreeViewModel>())
 {
@@ -593,27 +598,27 @@ void AtomTreeView::ShowContextMenu(const QPoint &pos)
   QMenu* subMenuExport = contextMenu.addMenu( "Export to" );
   QActionGroup* exportToGroup = new QActionGroup(this);
   QAction actionExportToPDB("PDB", this);
-  actionExportToPDB.setEnabled(false);
+  actionExportToPDB.setEnabled(isEnabled);
   exportToGroup->addAction(&actionExportToPDB);
   subMenuExport->addAction(&actionExportToPDB);
   connect(&actionExportToPDB, &QAction::triggered, this, &AtomTreeView::exportToPDB);
   QAction actionExportToMMCIF("mmCIF", this);
-  actionExportToMMCIF.setEnabled(false);
+  actionExportToMMCIF.setEnabled(isEnabled);
   exportToGroup->addAction(&actionExportToMMCIF);
   subMenuExport->addAction(&actionExportToMMCIF);
   connect(&actionExportToMMCIF, &QAction::triggered, this, &AtomTreeView::exportToMMCIF);
   QAction actionExportToCIF("CIF", this);
-  actionExportToCIF.setEnabled(false);
+  actionExportToCIF.setEnabled(isEnabled);
   exportToGroup->addAction(&actionExportToCIF);
   subMenuExport->addAction(&actionExportToCIF);
   connect(&actionExportToCIF, &QAction::triggered, this, &AtomTreeView::exportToCIF);
   QAction actionExportToXYZ("XYZ", this);
-  actionExportToXYZ.setEnabled(false);
+  actionExportToXYZ.setEnabled(isEnabled);
   exportToGroup->addAction(&actionExportToXYZ);
   subMenuExport->addAction(&actionExportToXYZ);
   connect(&actionExportToXYZ, &QAction::triggered, this, &AtomTreeView::exportToXYZ);
   QAction actionExportToPOSCAR("VASP POSCAR", this);
-  actionExportToPOSCAR.setEnabled(false);
+  actionExportToPOSCAR.setEnabled(isEnabled);
   exportToGroup->addAction(&actionExportToPOSCAR);
   subMenuExport->addAction(&actionExportToPOSCAR);
   connect(&actionExportToPOSCAR, &QAction::triggered, this, &AtomTreeView::exportToPOSCAR);
@@ -623,27 +628,168 @@ void AtomTreeView::ShowContextMenu(const QPoint &pos)
 
 void AtomTreeView::exportToPDB() const
 {
+  if(_iraspaStructure)
+  {
+    QString displayName = _iraspaStructure->structure()->displayName();
+    std::vector<std::shared_ptr<SKAsymmetricAtom>> atoms = _iraspaStructure->structure()->asymmetricAtomsCopiedAndTransformedToCartesianPositions();
+    SKSpaceGroup &spaceGroup = _iraspaStructure->structure()->spaceGroup();
+    std::optional<std::pair<std::shared_ptr<SKCell>, double3>> cellData = _iraspaStructure->structure()->cellForCartesianPositions();
+    std::shared_ptr<SKCell> cell = cellData.has_value() ? cellData->first : nullptr;
+    double3 origin = cellData.has_value() ? cellData->second : double3(0.0,0.0,0.0);
 
+    SKPDBWriter writer = SKPDBWriter(displayName, spaceGroup, cell, origin, atoms);
+
+    QDir docsDir(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
+    QUrl pName = QUrl::fromLocalFile(docsDir.filePath(displayName + ".pdb"));
+    QUrl fileURL = QFileDialog::getSaveFileUrl(nullptr, tr("Save structure"), pName, tr("(*.pdb)"));
+
+    if(!fileURL.isValid())
+    {
+      return;
+    }
+    else
+    {
+      QFile qFile = fileURL.toLocalFile();
+      if (qFile.open(QIODevice::WriteOnly))
+      {
+        QTextStream out(&qFile);
+        out << writer.string();
+        qFile.close();
+      }
+    }
+  }
 }
 
 void AtomTreeView::exportToMMCIF() const
 {
+  if(_iraspaStructure)
+  {
+    QString displayName = _iraspaStructure->structure()->displayName();
+    std::vector<std::shared_ptr<SKAsymmetricAtom>> atoms = _iraspaStructure->structure()->asymmetricAtomsCopiedAndTransformedToCartesianPositions();
+    SKSpaceGroup &spaceGroup = _iraspaStructure->structure()->spaceGroup();
+    std::optional<std::pair<std::shared_ptr<SKCell>, double3>> cellData = _iraspaStructure->structure()->cellForCartesianPositions();
+    std::shared_ptr<SKCell> cell = cellData.has_value() ? cellData->first : nullptr;
+    double3 origin = cellData.has_value() ? cellData->second : double3(0.0,0.0,0.0);
 
+    SKmmCIFWriter writer = SKmmCIFWriter(displayName, spaceGroup, cell, origin, atoms);
+
+    QDir docsDir(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
+    QUrl pName = QUrl::fromLocalFile(docsDir.filePath(displayName + ".mmcif"));
+    QUrl fileURL = QFileDialog::getSaveFileUrl(nullptr, tr("Save structure"), pName, tr("(*.mmcif)"));
+
+    if(!fileURL.isValid())
+    {
+      return;
+    }
+    else
+    {
+      QFile qFile = fileURL.toLocalFile();
+      if (qFile.open(QIODevice::WriteOnly))
+      {
+        QTextStream out(&qFile);
+        out << writer.string();
+        qFile.close();
+      }
+    }
+  }
 }
 
 void AtomTreeView::exportToCIF() const
 {
+  if(_iraspaStructure)
+  {
+    QString displayName = _iraspaStructure->structure()->displayName();
+    std::vector<std::shared_ptr<SKAsymmetricAtom>> atoms = _iraspaStructure->structure()->asymmetricAtomsCopiedAndTransformedToFractionalPositions();
+    SKSpaceGroup &spaceGroup = _iraspaStructure->structure()->spaceGroup();
+    std::optional<std::pair<std::shared_ptr<SKCell>, double3>> cell = _iraspaStructure->structure()->cellForFractionalPositions();
 
+    SKCIFWriter writer = SKCIFWriter(displayName, spaceGroup, cell->first, cell->second, atoms);
+
+    QDir docsDir(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
+    QUrl pName = QUrl::fromLocalFile(docsDir.filePath(displayName + ".cif"));
+    QUrl fileURL = QFileDialog::getSaveFileUrl(nullptr, tr("Save structure"), pName, tr("(*.cif)"));
+
+    if(!fileURL.isValid())
+    {
+      return;
+    }
+    else
+    {
+      QFile qFile = fileURL.toLocalFile();
+      if (qFile.open(QIODevice::WriteOnly))
+      {
+        QTextStream out(&qFile);
+        out << writer.string();
+        qFile.close();
+      }
+    }
+  }
 }
 
 void AtomTreeView::exportToXYZ() const
 {
+  if(_iraspaStructure)
+  {
+    QString displayName = _iraspaStructure->structure()->displayName();
+    std::vector<std::shared_ptr<SKAsymmetricAtom>> atoms = _iraspaStructure->structure()->atomsCopiedAndTransformedToCartesianPositions();
+    SKSpaceGroup &spaceGroup = _iraspaStructure->structure()->spaceGroup();
+    std::optional<std::pair<std::shared_ptr<SKCell>, double3>> cellData = _iraspaStructure->structure()->cellForCartesianPositions();
+    std::shared_ptr<SKCell> cell = cellData.has_value() ? cellData->first : nullptr;
+    double3 origin = cellData.has_value() ? cellData->second : double3(0.0,0.0,0.0);
 
+    SKXYZWriter writer = SKXYZWriter(displayName, spaceGroup, cell, origin, atoms);
+
+    QDir docsDir(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
+    QUrl pName = QUrl::fromLocalFile(docsDir.filePath(displayName + ".xyz"));
+    QUrl fileURL = QFileDialog::getSaveFileUrl(nullptr, tr("Save structure"), pName, tr("(*.xyz)"));
+
+    if(!fileURL.isValid())
+    {
+      return;
+    }
+    else
+    {
+      QFile qFile = fileURL.toLocalFile();
+      if (qFile.open(QIODevice::WriteOnly))
+      {
+        QTextStream out(&qFile);
+        out << writer.string();
+        qFile.close();
+      }
+    }
+  }
 }
 
 void AtomTreeView::exportToPOSCAR() const
 {
+  if(_iraspaStructure)
+  {
+    QString displayName = _iraspaStructure->structure()->displayName();
+    std::vector<std::shared_ptr<SKAsymmetricAtom>> atoms = _iraspaStructure->structure()->atomsCopiedAndTransformedToFractionalPositions();
+    SKSpaceGroup &spaceGroup = _iraspaStructure->structure()->spaceGroup();
+    std::optional<std::pair<std::shared_ptr<SKCell>, double3>> cell = _iraspaStructure->structure()->cellForFractionalPositions();
 
+    SKPOSCARWriter writer = SKPOSCARWriter(displayName, spaceGroup, cell->first, cell->second, atoms);
+
+    QDir docsDir(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
+    QUrl pName = QUrl::fromLocalFile(docsDir.filePath("POSCAR"));
+    QUrl fileURL = QFileDialog::getSaveFileUrl(nullptr, tr("Save structure"), pName, tr("(*)"));
+
+    if(!fileURL.isValid())
+    {
+      return;
+    }
+    else
+    {
+      QFile qFile = fileURL.toLocalFile();
+      if (qFile.open(QIODevice::WriteOnly))
+      {
+        QTextStream out(&qFile);
+        out << writer.string();
+        qFile.close();
+      }
+    }
+  }
 }
 
 

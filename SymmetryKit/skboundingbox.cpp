@@ -229,6 +229,11 @@ SKBoundingBox SKBoundingBox::adjustForTransformation(double4x4 transformation)
   return SKBoundingBox(min + centerOfScene, max + centerOfScene);
 }
 
+SKBoundingBox operator+(const SKBoundingBox left, const SKBoundingBox right)
+{
+  return SKBoundingBox(left._minimum + right.minimum(), left._maximum + right._maximum);
+}
+
 SKBoundingBox operator+(const SKBoundingBox left, double3 right)
 {
   return SKBoundingBox(left._minimum + right, left._maximum + right);

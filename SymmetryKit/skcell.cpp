@@ -109,9 +109,9 @@ SKCell::SKCell(SKBoundingBox boundingBox)
   _minimumReplica = int3(0,0,0);
   _maximumReplica = int3(0,0,0);
 
-  double3 v1 = double3(boundingBox.maximum().x-boundingBox.minimum().x, 0.0, 0.0);
-  double3 v2 = double3(0.0, boundingBox.maximum().y-boundingBox.minimum().y, 0.0);
-  double3 v3 = double3(0.0, 0.0, boundingBox.maximum().z-boundingBox.minimum().z);
+  double3 v1 = double3(std::fabs(boundingBox.maximum().x-boundingBox.minimum().x), 0.0, 0.0);
+  double3 v2 = double3(0.0, std::fabs(boundingBox.maximum().y-boundingBox.minimum().y), 0.0);
+  double3 v3 = double3(0.0, 0.0, std::fabs(boundingBox.maximum().z-boundingBox.minimum().z));
 
   _unitCell = double3x3(v1, v2, v3);
   _inverseUnitCell = _unitCell.inverse();

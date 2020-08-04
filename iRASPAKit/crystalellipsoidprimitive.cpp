@@ -209,6 +209,104 @@ void CrystalEllipsoidPrimitive::expandSymmetry()
   }
 }
 
+std::optional<std::pair<std::shared_ptr<SKCell>, double3>> CrystalEllipsoidPrimitive::cellForFractionalPositions()
+{
+  return std::make_pair(std::make_shared<SKCell>(*_cell), double3(0.0,0.0,0.0));
+}
+
+std::optional<std::pair<std::shared_ptr<SKCell>, double3>> CrystalEllipsoidPrimitive::cellForCartesianPositions()
+{
+  return std::make_pair(std::make_shared<SKCell>(*_cell), double3(0.0,0.0,0.0));
+}
+
+std::vector<std::shared_ptr<SKAsymmetricAtom>> CrystalEllipsoidPrimitive::asymmetricAtomsCopiedAndTransformedToCartesianPositions()
+{
+  std::vector<std::shared_ptr<SKAsymmetricAtom>> atoms{};
+
+  double3x3 unitCell = _cell->unitCell();
+  const std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
+  for(const std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
+  {
+    if(const std::shared_ptr<SKAsymmetricAtom> asymmetricAtom = node->representedObject())
+    {
+      double3 position = unitCell * double3::fract(asymmetricAtom->position());
+
+      std::shared_ptr<SKAsymmetricAtom> newAsymmetricAtom = std::make_shared<SKAsymmetricAtom>(*asymmetricAtom);
+      newAsymmetricAtom->setPosition(position);
+      atoms.push_back(newAsymmetricAtom);
+    }
+  }
+
+  return atoms;
+}
+
+std::vector<std::shared_ptr<SKAsymmetricAtom>> CrystalEllipsoidPrimitive::asymmetricAtomsCopiedAndTransformedToFractionalPositions()
+{
+  std::vector<std::shared_ptr<SKAsymmetricAtom>> atoms{};
+
+  const std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
+  for(const std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
+  {
+    if(const std::shared_ptr<SKAsymmetricAtom> asymmetricAtom = node->representedObject())
+    {
+      atoms.push_back(std::make_shared<SKAsymmetricAtom>(*asymmetricAtom));
+    }
+  }
+
+  return atoms;
+}
+
+std::vector<std::shared_ptr<SKAsymmetricAtom>> CrystalEllipsoidPrimitive::atomsCopiedAndTransformedToFractionalPositions()
+{
+  std::vector<std::shared_ptr<SKAsymmetricAtom>> atoms{};
+
+  const std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
+  for(const std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
+  {
+    if(const std::shared_ptr<SKAsymmetricAtom> asymmetricAtom = node->representedObject())
+    {
+      for(std::shared_ptr<SKAtomCopy> copy : asymmetricAtom->copies())
+      {
+        if(copy->type() == SKAtomCopy::AtomCopyType::copy)
+        {
+          std::shared_ptr<SKAsymmetricAtom> newAsymmetricAtom = std::make_shared<SKAsymmetricAtom>(*asymmetricAtom);
+          newAsymmetricAtom->setPosition(copy->position());
+          atoms.push_back(newAsymmetricAtom);
+        }
+      }
+    }
+  }
+
+  return atoms;
+}
+
+std::vector<std::shared_ptr<SKAsymmetricAtom>> CrystalEllipsoidPrimitive::atomsCopiedAndTransformedToCartesianPositions()
+{
+  std::vector<std::shared_ptr<SKAsymmetricAtom>> atoms{};
+
+  double3x3 unitCell = _cell->unitCell();
+  const std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
+  for(const std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
+  {
+    if(const std::shared_ptr<SKAsymmetricAtom> asymmetricAtom = node->representedObject())
+    {
+      for(std::shared_ptr<SKAtomCopy> copy : asymmetricAtom->copies())
+      {
+        if(copy->type() == SKAtomCopy::AtomCopyType::copy)
+        {
+          double3 position = unitCell * double3::fract(copy->position());
+          std::shared_ptr<SKAsymmetricAtom> newAsymmetricAtom = std::make_shared<SKAsymmetricAtom>(*asymmetricAtom);
+          newAsymmetricAtom->setPosition(position);
+          atoms.push_back(newAsymmetricAtom);
+        }
+      }
+    }
+  }
+
+  return atoms;
+}
+
+
 std::shared_ptr<Structure> CrystalEllipsoidPrimitive::superCell() const
 {
   qDebug() << "CrystalCylinderPrimitive::superCell";

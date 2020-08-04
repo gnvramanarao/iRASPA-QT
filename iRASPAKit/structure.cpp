@@ -700,7 +700,39 @@ void Structure::reComputeBoundingBox()
 
 void Structure::expandSymmetry()
 {
+
 }
+
+std::optional<std::pair<std::shared_ptr<SKCell>, double3>> Structure::cellForFractionalPositions()
+{
+  return std::nullopt;
+}
+
+std::optional<std::pair<std::shared_ptr<SKCell>, double3>> Structure::cellForCartesianPositions()
+{
+  return std::nullopt;
+}
+
+std::vector<std::shared_ptr<SKAsymmetricAtom>> Structure::asymmetricAtomsCopiedAndTransformedToCartesianPositions()
+{
+  return {};
+}
+
+std::vector<std::shared_ptr<SKAsymmetricAtom>> Structure::asymmetricAtomsCopiedAndTransformedToFractionalPositions()
+{
+  return {};
+}
+
+std::vector<std::shared_ptr<SKAsymmetricAtom>> Structure::atomsCopiedAndTransformedToCartesianPositions()
+{
+  return {};
+}
+
+std::vector<std::shared_ptr<SKAsymmetricAtom>> Structure::atomsCopiedAndTransformedToFractionalPositions()
+{
+  return {};
+}
+
 
 // MARK: bond-computations
 // =====================================================================

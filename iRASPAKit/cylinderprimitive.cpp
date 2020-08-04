@@ -172,6 +172,104 @@ void CylinderPrimitive::expandSymmetry()
   }
 }
 
+std::optional<std::pair<std::shared_ptr<SKCell>, double3>> CylinderPrimitive::cellForFractionalPositions()
+{
+  SKBoundingBox boundingBox = _cell->boundingBox() + SKBoundingBox(double3(-2,-2,-2), double3(2,2,2));
+  SKCell cell = SKCell(boundingBox);
+  return std::make_pair(std::make_shared<SKCell>(cell), cell.inverseUnitCell() * (boundingBox.minimum()));
+}
+
+std::optional<std::pair<std::shared_ptr<SKCell>, double3>> CylinderPrimitive::cellForCartesianPositions()
+{
+  return std::nullopt;
+}
+
+std::vector<std::shared_ptr<SKAsymmetricAtom>> CylinderPrimitive::asymmetricAtomsCopiedAndTransformedToFractionalPositions()
+{
+  std::vector<std::shared_ptr<SKAsymmetricAtom>> atoms{};
+
+  SKBoundingBox boundingBox = _cell->boundingBox() + SKBoundingBox(double3(-2,-2,-2), double3(2,2,2));
+  double3x3 inverseUnitCell = SKCell(boundingBox).inverseUnitCell();
+  const std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
+  for(const std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
+  {
+    if(const std::shared_ptr<SKAsymmetricAtom> asymmetricAtom = node->representedObject())
+    {
+      std::shared_ptr<SKAsymmetricAtom> newAsymmetricAtom = std::make_shared<SKAsymmetricAtom>(*asymmetricAtom);
+      newAsymmetricAtom->setPosition(inverseUnitCell * asymmetricAtom->position());
+      atoms.push_back(newAsymmetricAtom);
+    }
+  }
+
+  return atoms;
+}
+
+std::vector<std::shared_ptr<SKAsymmetricAtom>> CylinderPrimitive::asymmetricAtomsCopiedAndTransformedToCartesianPositions()
+{
+  std::vector<std::shared_ptr<SKAsymmetricAtom>> atoms{};
+
+  const std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
+  for(const std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
+  {
+    if(const std::shared_ptr<SKAsymmetricAtom> asymmetricAtom = node->representedObject())
+    {
+      atoms.push_back(std::make_shared<SKAsymmetricAtom>(*asymmetricAtom));
+    }
+  }
+
+  return atoms;
+}
+
+std::vector<std::shared_ptr<SKAsymmetricAtom>> CylinderPrimitive::atomsCopiedAndTransformedToFractionalPositions()
+{
+  std::vector<std::shared_ptr<SKAsymmetricAtom>> atoms{};
+
+  SKBoundingBox boundingBox = _cell->boundingBox() + SKBoundingBox(double3(-2,-2,-2), double3(2,2,2));
+  double3x3 inverseUnitCell = SKCell(boundingBox).inverseUnitCell();
+  const std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
+  for(const std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
+  {
+    if(const std::shared_ptr<SKAsymmetricAtom> asymmetricAtom = node->representedObject())
+    {
+      for (std::shared_ptr<SKAtomCopy> copy : asymmetricAtom->copies())
+      {
+        if (copy->type() == SKAtomCopy::AtomCopyType::copy)
+        {
+          std::shared_ptr<SKAsymmetricAtom> newAsymmetricAtom = std::make_shared<SKAsymmetricAtom>(*asymmetricAtom);
+          newAsymmetricAtom->setPosition(inverseUnitCell * copy->position());
+          atoms.push_back(newAsymmetricAtom);
+        }
+      }
+    }
+  }
+
+  return atoms;
+}
+
+std::vector<std::shared_ptr<SKAsymmetricAtom>> CylinderPrimitive::atomsCopiedAndTransformedToCartesianPositions()
+{
+  std::vector<std::shared_ptr<SKAsymmetricAtom>> atoms{};
+
+  const std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
+  for(const std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
+  {
+    if(const std::shared_ptr<SKAsymmetricAtom> asymmetricAtom = node->representedObject())
+    {
+      for (std::shared_ptr<SKAtomCopy> copy : asymmetricAtom->copies())
+      {
+        if (copy->type() == SKAtomCopy::AtomCopyType::copy)
+        {
+          std::shared_ptr<SKAsymmetricAtom> newAsymmetricAtom = std::make_shared<SKAsymmetricAtom>(*asymmetricAtom);
+          newAsymmetricAtom->setPosition(copy->position());
+          atoms.push_back(newAsymmetricAtom);
+        }
+      }
+    }
+  }
+
+  return atoms;
+}
+
 // MARK: bond-computations
 // =====================================================================
 

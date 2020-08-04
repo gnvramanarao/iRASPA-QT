@@ -47,6 +47,7 @@ public:
   double3 maximum() const {return _maximum;}
   double3 minimum() const {return _minimum;}
   SKBoundingBox adjustForTransformation(double4x4 transformation);
+  friend SKBoundingBox operator+(const SKBoundingBox left, const SKBoundingBox right);
   friend SKBoundingBox operator+(const SKBoundingBox left, double3 right);
   friend SKBoundingBox operator-(const SKBoundingBox left, double3 right);
 private:

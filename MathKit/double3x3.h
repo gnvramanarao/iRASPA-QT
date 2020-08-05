@@ -49,8 +49,8 @@ union double3x3
   };
 
   double3x3 operator * (const double3x3& right) const;
-  inline double3  operator [] (int i) { return v[i]; }
-  inline const double3  operator [] (int i) const { return v[i]; }
+  inline double3 & operator [] (int i) { return v[i]; }
+  inline const double3 & operator [] (int i) const { return v[i]; }
 
  double3 operator * (const double3& right) const;
 

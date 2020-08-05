@@ -55,13 +55,13 @@ SKCell::SKCell()
   _inverseUnitCell = _unitCell.inverse();
   _fullCell = _unitCell;
 
-  int dx = _maximumReplica[0] - _minimumReplica[0] + 1;
-  int dy = _maximumReplica[1] - _minimumReplica[1] + 1;
-  int dz = _maximumReplica[2] - _minimumReplica[2] + 1;
+  int dx = _maximumReplica.x - _minimumReplica.x + 1;
+  int dy = _maximumReplica.y - _minimumReplica.y + 1;
+  int dz = _maximumReplica.z - _minimumReplica.z + 1;
 
-  _fullCell[0][0] *= dx;  _fullCell[1][0] *= dy;  _fullCell[2][0] *= dz;
-  _fullCell[0][1] *= dx;  _fullCell[1][1] *= dy;  _fullCell[2][1] *= dz;
-  _fullCell[0][2] *= dx;  _fullCell[1][2] *= dy;  _fullCell[2][2] *= dz;
+  _fullCell.ax *= dx;  _fullCell.bx *= dy;  _fullCell.cx *= dz;
+  _fullCell.ay *= dx;  _fullCell.by *= dy;  _fullCell.cy *= dz;
+  _fullCell.az *= dx;  _fullCell.bz *= dy;  _fullCell.cz *= dz;
 
   _inverseFullCell = _fullCell.inverse();
 
@@ -91,13 +91,13 @@ SKCell::SKCell(double a, double b, double c, double alpha, double beta, double g
   _inverseUnitCell = _unitCell.inverse();
   _fullCell = _unitCell;
 
-  int dx = _maximumReplica[0] - _minimumReplica[0] + 1;
-  int dy = _maximumReplica[1] - _minimumReplica[1] + 1;
-  int dz = _maximumReplica[2] - _minimumReplica[2] + 1;
+  int dx = _maximumReplica.x - _minimumReplica.x + 1;
+  int dy = _maximumReplica.y - _minimumReplica.y + 1;
+  int dz = _maximumReplica.z - _minimumReplica.z + 1;
 
-  _fullCell[0][0] *= dx;  _fullCell[1][0] *= dy;  _fullCell[2][0] *= dz;
-  _fullCell[0][1] *= dx;  _fullCell[1][1] *= dy;  _fullCell[2][1] *= dz;
-  _fullCell[0][2] *= dx;  _fullCell[1][2] *= dy;  _fullCell[2][2] *= dz;
+  _fullCell.ax *= dx;  _fullCell.bx *= dy;  _fullCell.cx *= dz;
+  _fullCell.ay *= dx;  _fullCell.by *= dy;  _fullCell.cy *= dz;
+  _fullCell.az *= dx;  _fullCell.bz *= dy;  _fullCell.cz *= dz;
 
   _inverseFullCell = _fullCell.inverse();
 
@@ -148,13 +148,13 @@ void SKCell::setUnitCell(const double3x3& unitCell)
   _inverseUnitCell = _unitCell.inverse();
   _fullCell = _unitCell;
 
-  int dx = _maximumReplica[0] - _minimumReplica[0] + 1;
-  int dy = _maximumReplica[1] - _minimumReplica[1] + 1;
-  int dz = _maximumReplica[2] - _minimumReplica[2] + 1;
+  int dx = _maximumReplica.x - _minimumReplica.x + 1;
+  int dy = _maximumReplica.y - _minimumReplica.y + 1;
+  int dz = _maximumReplica.z - _minimumReplica.z + 1;
 
-  _fullCell[0][0] *= dx;  _fullCell[1][0] *= dy;  _fullCell[2][0] *= dz;
-  _fullCell[0][1] *= dx;  _fullCell[1][1] *= dy;  _fullCell[2][1] *= dz;
-  _fullCell[0][2] *= dx;  _fullCell[1][2] *= dy;  _fullCell[2][2] *= dz;
+  _fullCell.ax *= dx;  _fullCell.bx *= dy;  _fullCell.cx *= dz;
+  _fullCell.ay *= dx;  _fullCell.by *= dy;  _fullCell.cy *= dz;
+  _fullCell.az *= dx;  _fullCell.bz *= dy;  _fullCell.cz *= dz;
 
   _inverseFullCell = _fullCell.inverse();
 }
@@ -170,21 +170,21 @@ void SKCell::setMinimumReplicas(const int3& minimumReplicas)
 
   int dx = _maximumReplica.x - _minimumReplica.x + 1;
 
-  _fullCell[0][0] = _unitCell[0][0] * double(dx);
-  _fullCell[0][1] = _unitCell[0][1] * double(dx);
-  _fullCell[0][2] = _unitCell[0][2] * double(dx);
+  _fullCell.ax = _unitCell.ax * double(dx);
+  _fullCell.ay = _unitCell.ay * double(dx);
+  _fullCell.az = _unitCell.az * double(dx);
 
   int dy = _maximumReplica.y - _minimumReplica.y + 1;
 
-  _fullCell[1][0] = _unitCell[1][0] * double(dy);
-  _fullCell[1][1] = _unitCell[1][1] * double(dy);
-  _fullCell[1][2] = _unitCell[1][2] * double(dy);
+  _fullCell.bx = _unitCell.bx * double(dy);
+  _fullCell.by = _unitCell.by * double(dy);
+  _fullCell.bz = _unitCell.bz * double(dy);
 
   int dz = _maximumReplica.z - _minimumReplica.z + 1;
 
-  _fullCell[2][0] = _unitCell[2][0] * double(dz);
-  _fullCell[2][1] = _unitCell[2][1] * double(dz);
-  _fullCell[2][2] = _unitCell[2][2] * double(dz);
+  _fullCell.cx = _unitCell.cx * double(dz);
+  _fullCell.cy = _unitCell.cy * double(dz);
+  _fullCell.cz = _unitCell.cz * double(dz);
 
 
   _inverseFullCell = _fullCell.inverse();
@@ -201,21 +201,21 @@ void SKCell::setMaximumReplicas(const int3& maximumReplicas)
 
   int dx = _maximumReplica.x - _minimumReplica.x + 1;
 
-  _fullCell[0][0] = _unitCell[0][0] * double(dx);
-  _fullCell[0][1] = _unitCell[0][1] * double(dx);
-  _fullCell[0][2] = _unitCell[0][2] * double(dx);
+  _fullCell.ax = _unitCell.ax * double(dx);
+  _fullCell.ay = _unitCell.ay * double(dx);
+  _fullCell.az = _unitCell.az * double(dx);
 
   int dy = _maximumReplica.y - _minimumReplica.y + 1;
 
-  _fullCell[1][0] = _unitCell[1][0] * double(dy);
-  _fullCell[1][1] = _unitCell[1][1] * double(dy);
-  _fullCell[1][2] = _unitCell[1][2] * double(dy);
+  _fullCell.bx = _unitCell.bx * double(dy);
+  _fullCell.by = _unitCell.by * double(dy);
+  _fullCell.bz = _unitCell.bz * double(dy);
 
   int dz = _maximumReplica.z - _minimumReplica.z + 1;
 
-  _fullCell[2][0] = _unitCell[2][0] * double(dz);
-  _fullCell[2][1] = _unitCell[2][1] * double(dz);
-  _fullCell[2][2] = _unitCell[2][2] * double(dz);
+  _fullCell.cx = _unitCell.cx * double(dz);
+  _fullCell.cy = _unitCell.cy * double(dz);
+  _fullCell.cz = _unitCell.cz * double(dz);
 
   _inverseFullCell = _fullCell.inverse();
 }
@@ -282,9 +282,9 @@ void SKCell::setBox(const double3x3& fullCell)
   int dy = _maximumReplica.y - _minimumReplica.y + 1;
   int dz = _maximumReplica.z - _minimumReplica.z + 1;
 
-  _unitCell[0][0] /= double(dx);  _unitCell[1][0] /= double(dy);  _unitCell[2][0] /= double(dz);
-  _unitCell[0][1] /= double(dx);  _unitCell[1][1] /= double(dy);  _unitCell[2][1] /= double(dz);
-  _unitCell[0][2] /= double(dx);  _unitCell[1][2] /= double(dy);  _unitCell[2][2] /= double(dz);
+  _unitCell.ax /= double(dx);  _unitCell.bx /= double(dy);  _unitCell.cx /= double(dz);
+  _unitCell.ay /= double(dx);  _unitCell.by /= double(dy);  _unitCell.cy /= double(dz);
+  _unitCell.az /= double(dx);  _unitCell.bz /= double(dy);  _unitCell.cz /= double(dz);
 
   _inverseUnitCell = _unitCell.inverse();
 }
@@ -310,9 +310,9 @@ void SKCell::setMinimumReplicaX(const int newValue)
 
   int dx = _maximumReplica.x - _minimumReplica.x + 1;
 
-  _fullCell[0][0] = _unitCell[0][0] * double(dx);
-  _fullCell[0][1] = _unitCell[0][1] * double(dx);
-  _fullCell[0][2] = _unitCell[0][2] * double(dx);
+  _fullCell.ax = _unitCell.ax * double(dx);
+  _fullCell.ay = _unitCell.ay * double(dx);
+  _fullCell.az = _unitCell.az * double(dx);
 
   _inverseFullCell = _fullCell.inverse();
 }
@@ -328,9 +328,9 @@ void SKCell::setMaximumReplicaX(const int newValue)
 
   int dx = _maximumReplica.x - _minimumReplica.x + 1;
 
-  _fullCell[0][0] = _unitCell[0][0] * double(dx);
-  _fullCell[0][1] = _unitCell[0][1] * double(dx);
-  _fullCell[0][2] = _unitCell[0][2] * double(dx);
+  _fullCell.ax = _unitCell.ax * double(dx);
+  _fullCell.ay = _unitCell.ay * double(dx);
+  _fullCell.az = _unitCell.az * double(dx);
 
   _inverseFullCell = _fullCell.inverse();
 }
@@ -346,9 +346,9 @@ void SKCell::setMinimumReplicaY(const int newValue)
 
   int dy = _maximumReplica.y - _minimumReplica.y + 1;
 
-  _fullCell[1][0] = _unitCell[1][0] * double(dy);
-  _fullCell[1][1] = _unitCell[1][1] * double(dy);
-  _fullCell[1][2] = _unitCell[1][2] * double(dy);
+  _fullCell.bx = _unitCell.bx * double(dy);
+  _fullCell.by = _unitCell.by * double(dy);
+  _fullCell.bz = _unitCell.bz * double(dy);
 
   _inverseFullCell = _fullCell.inverse();
 }
@@ -364,9 +364,9 @@ void SKCell::setMaximumReplicaY(const int newValue)
 
   int dy = _maximumReplica.y - _minimumReplica.y + 1;
 
-  _fullCell[1][0] = _unitCell[1][0] * double(dy);
-  _fullCell[1][1] = _unitCell[1][1] * double(dy);
-  _fullCell[1][2] = _unitCell[1][2] * double(dy);
+  _fullCell.bx = _unitCell.bx * double(dy);
+  _fullCell.by = _unitCell.by * double(dy);
+  _fullCell.bz = _unitCell.bz * double(dy);
 
   _inverseFullCell = _fullCell.inverse();
 }
@@ -382,9 +382,9 @@ void SKCell::setMinimumReplicaZ(const int newValue)
 
   int dz = _maximumReplica.z - _minimumReplica.z + 1;
 
-  _fullCell[2][0] = _unitCell[2][0] * double(dz);
-  _fullCell[2][1] = _unitCell[2][1] * double(dz);
-  _fullCell[2][2] = _unitCell[2][2] * double(dz);
+  _fullCell.cx = _unitCell.cx * double(dz);
+  _fullCell.cy = _unitCell.cy * double(dz);
+  _fullCell.cz = _unitCell.cz * double(dz);
 
   _inverseFullCell = _fullCell.inverse();
 }
@@ -400,9 +400,9 @@ void SKCell::setMaximumReplicaZ(const int newValue)
 
   int dz = _maximumReplica.z - _minimumReplica.z + 1;
 
-  _fullCell[2][0] = _unitCell[2][0] * double(dz);
-  _fullCell[2][1] = _unitCell[2][1] * double(dz);
-  _fullCell[2][2] = _unitCell[2][2] * double(dz);
+  _fullCell.cx = _unitCell.cx * double(dz);
+  _fullCell.cy = _unitCell.cy * double(dz);
+  _fullCell.cz = _unitCell.cz * double(dz);
 
   _inverseFullCell = _fullCell.inverse();
 }

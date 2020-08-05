@@ -394,6 +394,34 @@ void Protein::expandSymmetry(std::shared_ptr<SKAsymmetricAtom> asymmetricAtom)
   asymmetricAtom->setCopies(atomCopies);
 }
 
+std::shared_ptr<Structure> Protein::flattenHierarchy() const
+{
+  std::shared_ptr<Protein> protein = std::make_shared<Protein>(static_cast<const Protein&>(*this));
+
+  const std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
+
+  for(const std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
+  {
+    if(const std::shared_ptr<SKAsymmetricAtom> asymmetricAtom = node->representedObject())
+    {
+      std::shared_ptr<SKAsymmetricAtom> newAsymmetricAtom = std::make_shared<SKAsymmetricAtom>(*asymmetricAtom);
+      for(std::shared_ptr<SKAtomCopy> atomCopy : asymmetricAtom->copies())
+      {
+        std::shared_ptr<SKAtomCopy> newAtomCopy = std::make_shared<SKAtomCopy>(newAsymmetricAtom, atomCopy->position());
+        newAsymmetricAtom->copies().push_back(newAtomCopy);
+      }
+      std::shared_ptr<SKAtomTreeNode> atomTreeNode = std::make_shared<SKAtomTreeNode>(newAsymmetricAtom);
+      protein->atomsTreeController()->appendToRootnodes(atomTreeNode);
+    }
+  }
+
+  protein->atomsTreeController()->setTags();
+  protein->reComputeBoundingBox();
+  protein->computeBonds();
+
+  return protein;
+}
+
 std::optional<std::pair<std::shared_ptr<SKCell>, double3>> Protein::cellForFractionalPositions()
 {
   SKBoundingBox boundingBox = _cell->boundingBox() + SKBoundingBox(double3(-2,-2,-2), double3(2,2,2));

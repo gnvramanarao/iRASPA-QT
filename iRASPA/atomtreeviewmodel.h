@@ -57,7 +57,7 @@ public:
   SKAtomTreeNode* getItem(const QModelIndex &index) const;
 
   // Helper functions
-  QModelIndex indexForNode(SKAtomTreeNode *node) const;
+  QModelIndex indexForNode(SKAtomTreeNode *node, int column = 0) const;
   SKAtomTreeNode *nodeForIndex(const QModelIndex &index) const;
   int rowForNode(SKAtomTreeNode *node) const;
   void insertNode(SKAtomTreeNode *parentNode, int pos, std::shared_ptr<SKAtomTreeNode> node);

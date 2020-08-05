@@ -712,14 +712,13 @@ void AtomTreeViewModel::insertSelection(std::shared_ptr<Structure> structure, st
 }
 
 // Helper functions
-QModelIndex AtomTreeViewModel::indexForNode(SKAtomTreeNode *node) const
+QModelIndex AtomTreeViewModel::indexForNode(SKAtomTreeNode *node, int column) const
 {
   if(_iraspaStructure->structure()->atomsTreeController()->isRootNode(node))
   {
     return QModelIndex();
   }
   int row = rowForNode(node);
-  int column = 0;
   return createIndex(row, column, node);
 }
 

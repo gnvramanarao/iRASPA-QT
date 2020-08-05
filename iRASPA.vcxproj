@@ -78,7 +78,7 @@
   </ImportGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;MathKit;FoundationKit;SymmetryKit;SimulationKit;RenderKit;iRASPAKit;iRASPA;..\..\..\msys64\home\ddubb\tmp\installed\include;..\..\..\vcpkg\installed\x64-windows-static\include;..\..\..\vcpkg\installed\x64-windows-static\include\python2.7;release;/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;MathKit;FoundationKit;SymmetryKit;SimulationKit;RenderKit;iRASPAKit;iRASPA;..\..\..\msys64\home\ddubb\tmp\installed\include;..\..\..\vcpkg\installed\x64-windows-static\include;..\..\..\vcpkg\installed\x64-windows-static\include\python2.7;release;..\..\..\VulkanSDK\1.2.141.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus /F 4194304 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -144,7 +144,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;MathKit;FoundationKit;SymmetryKit;SimulationKit;RenderKit;iRASPAKit;iRASPA;..\..\..\msys64\home\ddubb\tmp\installed\include;..\..\..\vcpkg\installed\x64-windows-static\include;..\..\..\vcpkg\installed\x64-windows-static\include\python2.7;debug;/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;MathKit;FoundationKit;SymmetryKit;SimulationKit;RenderKit;iRASPAKit;iRASPA;..\..\..\msys64\home\ddubb\tmp\installed\include;..\..\..\vcpkg\installed\x64-windows-static\include;..\..\..\vcpkg\installed\x64-windows-static\include\python2.7;debug;..\..\..\VulkanSDK\1.2.141.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus /F 4194304 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>debug\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -215,7 +215,20 @@
     <ClCompile Include="iRASPA\appearanceunitcellform.cpp" />
     <ClCompile Include="iRASPA\atomchangeselectioncommand.cpp" />
     <ClCompile Include="iRASPA\atomtreeview.cpp" />
+    <ClCompile Include="iRASPA\atomtreeviewchangechargecommand.cpp" />
+    <ClCompile Include="iRASPA\atomtreeviewchangedisplaynamecommand.cpp" />
+    <ClCompile Include="iRASPA\atomtreeviewchangeelementcommand.cpp" />
+    <ClCompile Include="iRASPA\atomtreeviewchangepositionxcommand.cpp" />
+    <ClCompile Include="iRASPA\atomtreeviewchangepositionycommand.cpp" />
+    <ClCompile Include="iRASPA\atomtreeviewchangepositionzcommand.cpp" />
+    <ClCompile Include="iRASPA\atomtreeviewdecorationstyleditemdelegate.cpp" />
     <ClCompile Include="iRASPA\atomtreeviewdeleteselectioncommand.cpp" />
+    <ClCompile Include="iRASPA\atomtreeviewdropcopycommand.cpp" />
+    <ClCompile Include="iRASPA\atomtreeviewdropmovecommand.cpp" />
+    <ClCompile Include="iRASPA\atomtreeviewflattenhierarchycommand.cpp" />
+    <ClCompile Include="iRASPA\atomtreeviewinsertatomcommand.cpp" />
+    <ClCompile Include="iRASPA\atomtreeviewinsertatomgroupcommand.cpp" />
+    <ClCompile Include="iRASPA\atomtreeviewmakesupercellcommand.cpp" />
     <ClCompile Include="iRASPA\atomtreeviewmodel.cpp" />
     <ClCompile Include="iRASPA\atomtreeviewpushbuttonstyleditemdelegate.cpp" />
     <ClCompile Include="iRASPA\bondchangeselectioncommand.cpp" />
@@ -242,6 +255,7 @@
     <ClCompile Include="iRASPA\cellstructuralform.cpp" />
     <ClCompile Include="iRASPA\cellsymmetryform.cpp" />
     <ClCompile Include="iRASPA\celltransformcontentform.cpp" />
+    <ClCompile Include="iRASPA\celltreewidgetchangestructurecommand.cpp" />
     <ClCompile Include="iRASPA\celltreewidgetcontroller.cpp" />
     <ClCompile Include="FoundationKit\characterset.cpp" />
     <ClCompile Include="SimulationKit\constants.cpp" />
@@ -277,6 +291,7 @@
     <ClCompile Include="iRASPA\framelistview.cpp" />
     <ClCompile Include="iRASPA\framelistviewchangeselectioncommand.cpp" />
     <ClCompile Include="iRASPA\framelistviewdeleteselectioncommand.cpp" />
+    <ClCompile Include="iRASPA\framelistviewinsertcommand.cpp" />
     <ClCompile Include="iRASPA\framelistviewmodel.cpp" />
     <ClCompile Include="iRASPA\framelistviewproxystyle.cpp" />
     <ClCompile Include="RenderKit\glgeterror.cpp" />
@@ -355,6 +370,7 @@
     <ClCompile Include="iRASPA\projecttreeview.cpp" />
     <ClCompile Include="iRASPA\projecttreeviewchangeselectioncommand.cpp" />
     <ClCompile Include="iRASPA\projecttreeviewdeleteselectioncommand.cpp" />
+    <ClCompile Include="iRASPA\projecttreeviewinsertprojectstructurecommand.cpp" />
     <ClCompile Include="iRASPA\projecttreeviewmodel.cpp" />
     <ClCompile Include="iRASPA\projecttreeviewproxystyle.cpp" />
     <ClCompile Include="iRASPA\projecttreeviewstyleditemdelegate.cpp" />
@@ -377,7 +393,15 @@
     <ClCompile Include="iRASPAKit\scenelist.cpp" />
     <ClCompile Include="iRASPA\scenetreeview.cpp" />
     <ClCompile Include="iRASPA\scenetreeviewchangeselectioncommand.cpp" />
+    <ClCompile Include="iRASPA\scenetreeviewdeletemoviesubcommand.cpp" />
     <ClCompile Include="iRASPA\scenetreeviewdeleteselectioncommand.cpp" />
+    <ClCompile Include="iRASPA\scenetreeviewdraganddropinsertmoviesubcommand.cpp" />
+    <ClCompile Include="iRASPA\scenetreeviewdraganddropinsertscenesubcommand.cpp" />
+    <ClCompile Include="iRASPA\scenetreeviewdraganddropmovemoviesubcommand.cpp" />
+    <ClCompile Include="iRASPA\scenetreeviewdropcopycommand.cpp" />
+    <ClCompile Include="iRASPA\scenetreeviewdropmovecommand.cpp" />
+    <ClCompile Include="iRASPA\scenetreeviewinsertinitialscenecommand.cpp" />
+    <ClCompile Include="iRASPA\scenetreeviewinsertmoviecommand.cpp" />
     <ClCompile Include="iRASPA\scenetreeviewmodel.cpp" />
     <ClCompile Include="iRASPA\scenetreeviewproxystyle.cpp" />
     <ClCompile Include="iRASPA\scenetreeviewstyleditemdelegate.cpp" />
@@ -446,7 +470,21 @@
     <ClInclude Include="iRASPA\atomchangeselectioncommand.h" />
     <QtMoc Include="iRASPA\atomtreeview.h">
     </QtMoc>
+    <ClInclude Include="iRASPA\atomtreeviewchangechargecommand.h" />
+    <ClInclude Include="iRASPA\atomtreeviewchangedisplaynamecommand.h" />
+    <ClInclude Include="iRASPA\atomtreeviewchangeelementcommand.h" />
+    <ClInclude Include="iRASPA\atomtreeviewchangepositionxcommand.h" />
+    <ClInclude Include="iRASPA\atomtreeviewchangepositionycommand.h" />
+    <ClInclude Include="iRASPA\atomtreeviewchangepositionzcommand.h" />
+    <QtMoc Include="iRASPA\atomtreeviewdecorationstyleditemdelegate.h">
+    </QtMoc>
     <ClInclude Include="iRASPA\atomtreeviewdeleteselectioncommand.h" />
+    <ClInclude Include="iRASPA\atomtreeviewdropcopycommand.h" />
+    <ClInclude Include="iRASPA\atomtreeviewdropmovecommand.h" />
+    <ClInclude Include="iRASPA\atomtreeviewflattenhierarchycommand.h" />
+    <ClInclude Include="iRASPA\atomtreeviewinsertatomcommand.h" />
+    <ClInclude Include="iRASPA\atomtreeviewinsertatomgroupcommand.h" />
+    <ClInclude Include="iRASPA\atomtreeviewmakesupercellcommand.h" />
     <QtMoc Include="iRASPA\atomtreeviewmodel.h">
     </QtMoc>
     <QtMoc Include="iRASPA\atomtreeviewpushbuttonstyleditemdelegate.h">
@@ -490,6 +528,7 @@
     </QtMoc>
     <QtMoc Include="iRASPA\celltransformcontentform.h">
     </QtMoc>
+    <ClInclude Include="iRASPA\celltreewidgetchangestructurecommand.h" />
     <QtMoc Include="iRASPA\celltreewidgetcontroller.h">
     </QtMoc>
     <ClInclude Include="FoundationKit\characterset.h" />
@@ -535,6 +574,7 @@
     </QtMoc>
     <ClInclude Include="iRASPA\framelistviewchangeselectioncommand.h" />
     <ClInclude Include="iRASPA\framelistviewdeleteselectioncommand.h" />
+    <ClInclude Include="iRASPA\framelistviewinsertcommand.h" />
     <QtMoc Include="iRASPA\framelistviewmodel.h">
     </QtMoc>
     <QtMoc Include="iRASPA\framelistviewproxystyle.h">
@@ -635,6 +675,7 @@
     </QtMoc>
     <ClInclude Include="iRASPA\projecttreeviewchangeselectioncommand.h" />
     <ClInclude Include="iRASPA\projecttreeviewdeleteselectioncommand.h" />
+    <ClInclude Include="iRASPA\projecttreeviewinsertprojectstructurecommand.h" />
     <QtMoc Include="iRASPA\projecttreeviewmodel.h">
     </QtMoc>
     <QtMoc Include="iRASPA\projecttreeviewproxystyle.h">
@@ -668,7 +709,15 @@
     <QtMoc Include="iRASPA\scenetreeview.h">
     </QtMoc>
     <ClInclude Include="iRASPA\scenetreeviewchangeselectioncommand.h" />
+    <ClInclude Include="iRASPA\scenetreeviewdeletemoviesubcommand.h" />
     <ClInclude Include="iRASPA\scenetreeviewdeleteselectioncommand.h" />
+    <ClInclude Include="iRASPA\scenetreeviewdraganddropinsertmoviesubcommand.h" />
+    <ClInclude Include="iRASPA\scenetreeviewdraganddropinsertscenesubcommand.h" />
+    <ClInclude Include="iRASPA\scenetreeviewdraganddropmovemoviesubcommand.h" />
+    <ClInclude Include="iRASPA\scenetreeviewdropcopycommand.h" />
+    <ClInclude Include="iRASPA\scenetreeviewdropmovecommand.h" />
+    <ClInclude Include="iRASPA\scenetreeviewinsertinitialscenecommand.h" />
+    <ClInclude Include="iRASPA\scenetreeviewinsertmoviecommand.h" />
     <QtMoc Include="iRASPA\scenetreeviewmodel.h">
     </QtMoc>
     <QtMoc Include="iRASPA\scenetreeviewproxystyle.h">

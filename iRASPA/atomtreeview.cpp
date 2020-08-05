@@ -37,6 +37,7 @@
 #include "atomchangeselectioncommand.h"
 #include "atomtreeviewdecorationstyleditemdelegate.h"
 #include "atomtreeviewmakesupercellcommand.h"
+#include "atomtreeviewflattenhierarchycommand.h"
 #include "skpdbwriter.h"
 #include "skcifwriter.h"
 #include "skmmcifwriter.h"
@@ -478,7 +479,23 @@ void AtomTreeView::addAtomGroup(QModelIndex index)
 
 void AtomTreeView::flattenHierachy()
 {
-
+  if(_projectTreeNode)
+  {
+    if(_projectTreeNode->isEditable())
+    {
+      if(std::shared_ptr<iRASPAProject> iRASPAProject = _projectTreeNode->representedObject())
+      {
+        if(std::shared_ptr<Project> project = iRASPAProject->project())
+        {
+          if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
+          {
+            AtomTreeViewFlattenHierarchyCommand *flattenHierarchyCommand = new AtomTreeViewFlattenHierarchyCommand(_mainWindow, _atomModel.get(), _iraspaStructure, nullptr);
+            iRASPAProject->undoManager().push(flattenHierarchyCommand);
+          }
+        }
+      }
+    }
+  }
 }
 
 void AtomTreeView::makeSuperCell()
@@ -493,13 +510,6 @@ void AtomTreeView::makeSuperCell()
         {
           if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
           {
-            //std::set<SKAsymmetricAtom> asymmetricAtoms = std::set<SKAsymmetricAtom>();
-            //std::vector<IndexPath> atomSelection = std::vector<IndexPath>();
-            //std::vector<SKAsymmetricBond> asymmetricBonds = std::vector<SKAsymmetricBond>();
-            //std::set<int> bondSelection = std::set<int>();
-            //DeleteSelectionCommand *deleteSelectionCommand = new DeleteSelectionCommand(structure,asymmetricAtoms,atomSelection,asymmetricBonds,bondSelection);
-            //iRASPAProject->undoManager().push(deleteSelectionCommand);
-
             AtomTreeViewMakeSuperCellCommand *makeSuperCellCommand = new AtomTreeViewMakeSuperCellCommand(_mainWindow, _atomModel.get(), _iraspaStructure, nullptr);
             iRASPAProject->undoManager().push(makeSuperCellCommand);
           }
@@ -531,7 +541,7 @@ void AtomTreeView::ShowContextMenu(const QPoint &pos)
   contextMenu.addAction(&actionAddAtomGroup);
 
   QAction actionFlattenHierarchy("Flatten hierarchy", this);
-  actionFlattenHierarchy.setEnabled(false);
+  actionFlattenHierarchy.setEnabled(isEnabled);
   connect(&actionFlattenHierarchy, &QAction::triggered, this, &AtomTreeView::flattenHierachy);
   contextMenu.addAction(&actionFlattenHierarchy);
 

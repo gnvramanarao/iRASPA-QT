@@ -74,6 +74,7 @@ public:
 
   virtual bool hasSymmetry() {return false;}
   virtual std::shared_ptr<Structure> superCell() const {return nullptr;}
+  virtual std::shared_ptr<Structure> flattenHierarchy() const {return nullptr;}
 
   enum class StructureType: qint64
   {

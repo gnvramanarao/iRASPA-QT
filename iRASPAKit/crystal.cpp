@@ -994,7 +994,6 @@ std::shared_ptr<Structure> Crystal::superCell() const
     {
       for(int k3=0;k3<=dz;k3++)
       {
-
         for(const std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
         {
           if(const std::shared_ptr<SKAsymmetricAtom> asymmetricAtom = node->representedObject())
@@ -1021,6 +1020,34 @@ std::shared_ptr<Structure> Crystal::superCell() const
 
   crystal->setCell(_cell->superCell());
   crystal->setOrigin(this->origin() + _cell->unitCell() * double3(minimumReplicaX, minimumReplicaY, minimumReplicaZ));
+  crystal->atomsTreeController()->setTags();
+  crystal->reComputeBoundingBox();
+  crystal->computeBonds();
+
+  return crystal;
+}
+
+std::shared_ptr<Structure> Crystal::flattenHierarchy() const
+{
+  std::shared_ptr<Crystal> crystal = std::make_shared<Crystal>(static_cast<const Crystal&>(*this));
+
+  const std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
+
+  for(const std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
+  {
+    if(const std::shared_ptr<SKAsymmetricAtom> asymmetricAtom = node->representedObject())
+    {
+      std::shared_ptr<SKAsymmetricAtom> newAsymmetricAtom = std::make_shared<SKAsymmetricAtom>(*asymmetricAtom);
+      for(std::shared_ptr<SKAtomCopy> atomCopy : asymmetricAtom->copies())
+      {
+        std::shared_ptr<SKAtomCopy> newAtomCopy = std::make_shared<SKAtomCopy>(newAsymmetricAtom, atomCopy->position());
+        newAsymmetricAtom->copies().push_back(newAtomCopy);
+      }
+      std::shared_ptr<SKAtomTreeNode> atomTreeNode = std::make_shared<SKAtomTreeNode>(newAsymmetricAtom);
+      crystal->atomsTreeController()->appendToRootnodes(atomTreeNode);
+    }
+  }
+
   crystal->atomsTreeController()->setTags();
   crystal->reComputeBoundingBox();
   crystal->computeBonds();

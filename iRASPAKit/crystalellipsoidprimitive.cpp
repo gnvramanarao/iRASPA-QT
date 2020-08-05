@@ -367,6 +367,34 @@ std::shared_ptr<Structure> CrystalEllipsoidPrimitive::superCell() const
   return crystal;
 }
 
+std::shared_ptr<Structure> CrystalEllipsoidPrimitive::flattenHierarchy() const
+{
+  std::shared_ptr<CrystalEllipsoidPrimitive> ellipsoidCrystal = std::make_shared<CrystalEllipsoidPrimitive>(static_cast<const CrystalEllipsoidPrimitive&>(*this));
+
+  const std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
+
+  for(const std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
+  {
+    if(const std::shared_ptr<SKAsymmetricAtom> asymmetricAtom = node->representedObject())
+    {
+      std::shared_ptr<SKAsymmetricAtom> newAsymmetricAtom = std::make_shared<SKAsymmetricAtom>(*asymmetricAtom);
+      for(std::shared_ptr<SKAtomCopy> atomCopy : asymmetricAtom->copies())
+      {
+        std::shared_ptr<SKAtomCopy> newAtomCopy = std::make_shared<SKAtomCopy>(newAsymmetricAtom, atomCopy->position());
+        newAsymmetricAtom->copies().push_back(newAtomCopy);
+      }
+      std::shared_ptr<SKAtomTreeNode> atomTreeNode = std::make_shared<SKAtomTreeNode>(newAsymmetricAtom);
+      ellipsoidCrystal->atomsTreeController()->appendToRootnodes(atomTreeNode);
+    }
+  }
+
+  ellipsoidCrystal->atomsTreeController()->setTags();
+  ellipsoidCrystal->reComputeBoundingBox();
+  ellipsoidCrystal->computeBonds();
+
+  return ellipsoidCrystal;
+}
+
 
 // MARK: bond-computations
 // =====================================================================

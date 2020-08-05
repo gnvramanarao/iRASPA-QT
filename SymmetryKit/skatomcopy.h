@@ -43,6 +43,7 @@ class SKAtomCopy
 {
 public:
     SKAtomCopy(): _position(), _tag(0), _type(AtomCopyType::copy), _parent() {}
+    SKAtomCopy(const SKAtomCopy &atomCopy);
     SKAtomCopy(std::shared_ptr<SKAsymmetricAtom> asymmetricParentAtom, double3 position): _position(position), _tag(0), _type(AtomCopyType::copy), _parent(asymmetricParentAtom) {}
     enum class AtomCopyType: qint64
     {
@@ -74,7 +75,7 @@ private:
       }
     };
     double3 _position;
-    std::unordered_set<SKBond*, SKAtomCopy::Hash, SKAtomCopy::Compare> _bonds;
+    //std::unordered_set<SKBond*, SKAtomCopy::Hash, SKAtomCopy::Compare> _bonds;
     qint64 _tag;
     AtomCopyType _type;
     std::weak_ptr<SKAsymmetricAtom> _parent;

@@ -42,6 +42,8 @@ public:
 
   iRASPAStructureType structureType() override final { return iRASPAStructureType::cylinderPrimitive; }
 
+  std::shared_ptr<Structure> flattenHierarchy() const override final;
+
   std::vector<RKInPerInstanceAttributesAtoms> renderPrimitiveCylinderObjects() const override;
 
   SKBoundingBox boundingBox() const final override;

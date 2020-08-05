@@ -46,8 +46,8 @@ SKElement::SKElement(QString string, qint64 atomicNumber, qint64 group, qint64 p
 std::vector<SKElement> PredefinedElements::predefinedElements =
 {
     SKElement(QString(""), 0, 0, 0, QString(""), 0.0,0.0, 0.0, 0.0, 0.0, 0.0, 0.0,std::vector<int>{{}}),
-    SKElement(QString("H"), 1, 1, 1, QString("Hydrogen"), 1.00794, 0.53, 0.32, 0.0, 0.0, 0.0, 1.2, std::vector<int>{{-1,1}}),
-    SKElement(QString("He"), 2, 18, 1, QString("Helium"), 4.002602, 0.31, 0.28, 0.0, 0.0, 0.0, 1.4, std::vector<int>{{0}}),
+    SKElement(QString("H"), 1, 1, 1, QString("Hydrogen"), 1.00794, 0.53, 0.32, 0.0, 0.0, 0.0, 1.2, std::vector<int>{-1,1}),
+    SKElement(QString("He"), 2, 18, 1, QString("Helium"), 4.002602, 0.31, 0.28, 0.0, 0.0, 0.0, 1.4, std::vector<int>{0}),
     SKElement(QString("Li"), 3, 1, 2, QString("Lithium"), 6.9421, 1.67, 1.28, 0.0, 0.0, 0.0, 1.82, std::vector<int>{{1}}),
     SKElement(QString("Be"), 4, 2, 3, QString("Beryllium"), 9.012182, 1.12, 0.96, 0.0, 0.0, 0.85, 1.86, std::vector<int>{{1,2}}),
     SKElement(QString("B"), 5, 13, 2, QString("Boron"), 10.881, 0.90, 0.84, 0.0, 0.0, 0.73, 1.92, std::vector<int>{{-5,-1,1,2,3}}),
@@ -58,7 +58,7 @@ std::vector<SKElement> PredefinedElements::predefinedElements =
     SKElement(QString("Ne"), 10, 18, 2, QString("Neon"), 20.1797, 0.38, 0.58, 0.0, 0.0, 0.0, 1.54, std::vector<int>{{0}}),
     SKElement(QString("Na"), 11, 1, 3, QString("Sodium"), 22.98976928, 1.86, 1.66, 0.0, 0.0, 0.0, 2.27, std::vector<int>{{-1,1}}),
     SKElement(QString("Mg"), 12, 2, 3, QString("Magnesium"), 24.305, 1.60, 1.41, 0.0, 0.0, 1.27, 1.73, std::vector<int>{{1,2}}),
-    SKElement(QString("AL"), 13, 13, 3, QString("Aluminum"), 26.9815386, 1.43, 1.21, 0.0, 0.0, 1.11, 1.84, std::vector<int>{{-2,-1,1,2,3}}),
+    SKElement(QString("Al"), 13, 13, 3, QString("Aluminum"), 26.9815386, 1.43, 1.21, 0.0, 0.0, 1.11, 1.84, std::vector<int>{{-2,-1,1,2,3}}),
     SKElement(QString("Si"), 14, 14, 3, QString("Silicon"), 28.0855, 1.11, 1.11, 0.0, 0.0, 1.02, 2.1, std::vector<int>{{-4,-3,-2,-1,1,2,3,4}}),
     SKElement(QString("P"), 15, 15, 3, QString("Phosphorus"), 30.973762, 0.98, 1.07, 0.0, 0.0, 0.94, 1.8, std::vector<int>{{-3,-2,-1,1,2,3,4,5}}),
     SKElement(QString("S"), 16, 16, 3, QString("Sulfur"), 32.065, 0.88, 1.05, 0.0, 0.0, 0.95, 1.8, std::vector<int>{{-2,-1,1,2,3,4,5,6}}),

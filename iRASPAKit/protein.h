@@ -41,6 +41,8 @@ public:
 
 	iRASPAStructureType structureType() override final  { return iRASPAStructureType::protein; }
 
+  std::shared_ptr<Structure> flattenHierarchy() const override final;
+
 	void expandSymmetry() final override;
 	void expandSymmetry(std::shared_ptr<SKAsymmetricAtom> asymmetricAtom);
   std::optional<std::pair<std::shared_ptr<SKCell>, double3>> cellForFractionalPositions() override final;

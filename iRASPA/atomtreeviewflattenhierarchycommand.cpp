@@ -27,42 +27,37 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#include "atomtreeviewchangepositionycommand.h"
+#include "atomtreeviewflattenhierarchycommand.h"
 #include <QDebug>
 #include <algorithm>
 
-AtomTreeViewChangePositionYCommand::AtomTreeViewChangePositionYCommand(AtomTreeViewModel *model, std::shared_ptr<Structure> structure,
-                                                                       std::shared_ptr<SKAtomTreeNode> atomTreeNode, double newValue, QUndoCommand *undoParent):
+// Note: The iRASPAStructure is not modified, but the structure it contains is replaced.
+
+AtomTreeViewFlattenHierarchyCommand::AtomTreeViewFlattenHierarchyCommand(MainWindow *mainWindow, AtomTreeViewModel *model, std::shared_ptr<iRASPAStructure> iraspa_structure,
+                                     QUndoCommand *undoParent):
   QUndoCommand(undoParent),
+  _mainWindow(mainWindow),
   _model(model),
-  _structure(structure),
-  _atomTreeNode(atomTreeNode),
-  _newValue(newValue)
+  _iraspa_structure(iraspa_structure),
+  _structure(iraspa_structure->structure())
 {
-  setText(QString("Change atom position-y"));
+  setText(QString("Flatten hierarchy"));
 }
 
-void AtomTreeViewChangePositionYCommand::redo()
+void AtomTreeViewFlattenHierarchyCommand::redo()
 {
-  _oldValue = _atomTreeNode->representedObject()->position().y;
-  _atomTreeNode->representedObject()->setPositionY(_newValue);
-  _structure->expandSymmetry();
-  _structure->computeBonds();
+  qDebug() << "AtomTreeViewMakeSuperCellCommand::redo()";
 
-  QModelIndex index = _model->indexForNode(_atomTreeNode.get(),4);
-  emit _model->dataChanged(index,index);
+  std::shared_ptr<Structure> structure = _iraspa_structure->structure()->flattenHierarchy();
 
-  emit _model->rendererReloadData();
+  _iraspa_structure->setStructure(structure);
+
+  _mainWindow->resetData();
 }
 
-void AtomTreeViewChangePositionYCommand::undo()
+void AtomTreeViewFlattenHierarchyCommand::undo()
 {
-  _atomTreeNode->representedObject()->setPositionY(_oldValue);
-  _structure->expandSymmetry();
-  _structure->computeBonds();
+  _iraspa_structure->setStructure(_structure);
 
-  QModelIndex index = _model->indexForNode(_atomTreeNode.get(),4);
-  emit _model->dataChanged(index,index);
-
-  emit _model->rendererReloadData();
+  _mainWindow->resetData();
 }

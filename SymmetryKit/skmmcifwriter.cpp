@@ -28,6 +28,7 @@
  *************************************************************************************************************/
 
 #include <cmath>
+#include <qmath.h>
 #include "skelement.h"
 #include "skmmcifwriter.h"
 

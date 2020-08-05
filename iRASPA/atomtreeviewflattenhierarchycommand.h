@@ -27,42 +27,27 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#include "atomtreeviewchangepositionycommand.h"
-#include <QDebug>
-#include <algorithm>
+#pragma once
 
-AtomTreeViewChangePositionYCommand::AtomTreeViewChangePositionYCommand(AtomTreeViewModel *model, std::shared_ptr<Structure> structure,
-                                                                       std::shared_ptr<SKAtomTreeNode> atomTreeNode, double newValue, QUndoCommand *undoParent):
-  QUndoCommand(undoParent),
-  _model(model),
-  _structure(structure),
-  _atomTreeNode(atomTreeNode),
-  _newValue(newValue)
+#include <QUndoCommand>
+#include <set>
+#include <vector>
+#include "iraspakit.h"
+#include "indexpath.h"
+#include "symmetrykit.h"
+#include "mathkit.h"
+#include "mainwindow.h"
+#include "atomtreeviewmodel.h"
+
+class AtomTreeViewFlattenHierarchyCommand : public QUndoCommand
 {
-  setText(QString("Change atom position-y"));
-}
-
-void AtomTreeViewChangePositionYCommand::redo()
-{
-  _oldValue = _atomTreeNode->representedObject()->position().y;
-  _atomTreeNode->representedObject()->setPositionY(_newValue);
-  _structure->expandSymmetry();
-  _structure->computeBonds();
-
-  QModelIndex index = _model->indexForNode(_atomTreeNode.get(),4);
-  emit _model->dataChanged(index,index);
-
-  emit _model->rendererReloadData();
-}
-
-void AtomTreeViewChangePositionYCommand::undo()
-{
-  _atomTreeNode->representedObject()->setPositionY(_oldValue);
-  _structure->expandSymmetry();
-  _structure->computeBonds();
-
-  QModelIndex index = _model->indexForNode(_atomTreeNode.get(),4);
-  emit _model->dataChanged(index,index);
-
-  emit _model->rendererReloadData();
-}
+public:
+  AtomTreeViewFlattenHierarchyCommand(MainWindow *mainWindow, AtomTreeViewModel *model, std::shared_ptr<iRASPAStructure> iraspa_structure, QUndoCommand *undoParent = nullptr);
+  void redo() override final;
+  void undo() override final;
+private:
+  MainWindow *_mainWindow;
+  AtomTreeViewModel *_model;
+  std::shared_ptr<iRASPAStructure> _iraspa_structure;
+  std::shared_ptr<Structure> _structure;
+};

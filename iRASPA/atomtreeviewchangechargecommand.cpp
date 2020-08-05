@@ -47,7 +47,7 @@ void AtomTreeViewChangeChargeCommand::redo()
   _oldValue = _atomTreeNode->representedObject()->charge();
   _atomTreeNode->representedObject()->setCharge(_newValue);
 
-  QModelIndex index = _model->indexForNode(_atomTreeNode.get());
+  QModelIndex index = _model->indexForNode(_atomTreeNode.get(),6);
   emit _model->dataChanged(index,index);
 
   emit _model->rendererReloadData();
@@ -57,7 +57,7 @@ void AtomTreeViewChangeChargeCommand::undo()
 {
   _atomTreeNode->representedObject()->setCharge(_oldValue);
 
-  QModelIndex index = _model->indexForNode(_atomTreeNode.get());
+  QModelIndex index = _model->indexForNode(_atomTreeNode.get(),6);
   emit _model->dataChanged(index,index);
 
   emit _model->rendererReloadData();

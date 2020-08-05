@@ -49,7 +49,7 @@ void AtomTreeViewChangePositionZCommand::redo()
   _structure->expandSymmetry();
   _structure->computeBonds();
 
-  QModelIndex index = _model->indexForNode(_atomTreeNode.get());
+  QModelIndex index = _model->indexForNode(_atomTreeNode.get(),5);
   emit _model->dataChanged(index,index);
 
   emit _model->rendererReloadData();
@@ -61,7 +61,7 @@ void AtomTreeViewChangePositionZCommand::undo()
   _structure->expandSymmetry();
   _structure->computeBonds();
 
-  QModelIndex index = _model->indexForNode(_atomTreeNode.get());
+  QModelIndex index = _model->indexForNode(_atomTreeNode.get(),5);
   emit _model->dataChanged(index,index);
 
   emit _model->rendererReloadData();

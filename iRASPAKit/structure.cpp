@@ -1509,6 +1509,7 @@ void Structure::recomputeDensityProperties()
   _structureAccessiblePoreVolume = _structureHeliumVoidFraction * _structureSpecificVolume;
 }
 
+
 QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<Structure> &structure)
 {
   stream << structure->_versionNumber;

@@ -128,6 +128,35 @@ void PolygonalPrismPrimitive::expandSymmetry()
   }
 }
 
+std::shared_ptr<Structure> PolygonalPrismPrimitive::flattenHierarchy() const
+{
+  std::shared_ptr<PolygonalPrismPrimitive> polygonalPrism = std::make_shared<PolygonalPrismPrimitive>(static_cast<const PolygonalPrismPrimitive&>(*this));
+
+  const std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
+
+  for(const std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
+  {
+    if(const std::shared_ptr<SKAsymmetricAtom> asymmetricAtom = node->representedObject())
+    {
+      std::shared_ptr<SKAsymmetricAtom> newAsymmetricAtom = std::make_shared<SKAsymmetricAtom>(*asymmetricAtom);
+      for(std::shared_ptr<SKAtomCopy> atomCopy : asymmetricAtom->copies())
+      {
+        std::shared_ptr<SKAtomCopy> newAtomCopy = std::make_shared<SKAtomCopy>(newAsymmetricAtom, atomCopy->position());
+        newAsymmetricAtom->copies().push_back(newAtomCopy);
+      }
+      std::shared_ptr<SKAtomTreeNode> atomTreeNode = std::make_shared<SKAtomTreeNode>(newAsymmetricAtom);
+      polygonalPrism->atomsTreeController()->appendToRootnodes(atomTreeNode);
+    }
+  }
+
+  polygonalPrism->atomsTreeController()->setTags();
+  polygonalPrism->reComputeBoundingBox();
+  polygonalPrism->computeBonds();
+
+  return polygonalPrism;
+}
+
+
 std::optional<std::pair<std::shared_ptr<SKCell>, double3>> PolygonalPrismPrimitive::cellForFractionalPositions()
 {
   SKBoundingBox boundingBox = _cell->boundingBox() + SKBoundingBox(double3(-2,-2,-2), double3(2,2,2));

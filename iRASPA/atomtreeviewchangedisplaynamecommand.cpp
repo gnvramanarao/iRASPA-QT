@@ -44,13 +44,13 @@ void AtomTreeViewChangeDisplayNameCommand::redo()
 {
   _oldValue = _atomTreeNode->representedObject()->displayName();
   _atomTreeNode->representedObject()->setDisplayName(_newValue);
-  QModelIndex index = _model->indexForNode(_atomTreeNode.get());
+  QModelIndex index = _model->indexForNode(_atomTreeNode.get(), 0);
   emit _model->dataChanged(index,index);
 }
 
 void AtomTreeViewChangeDisplayNameCommand::undo()
 {
   _atomTreeNode->representedObject()->setDisplayName(_oldValue);
-  QModelIndex index = _model->indexForNode(_atomTreeNode.get());
+  QModelIndex index = _model->indexForNode(_atomTreeNode.get(), 0);
   emit _model->dataChanged(index,index);
 }

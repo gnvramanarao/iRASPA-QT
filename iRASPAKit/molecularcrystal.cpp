@@ -671,6 +671,34 @@ void MolecularCrystal::expandSymmetry(std::shared_ptr<SKAsymmetricAtom> asymmetr
   asymmetricAtom->setCopies(atomCopies);
 }
 
+std::shared_ptr<Structure> MolecularCrystal::flattenHierarchy() const
+{
+  std::shared_ptr<MolecularCrystal> molecularCrystal = std::make_shared<MolecularCrystal>(static_cast<const MolecularCrystal&>(*this));
+
+  const std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
+
+  for(const std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
+  {
+    if(const std::shared_ptr<SKAsymmetricAtom> asymmetricAtom = node->representedObject())
+    {
+      std::shared_ptr<SKAsymmetricAtom> newAsymmetricAtom = std::make_shared<SKAsymmetricAtom>(*asymmetricAtom);
+      for(std::shared_ptr<SKAtomCopy> atomCopy : asymmetricAtom->copies())
+      {
+        std::shared_ptr<SKAtomCopy> newAtomCopy = std::make_shared<SKAtomCopy>(newAsymmetricAtom, atomCopy->position());
+        newAsymmetricAtom->copies().push_back(newAtomCopy);
+      }
+      std::shared_ptr<SKAtomTreeNode> atomTreeNode = std::make_shared<SKAtomTreeNode>(newAsymmetricAtom);
+      molecularCrystal->atomsTreeController()->appendToRootnodes(atomTreeNode);
+    }
+  }
+
+  molecularCrystal->atomsTreeController()->setTags();
+  molecularCrystal->reComputeBoundingBox();
+  molecularCrystal->computeBonds();
+
+  return molecularCrystal;
+}
+
 std::optional<std::pair<std::shared_ptr<SKCell>, double3>> MolecularCrystal::cellForFractionalPositions()
 {
   return std::make_pair(std::make_shared<SKCell>(*_cell), double3(0.0,0.0,0.0));

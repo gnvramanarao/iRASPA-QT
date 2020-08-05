@@ -42,6 +42,8 @@ public:
 
   iRASPAStructureType structureType() override final { return iRASPAStructureType::ellipsoidPrimitive; }
 
+  std::shared_ptr<Structure> flattenHierarchy() const override final;
+
   std::vector<RKInPerInstanceAttributesAtoms> renderPrimitiveEllipsoidObjects() const override;
 
   SKBoundingBox boundingBox() const final override;

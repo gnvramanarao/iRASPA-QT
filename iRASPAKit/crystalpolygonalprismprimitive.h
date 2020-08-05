@@ -42,6 +42,7 @@ public:
 
   bool hasSymmetry() override final {return true;}
   std::shared_ptr<Structure> superCell() const override final;
+  std::shared_ptr<Structure> flattenHierarchy() const override final;
 
   iRASPAStructureType structureType() override final { return iRASPAStructureType::crystalPolygonalPrismPrimitive; }
 

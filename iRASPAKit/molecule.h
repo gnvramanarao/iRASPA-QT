@@ -41,6 +41,8 @@ public:
 
 	iRASPAStructureType structureType() override final { return iRASPAStructureType::molecule; }
 
+  std::shared_ptr<Structure> flattenHierarchy() const override final;
+
 	std::vector<RKInPerInstanceAttributesAtoms> renderAtoms() const override final;
   std::vector<RKInPerInstanceAttributesBonds> renderInternalBonds() const override final;
 

@@ -367,6 +367,34 @@ std::shared_ptr<Structure> CrystalCylinderPrimitive::superCell() const
   return crystal;
 }
 
+std::shared_ptr<Structure> CrystalCylinderPrimitive::flattenHierarchy() const
+{
+  std::shared_ptr<CrystalCylinderPrimitive> cylinderCrystal = std::make_shared<CrystalCylinderPrimitive>(static_cast<const CrystalCylinderPrimitive&>(*this));
+
+  const std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
+
+  for(const std::shared_ptr<SKAtomTreeNode> node: asymmetricAtomNodes)
+  {
+    if(const std::shared_ptr<SKAsymmetricAtom> asymmetricAtom = node->representedObject())
+    {
+      std::shared_ptr<SKAsymmetricAtom> newAsymmetricAtom = std::make_shared<SKAsymmetricAtom>(*asymmetricAtom);
+      for(std::shared_ptr<SKAtomCopy> atomCopy : asymmetricAtom->copies())
+      {
+        std::shared_ptr<SKAtomCopy> newAtomCopy = std::make_shared<SKAtomCopy>(newAsymmetricAtom, atomCopy->position());
+        newAsymmetricAtom->copies().push_back(newAtomCopy);
+      }
+      std::shared_ptr<SKAtomTreeNode> atomTreeNode = std::make_shared<SKAtomTreeNode>(newAsymmetricAtom);
+      cylinderCrystal->atomsTreeController()->appendToRootnodes(atomTreeNode);
+    }
+  }
+
+  cylinderCrystal->atomsTreeController()->setTags();
+  cylinderCrystal->reComputeBoundingBox();
+  cylinderCrystal->computeBonds();
+
+  return cylinderCrystal;
+}
+
 
 
 // MARK: bond-computations

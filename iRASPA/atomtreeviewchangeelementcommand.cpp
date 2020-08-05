@@ -47,7 +47,7 @@ void AtomTreeViewChangeElementCommand::redo()
 {
   _oldValue = _atomTreeNode->representedObject()->elementIdentifier();
   _atomTreeNode->representedObject()->setElementIdentifier(_newValue);
-  QModelIndex index = _model->indexForNode(_atomTreeNode.get());
+  QModelIndex index = _model->indexForNode(_atomTreeNode.get(),2);
   emit _model->dataChanged(index,index);
 
   _structure->setRepresentationColorSchemeIdentifier(_structure->atomColorSchemeIdentifier(), _mainWindow->colorSets());
@@ -58,7 +58,7 @@ void AtomTreeViewChangeElementCommand::redo()
 void AtomTreeViewChangeElementCommand::undo()
 {
   _atomTreeNode->representedObject()->setElementIdentifier(_oldValue);
-  QModelIndex index = _model->indexForNode(_atomTreeNode.get());
+  QModelIndex index = _model->indexForNode(_atomTreeNode.get(),2);
   emit _model->dataChanged(index,index);
 
   _structure->setRepresentationColorSchemeIdentifier(_structure->atomColorSchemeIdentifier(), _mainWindow->colorSets());

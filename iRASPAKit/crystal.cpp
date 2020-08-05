@@ -852,16 +852,6 @@ void Crystal::expandSymmetry()
   }
 }
 
-std::optional<std::pair<std::shared_ptr<SKCell>, double3>> Crystal::cellForFractionalPositions()
-{
-  return std::make_pair(std::make_shared<SKCell>(*_cell), double3(0.0,0.0,0.0));
-}
-
-std::optional<std::pair<std::shared_ptr<SKCell>, double3>> Crystal::cellForCartesianPositions()
-{
-  return std::make_pair(std::make_shared<SKCell>(*_cell), double3(0.0,0.0,0.0));
-}
-
 void Crystal::expandSymmetry(std::shared_ptr<SKAsymmetricAtom> asymmetricAtom)
 {
   std::vector<std::shared_ptr<SKAtomCopy>> atomCopies = std::vector<std::shared_ptr<SKAtomCopy>>{};
@@ -875,6 +865,16 @@ void Crystal::expandSymmetry(std::shared_ptr<SKAsymmetricAtom> asymmetricAtom)
     atomCopies.push_back(newAtom);
   }
   asymmetricAtom->setCopies(atomCopies);
+}
+
+std::optional<std::pair<std::shared_ptr<SKCell>, double3>> Crystal::cellForFractionalPositions()
+{
+  return std::make_pair(std::make_shared<SKCell>(*_cell), double3(0.0,0.0,0.0));
+}
+
+std::optional<std::pair<std::shared_ptr<SKCell>, double3>> Crystal::cellForCartesianPositions()
+{
+  return std::make_pair(std::make_shared<SKCell>(*_cell), double3(0.0,0.0,0.0));
 }
 
 std::vector<std::shared_ptr<SKAsymmetricAtom>> Crystal::asymmetricAtomsCopiedAndTransformedToFractionalPositions()

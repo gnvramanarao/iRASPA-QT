@@ -339,7 +339,7 @@ int SKOpenCLMarchingCubes::computeIsosurface(size_t size, std::vector<cl_float> 
     size_t i = 0;
     cl_int clSum = cl_int(numberOfTriangles);
 
-    for(int i=0; i<images.size(); i++)
+    for(size_t i=0; i<images.size(); i++)
     {
       clSetKernelArg(_traverseHPKernel, i, sizeof(cl_mem), &images[i]);
     }

@@ -141,9 +141,9 @@ static void drawSegmentControlSegmentSegment(const QStyleOption *option, QPainte
             QPixmap pm;
 
             QSize buttonSize = widget->rect().size();
-            QString key = QString("qt_segment %0 %1 %2").arg(option->state).arg(buttonSize.width()).arg(buttonSize.height());
+            const QString key = QString("qt_segment %0 %1 %2").arg(option->state).arg(buttonSize.width()).arg(buttonSize.height());
 
-            if (!QPixmapCache::find(key, pm)) {
+            if (!QPixmapCache::find(key, &pm)) {
                 pm = QPixmap(buttonSize);
                 pm.fill(Qt::transparent);
                 QPainter pmPainter(&pm);
@@ -176,11 +176,11 @@ static void drawSegmentControlSegmentSegment(const QStyleOption *option, QPainte
                 painter->setPen(option->palette.dark().color());
                 painter->drawLine(option->rect.topRight() + QPoint(-1, margin), option->rect.bottomRight() + QPoint(-1, -margin));
                 break;
-            case QStyleOptionTab::End:
+            case QtStyleOptionSegmentControlSegment::End:
                 painter->setClipRect(option->rect);
                 painter->drawPixmap(0, 0, pm);
                 break;
-            case QStyleOptionTab::OnlyOneTab:
+            case QtStyleOptionSegmentControlSegment::OnlyOneSegment:
                 painter->setClipRect(option->rect);
                 painter->drawPixmap(0, 0, pm);
                 break;

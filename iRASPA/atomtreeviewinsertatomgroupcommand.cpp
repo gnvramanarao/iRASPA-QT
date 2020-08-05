@@ -31,8 +31,8 @@
 #include <QDebug>
 #include <algorithm>
 
-AtomTreeViewInsertAtomGroupCommand::AtomTreeViewInsertAtomGroupCommand(MainWindow *main_window, AtomTreeView *atomTreeView, std::shared_ptr<Structure> structure, std::shared_ptr<SKAtomTreeNode> parentTreeNode, int row, QUndoCommand *parent):
-  _main_window(main_window),
+AtomTreeViewInsertAtomGroupCommand::AtomTreeViewInsertAtomGroupCommand(MainWindow *mainWindow, AtomTreeView *atomTreeView, std::shared_ptr<Structure> structure, std::shared_ptr<SKAtomTreeNode> parentTreeNode, int row, QUndoCommand *parent):
+  _mainWindow(mainWindow),
   _atomTreeView(atomTreeView),
   _structure(structure),
   _parentTreeNode(parentTreeNode),
@@ -42,7 +42,8 @@ AtomTreeViewInsertAtomGroupCommand::AtomTreeViewInsertAtomGroupCommand(MainWindo
 
   setText(QString("Insert group atom"));
 
-  std::shared_ptr<SKAsymmetricAtom> atom = std::make_shared<SKAsymmetricAtom>("N", 8);
+  std::shared_ptr<SKAsymmetricAtom> atom = std::make_shared<SKAsymmetricAtom>("C", 6);
+  atom->setDisplayName("New atom group");
   _newAtomtreeNode = std::make_shared<SKAtomTreeNode>(atom);
   _newAtomtreeNode->setGroupItem(true);
   _newAtomtreeNode->setDisplayName("New atom group");
@@ -58,8 +59,11 @@ void AtomTreeViewInsertAtomGroupCommand::redo()
       QModelIndex index = pModel->indexForNode(_newAtomtreeNode.get());
       _atomTreeView->setFirstColumnSpanned(index.row(),index.parent(), true);
     }
-    _structure->atomsTreeController()->setTags();
   }
+  _structure->atomsTreeController()->setTags();
+  _structure->setRepresentationColorSchemeIdentifier(_structure->atomColorSchemeIdentifier(), _mainWindow->colorSets());
+  _structure->setRepresentationStyle(_structure->atomRepresentationStyle(), _mainWindow->colorSets());
+  emit _atomTreeView->rendererReloadData();
 }
 
 void AtomTreeViewInsertAtomGroupCommand::undo()
@@ -70,6 +74,9 @@ void AtomTreeViewInsertAtomGroupCommand::undo()
     {
       pModel->removeRow(_row, _parentTreeNode);
     }
-    _structure->atomsTreeController()->setTags();
   }
+  _structure->atomsTreeController()->setTags();
+  _structure->setRepresentationColorSchemeIdentifier(_structure->atomColorSchemeIdentifier(), _mainWindow->colorSets());
+  _structure->setRepresentationStyle(_structure->atomRepresentationStyle(), _mainWindow->colorSets());
+  emit _atomTreeView->rendererReloadData();
 }

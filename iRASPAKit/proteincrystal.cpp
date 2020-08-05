@@ -855,60 +855,52 @@ std::shared_ptr<Structure> ProteinCrystal::superCell() const
 // MARK: bond-computations
 // =====================================================================
 
-
-
-
-
-
 std::vector<double3> ProteinCrystal::atomPositions() const
 {
-	int numberOfReplicas = _cell->numberOfReplicas();
+  int minimumReplicaX = _cell->minimumReplicaX();
+  int minimumReplicaY = _cell->minimumReplicaY();
+  int minimumReplicaZ = _cell->minimumReplicaZ();
 
-	int minimumReplicaX = _cell->minimumReplicaX();
-	int minimumReplicaY = _cell->minimumReplicaY();
-	int minimumReplicaZ = _cell->minimumReplicaZ();
+  int maximumReplicaX = _cell->maximumReplicaX();
+  int maximumReplicaY = _cell->maximumReplicaY();
+  int maximumReplicaZ = _cell->maximumReplicaZ();
 
-	int maximumReplicaX = _cell->maximumReplicaX();
-	int maximumReplicaY = _cell->maximumReplicaY();
-	int maximumReplicaZ = _cell->maximumReplicaZ();
+  std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
 
-	std::vector<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->flattenedLeafNodes();
+  std::vector<double3> atomData = std::vector<double3>();
 
-	std::vector<double3> atomData = std::vector<double3>();
+  for (std::shared_ptr<SKAtomTreeNode> node : asymmetricAtomNodes)
+  {
+    if (std::shared_ptr<SKAsymmetricAtom> atom = node->representedObject())
+    {
+      for (std::shared_ptr<SKAtomCopy> copy : atom->copies())
+      {
+        if (copy->type() == SKAtomCopy::AtomCopyType::copy)
+        {
+          double3 pos = copy->position();
+          for (int k1 = minimumReplicaX;k1 <= maximumReplicaX;k1++)
+          {
+            for (int k2 = minimumReplicaY;k2 <= maximumReplicaY;k2++)
+            {
+              for (int k3 = minimumReplicaZ;k3 <= maximumReplicaZ;k3++)
+              {
+                double4x4 rotationMatrix = double4x4::AffinityMatrixToTransformationAroundArbitraryPoint(double4x4(_orientation), boundingBox().center());
 
+                double3 fractionalPosition = pos + _cell->unitCell()  * double3(double(k1), double(k2), double(k3));
+                double3 cartesianPosition = _cell->convertToCartesian(fractionalPosition);
 
-	for (std::shared_ptr<SKAtomTreeNode> node : asymmetricAtomNodes)
-	{
-		if (std::shared_ptr<SKAsymmetricAtom> atom = node->representedObject())
-		{
-			for (std::shared_ptr<SKAtomCopy> copy : atom->copies())
-			{
-				if (copy->type() == SKAtomCopy::AtomCopyType::copy)
-				{
-					double3 pos = copy->position();
-					for (int k1 = minimumReplicaX;k1 <= maximumReplicaX;k1++)
-					{
-						for (int k2 = minimumReplicaY;k2 <= maximumReplicaY;k2++)
-						{
-							for (int k3 = minimumReplicaZ;k3 <= maximumReplicaZ;k3++)
-							{
-								double4x4 rotationMatrix = double4x4::AffinityMatrixToTransformationAroundArbitraryPoint(double4x4(_orientation), boundingBox().center());
+                double4 position = rotationMatrix * double4(cartesianPosition.x, cartesianPosition.y, cartesianPosition.z, 1.0);
 
-								double3 fractionalPosition = pos + _cell->unitCell()  * double3(double(k1), double(k2), double(k3));
-								double3 cartesianPosition = _cell->convertToCartesian(fractionalPosition);
+                atomData.push_back(double3(position.x, position.y, position.z));
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 
-								double4 position = rotationMatrix * double4(cartesianPosition.x, cartesianPosition.y, cartesianPosition.z, 1.0);
-
-								atomData.push_back(double3(position.x, position.y, position.z));
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return atomData;
+  return atomData;
 }
 
 std::vector<double3> ProteinCrystal::atomUnitCellPositions() const

@@ -74,7 +74,7 @@ void ElementListWidgetController::setForceFieldComboBoxIndex(int type)
   {
     ForceFieldSets& forceFieldSets = _mainWindow->forceFieldSets();
     ForceFieldSet& currentForceFieldSet = forceFieldSets[_selectedForceFieldSetIndex];
-    if(type>=forceFieldSets.forceFieldSets().size())
+    if(size_t(type)>=forceFieldSets.forceFieldSets().size())
     {
       QString newName = _mainWindow->mainWindowUI()->forceFieldComboBox->itemText(type);
       ForceFieldSet forceFieldCopy =  ForceFieldSet(newName, currentForceFieldSet, true);

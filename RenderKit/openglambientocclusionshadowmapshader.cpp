@@ -500,7 +500,7 @@ void  OpenGLAmbientOcclusionShadowMapShader::updateAmbientOcclusionTextures(std:
             glUseProgram(_shadowMapProgram);
 
 
-            for(int l=0;l<_renderStructures[i].size();l++)
+            for(size_t l=0;l<_renderStructures[i].size();l++)
             {
               if (_renderStructures[i][l]->isVisible() && _atomShader._numberOfDrawnAtoms[i][l] > 0)
               {

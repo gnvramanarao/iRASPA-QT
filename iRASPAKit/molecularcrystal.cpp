@@ -575,8 +575,6 @@ SKBoundingBox MolecularCrystal::boundingBox() const
     maximum = _cell->enclosingBoundingBox().maximum();
   }
 
-  int numberOfReplicas = _cell->numberOfReplicas();
-
   int minimumReplicaX = _cell->minimumReplicaX();
   int minimumReplicaY = _cell->minimumReplicaY();
   int minimumReplicaZ = _cell->minimumReplicaZ();
@@ -984,8 +982,6 @@ void MolecularCrystal::setSpaceGroupHallNumber(int HallNumber)
 
 std::vector<double3> MolecularCrystal::atomPositions() const
 {
-  int numberOfReplicas = _cell->numberOfReplicas();
-
   int minimumReplicaX = _cell->minimumReplicaX();
   int minimumReplicaY = _cell->minimumReplicaY();
   int minimumReplicaZ = _cell->minimumReplicaZ();

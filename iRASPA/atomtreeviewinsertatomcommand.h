@@ -44,11 +44,11 @@
 class AtomTreeViewInsertAtomCommand : public QUndoCommand
 {
 public:
-  AtomTreeViewInsertAtomCommand(MainWindow *main_window, AtomTreeView *atomTreeView, std::shared_ptr<Structure> structure, std::shared_ptr<SKAtomTreeNode> parentTreeNode, int row, QUndoCommand *parent = nullptr);
+  AtomTreeViewInsertAtomCommand(MainWindow *mainWindow, AtomTreeView *atomTreeView, std::shared_ptr<Structure> structure, std::shared_ptr<SKAtomTreeNode> parentTreeNode, int row, QUndoCommand *parent = nullptr);
   void undo() override final;
   void redo() override final;
 private:
-  MainWindow *_main_window;
+  MainWindow *_mainWindow;
   AtomTreeView *_atomTreeView;
   std::shared_ptr<Structure> _structure;
   std::shared_ptr<SKAtomTreeNode> _parentTreeNode;

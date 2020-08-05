@@ -39,22 +39,7 @@
   HelpBrowser::HelpBrowser(QWidget* parent): QWebView(parent)
 #endif
 {
-  QNetworkConfigurationManager mgr;
-  QList<QNetworkConfiguration> activeConfigs = mgr.allConfigurations(QNetworkConfiguration::Active);
-  if (activeConfigs.count() > 0)
-  {
-    _home = QUrl(QStringLiteral("http://www.iraspa.org/iRASPA/iraspa.html"));
-  }
-  else
-  {
-    _home = QUrl(QStringLiteral("http://www.iraspa.org/iRASPA/iraspa.html"));
-    std::cout << "NO NETWORK" << std::endl;
-  }
+  _home = QUrl(QStringLiteral("http://www.iraspa.org/iRASPA/iraspa.html"));
   setUrl(_home);
 }
 
-/*
-void HelpBrowser::home()
-{
-  setUrl(_home);
-}*/

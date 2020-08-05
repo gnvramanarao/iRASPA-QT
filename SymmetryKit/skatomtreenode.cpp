@@ -86,7 +86,7 @@ std::shared_ptr<SKAtomTreeNode> SKAtomTreeNode::descendantNodeAtIndexPath(IndexP
 
 bool SKAtomTreeNode::insertChild(int row, std::shared_ptr<SKAtomTreeNode> child)
 {
-  if (row < 0 || row > _childNodes.size())
+  if (row < 0 || size_t(row) > _childNodes.size())
   {
     qDebug() << "Error insertion at: " << row << ", size: " << _childNodes.size();
     return false;

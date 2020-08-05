@@ -1181,6 +1181,8 @@ void GLWidget::drawSceneToFramebuffer(GLuint framebuffer)
 
 void GLWidget::keyPressEvent( QKeyEvent* e )
 {
+  Q_UNUSED(e);
+
   makeCurrent();
 }
 
@@ -1310,7 +1312,7 @@ void GLWidget::wheelEvent(QWheelEvent *event)
   makeCurrent();
   if (std::shared_ptr<RKCamera> camera = _camera.lock())
   {
-    camera->increaseDistance(event->delta()/40.0);
+    camera->increaseDistance(event->angleDelta().y()/40.0);
   }
   update();
 }

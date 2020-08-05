@@ -167,7 +167,7 @@ std::vector<cl_float>* SKOpenCLEnergyGridUnitCell::ComputeEnergyGrid(int sizeX, 
 
   if (numberOfAtoms > 0)
   {
-    for(int i=0 ; i<numberOfAtoms; i++)
+    for(size_t i=0 ; i<numberOfAtoms; i++)
     {
       double3 position = correction * positions[i];
       double2 currentPotentialParameters = potentialParameters[i];
@@ -322,8 +322,8 @@ std::vector<cl_float>* SKOpenCLEnergyGridUnitCell::ComputeEnergyGrid(int sizeX, 
     cl_float4 clCellb = {{cl_float(replicaCell[0][1]), cl_float(replicaCell[1][1]), cl_float(replicaCell[2][1]), cl_float(0.0)}};
     cl_float4 clCellc = {{cl_float(replicaCell[0][2]), cl_float(replicaCell[1][2]), cl_float(replicaCell[2][2]), cl_float(0.0)}};
 
-    int unitsOfWorkDone = 0;
-    int sizeOfWorkBatch = 4096;
+    size_t unitsOfWorkDone = 0;
+    size_t sizeOfWorkBatch = 4096;
     while(unitsOfWorkDone < positions.size())
     {
       int numberOfAtomsPerThreadgroup = std::min(sizeOfWorkBatch, int(positions.size())-unitsOfWorkDone);

@@ -43,13 +43,14 @@
 #include "movie.h"
 #include "iraspakitprotocols.h"
 
+class SceneList;
 
 class Scene: public std::enable_shared_from_this<Scene>, public DisplayableProtocol
 {
 public:
   Scene();
   Scene(QString displayName);
-  Scene(std::shared_ptr<Movie> movie);
+  static std::shared_ptr<Scene> create(std::shared_ptr<Movie> movie);
   Scene(const QUrl url, const SKColorSets& colorSets, ForceFieldSets &forcefieldSets, LogReporting *log, bool asSeparateProject, bool onlyAsymmetricUnit, bool asMolecule);
   const std::vector<std::shared_ptr<Movie>> &movies() const {return _movies;}
   std::optional<int> findChildIndex(std::shared_ptr<Movie> movie);
@@ -57,18 +58,22 @@ public:
   bool removeChildren(size_t position, size_t count);
   bool insertChild(size_t row, std::shared_ptr<Movie> child);
   void setSelectedMovie(std::shared_ptr<Movie> movie);
-  void setSelectedMovies(std::unordered_set<std::shared_ptr<Movie>> movies);
+  void setSelectedMovies(std::set<std::shared_ptr<Movie>> movies);
   void setSelectedFrameIndices(int frameIndex);
-  std::unordered_set<std::shared_ptr<Movie>>& selectedMovies() {return _selectedMovies;}
+  std::set<std::shared_ptr<Movie>>& selectedMovies() {return _selectedMovies;}
   std::shared_ptr<Movie> selectedMovie();
   QString displayName() const override final;
   std::optional<int> selectMovieIndex();
+  void setParent(std::weak_ptr<SceneList> parent) {_parent = parent;}
+  std::weak_ptr<SceneList> parent() {return _parent;}
 private:
+  Scene(std::shared_ptr<Movie> movie);
   qint64 _versionNumber{1};
   QString _displayName = QString("Scene");
+  std::weak_ptr<SceneList> _parent{};
   std::vector<std::shared_ptr<Movie>> _movies{};
   std::shared_ptr<Movie> _selectedMovie{nullptr};
-  std::unordered_set<std::shared_ptr<Movie>> _selectedMovies;
+  std::set<std::shared_ptr<Movie>> _selectedMovies;
 
   friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<Scene> &);
   friend QDataStream &operator>>(QDataStream &, std::shared_ptr<Scene> &);

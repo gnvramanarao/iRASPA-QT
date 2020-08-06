@@ -34,6 +34,8 @@
 #include "iraspastructure.h"
 #include "iraspakitprotocols.h"
 
+class Scene;
+
 class Movie: public std::enable_shared_from_this<Movie>, public DisplayableProtocol
 {
 public:
@@ -42,13 +44,13 @@ public:
 
   Movie();
   Movie(QString displayName);
-  Movie(std::shared_ptr<iRASPAStructure> structure) {_frames.push_back(structure);}
+
+  static std::shared_ptr<Movie> create(std::shared_ptr<iRASPAStructure> structure);
   virtual ~Movie() {}
   std::shared_ptr<Movie> shallowClone();
 
-
-  void append(std::shared_ptr<iRASPAStructure> structure) {_frames.push_back(structure);}
-  const std::vector<std::shared_ptr<iRASPAStructure>> frames() const {return _frames;}
+  void append(std::shared_ptr<iRASPAStructure> structure);
+  const std::vector<std::shared_ptr<iRASPAStructure>> &frames() const {return _frames;}
   QString displayName() const override final;
   void setDisplayName(QString name) {_displayName = name;}
   bool isVisible() {return _isVisible;}
@@ -64,12 +66,16 @@ public:
   std::vector<std::shared_ptr<iRASPAStructure>> selectedFramesiRASPAStructures() const;
 
   bool removeChildren(size_t position, size_t count);
+  void setParent(std::weak_ptr<Scene> parent) {_parent = parent;}
+  std::weak_ptr<Scene> parent() {return _parent;}
 private:
+  Movie(std::shared_ptr<iRASPAStructure> structure);
   qint64 _versionNumber{1};
   bool _isVisible = true;
   bool _isLoading = false;
   QString _displayName = QString("Movie");
 
+  std::weak_ptr<Scene> _parent{};
   std::vector<std::shared_ptr<iRASPAStructure>> _frames{};
   std::shared_ptr<iRASPAStructure> _selectedFrame;
   std::set<std::shared_ptr<iRASPAStructure>> _selectedFramesSet;

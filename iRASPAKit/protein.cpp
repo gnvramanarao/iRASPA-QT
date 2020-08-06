@@ -72,6 +72,11 @@ Protein::Protein(std::shared_ptr<Structure> s): Structure(s)
   computeBonds();
 }
 
+std::shared_ptr<Structure> Protein::clone()
+{
+  return std::make_shared<Protein>(static_cast<const Protein&>(*this));
+}
+
 // MARK: Rendering
 // =====================================================================
 
@@ -162,7 +167,7 @@ std::vector<RKInPerInstanceAttributesBonds> Protein::renderInternalBonds() const
 
 std::vector<RKInPerInstanceAttributesAtoms> Protein::renderSelectedAtoms() const
 {
-  std::unordered_set<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->selectedTreeNodes();
+  std::set<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->selectedTreeNodes();
 
   std::vector<RKInPerInstanceAttributesAtoms> atomData = std::vector<RKInPerInstanceAttributesAtoms>();
 

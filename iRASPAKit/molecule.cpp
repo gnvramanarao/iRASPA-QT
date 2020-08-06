@@ -73,6 +73,11 @@ Molecule::Molecule(std::shared_ptr<Structure> s): Structure(s)
   computeBonds();
 }
 
+std::shared_ptr<Structure> Molecule::clone()
+{
+  return std::make_shared<Molecule>(static_cast<const Molecule&>(*this));
+}
+
 // MARK: Rendering
 // =====================================================================
 
@@ -171,7 +176,7 @@ std::vector<RKInPerInstanceAttributesBonds> Molecule::renderInternalBonds() cons
 
 std::vector<RKInPerInstanceAttributesAtoms> Molecule::renderSelectedAtoms() const
 {
-  std::unordered_set<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->selectedTreeNodes();
+  std::set<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->selectedTreeNodes();
 
   std::vector<RKInPerInstanceAttributesAtoms> atomData = std::vector<RKInPerInstanceAttributesAtoms>();
 

@@ -70,8 +70,8 @@ public:
     std::vector<std::shared_ptr<SKAtomCopy>> allAtomCopies() const;
     std::vector<std::shared_ptr<SKAtomCopy>> atomCopies() const;
 
-    std::unordered_set<std::shared_ptr<SKAtomTreeNode>>& selectedTreeNodes() {return _selectedTreeNodes;}
-    void setSelectedTreeNodes(std::unordered_set<std::shared_ptr<SKAtomTreeNode>> selectedNodes) {_selectedTreeNodes = selectedNodes;}
+    std::set<std::shared_ptr<SKAtomTreeNode>>& selectedTreeNodes() {return _selectedTreeNodes;}
+    void setSelectedTreeNodes(std::set<std::shared_ptr<SKAtomTreeNode>> selectedNodes) {_selectedTreeNodes = selectedNodes;}
     void setTags();
 
     std::vector<std::shared_ptr<SKAtomTreeNode>> selectedAtomTreeNodes();
@@ -79,7 +79,7 @@ private:
     qint64 _versionNumber{1};
     std::shared_ptr<SKAtomTreeNode> _hiddenRootNode{nullptr};
     std::shared_ptr<SKAtomTreeNode> _selectedTreeNode{nullptr};
-    std::unordered_set<std::shared_ptr<SKAtomTreeNode>> _selectedTreeNodes{};
+    std::set<std::shared_ptr<SKAtomTreeNode>> _selectedTreeNodes{};
     std::function<bool(std::shared_ptr<SKAtomTreeNode>)> _filterPredicate = [](std::shared_ptr<SKAtomTreeNode>) { return true; };
 
     friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<SKAtomTreeController> &);

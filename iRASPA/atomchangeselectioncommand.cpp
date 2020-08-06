@@ -32,7 +32,7 @@
 #include <algorithm>
 
 AtomChangeSelectionCommand::AtomChangeSelectionCommand(MainWindow *main_window, std::shared_ptr<Structure> structure,
-                                     std::unordered_set<std::shared_ptr<SKAtomTreeNode> > atomSelection, std::unordered_set<std::shared_ptr<SKAtomTreeNode> > previousAtomSelection,
+                                     std::set<std::shared_ptr<SKAtomTreeNode> > atomSelection, std::set<std::shared_ptr<SKAtomTreeNode> > previousAtomSelection,
                                      std::set<int> bondSelection, std::set<int> previousBondSelection, QUndoCommand *parent):
   _main_window(main_window),
   _structure(structure),

@@ -42,9 +42,17 @@ Scene::Scene(QString displayName): _displayName(displayName)
 {
 }
 
-
+// private constructor, parent of movie needs to be set
 Scene::Scene(std::shared_ptr<Movie> movie): _movies{movie}
 {
+}
+
+std::shared_ptr<Scene> Scene::create(std::shared_ptr<Movie> movie)
+{
+  // std::make_shared can not call private constructor
+  std::shared_ptr<Scene> scene =  std::shared_ptr<Scene>( new Scene( std::forward<Scene>(movie)));
+  movie->setParent(scene);
+  return scene;
 }
 
 std::shared_ptr<Movie> Scene::selectedMovie()
@@ -71,7 +79,7 @@ void Scene::setSelectedMovie(std::shared_ptr<Movie> movie)
   }
 }
 
-void Scene::setSelectedMovies(std::unordered_set<std::shared_ptr<Movie>> movies)
+void Scene::setSelectedMovies(std::set<std::shared_ptr<Movie>> movies)
 {
   _selectedMovies = movies;
 }
@@ -222,6 +230,7 @@ bool Scene::insertChild(size_t row, std::shared_ptr<Movie> child)
     return false;
 
   _movies.insert(_movies.begin() + row, child);
+  child->setParent(this->shared_from_this());
   return true;
 }
 
@@ -244,5 +253,11 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<Scene> &scene)
   }
   stream >> scene->_displayName;
   stream >> scene->_movies;
+
+  for(std::shared_ptr<Movie> movie : scene->_movies)
+  {
+    movie->setParent(scene);
+  }
+
   return stream;
 }

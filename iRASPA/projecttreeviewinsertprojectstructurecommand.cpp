@@ -58,6 +58,7 @@ void ProjectTreeViewInsertProjectStructureCommand::redo()
       pModel->insertRow(_row, _parent, newItem);
     }
   }
+  qDebug() << "DONE";
 }
 
 void ProjectTreeViewInsertProjectStructureCommand::undo()

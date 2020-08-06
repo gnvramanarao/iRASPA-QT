@@ -83,6 +83,11 @@ CrystalCylinderPrimitive::CrystalCylinderPrimitive(std::shared_ptr<Structure> s)
   computeBonds();
 }
 
+std::shared_ptr<Structure> CrystalCylinderPrimitive::clone()
+{
+  return std::make_shared<CrystalCylinderPrimitive>(static_cast<const CrystalCylinderPrimitive&>(*this));
+}
+
 // MARK: Rendering
 // =====================================================================
 

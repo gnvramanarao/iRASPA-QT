@@ -29,6 +29,8 @@
 
 #include "movie.h"
 
+char Movie::mimeType[] = "application/x-qt-iraspa-movie-mime";
+
 Movie::Movie()
 {
 
@@ -39,7 +41,24 @@ Movie::Movie(QString displayName): _displayName(displayName)
 
 }
 
-char Movie::mimeType[] = "application/x-qt-iraspa-movie-mime";
+// private constructor, parent of structure needs to be set
+Movie::Movie(std::shared_ptr<iRASPAStructure> structure):_frames{structure}
+{
+}
+
+std::shared_ptr<Movie> Movie::create(std::shared_ptr<iRASPAStructure> structure)
+{
+  // std::make_shared can not call private constructor
+  std::shared_ptr<Movie> movie =  std::shared_ptr<Movie>( new Movie( std::forward<Movie>(structure)));
+  structure->setParent(movie);
+  return movie;
+}
+
+void Movie::append(std::shared_ptr<iRASPAStructure> structure)
+{
+  _frames.push_back(structure);
+  structure->setParent(this->shared_from_this());
+}
 
 std::shared_ptr<Movie> Movie::shallowClone()
 {
@@ -157,6 +176,11 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<Movie> &movie)
   }
   stream >> movie->_displayName;
   stream >> movie->_frames;
+
+  for(std::shared_ptr<iRASPAStructure> frame : movie->_frames)
+  {
+    frame->setParent(movie);
+  }
 
   return stream;
 }

@@ -39,6 +39,7 @@ public:
   PolygonalPrismPrimitive();
   PolygonalPrismPrimitive(const PolygonalPrismPrimitive &polygonalPrismPrimitive);
   PolygonalPrismPrimitive(std::shared_ptr<Structure> s);
+  std::shared_ptr<Structure> clone() override final;
 
   iRASPAStructureType structureType() override final { return iRASPAStructureType::polygonalPrismPrimitive; }
 

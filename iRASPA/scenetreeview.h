@@ -56,6 +56,8 @@ public:
 
   void keyPressEvent(QKeyEvent *event) override final;
   void restoreSelection(SceneListSelection selection);
+
+  std::shared_ptr<SceneTreeViewModel> sceneModel() {return _model;}
 private:
   MainWindow* _mainWindow;
   std::shared_ptr<SceneTreeViewModel> _model;

@@ -33,27 +33,28 @@
 #include <set>
 #include <vector>
 #include "iraspakit.h"
+#include "indexpath.h"
 #include "symmetrykit.h"
 #include "mathkit.h"
-#include "mainwindow.h"
-#include "skatomtreecontroller.h"
-#include "skbondsetcontroller.h"
-#include "renderstackedwidget.h"
+#include "atomtreeviewmodel.h"
+#include "scenetreeviewmodel.h"
 
-class AtomChangeSelectionCommand : public QUndoCommand
+class AtomTreeViewCopySelectionToNewMovieCommand : public QUndoCommand
 {
 public:
-  AtomChangeSelectionCommand(MainWindow *main_window, std::shared_ptr<Structure> structure,
-                         std::set<std::shared_ptr<SKAtomTreeNode>> atomSelection, std::set<std::shared_ptr<SKAtomTreeNode>> previousAtomSelection,
-                         std::set<int> bondSelection, std::set<int> previousBondSelection,
-                         QUndoCommand *parent = nullptr);
-  void undo() override final;
+  AtomTreeViewCopySelectionToNewMovieCommand(MainWindow *mainWindow, AtomTreeViewModel *atomTreeViewModel, SceneTreeViewModel *sceneTreeViewModel, std::shared_ptr<SceneList> sceneList,
+                                             std::shared_ptr<iRASPAStructure> iraspaStructure, std::set<std::shared_ptr<SKAtomTreeNode>> atomTreeNodes,
+                                             QUndoCommand *undoParent = nullptr);
   void redo() override final;
+  void undo() override final;
 private:
-  MainWindow *_main_window;
-  std::shared_ptr<Structure> _structure;
-  std::set<std::shared_ptr<SKAtomTreeNode>> _atomSelection;
-  std::set<std::shared_ptr<SKAtomTreeNode>> _previousAtomSelection;
-  std::set<int> _bondSelection;
-  std::set<int> _previousBondSelection;
+  MainWindow *_mainWindow;
+  AtomTreeViewModel *_atomTreeViewModel;
+  SceneTreeViewModel *_sceneTreeViewModel;
+  std::shared_ptr<SceneList> _sceneList;
+  std::shared_ptr<iRASPAStructure> _iraspaStructure;
+  std::set<std::shared_ptr<SKAtomTreeNode>> _atomTreeNodes;
+  std::shared_ptr<Scene> _scene;
+  std::shared_ptr<Movie> _newMovie;
+  int _row;
 };

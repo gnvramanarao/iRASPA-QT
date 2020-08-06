@@ -54,6 +54,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
   // atomTreeView needs to update the bonds via the bondModel (used in undo/redo).
   // (the bondListView does not need to know the atomModel because deleting bonds does not change the atom-selection)
   ui->atomTreeView->setBondModel(ui->bondListView->bondModel());
+  ui->atomTreeView->setSceneModel(ui->sceneTreeView->sceneModel());
 
   // the renderView needs to update via the atomModel and bondModel (used in undo/redo).
   ui->stackedRenderers->setAtomModel(ui->atomTreeView->atomModel());

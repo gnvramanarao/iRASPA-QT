@@ -82,6 +82,11 @@ CrystalPolygonalPrismPrimitive::CrystalPolygonalPrismPrimitive(std::shared_ptr<S
   computeBonds();
 }
 
+std::shared_ptr<Structure> CrystalPolygonalPrismPrimitive::clone()
+{
+  return std::make_shared<CrystalPolygonalPrismPrimitive>(static_cast<const CrystalPolygonalPrismPrimitive&>(*this));
+}
+
 // MARK: Rendering
 // =====================================================================
 

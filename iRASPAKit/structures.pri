@@ -6,7 +6,6 @@ SOURCES += \
     $$PWD/crystalpolygonalprismprimitive.cpp \
     $$PWD/cylinderprimitive.cpp \
     $$PWD/ellipsoidprimitive.cpp \
-    $$PWD/iraspastructure.cpp \
     $$PWD/polygonalprismprimitive.cpp \
     $$PWD/structure.cpp \
     $$PWD/crystal.cpp \
@@ -21,7 +20,6 @@ HEADERS += \
     $$PWD/crystalpolygonalprismprimitive.h \
     $$PWD/cylinderprimitive.h \
     $$PWD/ellipsoidprimitive.h \
-    $$PWD/iraspastructure.h \
     $$PWD/polygonalprismprimitive.h \
     $$PWD/structure.h \
     $$PWD/crystal.h \

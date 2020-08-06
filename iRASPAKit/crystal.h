@@ -43,6 +43,7 @@ public:
   Crystal(std::shared_ptr<SKAtomTreeController> atomTreeController): Structure(atomTreeController){}
   Crystal(std::shared_ptr<SKStructure> structure);
   Crystal(std::shared_ptr<Structure> s);
+  std::shared_ptr<Structure> clone() override final;
   ~Crystal() {}
 
   bool hasSymmetry() override final {return true;}

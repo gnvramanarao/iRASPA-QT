@@ -38,6 +38,7 @@
 #include <iraspakit.h>
 #include "atomtreeviewmodel.h"
 #include "bondlistviewmodel.h"
+#include "scenetreeviewmodel.h"
 #include "iraspamainwindowconsumerprotocol.h"
 #include "atomtreeviewpushbuttonstyleditemdelegate.h"
 
@@ -52,6 +53,7 @@ public:
 
   void setMainWindow(MainWindow* mainWindow) override final;
   void setBondModel(std::shared_ptr<BondListViewModel> bondModel);
+  void setSceneModel(std::shared_ptr<SceneTreeViewModel> sceneModel);
 
   // update the atomTreeView when a new project is selected in the ProjectTreeView
   void setProject(std::shared_ptr<ProjectTreeNode> projectTreeNode) override final;
@@ -74,6 +76,7 @@ private:
   MainWindow* _mainWindow;
   std::shared_ptr<AtomTreeViewModel> _atomModel;
   std::shared_ptr<BondListViewModel> _bondModel;
+  std::shared_ptr<SceneTreeViewModel> _sceneModel;
   std::shared_ptr<iRASPAStructure> _iraspaStructure;
   std::shared_ptr<ProjectTreeNode> _projectTreeNode;
   std::shared_ptr<iRASPAProject> _iRASPAProject;
@@ -82,6 +85,8 @@ private:
   void addAtomGroup(QModelIndex index);
   void flattenHierachy();
   void makeSuperCell();
+  void copyToNewMovie();
+  void moveToNewMovie();
   void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override final;
   AtomTreeViewPushButtonStyledItemDelegate *pushButtonDelegate;
   SKAtomTreeNode* getItem(const QModelIndex &index) const;

@@ -79,7 +79,7 @@ void SceneTreeViewDropMoveCommand::redo()
   _sceneList->setSelection(SceneListSelection(_newParent,
                                               {_newParent},
                                               {{_newParent, _movies.front()}},
-                                              {{_newParent, std::unordered_set<std::shared_ptr<Movie>>(_movies.begin(),_movies.end())}} ));
+                                              {{_newParent, std::set<std::shared_ptr<Movie>>(_movies.begin(),_movies.end())}} ));
   emit _sceneTreeViewModel->updateSelection();
 }
 

@@ -70,6 +70,7 @@ public:
   Structure(std::shared_ptr<SKStructure> structure);
   Structure(std::shared_ptr<Structure> clone);
   Structure(const Structure &structure);
+  virtual std::shared_ptr<Structure> clone() {return nullptr;}
   virtual ~Structure() {}
 
   virtual bool hasSymmetry() {return false;}

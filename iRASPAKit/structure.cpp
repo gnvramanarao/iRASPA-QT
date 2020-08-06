@@ -1422,7 +1422,7 @@ void Structure::toggleAtomSelection(int asymmetricAtomId)
 
   std::shared_ptr<SKAtomTreeNode> selectedAtom = atomNodes[asymmetricAtomId];
 
-  std::unordered_set<std::shared_ptr<SKAtomTreeNode>>::const_iterator search = _atomsTreeController->selectedTreeNodes().find(selectedAtom);
+  std::set<std::shared_ptr<SKAtomTreeNode>>::const_iterator search = _atomsTreeController->selectedTreeNodes().find(selectedAtom);
   if (search != _atomsTreeController->selectedTreeNodes().end())
   {
     _atomsTreeController->selectedTreeNodes().erase(*search);

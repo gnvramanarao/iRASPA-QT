@@ -176,7 +176,7 @@ std::vector<std::shared_ptr<SKAsymmetricBond>> SKBondSetController::selectedObje
 
 void SKBondSetController::correctBondSelectionDueToAtomSelection()
 {
-  std::unordered_set<std::shared_ptr<SKAtomTreeNode>> selectedTreeAtoms = _atomTreecontroller->selectedTreeNodes();
+  std::set<std::shared_ptr<SKAtomTreeNode>> selectedTreeAtoms = _atomTreecontroller->selectedTreeNodes();
   std::set<std::shared_ptr<SKAsymmetricAtom>> selectedAtoms;
   std::transform(selectedTreeAtoms.begin(),selectedTreeAtoms.end(),std::inserter(selectedAtoms, selectedAtoms.begin()),[](std::shared_ptr<SKAtomTreeNode> node) -> std::shared_ptr<SKAsymmetricAtom>
                         {return node->representedObject();});

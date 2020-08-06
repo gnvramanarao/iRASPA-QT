@@ -66,6 +66,12 @@ EllipsoidPrimitive::EllipsoidPrimitive(std::shared_ptr<Structure> s): Structure(
   computeBonds();
 }
 
+std::shared_ptr<Structure> EllipsoidPrimitive::clone()
+{
+  return std::make_shared<EllipsoidPrimitive>(static_cast<const EllipsoidPrimitive&>(*this));
+}
+
+
 // MARK: Rendering
 // =====================================================================
 

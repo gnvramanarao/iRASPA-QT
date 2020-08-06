@@ -91,6 +91,10 @@ Crystal::Crystal(std::shared_ptr<Structure> s): Structure(s)
   computeBonds();
 }
 
+std::shared_ptr<Structure> Crystal::clone()
+{
+  return std::make_shared<Crystal>(static_cast<const Crystal&>(*this));
+}
 
 // MARK: Rendering
 // =====================================================================
@@ -421,7 +425,7 @@ std::vector<RKInPerInstanceAttributesAtoms> Crystal::renderSelectedAtoms() const
   int maximumReplicaY = _cell->maximumReplicaY();
   int maximumReplicaZ = _cell->maximumReplicaZ();
 
-  std::unordered_set<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->selectedTreeNodes();
+  std::set<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->selectedTreeNodes();
 
   std::vector<RKInPerInstanceAttributesAtoms> atomData = std::vector<RKInPerInstanceAttributesAtoms>();
 

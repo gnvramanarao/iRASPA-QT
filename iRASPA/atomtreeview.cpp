@@ -38,6 +38,8 @@
 #include "atomtreeviewdecorationstyleditemdelegate.h"
 #include "atomtreeviewmakesupercellcommand.h"
 #include "atomtreeviewflattenhierarchycommand.h"
+#include "atomtreeviewcopyselectiontonewmoviecommand.h"
+#include "atomtreeviewmoveselectiontonewmoviecommand.h"
 #include "skpdbwriter.h"
 #include "skcifwriter.h"
 #include "skmmcifwriter.h"
@@ -103,6 +105,11 @@ void AtomTreeView::setMainWindow(MainWindow* mainWindow)
 void AtomTreeView::setBondModel(std::shared_ptr<BondListViewModel> bondModel)
 {
   _bondModel = bondModel;
+}
+
+void AtomTreeView::setSceneModel(std::shared_ptr<SceneTreeViewModel> sceneModel)
+{
+  _sceneModel = sceneModel;
 }
 
 void AtomTreeView::resetData()
@@ -193,7 +200,7 @@ void AtomTreeView::selectionChanged(const QItemSelection &selected, const QItemS
     std::shared_ptr<SKAtomTreeController> atomTreeControler = structure->atomsTreeController();
     std::shared_ptr<SKBondSetController> bondListControler = structure->bondSetController();
 
-    std::unordered_set<std::shared_ptr<SKAtomTreeNode>> previousAtomSelection = std::unordered_set<std::shared_ptr<SKAtomTreeNode>>(atomTreeControler->selectedTreeNodes());
+    std::set<std::shared_ptr<SKAtomTreeNode>> previousAtomSelection = std::set<std::shared_ptr<SKAtomTreeNode>>(atomTreeControler->selectedTreeNodes());
     std::set<int> previousBondSelection = bondListControler->selectionIndexSet();
 
     for(QModelIndex index : deselected.indexes())
@@ -224,7 +231,7 @@ void AtomTreeView::selectionChanged(const QItemSelection &selected, const QItemS
     bondListControler->correctBondSelectionDueToAtomSelection();
 
 
-    std::unordered_set<std::shared_ptr<SKAtomTreeNode>> atomSelection = std::unordered_set<std::shared_ptr<SKAtomTreeNode>>(atomTreeControler->selectedTreeNodes());
+    std::set<std::shared_ptr<SKAtomTreeNode>> atomSelection = std::set<std::shared_ptr<SKAtomTreeNode>>(atomTreeControler->selectedTreeNodes());
     std::set<int> bondSelection = bondListControler->selectionIndexSet();
 
     AtomChangeSelectionCommand *changeSelectionCommand = new AtomChangeSelectionCommand(_mainWindow, structure, atomSelection, previousAtomSelection, bondSelection, previousBondSelection);
@@ -519,6 +526,35 @@ void AtomTreeView::makeSuperCell()
   }
 }
 
+void AtomTreeView::copyToNewMovie()
+{
+  if(_projectTreeNode)
+  {
+    if(_projectTreeNode->isEditable())
+    {
+      if(std::shared_ptr<iRASPAProject> iRASPAProject = _projectTreeNode->representedObject())
+      {
+        if(std::shared_ptr<Project> project = iRASPAProject->project())
+        {
+          if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
+          {
+            std::set<std::shared_ptr<SKAtomTreeNode>> atomSelection = _iraspaStructure->structure()->atomsTreeController()->selectedTreeNodes();
+            AtomTreeViewCopySelectionToNewMovieCommand *newCopySelectionCommand = new AtomTreeViewCopySelectionToNewMovieCommand(_mainWindow,
+                                                                                    _atomModel.get(), _sceneModel.get(), projectStructure->sceneList(),
+                                                                                    _iraspaStructure, atomSelection, nullptr);
+            iRASPAProject->undoManager().push(newCopySelectionCommand);
+          }
+        }
+      }
+    }
+  }
+}
+
+void AtomTreeView::moveToNewMovie()
+{
+
+}
+
 void AtomTreeView::ShowContextMenu(const QPoint &pos)
 {
   QModelIndex index = indexAt(pos);
@@ -558,11 +594,11 @@ void AtomTreeView::ShowContextMenu(const QPoint &pos)
   subMenuSelection->addAction(&actionSelectionInvert);
   //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
   QAction actionCopyToNewMovie("CopyToNewMovie", this);
-  actionCopyToNewMovie.setEnabled(false);
+  actionCopyToNewMovie.setEnabled(isEnabled);
   selectionGroup->addAction(&actionCopyToNewMovie);
   subMenuSelection->addAction(&actionCopyToNewMovie);
-  //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
-  QAction actionMoveToNewMovie("CopyToNewMovie", this);
+  connect(&actionCopyToNewMovie, &QAction::triggered, this, &AtomTreeView::copyToNewMovie);
+  QAction actionMoveToNewMovie("MoveToNewMovie", this);
   actionMoveToNewMovie.setEnabled(false);
   selectionGroup->addAction(&actionMoveToNewMovie);
   subMenuSelection->addAction(&actionMoveToNewMovie);

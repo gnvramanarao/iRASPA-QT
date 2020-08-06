@@ -39,6 +39,7 @@ public:
   CrystalPolygonalPrismPrimitive();
   CrystalPolygonalPrismPrimitive(const CrystalPolygonalPrismPrimitive &crystalPolygonalPrismPrimitive);
   CrystalPolygonalPrismPrimitive(std::shared_ptr<Structure> s);
+  std::shared_ptr<Structure> clone() override final;
 
   bool hasSymmetry() override final {return true;}
   std::shared_ptr<Structure> superCell() const override final;

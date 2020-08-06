@@ -82,6 +82,11 @@ CrystalEllipsoidPrimitive::CrystalEllipsoidPrimitive(std::shared_ptr<Structure> 
   computeBonds();
 }
 
+std::shared_ptr<Structure> CrystalEllipsoidPrimitive::clone()
+{
+  return std::make_shared<CrystalEllipsoidPrimitive>(static_cast<const CrystalEllipsoidPrimitive&>(*this));
+}
+
 // MARK: Rendering
 // =====================================================================
 

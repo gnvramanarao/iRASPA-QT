@@ -42,6 +42,12 @@ QString SceneList::displayName() const
  return _displayName;
 }
 
+void SceneList::appendScene(std::shared_ptr<Scene> scene)
+{
+  _scenes.push_back(scene);
+  scene->setParent(this->shared_from_this());
+}
+
 std::shared_ptr<Scene> SceneList::selectedScene()
 {
   if(_selectedScene)
@@ -88,6 +94,7 @@ bool SceneList::insertChild(size_t row, std::shared_ptr<Scene> child)
     return false;
 
   _scenes.insert(_scenes.begin() + row, child);
+  child->setParent(this->shared_from_this());
   return true;
 }
 
@@ -182,7 +189,7 @@ SceneListSelection SceneList::allSelection()
     s.insert({scene, scene->selectedMovie()});
   }
 
-  std::map<std::shared_ptr<Scene>, std::unordered_set<std::shared_ptr<Movie>>> t{};
+  std::map<std::shared_ptr<Scene>, std::set<std::shared_ptr<Movie>>> t{};
 
   for(std::shared_ptr<Scene> scene : scenes())
   {
@@ -235,6 +242,11 @@ QDataStream &operator>>(QDataStream &stream, std::shared_ptr<SceneList> &sceneLi
   }
   stream >> sceneList->_displayName;
   stream >> sceneList->_scenes;
+
+  for(std::shared_ptr<Scene> scene : sceneList->_scenes)
+  {
+    scene->setParent(sceneList);
+  }
 
   return stream;
 }

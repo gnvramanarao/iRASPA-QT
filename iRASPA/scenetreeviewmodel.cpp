@@ -61,6 +61,9 @@ void SceneTreeViewModel::setProject(std::shared_ptr<ProjectTreeNode> projectTree
 
 std::shared_ptr<Scene> SceneTreeViewModel::parentForMovie(const std::shared_ptr<Movie> movie) const
 {
+  //return movie->parent().lock();
+
+
   if(_sceneList)
   {
     for(std::shared_ptr<Scene> currentScene: _sceneList->scenes())

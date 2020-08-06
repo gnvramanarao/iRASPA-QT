@@ -38,6 +38,7 @@ public:
   Protein(const Protein &protein);
   Protein(std::shared_ptr<SKStructure> structure);
   Protein(std::shared_ptr<Structure> s);
+  std::shared_ptr<Structure> clone() override final;
 
 	iRASPAStructureType structureType() override final  { return iRASPAStructureType::protein; }
 

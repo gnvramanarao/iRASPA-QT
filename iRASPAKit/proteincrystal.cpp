@@ -84,6 +84,11 @@ ProteinCrystal::ProteinCrystal(std::shared_ptr<Structure> s): Structure(s)
   computeBonds();
 }
 
+std::shared_ptr<Structure> ProteinCrystal::clone()
+{
+  return std::make_shared<ProteinCrystal>(static_cast<const ProteinCrystal&>(*this));
+}
+
 // MARK: Rendering
 // =====================================================================
 
@@ -321,7 +326,7 @@ std::vector<RKInPerInstanceAttributesAtoms> ProteinCrystal::renderSelectedAtoms(
   int maximumReplicaY = _cell->maximumReplicaY();
   int maximumReplicaZ = _cell->maximumReplicaZ();
 
-  std::unordered_set<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->selectedTreeNodes();
+  std::set<std::shared_ptr<SKAtomTreeNode>> asymmetricAtomNodes = _atomsTreeController->selectedTreeNodes();
 
   std::vector<RKInPerInstanceAttributesAtoms> atomData = std::vector<RKInPerInstanceAttributesAtoms>();
 

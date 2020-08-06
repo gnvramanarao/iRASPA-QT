@@ -40,19 +40,19 @@
 #include "iraspakitprotocols.h"
 
 using SceneListSelection = std::tuple<std::shared_ptr<Scene>,
-                                      std::unordered_set<std::shared_ptr<Scene>>,
+                                      std::set<std::shared_ptr<Scene>>,
                                       std::map<std::shared_ptr<Scene>, std::shared_ptr<Movie>>,
-                                      std::map<std::shared_ptr<Scene>, std::unordered_set<std::shared_ptr<Movie>>> >;
+                                      std::map<std::shared_ptr<Scene>, std::set<std::shared_ptr<Movie>>> >;
 
 
 class SceneList: public std::enable_shared_from_this<SceneList>, public DisplayableProtocol
 {
 public:
   SceneList();
-  void appendScene(std::shared_ptr<Scene> scene) {_scenes.push_back(scene);}
-  std::vector<std::shared_ptr<Scene>> &scenes() {return _scenes;}
+  void appendScene(std::shared_ptr<Scene> scene);
+  const std::vector<std::shared_ptr<Scene>> &scenes() const {return _scenes;}
   std::shared_ptr<Scene> selectedScene();
-  std::unordered_set<std::shared_ptr<Scene>> &selectedScenes() {return _selectedScenes;}
+  std::set<std::shared_ptr<Scene>> &selectedScenes() {return _selectedScenes;}
   void setSelectedScene(std::shared_ptr<Scene> scene);
   void setSelectedFrameIndices(int frameIndex);
   QString displayName() const override final;
@@ -73,7 +73,7 @@ private:
   QString _displayName = QString("");
   std::vector<std::shared_ptr<Scene>> _scenes{};
   std::shared_ptr<Scene> _selectedScene;
-  std::unordered_set<std::shared_ptr<Scene>> _selectedScenes;
+  std::set<std::shared_ptr<Scene>> _selectedScenes;
 
   friend QDataStream &operator<<(QDataStream &, const std::shared_ptr<SceneList> &);
   friend QDataStream &operator>>(QDataStream &, std::shared_ptr<SceneList> &);

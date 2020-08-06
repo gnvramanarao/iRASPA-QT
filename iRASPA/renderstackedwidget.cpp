@@ -392,7 +392,7 @@ void RenderStackedWidget::selectAsymetricAtomsInRectangle(QRect rect, bool exten
             std::shared_ptr<SKAtomTreeController> atomTreeController = _iraspa_structures[i][j]->structure()->atomsTreeController();
             std::shared_ptr<SKBondSetController> bondSetController = _iraspa_structures[i][j]->structure()->bondSetController();
 
-            std::unordered_set<std::shared_ptr<SKAtomTreeNode>> previousAtomSelection = std::unordered_set<std::shared_ptr<SKAtomTreeNode>>(atomTreeController->selectedTreeNodes());
+            std::set<std::shared_ptr<SKAtomTreeNode>> previousAtomSelection = std::set<std::shared_ptr<SKAtomTreeNode>>(atomTreeController->selectedTreeNodes());
             std::set<int> previousBondSelection = bondSetController->selectionIndexSet();
 
             std::set<int> indexSetSelectedAtoms = _iraspa_structures[i][j]->structure()->filterCartesianAtomPositions(closure);
@@ -409,7 +409,7 @@ void RenderStackedWidget::selectAsymetricAtomsInRectangle(QRect rect, bool exten
               _iraspa_structures[i][j]->structure()->bondSetController()->setSelectedObjects(indexSetSelectedBonds);
             }
 
-            std::unordered_set<std::shared_ptr<SKAtomTreeNode>> atomSelection = std::unordered_set<std::shared_ptr<SKAtomTreeNode>>(atomTreeController->selectedTreeNodes());
+            std::set<std::shared_ptr<SKAtomTreeNode>> atomSelection = std::set<std::shared_ptr<SKAtomTreeNode>>(atomTreeController->selectedTreeNodes());
             std::set<int> bondSelection = bondSetController->selectionIndexSet();
 
             AtomChangeSelectionCommand *changeSelectionCommand = new AtomChangeSelectionCommand(_mainWindow, _iraspa_structures[i][j]->structure(), atomSelection, previousAtomSelection, bondSelection, previousBondSelection);

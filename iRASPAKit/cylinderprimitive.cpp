@@ -66,6 +66,11 @@ CylinderPrimitive::CylinderPrimitive(std::shared_ptr<Structure> s): Structure(s)
   computeBonds();
 }
 
+std::shared_ptr<Structure> CylinderPrimitive::clone()
+{
+  return std::make_shared<CylinderPrimitive>(static_cast<const CylinderPrimitive&>(*this));
+}
+
 // MARK: Rendering
 // =====================================================================
 

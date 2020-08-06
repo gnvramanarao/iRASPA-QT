@@ -109,14 +109,14 @@ void SceneTreeView::reloadSelection()
   {
     whileBlocking(selectionModel())->clearSelection();
 
-    std::unordered_set<std::shared_ptr<Scene>> selectedScenes = _sceneList->selectedScenes();
+    std::set<std::shared_ptr<Scene>> selectedScenes = _sceneList->selectedScenes();
     for(std::shared_ptr<Scene> scene: selectedScenes)
     {
       std::optional<int> sceneIndex = _sceneList->findChildIndex(scene);
       if(sceneIndex)
       {
         QModelIndex parentItem = model()->index(*sceneIndex,0,QModelIndex());
-        std::unordered_set<std::shared_ptr<Movie>> selectedMovies = scene->selectedMovies();
+        std::set<std::shared_ptr<Movie>> selectedMovies = scene->selectedMovies();
         for(std::shared_ptr<Movie> movie: selectedMovies)
         {
           std::optional<int> movieIndex = scene->findChildIndex(movie);
@@ -561,9 +561,9 @@ void SceneTreeView::insertMovie(std::shared_ptr<iRASPAStructure> iraspaStructure
     {
       if(selectedIndexes().empty())
       {
-        std::shared_ptr<Movie> movie = std::make_shared<Movie>(iraspaStructure);
+        std::shared_ptr<Movie> movie = Movie::create(iraspaStructure);
         movie->setSelectedFrame(iraspaStructure);
-        std::shared_ptr<Scene> scene = std::make_shared<Scene>(movie);
+        std::shared_ptr<Scene> scene = Scene::create(movie);
         scene->setSelectedMovie(movie);
         std::map<std::shared_ptr<Scene>, std::unordered_set<std::shared_ptr<Movie>>> selection = {{scene, {movie}}};
         SceneTreeViewInsertInitialSceneCommand *insertSceneCommand = new SceneTreeViewInsertInitialSceneCommand(_mainWindow, this, _sceneList, scene, movie, 0, nullptr);
@@ -581,7 +581,7 @@ void SceneTreeView::insertMovie(std::shared_ptr<iRASPAStructure> iraspaStructure
           {
             int row = current.row() + 1;
 
-            std::shared_ptr<Movie> movie = std::make_shared<Movie>(iraspaStructure);
+            std::shared_ptr<Movie> movie = Movie::create(iraspaStructure);
             movie->setSelectedFrame(iraspaStructure);
             movie->setDisplayName(QString::number(number));
             number++;

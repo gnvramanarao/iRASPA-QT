@@ -7,8 +7,10 @@ SOURCES += \
     $$PWD/iraspaproject.cpp \
     $$PWD/projecttreenode.cpp \
     $$PWD/projecttreecontroller.cpp \
-    $$PWD/movie.cpp $$PWD/scene.cpp \
     $$PWD/scenelist.cpp \
+    $$PWD/scene.cpp \
+    $$PWD/movie.cpp \
+    $$PWD/iraspastructure.cpp \
     $$PWD/documentdata.cpp
 
 HEADERS += \
@@ -18,7 +20,8 @@ HEADERS += \
     $$PWD/iraspaproject.h \
     $$PWD/projecttreenode.h \
     $$PWD/projecttreecontroller.h \
-    $$PWD/movie.h \
-    $$PWD/scene.h \
     $$PWD/scenelist.h \
+    $$PWD/scene.h \
+    $$PWD/movie.h \
+    $$PWD/iraspastructure.h \
     $$PWD/documentdata.h

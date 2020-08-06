@@ -27,33 +27,27 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
-#pragma once
+#include "atomtreeviewmoveselectiontonewmoviecommand.h"
+#include <QDebug>
+#include <algorithm>
 
-#include <QUndoCommand>
-#include <set>
-#include <vector>
-#include "iraspakit.h"
-#include "symmetrykit.h"
-#include "mathkit.h"
-#include "mainwindow.h"
-#include "skatomtreecontroller.h"
-#include "skbondsetcontroller.h"
-#include "renderstackedwidget.h"
-
-class AtomChangeSelectionCommand : public QUndoCommand
+AtomTreeViewMoveSelectionToNewMovieCommand::AtomTreeViewMoveSelectionToNewMovieCommand(AtomTreeViewModel *model, std::shared_ptr<SceneList> sceneList,
+                                                                                       std::set<std::shared_ptr<SKAtomTreeNode>> atomTreeNodes,
+                                                                                       QUndoCommand *undoParent):
+  QUndoCommand(undoParent),
+  _model(model),
+  _sceneList(sceneList),
+  _atomTreeNodes(atomTreeNodes)
 {
-public:
-  AtomChangeSelectionCommand(MainWindow *main_window, std::shared_ptr<Structure> structure,
-                         std::set<std::shared_ptr<SKAtomTreeNode>> atomSelection, std::set<std::shared_ptr<SKAtomTreeNode>> previousAtomSelection,
-                         std::set<int> bondSelection, std::set<int> previousBondSelection,
-                         QUndoCommand *parent = nullptr);
-  void undo() override final;
-  void redo() override final;
-private:
-  MainWindow *_main_window;
-  std::shared_ptr<Structure> _structure;
-  std::set<std::shared_ptr<SKAtomTreeNode>> _atomSelection;
-  std::set<std::shared_ptr<SKAtomTreeNode>> _previousAtomSelection;
-  std::set<int> _bondSelection;
-  std::set<int> _previousBondSelection;
-};
+  setText(QString("Move atoms to new movie"));
+}
+
+void AtomTreeViewMoveSelectionToNewMovieCommand::redo()
+{
+
+}
+
+void AtomTreeViewMoveSelectionToNewMovieCommand::undo()
+{
+
+}

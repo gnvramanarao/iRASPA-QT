@@ -2,6 +2,7 @@ INCLUDEPATH += $$PWD
 
 SOURCES += \
     $$PWD/atomchangeselectioncommand.cpp \
+    $$PWD/atomtreeviewcopyselectiontonewmoviecommand.cpp \
     $$PWD/atomtreeviewflattenhierarchycommand.cpp \
     $$PWD/atomtreeviewmakesupercellcommand.cpp \
     $$PWD/atomtreeviewchangechargecommand.cpp \
@@ -15,6 +16,7 @@ SOURCES += \
     $$PWD/atomtreeviewdropmovecommand.cpp \
     $$PWD/atomtreeviewinsertatomcommand.cpp \
     $$PWD/atomtreeviewinsertatomgroupcommand.cpp \
+    $$PWD/atomtreeviewmoveselectiontonewmoviecommand.cpp \
     $$PWD/bondchangeselectioncommand.cpp \
     $$PWD/bondlistviewdeleteselectioncommand.cpp \
     $$PWD/celltreewidgetchangestructurecommand.cpp \
@@ -38,6 +40,7 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/atomchangeselectioncommand.h \
+    $$PWD/atomtreeviewcopyselectiontonewmoviecommand.h \
     $$PWD/atomtreeviewflattenhierarchycommand.h \
     $$PWD/atomtreeviewmakesupercellcommand.h \
     $$PWD/atomtreeviewchangechargecommand.h \
@@ -51,6 +54,7 @@ HEADERS += \
     $$PWD/atomtreeviewdropmovecommand.h \
     $$PWD/atomtreeviewinsertatomcommand.h \
     $$PWD/atomtreeviewinsertatomgroupcommand.h \
+    $$PWD/atomtreeviewmoveselectiontonewmoviecommand.h \
     $$PWD/bondchangeselectioncommand.h \
     $$PWD/bondlistviewdeleteselectioncommand.h \
     $$PWD/celltreewidgetchangestructurecommand.h \

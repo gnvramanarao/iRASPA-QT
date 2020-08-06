@@ -46,6 +46,7 @@
 #include "crystalcylinderprimitive.h"
 #include "crystalpolygonalprismprimitive.h"
 
+class Movie;
 
 class iRASPAStructure: public std::enable_shared_from_this<iRASPAStructure>, public DisplayableProtocol
 {
@@ -70,9 +71,12 @@ public:
   inline void setStructure(std::shared_ptr<Structure> structure, iRASPAStructureType rawValue) {_structure = structure; _rawValue = rawValue;}
   static void swapRepresentedObjects(std::shared_ptr<iRASPAStructure> s1, std::shared_ptr<iRASPAStructure> s2);
   QString displayName() const override final;
+  void setParent(std::weak_ptr<Movie> parent) {_parent = parent;}
+  std::weak_ptr<Movie> parent() {return _parent;}
   virtual ~iRASPAStructure() {}
 protected:
   iRASPAStructureType _rawValue;
+  std::weak_ptr<Movie> _parent{};
   std::shared_ptr<Structure> _structure;
   QString _displayName = QString("structure");
 

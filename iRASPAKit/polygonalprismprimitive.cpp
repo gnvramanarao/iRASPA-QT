@@ -66,6 +66,11 @@ PolygonalPrismPrimitive::PolygonalPrismPrimitive(std::shared_ptr<Structure> s): 
   computeBonds();
 }
 
+std::shared_ptr<Structure> PolygonalPrismPrimitive::clone()
+{
+  return std::make_shared<PolygonalPrismPrimitive>(static_cast<const PolygonalPrismPrimitive&>(*this));
+}
+
 // MARK: Rendering
 // =====================================================================
 

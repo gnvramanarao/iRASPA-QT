@@ -62,7 +62,9 @@ public:
   QModelIndexList selectedIndexes();
 
   void deleteSelection(std::shared_ptr<Structure> structure, std::set<int> indexSet);
+  void deleteSelection(std::shared_ptr<Structure> structure, BondSelection selection);
   void insertSelection(std::shared_ptr<Structure> structure, std::vector<std::shared_ptr<SKAsymmetricBond>> bonds, std::set<int> indexSet);
+  void insertSelection(std::shared_ptr<Structure> structure, BondSelection selection);
 private:
   std::shared_ptr<iRASPAStructure> _iraspaStructure;
 signals:

@@ -676,6 +676,7 @@ bool AtomTreeViewModel::dropMimeData(const QMimeData *data, Qt::DropAction actio
   return true;
 }*/
 
+/*
 void AtomTreeViewModel::deleteSelection(std::shared_ptr<Structure> structure, std::vector<std::shared_ptr<SKAtomTreeNode>> atoms)
 {
   this->beginResetModel();
@@ -704,6 +705,37 @@ void AtomTreeViewModel::insertSelection(std::shared_ptr<Structure> structure, st
   for(std::shared_ptr<SKAtomTreeNode> atom : reversedAtoms)
   {
     structure->atomsTreeController()->insertNodeAtIndexPath(atom, reversedIndexPaths[index]);
+    structure->atomsTreeController()->selectedTreeNodes().insert(atom);
+    index++;
+  }
+  structure->atomsTreeController()->setTags();
+  this->endResetModel();
+}
+*/
+
+void AtomTreeViewModel::deleteSelection(std::shared_ptr<Structure> structure, AtomSelection selection)
+{
+  this->beginResetModel();
+
+  for(const auto [atomTreeNode, indexPath] : selection)
+  {
+    atomTreeNode->removeFromParent();
+  }
+  structure->atomsTreeController()->selectedTreeNodes().clear();
+  structure->atomsTreeController()->setTags();
+
+  this->endResetModel();
+}
+
+void AtomTreeViewModel::insertSelection(std::shared_ptr<Structure> structure, AtomSelection selection)
+{
+  this->beginResetModel();
+
+  int index=0;
+  for(const auto [atom, indexPath] : selection)
+  {
+    qDebug() << "Adding " << atom->representedObject()->displayName() << " at row: " << indexPath;
+    structure->atomsTreeController()->insertNodeAtIndexPath(atom, indexPath);
     structure->atomsTreeController()->selectedTreeNodes().insert(atom);
     index++;
   }

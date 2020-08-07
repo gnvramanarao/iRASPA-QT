@@ -72,7 +72,7 @@ struct SKAysmmetricBondCompare
         return (s1->atom1()->elementIdentifier() > s2->atom1()->elementIdentifier());
       }
     }
-} ;
+};
 
 std::vector<std::shared_ptr<SKBond>> SKBondSetController::getBonds()
 {
@@ -164,7 +164,44 @@ void SKBondSetController::setTags()
   }
 }
 
-std::vector<std::shared_ptr<SKAsymmetricBond>> SKBondSetController::selectedObjects()
+BondSelection SKBondSetController::selection() const
+{
+  BondSelection s;
+  for(int index: _selectedIndexSet)
+  {
+    s.push_back(std::make_pair(_arrangedObjects[index], index));
+  }
+  return s;
+}
+
+void  SKBondSetController::setSelection(BondSelection selection)
+{
+  _selectedIndexSet.clear();
+  for(const auto [bondItem, index] : selection)
+  {
+    _selectedIndexSet.insert(index);
+  }
+}
+
+void SKBondSetController::insertSelection(BondSelection selection)
+{
+  _selectedIndexSet.clear();
+  for(const auto [bondItem, index] : selection)
+  {
+    _arrangedObjects.insert(_arrangedObjects.begin() + index, bondItem);
+    _selectedIndexSet.insert(index);
+  }
+}
+
+void SKBondSetController::deleteBonds(BondSelection selection)
+{
+  for (const auto [bondItem, index] : selection)
+  {
+    _arrangedObjects.erase(_arrangedObjects.begin() + index);
+  }
+}
+
+std::vector<std::shared_ptr<SKAsymmetricBond>> SKBondSetController::selectedObjects() const
 {
   std::vector<std::shared_ptr<SKAsymmetricBond>> objects;
   for(int index: _selectedIndexSet)

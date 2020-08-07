@@ -31,23 +31,83 @@
 #include <QDebug>
 #include <algorithm>
 
-AtomTreeViewMoveSelectionToNewMovieCommand::AtomTreeViewMoveSelectionToNewMovieCommand(AtomTreeViewModel *model, std::shared_ptr<SceneList> sceneList,
-                                                                                       std::set<std::shared_ptr<SKAtomTreeNode>> atomTreeNodes,
+AtomTreeViewMoveSelectionToNewMovieCommand::AtomTreeViewMoveSelectionToNewMovieCommand(MainWindow *mainWindow,
+                                                                                       AtomTreeViewModel *atomTreeViewModel,
+                                                                                       BondListViewModel *bondListViewModel,
+                                                                                       SceneTreeViewModel *sceneTreeViewModel,
+                                                                                       std::shared_ptr<SceneList> sceneList,
+                                                                                       std::shared_ptr<iRASPAStructure> iraspaStructure,
+                                                                                       AtomSelection atomSelection,
+                                                                                       BondSelection bondSelection,
                                                                                        QUndoCommand *undoParent):
   QUndoCommand(undoParent),
-  _model(model),
+  _mainWindow(mainWindow),
+  _atomTreeViewModel(atomTreeViewModel),
+  _bondListViewModel(bondListViewModel),
+  _sceneTreeViewModel(sceneTreeViewModel),
   _sceneList(sceneList),
-  _atomTreeNodes(atomTreeNodes)
+  _iraspaStructure(iraspaStructure),
+  _atomSelection(atomSelection),
+  _reverseAtomSelection({}),
+  _bondSelection(bondSelection),
+  _sceneSelection(sceneList->allSelection()),
+  _scene(nullptr),
+  _newMovie(nullptr),
+  _row(0)
 {
   setText(QString("Move atoms to new movie"));
+
+  std::reverse_copy(std::begin(atomSelection), std::end(atomSelection), std::back_inserter(_reverseAtomSelection));
+  std::reverse_copy(std::begin(bondSelection), std::end(bondSelection), std::back_inserter(_reverseBondSelection));
 }
 
 void AtomTreeViewMoveSelectionToNewMovieCommand::redo()
 {
+  if(std::shared_ptr<Movie> movie = _iraspaStructure->parent().lock())
+  {
+    if((_scene = movie->parent().lock()))
+    {
+      _row = _scene->movies().size();
+      std::shared_ptr<Structure> newStructure = _iraspaStructure->structure()->clone();
+      newStructure->setSpaceGroupHallNumber(_iraspaStructure->structure()->spaceGroup().spaceGroupSetting().HallNumber());
+      std::shared_ptr<iRASPAStructure> newiRASPAStructure = std::make_shared<iRASPAStructure>(newStructure);
+      std::shared_ptr<Movie> _newMovie = Movie::create(newiRASPAStructure);
+      _newMovie->setSelectedFrame(newiRASPAStructure);
 
+      for(const auto [atomTreeNode, indexPath] : _atomSelection)
+      {
+        if(const std::shared_ptr<SKAsymmetricAtom> asymmetricAtom = atomTreeNode->representedObject())
+        {
+          std::shared_ptr<SKAsymmetricAtom> newAsymmetricAtom = std::make_shared<SKAsymmetricAtom>(*asymmetricAtom);
+          std::shared_ptr<SKAtomTreeNode> newAtomTreeNode = std::make_shared<SKAtomTreeNode>(newAsymmetricAtom);
+          newStructure->atomsTreeController()->appendToRootnodes(newAtomTreeNode);
+        }
+
+      }
+      newStructure->expandSymmetry();
+      newStructure->reComputeBoundingBox();
+      newStructure->computeBonds();
+
+      _bondListViewModel->deleteSelection(_iraspaStructure->structure(), _reverseBondSelection);
+      _atomTreeViewModel->deleteSelection(_iraspaStructure->structure(), _reverseAtomSelection);
+
+      _sceneTreeViewModel->insertRow(_row, _scene, _newMovie);
+      _sceneList->setSelection(_sceneSelection);
+
+      emit _atomTreeViewModel->rendererReloadData();
+      emit _sceneTreeViewModel->updateSelection();
+    }
+  }
 }
 
 void AtomTreeViewMoveSelectionToNewMovieCommand::undo()
 {
+  _sceneTreeViewModel->removeRow(_row, _scene, _newMovie);
 
+  _atomTreeViewModel->insertSelection(_iraspaStructure->structure(), _atomSelection);
+  _bondListViewModel->insertSelection(_iraspaStructure->structure(), _bondSelection);
+
+  emit _atomTreeViewModel->rendererReloadData();
+  _sceneList->setSelection(_sceneSelection);
+  emit _sceneTreeViewModel->updateSelection();
 }

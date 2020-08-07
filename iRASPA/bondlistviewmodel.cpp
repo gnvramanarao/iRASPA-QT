@@ -275,12 +275,34 @@ void BondListViewModel::deleteSelection(std::shared_ptr<Structure> structure, st
   this->endResetModel();
 }
 
+void BondListViewModel::deleteSelection(std::shared_ptr<Structure> structure, BondSelection selection)
+{
+  this->beginResetModel();
+
+  structure->bondSetController()->deleteBonds(selection);
+  structure->bondSetController()->selectionIndexSet().clear();
+  structure->bondSetController()->setTags();
+
+  this->endResetModel();
+}
+
 void BondListViewModel::insertSelection(std::shared_ptr<Structure> structure, std::vector<std::shared_ptr<SKAsymmetricBond>> bonds, std::set<int> indexSet)
 {
   this->beginResetModel();
 
   structure->bondSetController()->insertBonds(bonds, indexSet);
   structure->bondSetController()->selectionIndexSet().insert(indexSet.begin(), indexSet.end());
+  structure->bondSetController()->setTags();
+
+  this->endResetModel();
+}
+
+void BondListViewModel::insertSelection(std::shared_ptr<Structure> structure, BondSelection selection)
+{
+  this->beginResetModel();
+
+  structure->bondSetController()->insertSelection(selection);
+  //structure->bondSetController()->selectionIndexSet().insert(indexSet.begin(), indexSet.end());
   structure->bondSetController()->setTags();
 
   this->endResetModel();

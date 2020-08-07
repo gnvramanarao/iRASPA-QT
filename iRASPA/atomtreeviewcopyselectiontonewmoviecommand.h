@@ -36,6 +36,7 @@
 #include "indexpath.h"
 #include "symmetrykit.h"
 #include "mathkit.h"
+#include "skatomtreenode.h"
 #include "atomtreeviewmodel.h"
 #include "scenetreeviewmodel.h"
 
@@ -43,8 +44,8 @@ class AtomTreeViewCopySelectionToNewMovieCommand : public QUndoCommand
 {
 public:
   AtomTreeViewCopySelectionToNewMovieCommand(MainWindow *mainWindow, AtomTreeViewModel *atomTreeViewModel, SceneTreeViewModel *sceneTreeViewModel, std::shared_ptr<SceneList> sceneList,
-                                             std::shared_ptr<iRASPAStructure> iraspaStructure, std::set<std::shared_ptr<SKAtomTreeNode>> atomTreeNodes,
-                                             QUndoCommand *undoParent = nullptr);
+                                             std::shared_ptr<iRASPAStructure> iraspaStructure, AtomSelection atomSelection,
+                                             BondSelection bondSelection, QUndoCommand *undoParent = nullptr);
   void redo() override final;
   void undo() override final;
 private:
@@ -53,7 +54,8 @@ private:
   SceneTreeViewModel *_sceneTreeViewModel;
   std::shared_ptr<SceneList> _sceneList;
   std::shared_ptr<iRASPAStructure> _iraspaStructure;
-  std::set<std::shared_ptr<SKAtomTreeNode>> _atomTreeNodes;
+  AtomSelection _atomSelection;
+  BondSelection _bondSelection;
   std::shared_ptr<Scene> _scene;
   std::shared_ptr<Movie> _newMovie;
   int _row;

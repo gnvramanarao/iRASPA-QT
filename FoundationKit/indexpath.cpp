@@ -117,6 +117,10 @@ bool IndexPath::operator<( const IndexPath& otherObject ) const
   {
     return true;
   }
+  else if (l1 > l2)
+  {
+    return false;
+  }
   return false;
 }
 
@@ -137,14 +141,18 @@ bool IndexPath::operator>( const IndexPath& otherObject ) const
       return true;
     }
   }
-  if (l1 > l2)
+  if (l1 < l2)
+  {
+    return false;
+  }
+  else if (l1 > l2)
   {
     return true;
   }
   return false;
 }
 
-bool IndexPath::operator=( const IndexPath& otherObject ) const
+bool IndexPath::operator==( const IndexPath& otherObject ) const
 {
   size_t l1 = _path.size();
   size_t l2 = otherObject._path.size();
@@ -169,7 +177,7 @@ bool IndexPath::operator=( const IndexPath& otherObject ) const
   {
     return false;
   }
-  return true;
+  return false;
 }
 
 QDebug operator<<(QDebug debug, const IndexPath &c)

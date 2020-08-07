@@ -33,36 +33,37 @@
 
 AtomTreeViewDeleteSelectionCommand::AtomTreeViewDeleteSelectionCommand(std::shared_ptr<AtomTreeViewModel> atomTreeModel, std::shared_ptr<BondListViewModel> bondTreeModel,
                                                MainWindow *main_window, std::shared_ptr<Structure> structure,
-                                               std::vector<std::shared_ptr<SKAtomTreeNode>> atoms, std::vector<IndexPath> indexPaths,
-                                               std::vector<std::shared_ptr<SKAsymmetricBond>> bonds, std::set<int> bondSelection, QUndoCommand *parent):
+                                               AtomSelection atomSelection, BondSelection bondSelection, QUndoCommand *parent):
   _atomTreeModel(atomTreeModel),
   _bondTreeModel(bondTreeModel),
   _main_window(main_window),
   _structure(structure),
-  _atoms(atoms),
-  _indexPaths(indexPaths),
-  _bonds(bonds),
-  _bondSelection(bondSelection)
+  _atomSelection(atomSelection),
+  _bondSelection(bondSelection),
+  _reverseAtomSelection(),
+  _reverseBondSelection()
 {
   Q_UNUSED(parent);
 
   setText(QString("Delete atom selection"));
+
+  std::reverse_copy(std::begin(atomSelection), std::end(atomSelection), std::back_inserter(_reverseAtomSelection));
+  std::reverse_copy(std::begin(bondSelection), std::end(bondSelection), std::back_inserter(_reverseBondSelection));
 }
 
 void AtomTreeViewDeleteSelectionCommand::redo()
 {
   qDebug() << "Redoing";
-  qDebug() << "Deleting bonds: " << _bonds.size();
-  qDebug() << "Deleting atoms: " << _atoms.size();
+
 
   if(std::shared_ptr<BondListViewModel> bondListModel = _bondTreeModel.lock())
   {
-    bondListModel->deleteSelection(_structure, _bondSelection);
+    bondListModel->deleteSelection(_structure, _reverseBondSelection);
   }
 
   if(std::shared_ptr<AtomTreeViewModel> atomTreeModel = _atomTreeModel.lock())
   {
-    atomTreeModel->deleteSelection(_structure, _atoms);
+    atomTreeModel->deleteSelection(_structure, _reverseAtomSelection);
   }
 
   if(_main_window)
@@ -77,12 +78,12 @@ void AtomTreeViewDeleteSelectionCommand::undo()
 
   if(std::shared_ptr<AtomTreeViewModel> atomTreeModel = _atomTreeModel.lock())
   {
-    atomTreeModel->insertSelection(_structure, _atoms, _indexPaths);
+    atomTreeModel->insertSelection(_structure, _atomSelection);
   }
 
   if(std::shared_ptr<BondListViewModel> bondListModel = _bondTreeModel.lock())
   {
-    bondListModel->insertSelection(_structure, _bonds, _bondSelection);
+    bondListModel->insertSelection(_structure, _bondSelection);
   }
 
   if(_main_window)

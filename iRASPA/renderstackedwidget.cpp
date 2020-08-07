@@ -437,17 +437,10 @@ void RenderStackedWidget::deleteSelection()
           {
             for (std::shared_ptr<iRASPAStructure> iraspa_structure : projectStructure->sceneList()->allIRASPAStructures())
             {
-              std::vector<std::shared_ptr<SKAtomTreeNode>> atoms = iraspa_structure->structure()->atomsTreeController()->selectedAtomTreeNodes();
-              sort(atoms.begin(), atoms.end(), [](std::shared_ptr<SKAtomTreeNode> node1, std::shared_ptr<SKAtomTreeNode> node2) -> bool {
-                   return node1->indexPath() > node2->indexPath();});
-              std::vector<IndexPath> atomSelection;
-              std::transform(atoms.begin(),atoms.end(),std::back_inserter(atomSelection),[](std::shared_ptr<SKAtomTreeNode> node) -> IndexPath
-                        {return node->indexPath();});
-
-              std::vector<std::shared_ptr<SKAsymmetricBond>> bonds = iraspa_structure->structure()->bondSetController()->selectedObjects();
-              std::set<int> bondSelection = iraspa_structure->structure()->bondSetController()->selectionIndexSet();
+              AtomSelection atomSelection = iraspa_structure->structure()->atomsTreeController()->selection();
+              BondSelection bondSelection = iraspa_structure->structure()->bondSetController()->selection();
               RenderViewDeleteSelectionCommand *deleteSelectionCommand = new RenderViewDeleteSelectionCommand(_atomModel, _bondModel, _mainWindow,
-                                                                                    iraspa_structure->structure(), atoms, atomSelection, bonds, bondSelection);
+                                                                                    iraspa_structure->structure(), atomSelection, bondSelection);
               iRASPAProject->undoManager().push(deleteSelectionCommand);
             }
           }

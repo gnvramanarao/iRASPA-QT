@@ -30,11 +30,14 @@
 #pragma once
 
 #include <vector>
+#include <set>
+#include <tuple>
 #include <memory>
 #include <functional>
 #include <QDataStream>
 #include <optional>
 #include <foundationkit.h>
+#include "indexpath.h"
 #include "skasymmetricatom.h"
 
 class SKAtomTreeController;

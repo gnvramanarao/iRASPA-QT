@@ -416,20 +416,10 @@ void AtomTreeView::deleteSelection()
 {
   if(_iraspaStructure)
   {
-    std::shared_ptr<Structure> structure = _iraspaStructure->structure();
-    std::shared_ptr<SKAtomTreeController> atomTreeController = structure->atomsTreeController();
-    std::shared_ptr<SKBondSetController> bondSetController = structure->bondSetController();
-
-    std::vector<std::shared_ptr<SKAtomTreeNode>> atoms = atomTreeController->selectedAtomTreeNodes();
-    sort(atoms.begin(), atoms.end(), [](std::shared_ptr<SKAtomTreeNode> node1, std::shared_ptr<SKAtomTreeNode> node2) -> bool {
-                 return node1->indexPath() > node2->indexPath();});
-    std::vector<IndexPath> atomSelection;
-    std::transform(atoms.begin(),atoms.end(),std::back_inserter(atomSelection),[](std::shared_ptr<SKAtomTreeNode> node) -> IndexPath
-                      {return node->indexPath();});
-
-    std::vector<std::shared_ptr<SKAsymmetricBond>> bonds = bondSetController->selectedObjects();
-    std::set<int> bondSelection = bondSetController->selectionIndexSet();
-    AtomTreeViewDeleteSelectionCommand *deleteSelectionCommand = new AtomTreeViewDeleteSelectionCommand(_atomModel, _bondModel, _mainWindow, structure, atoms, atomSelection, bonds, bondSelection);
+    AtomSelection atomSelection = _iraspaStructure->structure()->atomsTreeController()->selection();
+    BondSelection bondSelection = _iraspaStructure->structure()->bondSetController()->selection();
+    AtomTreeViewDeleteSelectionCommand *deleteSelectionCommand = new AtomTreeViewDeleteSelectionCommand(_atomModel, _bondModel, _mainWindow,
+                                                                                                        _iraspaStructure->structure(), atomSelection, bondSelection);
     _iRASPAProject->undoManager().push(deleteSelectionCommand);
   }
 }
@@ -538,10 +528,11 @@ void AtomTreeView::copyToNewMovie()
         {
           if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
           {
-            std::set<std::shared_ptr<SKAtomTreeNode>> atomSelection = _iraspaStructure->structure()->atomsTreeController()->selectedTreeNodes();
+            AtomSelection atomSelection = _iraspaStructure->structure()->atomsTreeController()->selection();
+            BondSelection bondSelection = _iraspaStructure->structure()->bondSetController()->selection();
             AtomTreeViewCopySelectionToNewMovieCommand *newCopySelectionCommand = new AtomTreeViewCopySelectionToNewMovieCommand(_mainWindow,
                                                                                     _atomModel.get(), _sceneModel.get(), projectStructure->sceneList(),
-                                                                                    _iraspaStructure, atomSelection, nullptr);
+                                                                                    _iraspaStructure, atomSelection, bondSelection, nullptr);
             iRASPAProject->undoManager().push(newCopySelectionCommand);
           }
         }
@@ -552,7 +543,27 @@ void AtomTreeView::copyToNewMovie()
 
 void AtomTreeView::moveToNewMovie()
 {
-
+  if(_projectTreeNode)
+  {
+    if(_projectTreeNode->isEditable())
+    {
+      if(std::shared_ptr<iRASPAProject> iRASPAProject = _projectTreeNode->representedObject())
+      {
+        if(std::shared_ptr<Project> project = iRASPAProject->project())
+        {
+          if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
+          {
+            AtomSelection atomSelection = _iraspaStructure->structure()->atomsTreeController()->selection();
+            BondSelection bondSelection = _iraspaStructure->structure()->bondSetController()->selection();
+            AtomTreeViewMoveSelectionToNewMovieCommand *newMoveSelectionCommand = new AtomTreeViewMoveSelectionToNewMovieCommand(_mainWindow,
+                                                                                    _atomModel.get(), _bondModel.get(), _sceneModel.get(), projectStructure->sceneList(),
+                                                                                    _iraspaStructure, atomSelection, bondSelection, nullptr);
+            iRASPAProject->undoManager().push(newMoveSelectionCommand);
+          }
+        }
+      }
+    }
+  }
 }
 
 void AtomTreeView::ShowContextMenu(const QPoint &pos)
@@ -599,10 +610,10 @@ void AtomTreeView::ShowContextMenu(const QPoint &pos)
   subMenuSelection->addAction(&actionCopyToNewMovie);
   connect(&actionCopyToNewMovie, &QAction::triggered, this, &AtomTreeView::copyToNewMovie);
   QAction actionMoveToNewMovie("MoveToNewMovie", this);
-  actionMoveToNewMovie.setEnabled(false);
+  actionMoveToNewMovie.setEnabled(isEnabled);
   selectionGroup->addAction(&actionMoveToNewMovie);
   subMenuSelection->addAction(&actionMoveToNewMovie);
-  //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
+  connect(&actionMoveToNewMovie, &QAction::triggered, this, &AtomTreeView::moveToNewMovie);
 
   QMenu* subMenuVisibility = contextMenu.addMenu( "Visibility" );
   QActionGroup* visibilityGroup = new QActionGroup(this);

@@ -40,6 +40,7 @@
 #include "skasymmetricbond.h"
 #include "skatomtreecontroller.h"
 
+using BondSelection = std::vector<std::pair<std::shared_ptr<SKAsymmetricBond>, int>>;
 
 class SKBondSetController
 {
@@ -54,11 +55,15 @@ public:
   void insertBonds(std::vector<std::shared_ptr<SKAsymmetricBond> > bonds, std::set<int> indexSet);
   void deleteBonds(std::set<int> indexSet);
   std::set<int> &selectionIndexSet() {return _selectedIndexSet;}
-  std::vector<std::shared_ptr<SKAsymmetricBond>> selectedObjects();
+  std::vector<std::shared_ptr<SKAsymmetricBond>> selectedObjects() const;
   void setSelectedObjects(std::set<int> selection) {_selectedIndexSet = selection;}
   void addSelectedObjects(std::set<int> selection);
   void setTags();
   void correctBondSelectionDueToAtomSelection();
+  BondSelection selection() const;
+  void setSelection(BondSelection selection);
+  void deleteBonds(BondSelection selection);
+  void insertSelection(BondSelection selection);
 private:
   static qint64 _versionNumber;
   std::shared_ptr<SKAtomTreeController> _atomTreecontroller;

@@ -137,8 +137,8 @@ bool SKAtomTreeController::isDescendantOfNode(std::shared_ptr<SKAtomTreeNode> it
     {
       treeNode = treeNode->_parent.lock();
     }
-    return false;
   }
+  return false;
 }
 
 
@@ -265,6 +265,28 @@ void SKAtomTreeController::setTags()
 std::vector<std::shared_ptr<SKAtomTreeNode>> SKAtomTreeController::selectedAtomTreeNodes()
 {
   return std::vector<std::shared_ptr<SKAtomTreeNode>>(_selectedTreeNodes.begin(),_selectedTreeNodes.end());
+}
+
+// order: top treenode first, bottom last
+AtomSelection SKAtomTreeController::selection() const
+{
+  std::vector<std::pair<std::shared_ptr<SKAtomTreeNode>, IndexPath>> atoms{};
+  std::transform(_selectedTreeNodes.begin(),_selectedTreeNodes.end(),std::back_inserter(atoms),[](std::shared_ptr<SKAtomTreeNode> node) -> std::pair<std::shared_ptr<SKAtomTreeNode>, IndexPath>
+                    {return std::make_pair(node, node->indexPath());});
+
+  std::sort(atoms.begin(), atoms.end(), [](const std::pair<std::shared_ptr<SKAtomTreeNode>, IndexPath> &left, const std::pair<std::shared_ptr<SKAtomTreeNode>, IndexPath> &right) {
+      return left.second < right.second;
+  });
+
+  return atoms;
+}
+
+
+void SKAtomTreeController::setSelection(AtomSelection selection)
+{
+  _selectedTreeNodes.clear();
+  std::transform(selection.begin(), selection.end(), std::inserter(_selectedTreeNodes, _selectedTreeNodes.begin()),
+                 [](std::pair<std::shared_ptr<SKAtomTreeNode>, IndexPath> const& s) { return s.first; });
 }
 
 

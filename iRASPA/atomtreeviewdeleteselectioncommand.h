@@ -44,8 +44,8 @@ class AtomTreeViewDeleteSelectionCommand : public QUndoCommand
 {
 public:
   AtomTreeViewDeleteSelectionCommand(std::shared_ptr<AtomTreeViewModel> atomTreeModel, std::shared_ptr<BondListViewModel> bondTreeModel,
-                         MainWindow *main_window, std::shared_ptr<Structure> structure, std::vector<std::shared_ptr<SKAtomTreeNode>> atoms, std::vector<IndexPath> indexPaths,
-                         std::vector<std::shared_ptr<SKAsymmetricBond>> bonds, std::set<int> bondSelection, QUndoCommand *parent = nullptr);
+                         MainWindow *main_window, std::shared_ptr<Structure> structure,
+                         AtomSelection atomSelection, BondSelection bondSelection, QUndoCommand *parent = nullptr);
   void undo() override final;
   void redo() override final;
 private:
@@ -53,8 +53,8 @@ private:
   std::weak_ptr<BondListViewModel> _bondTreeModel;
   MainWindow *_main_window;
   std::shared_ptr<Structure> _structure;
-  std::vector<std::shared_ptr<SKAtomTreeNode>> _atoms;
-  std::vector<IndexPath> _indexPaths;
-  std::vector<std::shared_ptr<SKAsymmetricBond>> _bonds;
-  std::set<int> _bondSelection;
+  AtomSelection _atomSelection;
+  BondSelection _bondSelection;
+  AtomSelection _reverseAtomSelection;
+  BondSelection _reverseBondSelection;
 };

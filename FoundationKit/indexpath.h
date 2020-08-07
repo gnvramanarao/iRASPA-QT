@@ -50,7 +50,7 @@ public:
 
     bool operator<( const IndexPath& otherObject ) const;
     bool operator>( const IndexPath& otherObject ) const;
-    bool operator=( const IndexPath& otherObject ) const;
+    bool operator==( const IndexPath& otherObject ) const;
 private:
     std::vector<size_t> _path;
     friend QDebug operator<<(QDebug debug, const IndexPath &c);

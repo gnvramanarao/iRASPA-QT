@@ -28,7 +28,6 @@
  *************************************************************************************************************/
 
 #include "atomtreeviewcopyselectiontonewmoviecommand.h"
-#include "scenetreeviewdraganddropmovemoviesubcommand.h"
 #include <QDebug>
 #include <algorithm>
 
@@ -37,7 +36,8 @@ AtomTreeViewCopySelectionToNewMovieCommand::AtomTreeViewCopySelectionToNewMovieC
                                                                                        SceneTreeViewModel *sceneTreeViewModel,
                                                                                        std::shared_ptr<SceneList> sceneList,
                                                                                        std::shared_ptr<iRASPAStructure> iraspaStructure,
-                                                                                       std::set<std::shared_ptr<SKAtomTreeNode>> atomTreeNodes,
+                                                                                       AtomSelection atomSelection,
+                                                                                       BondSelection bondSelection,
                                                                                        QUndoCommand *undoParent):
   QUndoCommand(undoParent),
   _mainWindow(mainWindow),
@@ -45,7 +45,8 @@ AtomTreeViewCopySelectionToNewMovieCommand::AtomTreeViewCopySelectionToNewMovieC
   _sceneTreeViewModel(sceneTreeViewModel),
   _sceneList(sceneList),
   _iraspaStructure(iraspaStructure),
-  _atomTreeNodes(atomTreeNodes),
+  _atomSelection(atomSelection),
+  _bondSelection(bondSelection),
   _scene(nullptr),
   _newMovie(nullptr),
   _row(0)
@@ -66,7 +67,7 @@ void AtomTreeViewCopySelectionToNewMovieCommand::redo()
       std::shared_ptr<Movie> _newMovie = Movie::create(newiRASPAStructure);
       _newMovie->setSelectedFrame(newiRASPAStructure);
 
-      for(std::shared_ptr<SKAtomTreeNode> atomTreeNode : _atomTreeNodes)
+      for(const auto [atomTreeNode, indexPath] : _atomSelection)
       {
         if(const std::shared_ptr<SKAsymmetricAtom> asymmetricAtom = atomTreeNode->representedObject())
         {
@@ -81,6 +82,8 @@ void AtomTreeViewCopySelectionToNewMovieCommand::redo()
       newStructure->computeBonds();
 
       _sceneTreeViewModel->insertRow(_row, _scene, _newMovie);
+      _iraspaStructure->structure()->atomsTreeController()->setSelection(_atomSelection);
+      //_iraspaStructure->structure()->bondSetController()->setSelectedObjects(_bondSelection.first);
     }
   }
 }

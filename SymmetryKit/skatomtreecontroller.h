@@ -31,6 +31,7 @@
 
 #include <unordered_set>
 #include <vector>
+#include <utility>
 #include <optional>
 #include <foundationkit.h>
 #include "skelement.h"
@@ -39,6 +40,8 @@
 
 // inserting with nil as parent means inserting in the rootNodes
 // hiddenRooNode convenient for resursion of all nodes
+
+using AtomSelection = std::vector<std::pair< std::shared_ptr<SKAtomTreeNode>, IndexPath>>;
 
 class SKAtomTreeController
 {
@@ -75,6 +78,9 @@ public:
     void setTags();
 
     std::vector<std::shared_ptr<SKAtomTreeNode>> selectedAtomTreeNodes();
+
+    AtomSelection selection() const;
+    void setSelection(AtomSelection selection);
 private:
     qint64 _versionNumber{1};
     std::shared_ptr<SKAtomTreeNode> _hiddenRootNode{nullptr};

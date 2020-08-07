@@ -37,16 +37,32 @@
 #include "symmetrykit.h"
 #include "mathkit.h"
 #include "atomtreeviewmodel.h"
+#include "bondlistviewmodel.h"
+#include "scenetreeviewmodel.h"
 
 class AtomTreeViewMoveSelectionToNewMovieCommand : public QUndoCommand
 {
 public:
-  AtomTreeViewMoveSelectionToNewMovieCommand(AtomTreeViewModel *model, std::shared_ptr<SceneList> sceneList, std::set<std::shared_ptr<SKAtomTreeNode>> atomTreeNodes,
+  AtomTreeViewMoveSelectionToNewMovieCommand(MainWindow *mainWindow, AtomTreeViewModel *atomTreeViewModel, BondListViewModel *bondListViewModel,
+                                             SceneTreeViewModel *sceneTreeViewModel, std::shared_ptr<SceneList> sceneList,
+                                             std::shared_ptr<iRASPAStructure> iraspaStructure, AtomSelection atomSelection, BondSelection bondSelection,
                                              QUndoCommand *undoParent = nullptr);
   void redo() override final;
   void undo() override final;
 private:
-  AtomTreeViewModel *_model;
+  MainWindow *_mainWindow;
+  AtomTreeViewModel *_atomTreeViewModel;
+  BondListViewModel *_bondListViewModel;
+  SceneTreeViewModel *_sceneTreeViewModel;
   std::shared_ptr<SceneList> _sceneList;
-  std::set<std::shared_ptr<SKAtomTreeNode>> _atomTreeNodes;
+  std::shared_ptr<iRASPAStructure> _iraspaStructure;
+  AtomSelection _atomSelection;
+  AtomSelection _reverseAtomSelection;
+  BondSelection _bondSelection;
+  BondSelection _reverseBondSelection;
+  SceneListSelection _sceneSelection;
+  std::shared_ptr<Scene> _scene;
+  std::shared_ptr<Movie> _newMovie;
+  int _row;
 };
+

@@ -71,6 +71,7 @@ public:
   void dragMoveEvent(QDragMoveEvent *event) override final;
 
   std::shared_ptr<AtomTreeViewModel> atomModel() {return _atomModel;}
+  void deleteSelection();
 private:
   QRect _dropIndicatorRect;
   MainWindow* _mainWindow;
@@ -87,6 +88,7 @@ private:
   void makeSuperCell();
   void copyToNewMovie();
   void moveToNewMovie();
+  void invertSelection();
   void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override final;
   AtomTreeViewPushButtonStyledItemDelegate *pushButtonDelegate;
   SKAtomTreeNode* getItem(const QModelIndex &index) const;
@@ -95,9 +97,14 @@ private:
   void exportToCIF() const;
   void exportToXYZ() const;
   void exportToPOSCAR() const;
-  void deleteSelection();
+
+  void scrollToFirstSelected();
+  void scrollToLastSelected();
+  void visibilityMatchSelection();
+  void visibilityInvert();
 protected:
   void keyPressEvent(QKeyEvent *event) override final;
+  void mousePressEvent(QMouseEvent *e) override final;
 public slots:
   void ShowContextMenu(const QPoint &pos);
   void addAtom();

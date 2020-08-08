@@ -5,7 +5,6 @@ include(undocommands.pri)
 
 SOURCES += \
     $$PWD/appearanceprimitiveform.cpp \
-    $$PWD/atomtreeviewdecorationstyleditemdelegate.cpp \
     $$PWD/atomtreeviewpushbuttonstyleditemdelegate.cpp \
     $$PWD/bondlistpushbuttonstyleditemdelegate.cpp \
     $$PWD/bondlistviewcomboboxstyleditemdelegate.cpp \
@@ -78,7 +77,6 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/appearanceprimitiveform.h \
-    $$PWD/atomtreeviewdecorationstyleditemdelegate.h \
     $$PWD/atomtreeviewpushbuttonstyleditemdelegate.h \
     $$PWD/bondlistpushbuttonstyleditemdelegate.h \
     $$PWD/bondlistviewcomboboxstyleditemdelegate.h \

@@ -173,6 +173,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
   QObject::connect(ui->removeMovieToolButton, &QToolButton::pressed,ui->sceneTreeView, &SceneTreeView::deleteSelection);
 
   QObject::connect(ui->addAtomToolButton, &QToolButton::pressed, ui->atomTreeView, &AtomTreeView::addAtom);
+  QObject::connect(ui->removeAtomToolButton, &QToolButton::pressed, ui->atomTreeView, &AtomTreeView::deleteSelection);
+
 
   recheckRemovalButtons();
   updateMenuToProjectTab();
@@ -202,7 +204,13 @@ void MainWindow::recheckRemovalButtons()
   ui->removeElementToolButton->setDisabled(false);
 
   ui->addAtomToolButton->setDisabled(false);
-  ui->removeAtomToolButton->setDisabled(false);
+
+  ui->removeAtomToolButton->setDisabled(true);
+  if(ui->atomTreeView->model()->rowCount(QModelIndex())>0)
+  {
+    ui->removeAtomToolButton->setEnabled(true);
+  }
+
   ui->atomFilterLineEdit->setDisabled(false);
   ui->atomChargeLineEdit->setDisabled(false);
 }

@@ -41,18 +41,6 @@
 #include <QProxyStyle>
 #include <type_traits>
 
-struct Delegate: public QStyledItemDelegate {
-    Delegate(QObject* parent = nullptr) : QStyledItemDelegate(parent) {}
-    void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const {
-        QStyleOptionViewItem o = option;
-        initStyleOption(&o, index);
-        o.decorationSize.setWidth(o.rect.width());
-        auto style =  o.widget ? o.widget->style() : QApplication::style();
-        style->drawControl(QStyle::CE_ItemViewItem, &o, painter, o.widget);
-    }
-};
-
-
 BondListViewComboBoxStyledItemDelegate::BondListViewComboBoxStyledItemDelegate(QWidget *parent) : QStyledItemDelegate(parent), singleBondIcon(new QIcon(":/iRASPA/SingleBond.png"))
 {
   isOneCellInEditMode = false;
@@ -75,9 +63,8 @@ BondListViewComboBoxStyledItemDelegate::BondListViewComboBoxStyledItemDelegate(Q
   comboBox->addItem(*doubleBondIcon, QString(""));
   comboBox->addItem(*partialDoubleBondIcon, QString(""));
   comboBox->addItem(*tripleBondIcon, QString(""));
+  comboBox->setCurrentText("");
   comboBox->setCurrentIndex(0);
-  Delegate *itemDelegate = new Delegate(comboBox);
-  comboBox->setItemDelegate(itemDelegate);
 }
 
 void BondListViewComboBoxStyledItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
@@ -90,12 +77,21 @@ void BondListViewComboBoxStyledItemDelegate::paint(QPainter *painter, const QSty
 
   if(SKAsymmetricBond *asymmetricBond = static_cast<SKAsymmetricBond*>(index.internalPointer()))
   {
-    int value = static_cast<typename std::underlying_type<SKAsymmetricBond::SKBondType>::type>(asymmetricBond->getBondType());
     painter->save();
-    comboBox->setCurrentIndex(value);
+
     comboBox->resize(option.rect.size());
-    painter->translate(option.rect.topLeft());
-    comboBox->render(painter);
+
+    QStyleOptionComboBox comboBoxOption;
+    comboBoxOption.initFrom(comboBox);
+    comboBoxOption.rect = option.rect;
+
+    int value = static_cast<typename std::underlying_type<SKAsymmetricBond::SKBondType>::type>(asymmetricBond->getBondType());
+    comboBoxOption.currentIcon = comboBox->itemIcon(value);
+    comboBoxOption.iconSize = comboBox->iconSize();
+
+    comboBox->style()->drawComplexControl(QStyle::CC_ComboBox, &comboBoxOption, painter, nullptr);
+    comboBox->style()->drawControl(QStyle::CE_ComboBoxLabel, &comboBoxOption, painter, nullptr);
+
     painter->restore();
   }
 }

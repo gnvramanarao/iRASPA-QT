@@ -35,11 +35,11 @@
 #include "atomtreeviewinsertatomgroupcommand.h"
 #include "atomtreeviewdeleteselectioncommand.h"
 #include "atomchangeselectioncommand.h"
-#include "atomtreeviewdecorationstyleditemdelegate.h"
 #include "atomtreeviewmakesupercellcommand.h"
 #include "atomtreeviewflattenhierarchycommand.h"
 #include "atomtreeviewcopyselectiontonewmoviecommand.h"
 #include "atomtreeviewmoveselectiontonewmoviecommand.h"
+#include "atomtreeviewinvertselectioncommand.h"
 #include "skpdbwriter.h"
 #include "skcifwriter.h"
 #include "skmmcifwriter.h"
@@ -77,8 +77,6 @@ AtomTreeView::AtomTreeView(QWidget* parent): QTreeView(parent ), _atomModel(std:
 
   pushButtonDelegate = new AtomTreeViewPushButtonStyledItemDelegate(this);
   this->setItemDelegateForColumn(1, pushButtonDelegate);
-
-  this->setItemDelegateForColumn(0, new AtomTreeViewDecorationStyledItemDelegate(this));
 
   this->header()->setStretchLastSection(true);
   this->setColumnWidth(0,110);
@@ -187,6 +185,18 @@ void AtomTreeView::keyPressEvent(QKeyEvent *event)
     }
   }
   QTreeView::keyPressEvent(event);
+}
+
+void AtomTreeView::mousePressEvent(QMouseEvent *e)
+{
+  if(e->button() == Qt::MouseButton::RightButton)
+  {
+    return;
+  }
+  else
+  {
+     QTreeView::mousePressEvent(e);
+  }
 }
 
 
@@ -428,16 +438,22 @@ void AtomTreeView::addAtom()
 {
   if(_iraspaStructure)
   {
-    if(AtomTreeViewModel* pModel = qobject_cast<AtomTreeViewModel*>(model()))
+    AtomSelection atomSelection = _iraspaStructure->structure()->atomsTreeController()->selection();
+    if(atomSelection.empty())
     {
-      QModelIndex index = currentIndex();
-      QModelIndex parentIndex = index.isValid() ? index.parent() : QModelIndex();
-      int row = index.isValid() ? index.row() + 1 : pModel->rowCount(index);
-      SKAtomTreeNode *parentNode = pModel->nodeForIndex(parentIndex);
-
+      SKAtomTreeNode *parentNode = _iraspaStructure->structure()->atomsTreeController()->hiddenRootNode().get();
+      int row = parentNode->childCount();
       AtomTreeViewInsertAtomCommand *insertAtomCommand = new AtomTreeViewInsertAtomCommand(_mainWindow, this, _iraspaStructure->structure(), parentNode->shared_from_this(), row, nullptr);
       _iRASPAProject->undoManager().push(insertAtomCommand);
+      return;
     }
+
+    std::shared_ptr<SKAtomTreeNode> lastSelectedAtom = atomSelection.back().first;
+    SKAtomTreeNode *parentNode = lastSelectedAtom->parent().get();
+    int row = lastSelectedAtom->row() + 1;
+
+    AtomTreeViewInsertAtomCommand *insertAtomCommand = new AtomTreeViewInsertAtomCommand(_mainWindow, this, _iraspaStructure->structure(), parentNode->shared_from_this(), row, nullptr);
+    _iRASPAProject->undoManager().push(insertAtomCommand);
   }
 }
 
@@ -445,16 +461,22 @@ void AtomTreeView::addAtomGroup()
 {
   if(_iraspaStructure)
   {
-    if(AtomTreeViewModel* pModel = qobject_cast<AtomTreeViewModel*>(model()))
+    AtomSelection atomSelection = _iraspaStructure->structure()->atomsTreeController()->selection();
+    if(atomSelection.empty())
     {
-      QModelIndex index = currentIndex();
-      QModelIndex parentIndex = index.isValid() ? index.parent() : QModelIndex();
-      int row = index.isValid() ? index.row() + 1 : pModel->rowCount(index);
-      SKAtomTreeNode *parentNode = pModel->nodeForIndex(parentIndex);
-
+      SKAtomTreeNode *parentNode = _iraspaStructure->structure()->atomsTreeController()->hiddenRootNode().get();
+      int row = parentNode->childCount();
       AtomTreeViewInsertAtomGroupCommand *insertAtomCommand = new AtomTreeViewInsertAtomGroupCommand(_mainWindow, this, _iraspaStructure->structure(), parentNode->shared_from_this(), row, nullptr);
       _iRASPAProject->undoManager().push(insertAtomCommand);
+      return;
     }
+
+    std::shared_ptr<SKAtomTreeNode> lastSelectedAtom = atomSelection.back().first;
+    SKAtomTreeNode *parentNode = lastSelectedAtom->parent().get();
+    int row = lastSelectedAtom->row() + 1;
+
+    AtomTreeViewInsertAtomGroupCommand *insertAtomCommand = new AtomTreeViewInsertAtomGroupCommand(_mainWindow, this, _iraspaStructure->structure(), parentNode->shared_from_this(), row, nullptr);
+    _iRASPAProject->undoManager().push(insertAtomCommand);
   }
 }
 
@@ -566,6 +588,115 @@ void AtomTreeView::moveToNewMovie()
   }
 }
 
+
+void AtomTreeView::invertSelection()
+{
+  qDebug() << "Invert selection";
+  if(_projectTreeNode)
+  {
+    if(_projectTreeNode->isEditable())
+    {
+      if(std::shared_ptr<iRASPAProject> iRASPAProject = _projectTreeNode->representedObject())
+      {
+        if(std::shared_ptr<Project> project = iRASPAProject->project())
+        {
+          if (std::shared_ptr<ProjectStructure> projectStructure = std::dynamic_pointer_cast<ProjectStructure>(project))
+          {
+            AtomSelection atomSelection = _iraspaStructure->structure()->atomsTreeController()->selection();
+            BondSelection bondSelection = _iraspaStructure->structure()->bondSetController()->selection();
+            AtomTreeViewInvertSelectionCommand *newInvertSelectionCommand = new AtomTreeViewInvertSelectionCommand(_mainWindow,
+                                                                                    _iraspaStructure->structure(), atomSelection, bondSelection, nullptr);
+            iRASPAProject->undoManager().push(newInvertSelectionCommand);
+          }
+        }
+      }
+    }
+  }
+}
+
+void AtomTreeView::scrollToFirstSelected()
+{
+  if(_iraspaStructure)
+  {
+    AtomSelection selection = _iraspaStructure->structure()->atomsTreeController()->selection();
+    if(!selection.empty())
+    {
+      std::pair< std::shared_ptr<SKAtomTreeNode>, IndexPath> firstSelected = selection.front();
+      QModelIndex index = _atomModel->indexForNode(firstSelected.first.get());
+      scrollTo(index,EnsureVisible);
+    }
+  }
+}
+
+void AtomTreeView::scrollToLastSelected()
+{
+  if(_iraspaStructure)
+  {
+    AtomSelection selection = _iraspaStructure->structure()->atomsTreeController()->selection();
+    if(!selection.empty())
+    {
+      std::pair< std::shared_ptr<SKAtomTreeNode>, IndexPath> firstSelected = selection.back();
+      QModelIndex index = _atomModel->indexForNode(firstSelected.first.get());
+      scrollTo(index,EnsureVisible);
+    }
+  }
+}
+
+void AtomTreeView::visibilityMatchSelection()
+{
+  if(_projectTreeNode)
+  {
+    if(_projectTreeNode->isEditable())
+    {
+      if(_iraspaStructure)
+      {
+        std::vector<std::shared_ptr<SKAtomTreeNode>> flattenedNodes = _iraspaStructure->structure()->atomsTreeController()->flattenedLeafNodes();
+        std::vector<std::shared_ptr<SKAsymmetricAtom>> asymmetricAtoms{};
+
+        std::transform(flattenedNodes.begin(),flattenedNodes.end(), std::inserter(asymmetricAtoms, asymmetricAtoms.begin()),
+                           [](std::shared_ptr<SKAtomTreeNode> treeNode) -> std::shared_ptr<SKAsymmetricAtom>
+                           {return treeNode->representedObject();});
+        for(const std::shared_ptr<SKAsymmetricAtom> atom : asymmetricAtoms)
+        {
+          atom->setVisibility(false);
+        }
+
+        AtomSelection atomSelection = _iraspaStructure->structure()->atomsTreeController()->selection();
+        for(const auto [atom, indexPath] : atomSelection)
+        {
+          atom->representedObject()->setVisibility(true);
+        }
+        emit rendererReloadData();
+      }
+    }
+  }
+}
+
+void AtomTreeView::visibilityInvert()
+{
+  if(_projectTreeNode)
+  {
+    if(_projectTreeNode->isEditable())
+    {
+      if(_iraspaStructure)
+      {
+        std::vector<std::shared_ptr<SKAtomTreeNode>> flattenedNodes = _iraspaStructure->structure()->atomsTreeController()->flattenedLeafNodes();
+        std::vector<std::shared_ptr<SKAsymmetricAtom>> asymmetricAtoms{};
+
+        std::transform(flattenedNodes.begin(),flattenedNodes.end(), std::inserter(asymmetricAtoms, asymmetricAtoms.begin()),
+                           [](std::shared_ptr<SKAtomTreeNode> treeNode) -> std::shared_ptr<SKAsymmetricAtom>
+                           {return treeNode->representedObject();});
+        for(const std::shared_ptr<SKAsymmetricAtom> atom : asymmetricAtoms)
+        {
+          atom->toggleVisibility();
+        }
+
+        emit rendererReloadData();
+      }
+    }
+  }
+}
+
 void AtomTreeView::ShowContextMenu(const QPoint &pos)
 {
   QModelIndex index = indexAt(pos);
@@ -600,10 +731,10 @@ void AtomTreeView::ShowContextMenu(const QPoint &pos)
   QMenu* subMenuSelection = contextMenu.addMenu( "Selection" );
   QActionGroup* selectionGroup = new QActionGroup(this);
   QAction actionSelectionInvert("Invert", this);
-  actionSelectionInvert.setEnabled(false);
+  actionSelectionInvert.setEnabled(isEnabled);
   selectionGroup->addAction(&actionSelectionInvert);
   subMenuSelection->addAction(&actionSelectionInvert);
-  //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
+  connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
   QAction actionCopyToNewMovie("CopyToNewMovie", this);
   actionCopyToNewMovie.setEnabled(isEnabled);
   selectionGroup->addAction(&actionCopyToNewMovie);
@@ -618,38 +749,38 @@ void AtomTreeView::ShowContextMenu(const QPoint &pos)
   QMenu* subMenuVisibility = contextMenu.addMenu( "Visibility" );
   QActionGroup* visibilityGroup = new QActionGroup(this);
   QAction actionVisibilityMatchSelection("Match selection", this);
-  actionVisibilityMatchSelection.setEnabled(false);
+  actionVisibilityMatchSelection.setEnabled(isEnabled);
   visibilityGroup->addAction(&actionVisibilityMatchSelection);
   subMenuVisibility->addAction(&actionVisibilityMatchSelection);
-  //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
+  connect(&actionVisibilityMatchSelection, &QAction::triggered, this, &AtomTreeView::visibilityMatchSelection);
   QAction actionVisibilityInvert("Invert", this);
-  actionVisibilityInvert.setEnabled(false);
+  actionVisibilityInvert.setEnabled(isEnabled);
   visibilityGroup->addAction(&actionVisibilityInvert);
   subMenuVisibility->addAction(&actionVisibilityInvert);
-  //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
+  connect(&actionVisibilityInvert, &QAction::triggered, this, &AtomTreeView::visibilityInvert);
 
-  QMenu* subMenuScrollTo = contextMenu.addMenu( "Visibility" );
+  QMenu* subMenuScrollTo = contextMenu.addMenu( "Scroll to" );
   QActionGroup* scrollToGroup = new QActionGroup(this);
   QAction actionScrollToTop("Top", this);
-  actionScrollToTop.setEnabled(false);
+  actionScrollToTop.setEnabled(isEnabled);
   scrollToGroup->addAction(&actionScrollToTop);
   subMenuScrollTo->addAction(&actionScrollToTop);
-  //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
+  connect(&actionScrollToTop, &QAction::triggered, this, &AtomTreeView::scrollToTop);
   QAction actionScrollToBottom("Bottom", this);
-  actionScrollToBottom.setEnabled(false);
+  actionScrollToBottom.setEnabled(isEnabled);
   scrollToGroup->addAction(&actionScrollToBottom);
   subMenuScrollTo->addAction(&actionScrollToBottom);
-  //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
+  connect(&actionScrollToBottom, &QAction::triggered, this, &AtomTreeView::scrollToBottom);
   QAction actionScrollToFirstSelected("First selected", this);
-  actionScrollToFirstSelected.setEnabled(false);
+  actionScrollToFirstSelected.setEnabled(isEnabled);
   scrollToGroup->addAction(&actionScrollToFirstSelected);
   subMenuScrollTo->addAction(&actionScrollToFirstSelected);
-  //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
+  connect(&actionScrollToFirstSelected, &QAction::triggered, this, &AtomTreeView::scrollToFirstSelected);
   QAction actionScrollToLastSelected("Last selected", this);
-  actionScrollToLastSelected.setEnabled(false);
+  actionScrollToLastSelected.setEnabled(isEnabled);
   scrollToGroup->addAction(&actionScrollToLastSelected);
   subMenuScrollTo->addAction(&actionScrollToLastSelected);
-  //connect(&actionSelectionInvert, &QAction::triggered, this, &AtomTreeView::invertSelection);
+  connect(&actionScrollToLastSelected, &QAction::triggered, this, &AtomTreeView::scrollToLastSelected);
 
 
   QMenu* subMenuExport = contextMenu.addMenu( "Export to" );

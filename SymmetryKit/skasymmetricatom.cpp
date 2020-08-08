@@ -84,7 +84,10 @@ SKAsymmetricAtom::~SKAsymmetricAtom()
 {
 }
 
-
+void SKAsymmetricAtom::toggleVisibility()
+{
+  _isVisible = !_isVisible;
+}
 
 QDataStream &operator<<(QDataStream &stream, const std::shared_ptr<SKAsymmetricAtom> &asymmetricAtom)
 {

@@ -29,18 +29,30 @@
 
 #pragma once
 
-#include <QStyledItemDelegate>
-#include <QStylePainter>
-#include <QPushButton>
-#include <QSpinBox>
-#include <QToolButton>
-#include <QGraphicsView>
-#include "skatomtreenode.h"
+#include <QUndoCommand>
+#include <set>
+#include <vector>
+#include "iraspakit.h"
+#include "symmetrykit.h"
+#include "mathkit.h"
+#include "mainwindow.h"
+#include "skatomtreecontroller.h"
+#include "skbondsetcontroller.h"
+#include "renderstackedwidget.h"
 
-class AtomTreeViewDecorationStyledItemDelegate : public QStyledItemDelegate
+class AtomTreeViewInvertSelectionCommand : public QUndoCommand
 {
-  Q_OBJECT
 public:
-    AtomTreeViewDecorationStyledItemDelegate(QWidget* parent);
-    ~AtomTreeViewDecorationStyledItemDelegate();
+  AtomTreeViewInvertSelectionCommand(MainWindow *main_window, std::shared_ptr<Structure> structure,
+                         AtomSelection atomSelection, BondSelection bondSelection,
+                         QUndoCommand *parent = nullptr);
+  void undo() override final;
+  void redo() override final;
+private:
+  MainWindow *_main_window;
+  std::shared_ptr<Structure> _structure;
+  AtomSelection _atomSelection;
+  BondSelection _bondSelection;
+  AtomSelection _invertedAtomSelection;
+  BondSelection _invertedBondSelection;
 };

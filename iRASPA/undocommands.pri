@@ -4,6 +4,7 @@ SOURCES += \
     $$PWD/atomchangeselectioncommand.cpp \
     $$PWD/atomtreeviewcopyselectiontonewmoviecommand.cpp \
     $$PWD/atomtreeviewflattenhierarchycommand.cpp \
+    $$PWD/atomtreeviewinvertselectioncommand.cpp \
     $$PWD/atomtreeviewmakesupercellcommand.cpp \
     $$PWD/atomtreeviewchangechargecommand.cpp \
     $$PWD/atomtreeviewchangedisplaynamecommand.cpp \
@@ -42,6 +43,7 @@ HEADERS += \
     $$PWD/atomchangeselectioncommand.h \
     $$PWD/atomtreeviewcopyselectiontonewmoviecommand.h \
     $$PWD/atomtreeviewflattenhierarchycommand.h \
+    $$PWD/atomtreeviewinvertselectioncommand.h \
     $$PWD/atomtreeviewmakesupercellcommand.h \
     $$PWD/atomtreeviewchangechargecommand.h \
     $$PWD/atomtreeviewchangedisplaynamecommand.h \

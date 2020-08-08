@@ -74,7 +74,6 @@
      buttonOption.text = QString::number(atom->representedObject()->tag());
      buttonOption.state = atom->representedObject()->isFixed().x ? QStyle::State_On : QStyle::State_Off;
      buttonOption.rect = option.rect;
-     //buttonOption.rect.setWidth(option.rect.width());
      btn->style()->drawControl(QStyle::CE_PushButton, &buttonOption, painter, btn);
      painter->restore();
    }

@@ -72,6 +72,7 @@ public:
     qint64 tag() {return _tag;}
     void setTag(qint64 tag) {_tag = tag;}
     bool isVisible() {return _isVisible;}
+    void toggleVisibility();
     void setVisibility(bool visibility) {_isVisible = visibility;}
 
     QColor color() {return _color;}

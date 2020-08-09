@@ -84,6 +84,7 @@ void BondListViewComboBoxStyledItemDelegate::paint(QPainter *painter, const QSty
     QStyleOptionComboBox comboBoxOption;
     comboBoxOption.initFrom(comboBox);
     comboBoxOption.rect = option.rect;
+    comboBoxOption.state = option.state;
 
     int value = static_cast<typename std::underlying_type<SKAsymmetricBond::SKBondType>::type>(asymmetricBond->getBondType());
     comboBoxOption.currentIcon = comboBox->itemIcon(value);

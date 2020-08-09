@@ -25,6 +25,8 @@ SOURCES += \
     $$PWD/iraspatoolbar.cpp \
     $$PWD/mastertoolbar.cpp \
     $$PWD/cameratreewidgetcontroller.cpp \
+    $$PWD/savemoviedialog.cpp \
+    $$PWD/savepicturedialog.cpp \
     $$PWD/scenetreeview.cpp \
     $$PWD/framelistview.cpp \
     $$PWD/detailtabviewcontroller.cpp \
@@ -96,6 +98,8 @@ HEADERS += \
     $$PWD/iraspatoolbar.h \
     $$PWD/mastertoolbar.h \
     $$PWD/cameratreewidgetcontroller.h \
+    $$PWD/savemoviedialog.h \
+    $$PWD/savepicturedialog.h \
     $$PWD/scenetreeview.h \
     $$PWD/framelistview.h \
     $$PWD/detailtabviewcontroller.h \

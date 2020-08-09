@@ -27,33 +27,17 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
+#pragma once
 
-#include "importfiledialog.h"
+#include <QObject>
+#include <QWidget>
+#include <QFileDialog>
+#include <QTextBrowser>
+#include <QLayout>
 
-ImportFileDialog::ImportFileDialog(QWidget *parent) : QFileDialog(parent)
+class SavePictureDialog : public QFileDialog
 {
-  setWindowTitle("Import structures");
-  setOption(QFileDialog::DontUseNativeDialog);
-  setFileMode(QFileDialog::ExistingFiles);
-
-  setNameFilters(QStringList({"PDB or CIF files (*.cif *.pdb)","CIF files (*.cif)","PDB files (*.pdb)"}));
-  selectNameFilter(QString("PDB or CIF files (*.cif *.pdb)"));
-
-  checkboxSeperateProjects = new QCheckBox(this);
-  checkboxSeperateProjects->setText("As seperate projects");
-  layout()->addWidget(checkboxSeperateProjects);
-
-
-  QWidget* frame = new QWidget(this);
-  QHBoxLayout* horizontalLayout = new QHBoxLayout();
-  frame->setLayout(horizontalLayout);
-  checkboxOnlyAsymmetricUnitCell = new QCheckBox(frame);
-  checkboxOnlyAsymmetricUnitCell->setText("Only assymmetric unit");
-  horizontalLayout->addWidget(checkboxOnlyAsymmetricUnitCell);
-
-  checkboxImportAsMolecule = new QCheckBox(frame);
-  checkboxImportAsMolecule->setText("As molecule");
-  horizontalLayout->addWidget(checkboxImportAsMolecule);
-
-  layout()->addWidget(frame);
-}
+public:
+  SavePictureDialog(QWidget *parent);
+  QTextBrowser * _textBrowser;
+};

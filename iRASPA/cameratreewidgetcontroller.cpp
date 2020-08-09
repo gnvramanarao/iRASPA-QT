@@ -37,6 +37,8 @@
 #include <foundationkit.h>
 #include <textfield.h>
 #include "moviemaker.h"
+#include "savemoviedialog.h"
+#include "savepicturedialog.h"
 
 CameraTreeWidgetController::CameraTreeWidgetController(QWidget* parent): QTreeWidget(parent ),
     _cameraCameraForm(new CameraCameraForm),
@@ -1413,44 +1415,46 @@ void CameraTreeWidgetController::setMovieFramesPerSecond(int fps)
 
 void CameraTreeWidgetController::savePicture()
 {
-  QDir docsDir(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
-  QUrl pName = QUrl::fromLocalFile(docsDir.filePath("picture.png"));
-  QUrl fileURL = QFileDialog::getSaveFileUrl(this,tr("Save File"), pName,
-        tr("Images (*.png *.xpm *.jpg *.tiff)"));
+  SavePictureDialog dialog(this);
 
-  if(!fileURL.isValid())
+  if(dialog.exec() == QDialog::Accepted)
   {
-    return;
-  }
-  else
-  {
-    if(_project)
+    QList<QUrl> fileURLs = dialog.selectedUrls();
+    if(fileURLs.isEmpty())
     {
-      int width = _project->renderImageNumberOfPixels();
-      int height = _project->renderImageNumberOfPixels() / _project->imageAspectRatio();
-      emit rendererCreatePicture(fileURL, width, height);
+      return;
+    }
+    else
+    {
+      if(_project)
+      {
+        int width = _project->renderImageNumberOfPixels();
+        int height = _project->renderImageNumberOfPixels() / _project->imageAspectRatio();
+        emit rendererCreatePicture(fileURLs.first(), width, height);
+      }
     }
   }
 }
 
 void CameraTreeWidgetController::saveMovie()
 {
-  QDir docsDir(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
-  QUrl pName = QUrl::fromLocalFile(docsDir.filePath("movie.mp4"));
-  QUrl fileURL = QFileDialog::getSaveFileUrl(this,tr("Save File"), pName,
-        tr("Movies (*.mp4)"));
+  SaveMovieDialog dialog(this);
 
-  if(!fileURL.isValid())
+  if(dialog.exec() == QDialog::Accepted)
   {
-    return;
-  }
-  else
-  {
-    if(_project)
+    QList<QUrl> fileURLs = dialog.selectedUrls();
+    if(fileURLs.isEmpty())
     {
-      int width = _project->renderImageNumberOfPixels();
-      int height = _project->renderImageNumberOfPixels() / _project->imageAspectRatio();
-      emit rendererCreateMovie(fileURL, width, height, _movieType);
+      return;
+    }
+    else
+    {
+      if(_project)
+      {
+        int width = _project->renderImageNumberOfPixels();
+        int height = _project->renderImageNumberOfPixels() / _project->imageAspectRatio();
+        emit rendererCreateMovie(fileURLs.first(), width, height, _movieType);
+      }
     }
   }
 }

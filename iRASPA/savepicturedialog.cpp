@@ -27,33 +27,32 @@
  OTHER DEALINGS IN THE SOFTWARE.
  *************************************************************************************************************/
 
+#include <QStandardPaths>
+#include "savepicturedialog.h"
 
-#include "importfiledialog.h"
-
-ImportFileDialog::ImportFileDialog(QWidget *parent) : QFileDialog(parent)
+SavePictureDialog::SavePictureDialog(QWidget *parent) : QFileDialog(parent)
 {
-  setWindowTitle("Import structures");
+  setWindowTitle("Save picture");
   setOption(QFileDialog::DontUseNativeDialog);
-  setFileMode(QFileDialog::ExistingFiles);
+  setFileMode(QFileDialog::AnyFile);
+  setAcceptMode(QFileDialog::AcceptSave);
 
-  setNameFilters(QStringList({"PDB or CIF files (*.cif *.pdb)","CIF files (*.cif)","PDB files (*.pdb)"}));
-  selectNameFilter(QString("PDB or CIF files (*.cif *.pdb)"));
+  setNameFilters(QStringList({"PNG files (*.png)","TIFF files (*.tiff)", "Images (*.png *.xpm *.jpg *.tiff)"}));
+  selectNameFilter(QString("PNG files (*.png)"));
 
-  checkboxSeperateProjects = new QCheckBox(this);
-  checkboxSeperateProjects->setText("As seperate projects");
-  layout()->addWidget(checkboxSeperateProjects);
+  QDir desktopDir(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
+  setDirectory(desktopDir);
+  selectFile("picture.png");
 
+  QGridLayout* mainLayout = dynamic_cast <QGridLayout*>(this->layout());
 
-  QWidget* frame = new QWidget(this);
-  QHBoxLayout* horizontalLayout = new QHBoxLayout();
-  frame->setLayout(horizontalLayout);
-  checkboxOnlyAsymmetricUnitCell = new QCheckBox(frame);
-  checkboxOnlyAsymmetricUnitCell->setText("Only assymmetric unit");
-  horizontalLayout->addWidget(checkboxOnlyAsymmetricUnitCell);
+  _textBrowser = new QTextBrowser(this);
+  _textBrowser->setOpenExternalLinks(true);
+  _textBrowser->setHtml("For use in scientific publication, please cite:<br> "
+                        "D.Dubbeldam, S. Calero, and T.j.H. Vlugt,<br> "
+                        "<a href=\"http://dx.doi.org/10.1080/08927022.2018.1426855\">\"iRASPA, GPU-Accelerated Visualization Software for Materials Scientists\"</a><br> "
+                        "Mol. Simulat., DOI: 10.1080/08927022.2018.1426855, 2018.");
 
-  checkboxImportAsMolecule = new QCheckBox(frame);
-  checkboxImportAsMolecule->setText("As molecule");
-  horizontalLayout->addWidget(checkboxImportAsMolecule);
-
-  layout()->addWidget(frame);
+  int num_rows = mainLayout->rowCount();
+  mainLayout->addWidget(_textBrowser,num_rows,0,1,-1);
 }
